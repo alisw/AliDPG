@@ -19,33 +19,36 @@ const Char_t *SimulationName[kNSimulations] = {
   "Custom"
 };
 
-/*****************************************************************/
-
-static const Char_t *Ideal = "alien://Folder=/alice/simulation/2008/v4-15-Release/Ideal/";
-static const Char_t *Residual = "alien://Folder=/alice/simulation/2008/v4-15-Release/Residual/";
-static const Char_t *Full = "alien://Folder=/alice/simulation/2008/v4-15-Release/Full/";
 
 /*****************************************************************/
 
 SimulationConfig(AliSimulation &sim, ESimulation_t tag, Int_t run)
 {
 
+
   switch(tag) {
 
     // Default
   case kSimulationDefault:
     //
-    if (run < 222222) sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD");
-    else sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD AD");
+    // set OCDB snapshot mode
+    //    AliCDBManager *man = AliCDBManager::Instance();
+    //    man->SetDefaultStorage(Raw);
+    //    man->SetRun(runNumber);
+    //    man->SetSnapshotMode("OCDBsim.root");
+    sim.SetCDBSnapshotMode("OCDBsim.root");
+    //
+    if (run < 222222)
+      {
+	sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD");
+      }
+    else
+      {
+	sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD AD");
+      }
     sim.SetMakeDigitsFromHits("ITS TPC");
-    //  sim.SetRunHLT("");   // can't detect from GRP if HLT was running, off for safety now
+    //  sim.SetRunHLT(""); // can't detect from GRP if HLT was running, off for safety now 
     //
-    sim.SetDefaultStorage("alien://Folder=/alice/data/2015/OCDB");
-    //
-    SimulationConfigITS(sim, run);
-    SimulationConfigTPC(sim, run);
-    SimulationConfigMUON(sim, run);
-    SimulationConfigZDC(sim, run);
     SimulationConfigPHOS(sim, run);
     //
     sim.UseVertexFromCDB();
@@ -73,36 +76,36 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag, Int_t run)
 
 SimulationConfigITS(AliSimulation &sim, Int_t run)
 {
-  sim.SetSpecificStorage("ITS/Align/Data", Ideal);
-  sim.SetSpecificStorage("ITS/Calib/SPDSparseDead", Full); // only for PbPb ?
+  //  sim.SetSpecificStorage("ITS/Align/Data", Ideal);
+  //  sim.SetSpecificStorage("ITS/Calib/SPDSparseDead", Full); // only for PbPb ?
 }
 
 /*** TPC ****************************************************/
 
 SimulationConfigTPC(AliSimulation &sim, Int_t run)
 {
-  sim.SetSpecificStorage("TPC/Calib/Parameters",   Residual);
-  sim.SetSpecificStorage("TPC/Calib/ClusterParam", Residual);
-  sim.SetSpecificStorage("TPC/Calib/RecoParam",    Full);
-  sim.SetSpecificStorage("TPC/Calib/TimeGain",     Ideal);
-  sim.SetSpecificStorage("TPC/Calib/Correction",   Ideal);
-  sim.SetSpecificStorage("TPC/Align/Data",         Ideal);
-  sim.SetSpecificStorage("TPC/Calib/TimeDrift",    Ideal);
+  //  sim.SetSpecificStorage("TPC/Calib/Parameters",   Residual);
+  //  sim.SetSpecificStorage("TPC/Calib/ClusterParam", Residual);
+  //  sim.SetSpecificStorage("TPC/Calib/RecoParam",    Full);
+  //  sim.SetSpecificStorage("TPC/Calib/TimeGain",     Ideal);
+  //  sim.SetSpecificStorage("TPC/Calib/Correction",   Ideal);
+  //  sim.SetSpecificStorage("TPC/Align/Data",         Ideal);
+  //  sim.SetSpecificStorage("TPC/Calib/TimeDrift",    Ideal);
 }
 
 /*** MUON ****************************************************/
 
 SimulationConfigMUON(AliSimulation &sim, Int_t run)
 {
-  sim.SetSpecificStorage("MUON/Align/Data", Ideal);
+  //  sim.SetSpecificStorage("MUON/Align/Data", Ideal);
 }
 
 /*** ZDC ****************************************************/
 
 SimulationConfigZDC(AliSimulation &sim, Int_t run)
 {
-  sim.SetSpecificStorage("ZDC/Align/Data", Ideal);
-  sim.SetSpecificStorage("ZDC/Calib/Pedestals", Ideal); // only for PbPb ?
+  //  sim.SetSpecificStorage("ZDC/Align/Data", Ideal);
+  //  sim.SetSpecificStorage("ZDC/Calib/Pedestals", Ideal); // only for PbPb ?
 }
 
 /*** PHOS ****************************************************/
