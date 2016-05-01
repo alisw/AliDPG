@@ -31,10 +31,10 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag, Int_t run)
     //
     //    // set OCDB snapshot mode
     AliCDBManager *man = AliCDBManager::Instance();
-    //    man->SetDefaultStorage(Raw);
-    //    man->SetRun(runNumber);
-    //    man->SetSnapshotMode("OCDBrec.root");
-    rec.SetCDBSnapshotMode("OCDBrec.root");
+    man->SetDefaultStorage("alien://Folder=/alice/data/2015/OCDB");
+    man->SetRun(run);
+    man->SetSnapshotMode("OCDBrec.root");
+    //    rec.SetCDBSnapshotMode("OCDBrec.root");
     //
     rec.SetCleanESD(kFALSE);
     rec.SetStopOnError(kFALSE);
