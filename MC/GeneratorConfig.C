@@ -212,7 +212,7 @@ GeneratorEPOSLHC(TString system)
     TString fifoname = Form("/tmp/crmceventfifo%d", gRandom->Integer(kMaxInt));
     gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
     gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
-    gROOT->ProcessLine(Form(".! sh $ALIDPG_MC/EXTRA/gen_eposlhc_pp.sh %s %d %f %f &",
+    gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc_pp.sh %s %d %f %f &",
 			    fifoname.Data(), neventsConfig, beamEnergy, beamEnergy));
   }
   else {

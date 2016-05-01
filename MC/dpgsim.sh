@@ -95,8 +95,8 @@ CONFIG_MODE="simrec"
 
 RUNMODE=""
 
-if [ "$ALIDPG_MC" = "" ]; then
-    echo ">>>>> ERROR: ALIDPG_MC is not set!"
+if [ "$ALIDPG_ROOT" = "" ]; then
+    echo ">>>>> ERROR: ALIDPG_ROOT is not set!"
     exit
 fi
 
@@ -237,7 +237,7 @@ echo "SIMRUN:: Run $CONFIG_RUN | Unique-ID $CONFIG_UID | Generator $CONFIG_GENER
 
 if [ "$CONFIG_MODE" == "simrec" ] || [ "$CONFIG_MODE" = "sim" ]; then
     SIMSTART=`date "+%s"`
-    runcommand "SIMULATION" "$ALIDPG_MC/sim.C" sim.log 5
+    runcommand "SIMULATION" "$ALIDPG_ROOT/MC/sim.C" sim.log 5
     mv syswatch.log simwatch.log
     SIMEND=`date "+%s"`
     echo "SIMTIME: $((SIMEND-SIMSTART))"
@@ -247,7 +247,7 @@ runBenchmark
 
 if [ "$CONFIG_MODE" == "simrec" ] || [ "$CONFIG_MODE" = "rec" ]; then
     RECSTART=`date "+%s"`
-    runcommand "RECONSTRUCTION" "$ALIDPG_MC/rec.C" rec.log 10
+    runcommand "RECONSTRUCTION" "$ALIDPG_ROOT/MC/rec.C" rec.log 10
     mv syswatch.log recwatch.log
     RECEND=`date "+%s"`
     echo "RECTIME: $((RECEND-RECSTART))"

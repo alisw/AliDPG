@@ -7,8 +7,8 @@ Usage() {
 
 if [ $# -lt 1 ] ; then Usage ;fi
 
-if [ "$ALIDPG_MC" = "" ]; then
-    echo ">>>>> ERROR: ALIDPG_MC is not set!"
+if [ "$ALIDPG_ROOT" = "" ]; then
+    echo ">>>>> ERROR: ALIDPG_ROOT is not set!"
     exit
 fi
 

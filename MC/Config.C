@@ -26,8 +26,8 @@ Config()
 {
 
   /* initialise */
-  gROOT->LoadMacro("$ALIDPG_MC/DetectorConfig.C");
-  gROOT->LoadMacro("$ALIDPG_MC/GeneratorConfig.C");
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/DetectorConfig.C");
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/GeneratorConfig.C");
   ProcessEnvironment();
 
   /* verbose */

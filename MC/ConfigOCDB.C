@@ -30,7 +30,7 @@ void ConfigOCDB(Int_t run, Bool_t sim)
     SetSpecificStorageRec(man, run);
 
   // create snapshot
-  gROOT->LoadMacro("$ALIDPG_MC/CreateSnapshot.C");
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/CreateSnapshot.C");
   if (sim)
     CreateSnapshot("OCDBsim.root");
   else

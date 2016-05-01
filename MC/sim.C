@@ -26,7 +26,7 @@ void sim()
     nev = atoi(gSystem->Getenv("CONFIG_NEVENTS"));
 
   // simulation configuration
-  gROOT->LoadMacro("$ALIDPG_MC/SimulationConfig.C");
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/SimulationConfig.C");
   Int_t simulationConfig = kSimulationDefault;
   if (gSystem->Getenv("CONFIG_SIMULATION")) {
     Bool_t valid = kFALSE;
@@ -43,7 +43,7 @@ void sim()
   }
 
   /* initialisation */
-  AliSimulation sim("$ALIDPG_MC/Config.C");
+  AliSimulation sim("$ALIDPG_ROOT/MC/Config.C");
 
   /* configuration */
   SimulationConfig(sim, simulationConfig, runNumber);
