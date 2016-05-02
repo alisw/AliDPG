@@ -32,11 +32,11 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag, Int_t run)
   case kSimulationDefault:
     //
     // set OCDB snapshot mode
-    AliCDBManager *man = AliCDBManager::Instance();
-    man->SetDefaultStorage("alien://Folder=/alice/data/2015/OCDB");
-    man->SetRun(run);
-    man->SetSnapshotMode("OCDBsim.root");
-    //    sim.SetCDBSnapshotMode("OCDBsim.root");
+    //    AliCDBManager *man = AliCDBManager::Instance();
+    //    man->SetDefaultStorage("alien://Folder=/alice/data/2015/OCDB");
+    //    man->SetRun(run);
+    //    man->SetSnapshotMode("OCDBsim.root");
+    sim.SetCDBSnapshotMode("OCDBsim.root");
     //
     if (run < 222222)
       {
