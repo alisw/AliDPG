@@ -1,0 +1,33 @@
+*******************************************************
+* AliDPG - ALICE Experiment Data Preparation Group
+*     MC - Monte Carlo simulation central production
+*******************************************************
+
+This set of macros and scripts are meant to steer and
+configure centralised productions of Monte Carlo (MC)
+simulation events for the needs of the ALICE experiment
+at the LHC. The documentation is and will be scarse as
+the task of configuring, validating and running MC
+simulations centrally for ALICE is perfomed by the
+experts and with the supervision and agreement of the
+DPG group. Nonetheless, here is a minumal information
+of how MC productions are handled by this framework and
+how the several files interrelate one to another.
+
+*******************************************************
+* Code flow
+*******************************************************
+
+# createSnapshots.sh			[OCDB snapshot steering script]
+  --> ConfigOCDB.C			[OCDB snapshot configuration]
+      --> CreateSnapshot.C		[OCDB snapshot generation]
+
+# dpgsim.sh				[production steering]
+  --> sim.C				[simulation steering]
+      --> SimulationConfig.C	 	[simulation configuration]
+      --> Config.C		 	[main configuration]
+          --> DetectorConfig.C	 	[detector configuration]
+	  --> GeneratorConfig.C	 	[generator configuration]
+  --> rec.C   				[reconstruction steering]
+      --> ReconstructionConfig.C	[reconstruction configuration]
+
