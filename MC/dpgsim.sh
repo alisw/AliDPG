@@ -95,11 +95,6 @@ CONFIG_MODE="simrec"
 
 RUNMODE=""
 
-if [ "$ALIDPG_ROOT" = "" ]; then
-    echo ">>>>> ERROR: ALIDPG_ROOT is not set!"
-    exit
-fi
-
 while [ ! -z "$1" ]; do
     option="$1"
     shift
