@@ -253,12 +253,8 @@ DetectorDefault(Int_t run)
       // New MUONv1 version (geometry defined via builders)
       AliMUON *MUON = new AliMUONv1("MUON", "default");
       // activate trigger efficiency by cells
-      if (run < 222222) {
-	MUON->SetTriggerEffCells(1);
-      }
-      else {
-	MUON->SetTriggerResponseV1(2);
-      }
+      MUON->SetTriggerEffCells(1); // backward compatibility
+      MUON->SetTriggerResponseV1(2); // backward compatibility
     }
 
   if (iPHOS)
