@@ -6,6 +6,10 @@ test_Pythia8: clean
 	./createSnapshots.sh 225106
 	./dpgsim.sh --run 225106 --uid 1 --generator Pythia8 --simulation Default --reconstruction Default --nevents 2 --mode simrec 
 
+test_Rsn001: clean
+	./createSnapshots.sh 225106
+	./dpgsim.sh --run 225106 --uid 1 --generator Pythia8_Monash2013_Rsn001 --simulation Default --reconstruction Default --nevents 2 --mode simrec 
+
 test_Pythia6: clean
 	./createSnapshots.sh 225106
 	./dpgsim.sh --run 225106 --uid 1 --generator Pythia6 --simulation Default --reconstruction Default --nevents 2 --mode simrec 

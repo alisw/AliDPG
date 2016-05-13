@@ -163,16 +163,6 @@ LoadLibraries()
   gSystem->Load("libgeant321");
   gSystem->Load("libpythia6_4_25");
   gSystem->Load("libAliPythia6");
-  // pythia8 libraries
-  if (generatorConfig == kGeneratorPythia8_Monash2013) {
-    gSystem->Load("libpythia8.so");
-    gSystem->Load("libAliPythia8.so");
-  }
-  // hijing libraries
-  if (generatorConfig == kGeneratorHijing) {
-    gSystem->Load("libHIJING");
-    gSystem->Load("libTHijing");
-  }
 
 }
 

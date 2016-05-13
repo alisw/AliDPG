@@ -81,11 +81,11 @@ GeneratorConfig(Int_t tag, Int_t run)
     
     // Pythia8 (Monash2013) - Rsn001
   case kGeneratorPythia8_Monash2013_Rsn001:
-    Int_t inj[4] = {225, 3124, -3124, 9010221}; // injected f2(1270), Lambda(1520)+ap, f0(980)
-    Int_t pdg = inj[gRandom->Integer(4)]; // randomly select one of the above pdg codes
-    AliGenerator *inj = GeneratorInjector(1, pdg, 0., 10., -0.6, 0.6);
-    AliGenerator *py8 = GeneratorPythia8(kMonash2013);
-    AliGenerator *ctl = new AliGenCocktail();
+    Int_t pdglist[4] = {225, 3124, -3124, 9010221}; // injected f2(1270), Lambda(1520)+ap, f0(980)
+    Int_t pdg = pdglist[gRandom->Integer(4)]; // randomly select one of the above pdg codes
+    AliGenerator   *py8 = GeneratorPythia8(kMonash2013);
+    AliGenerator   *inj = GeneratorInjector(1, pdg, 0., 10., -0.6, 0.6);
+    AliGenCocktail *ctl = new AliGenCocktail();
     ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
     ctl->AddGenerator(inj, "Injector (Rsn001)", 1.);
     gen = ctl;
@@ -166,6 +166,8 @@ GeneratorPythia8(Int_t tune, Int_t ntrig, Int_t *trig)
 {
   //
   // Libraries
+  gSystem->Load("libpythia8.so");
+  gSystem->Load("libAliPythia8.so");
   //
   //
   comment = comment.Append(" pp: Pythia8 low-pt");
@@ -253,6 +255,11 @@ GeneratorEPOSLHC(TString system)
 AliGenerator * 
 GeneratorHijing()
 {
+  //
+  // Libraries
+  gSystem->Load("libHIJING");
+  gSystem->Load("libTHijing");
+
   comment = comment.Append(" PbPb: HIJING");
   AliGenHijing *gener = new AliGenHijing(-1);
   // centre of mass energy
@@ -284,7 +291,8 @@ GeneratorHijing()
 AliGenerator * 
 GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax)
 {
-  comment = comment.Append(Form(" | %s injected (%dx)", DatabasePDG::Instance()->GetParticle(pdg)->GetName()), ninj);
+  
+  comment = comment.Append(Form(" | injected (pdg=%d, %d particles)", pdg, ninj));
   //
   // Injected particles
   AliGenBox *box = new AliGenBox(ninj);
@@ -292,5 +300,5 @@ GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t y
   box->SetPtRange(ptmin, ptmax);
   box->SetYRange(ymin, ymax);
   box->SetPhiRange(0., 360.);
-  return box
+  return box;
 }
