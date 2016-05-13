@@ -10,11 +10,17 @@ enum EGenerator_t {
   kGeneratorPythia6_Perugia2011,
   kGeneratorPythia8,
   kGeneratorPythia8_Monash2013,
+  kGeneratorPythia8_Monash2013_Rsn001, // [ALIROOT-6685]
   kGeneratorPhojet,
   kGeneratorEPOSLHC_pp,
   kGeneratorHijing,
   kGeneratorCustom,
   kNGenerators
+};
+
+enum EPythiaTune_t {
+  kPerugia2011 = 350,
+  kMonash2013  = 14
 };
 
 const Char_t *GeneratorName[kNGenerators] = {
@@ -23,6 +29,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Pythia6_Perugia2011",
   "Pythia8",
   "Pythia8_Monash2013",
+  "Pythia8_Monash2013_Rsn001",
   "Phojet",
   "EPOSLHC_pp",
   "Hijing",
@@ -34,6 +41,7 @@ const Char_t *GeneratorName[kNGenerators] = {
 /*****************************************************************/
 
 // functions
+AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax); 
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPhojet();
@@ -62,15 +70,27 @@ GeneratorConfig(Int_t tag, Int_t run)
     // Pythia6 (Perugia2011)
   case kGeneratorPythia6:
   case kGeneratorPythia6_Perugia2011:
-    gen = GeneratorPythia6(350);
+    gen = GeneratorPythia6(kPerugia2011);
     break;
 
     // Pythia8 (Monash2013)
   case kGeneratorPythia8:
   case kGeneratorPythia8_Monash2013:
-    gen = GeneratorPythia8(14);
+    gen = GeneratorPythia8(kMonash2013);
     break;
-
+    
+    // Pythia8 (Monash2013) - Rsn001
+  case kGeneratorPythia8_Monash2013_Rsn001:
+    Int_t inj[4] = {225, 3124, -3124, 9010221}; // injected f2(1270), Lambda(1520)+ap, f0(980)
+    Int_t pdg = inj[gRandom->Integer(4)]; // randomly select one of the above pdg codes
+    AliGenerator *inj = GeneratorInjector(1, pdg, 0., 10., -0.6, 0.6);
+    AliGenerator *py8 = GeneratorPythia8(kMonash2013);
+    AliGenerator *ctl = new AliGenCocktail();
+    ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
+    ctl->AddGenerator(inj, "Injector (Rsn001)", 1.);
+    gen = ctl;
+    break;
+    
     // Phojet
   case kGeneratorPhojet:
     gen = GeneratorPhojet();
@@ -228,7 +248,7 @@ GeneratorEPOSLHC(TString system)
   return gener;
 }
 
-/*** EPOSLHC ****************************************************/
+/*** HIJING ****************************************************/
 
 AliGenerator * 
 GeneratorHijing()
@@ -259,3 +279,18 @@ GeneratorHijing()
   return gener;
 }
 
+/*** INJECTOR ****************************************************/
+
+AliGenerator * 
+GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax)
+{
+  comment = comment.Append(Form(" | %s injected (%dx)", DatabasePDG::Instance()->GetParticle(pdg)->GetName()), ninj);
+  //
+  // Injected particles
+  AliGenBox *box = new AliGenBox(ninj);
+  box->SetPart(pdg);
+  box->SetPtRange(ptmin, ptmax);
+  box->SetYRange(ymin, ymax);
+  box->SetPhiRange(0., 360.);
+  return box
+}
