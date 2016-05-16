@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # set job and simulation variables as :
-COMMAND_HELP="./simrun.sh  --run <runNumber> --generator <generatorConfig> --energy <energy> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --mode <simrunMode>"
+COMMAND_HELP="./dpgsim.sh  --run <runNumber> --generator <generatorConfig> --energy <energy> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --mode <simrunMode>"
 
 function runcommand(){
     echo -e "\n"
@@ -9,9 +9,12 @@ function runcommand(){
 
     echo "* $1 : $2"
     echo "* $1 : $2" >&2
-    
+
+    START=`date "+%s"`
     time aliroot -b -q -x $2 >>$3 2>&1
     exitcode=$?
+    END=`date "+%s"`
+    echo "$1 TIME: $((QAEND-QASTART))"
     
     expectedCode=${5-0}
     
@@ -24,6 +27,7 @@ function runcommand(){
         echo "* $2 finished with the expected exit code ($expectedCode), moving on"
         echo "* $2 finished with the expected exit code ($expectedCode), moving on" >&2
     fi
+
 }
 
 function runBenchmark(){
@@ -88,10 +92,10 @@ CONFIG_PTHARDMIN=""
 CONFIG_PTHARDMAX=""
 CONFIG_QUENCHING=""
 CONFIG_RUN=""
-CONFIG_UID=""
+CONFIG_UID="1"
 CONFIG_SIMULATION=""
 CONFIG_RECONSTRUCTION=""
-CONFIG_MODE="simrec"
+CONFIG_MODE="full"
 
 RUNMODE=""
 
@@ -165,18 +169,6 @@ while [ ! -z "$1" ]; do
     fi
 done
 
-if [ "$CONFIG_RUN" = "" ]; then
-    echo ">>>>> ERROR: run number is required!"
-    echo $COMMAND_HELP
-    exit
-fi
-
-if [ "$CONFIG_GENERATOR" = "" ]; then
-    echo ">>>>> ERROR: generator is required!"
-    echo $COMMAND_HELP
-    exit
-fi
-
 DC_RUN=$CONFIG_RUN
 DC_EVENT=$CONFIG_UID
 export DC_RUN DC_EVENT
@@ -184,19 +176,15 @@ export DC_RUN DC_EVENT
 CONFIG_SEED=$((ALIEN_PROC_ID%1000000000))
 if [ "$CONFIG_SEED" -eq 0 ]; then
     CONFIG_SEED=$(((CONFIG_RUN*100000+CONFIG_UID)%1000000000))
-    echo "* MC Seed is $CONFIG_SEED (based on run / unique-id : $CONFIG_RUN / $CONFIG_UID)"
+    CONFIG_SEED_BASED="run / unique-id : $CONFIG_RUN / $CONFIG_UID"
 else
-    echo "* MC Seed is $CONFIG_SEED (based on AliEn job ID)"
+    CONFIG_SEED_BASED="AliEn job ID"
 fi
 export CONFIG_SEED
 
 if [ "$CONFIG_SEED" -eq 0 ]; then
     echo "*!  WARNING! Seeding variable for MC is 0 !" >&2
 fi
-
-echo "* b min is $CONFIG_BMIN"
-echo "* b max is $CONFIG_BMAX"
-echo "* pt hard bin is $CONFIG_PTHARDBIN"
 
 if [ ! -z "$CONFIG_PTHARDBIN" ]; then
     # Define environmental vars for pt binning
@@ -212,8 +200,6 @@ mv galice.root ./input/galice.root
 mv Kinematics.root ./input/Kinematics.root
 ls input
 
-#export CONFIG_SEED CONFIG_NEVENTS CONFIG_GENERATOR CONFIG_MAGNET CONFIG_ENERGY CONFIG_DETECTOR CONFIG_PHYSICSLIST CONFIG_BMIN CONFIG_BMAX CONFIG_PTHARDBIN CONFIG_PTHARDMIN CONFIG_PTHARDMAX CONFIG_RUN CONFIG_UID DC_RUN DC_EVENT
-
 export ALIMDC_RAWDB1="./mdc1"
 export ALIMDC_RAWDB2="./mdc2"
 export ALIMDC_TAGDB="./mdc1/tag"
@@ -228,67 +214,146 @@ if [ -f "$G4INSTALL/bin/geant4.sh" ]; then
     source $G4INSTALL/bin/geant4.sh
 fi
 
-echo "SIMRUN:: Run $CONFIG_RUN | Unique-ID $CONFIG_UID | Generator $CONFIG_GENERATOR | Magnetic field $CONFIG_MAGNET | Energy $CONFIG_ENERGY | Physicslist $CONFIG_PHYSICSLIST | Number of Events $CONFIG_NEVENTS | Simulation $CONFIG_SIMULATION | Reconstruction $CONFIG_RECONSTRUCTION | Mode $CONFIG_MODE | "
+echo
+echo "============================================"
+echo " DPGSIM"
+echo "============================================"
+echo "Mode............$CONFIG_MODE"
+echo "Run.............$CONFIG_RUN"
+echo "Unique-ID.......$CONFIG_UID"
+echo "MC seed.........$CONFIG_SEED (based on $CONFIG_SEED_BASED)"
+echo "Generator.......$CONFIG_GENERATOR"
+echo "No. Events......$CONFIG_NEVENTS"
+echo "Energy..........$CONFIG_ENERGY"
+echo "Simulation......$CONFIG_SIMULATION"
+echo "Reconstruction..$CONFIG_RECONSTRUCTION"
+echo "B-field.........$CONFIG_MAGNET"
+echo "Physicslist.....$CONFIG_PHYSICSLIST"
+echo "b-min...........$CONFIG_BMIN"
+echo "b-max...........$CONFIG_BMAX"
+echo "pT hard bin.....$CONFIG_PTHARDBIN"
+echo "============================================"
+echo
 
-if [ "$CONFIG_MODE" == "simrec" ] || [ "$CONFIG_MODE" = "sim" ]; then
-    SIMSTART=`date "+%s"`
-    runcommand "SIMULATION" "$ALIDPG_ROOT/MC/sim.C" sim.log 5
-    mv syswatch.log simwatch.log
-    SIMEND=`date "+%s"`
-    echo "SIMTIME: $((SIMEND-SIMSTART))"
+### check basic requirememts
+
+if [[ $CONFIG_MODE == "" ]]; then
+    echo ">>>>> ERROR: mode is required!"
+    echo $COMMAND_HELP
+    exit 2
 fi
 
-runBenchmark
-
-if [ "$CONFIG_MODE" == "simrec" ] || [ "$CONFIG_MODE" = "rec" ]; then
-    RECSTART=`date "+%s"`
-    runcommand "RECONSTRUCTION" "$ALIDPG_ROOT/MC/rec.C" rec.log 10
-    mv syswatch.log recwatch.log
-    RECEND=`date "+%s"`
-    echo "RECTIME: $((RECEND-RECSTART))"
+if [[ $CONFIG_RUN == "" ]]; then
+    echo ">>>>> ERROR: run number is required!"
+    echo $COMMAND_HELP
+    exit 2
 fi
 
-runcommand "TAG" "tag.C" tag.log 50
+### createSnapshot.C
 
-runcommand "CHECK ESD" "CheckESD.C" check.log 60 1
+if [[ $CONFIG_MODE == *"ocdb"* ]]; then
 
-rm -f *.RecPoints.root
-
-if [ "$RUNMODE" = "SDD" ]; then
-    if [ -f QAtrainsim_SDD.C ]; then
-            runcommand "Running the QA train" "QAtrainsim_SDD.C(\"_wSDD\",$DC_RUN)" qa.log 100
-    
-            for file in *.stat; do
-                mv $file ../$file.qa_wSDD
-            done
+    OCDBC=$ALIDPG_ROOT/MC/CreateSnapshot.C
+    if [ -f CreateSnapshot.C ]; then
+	SIMC=CreateSnapshot.C
     fi
     
-    mv AliESDs.root AliESDs_wSDD.root
-    mv AliESDfriends.root AliESDfriends_wSDD.root
+    runcommand "OCDB SIM SNAPSHOT" $OCDBC\(0\) ocdbsim.log 500
+    mv -f syswatch.log ocdbsimwatch.log
+    runcommand "OCDB REC SNAPSHOT" $OCDBC\(1\) ocdbrec.log 500
+    mv -f syswatch.log ocdbrecwatch.log
     
-    # Without SDD
+fi
 
-    for logfile in rec.log qa.log tag.log check.log recwatch.log; do
-            echo -e "\n\n* ------------ Without SDD ------------" >> $logfile
+### sim.C
+
+if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
+    
+    if [[ $CONFIG_GENERATOR == "" ]]; then
+	echo ">>>>> ERROR: generator is required for simulation!"
+	echo $COMMAND_HELP
+	exit 2
+    fi
+
+    SIMC=$ALIDPG_ROOT/MC/sim.C
+    if [ -f sim.C ]; then
+	SIMC=sim.C
+    fi
+    
+    runcommand "SIMULATION" $SIMC sim.log 5
+    mv -f syswatch.log simwatch.log
+
+    runBenchmark
+
+fi
+
+### rec.C
+
+if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
+
+    RECC=$ALIDPG_ROOT/MC/rec.C
+    if [ -f rec.C ]; then
+	RECC=rec.C
+    fi
+    
+    runcommand "RECONSTRUCTION" $RECC rec.log 10
+    mv -f syswatch.log recwatch.log
+    
+    runcommand "TAG" "tag.C" tag.log 50
+    runcommand "CHECK ESD" "CheckESD.C" check.log 60 1
+    rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
+
+fi
+
+### check ESD creation
+
+#if [ ! -f AliESDs.root ]; then
+#    echo "*! Could not find AliESDs.root, the simulation/reconstruction chain failed!"
+#    echo "Could not find AliESDs.root, the simulation/reconstruction chain failed!" > validation_error.message
+#    exit 2
+#fi
+
+### QAtrainsim.C
+
+if [[ $CONFIG_MODE == *"qa"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
+    
+    echo "QAresults.root" >> validation_extrafiles.list
+
+    QATRAINSIMC=$ALIDPG_ROOT/QA/QAtrainsim.C\($CONFIG_RUN\)
+    if [ -f QAtrainsim.C ]; then
+	QATRAINSIMC=QAtrainsim.C\($CONFIG_RUN\)
+    fi
+    
+    runcommand "QA TRAIN" $QATRAINSIMC qa.log 1000
+    mv -f syswatch.log qawatch.log
+
+    for file in *.stat; do
+	mv -f "$file" "$file.qa"
     done
-
-    runcommand "RECONSTRUCTION without SDD" "recNoSDD.C" rec.log 11
-    cat syswatch.log >> recwatch.log
-    rm syswatch.log
-
-    runcommand "TAG without SDD" "tag.C" tag.log 51
-
-    runcommand "CHECK ESD without SDD" "CheckESD.C" check.log 61 1
-
-    if [ -f QAtrainsim_SDD.C ]; then
-            runcommand "Running the QA train without SDD" "QAtrainsim_SDD.C(\"\",$DC_RUN)" qa.log 101
     
-            for file in *.stat; do
-                mv $file ../$file.qa
-            done
-    fi
 fi
 
-rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
+### AODtrainsim.C
+
+if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
+
+    echo "AliAOD.root" >> validation_extrafiles.list
+    
+    AODTRAINSIMC=$ALIDPG_ROOT/AOD/AODtrainsim.C
+    if [ -f AODtrainsim.C ]; then
+	AODTRAINSIMC=AODtrainsim.C
+    fi
+
+    rm -f outputs_valid &>/dev/null
+
+    runcommand "AOD TRAIN" $AODTRAINSIMC aod.log 1000
+    mv -f syswatch.log aodwatch.log
+
+    for file in *.stat; do
+	mv -f $file $file.aod
+    done
+    
+fi
+
 
 exit 0

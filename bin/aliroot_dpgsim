@@ -20,18 +20,18 @@ export PRODUCTION_METADATA="$ALIEN_JDL_LPMMETADATA"
 
 ###
 
-if [ "$1" = "OCDB" ]; then
-    echo "Setting env for generating OCDB.root"
-    
-    export OCDB_SNAPSHOT_CREATE="kTRUE"
-    export OCDB_SNAPSHOT_FILENAME="OCDB.root"
-    
-    touch OCDB.generating.job
-    
-    shift
-fi
+#if [ "$1" = "OCDB" ]; then
+#    echo "Setting env for generating OCDB.root"
+#    
+#    export OCDB_SNAPSHOT_CREATE="kTRUE"
+#    export OCDB_SNAPSHOT_FILENAME="OCDB.root"
+#    
+#    touch OCDB.generating.job
+#    
+#    shift
+#fi
 
-### check environmnet
+### check environment
 
 if [ "$ALIDPG_ROOT" = "" ]; then
     echo "*! ERROR: ALIDPG_ROOT is not set!"
@@ -41,69 +41,19 @@ fi
 
 ### dgpsim.sh
 
-echo "Calling $ALIDPG_ROOT/MC/dpgsim.sh with $*"
-$ALIDPG_ROOT/MC/dpgsim.sh $*
+DPGSIMSH=$ALIDPG_ROOT/MC/dpgsim.sh
+if [ -f dpgsim.sh ]; then
+    chmod +x dpgsim.sh
+    DPGSIMSH=./dpgsim.sh
+fi
+echo "Calling '$DPGSIMSH $*'"
+$DPGSIMSH $*
 error=$?
 
 if [ $error -ne 0 ]; then
-    echo "*! Command '$ALIDPG_ROOT/MC/dpgsim.sh $*' exited with error code $error"
-    echo "Command '$ALIDPG_ROOT/MC/dpgsim.sh $*' exited with error code $error" > validation_error.message
+    echo "*! Command '$DPGSIMSH $*' exited with error code $error"
+    echo "Command '$DPGSIMSH $*' exited with error code $error" > validation_error.message
     exit $error
-fi
-
-### check ESD creation
-
-if [ ! -f AliESDs.root ]; then
-    echo "*! Could not find AliESDs.root, the simulation/reconstruction chain failed!"
-    echo "Could not find AliESDs.root, the simulation/reconstruction chain failed!" > validation_error.message
-    exit 2
-fi
-
-### QAtrainsim.C
-
-echo "QAresults.root" >> validation_extrafiles.list
-
-while [ ! -z "$1" ]; do
-    if [ "$1" == "--run" ]; then
-        runno="$2"
-        break
-    fi
-    shift
-done
-
-echo "* Running the QA train for run $runno"
-echo "aliroot -b -q -x $ALIDPG_ROOT/QA/QAtrainsim.C\($runno\)"
-time aliroot -b -q -x $ALIDPG_ROOT/QA/QAtrainsim.C\($runno\) &> qa.log
-error=$?
-
-for file in *.stat; do
-    mv "$file" "$file.qa"
-done
-
-if [ $error -ne 0 ]; then
-    echo "*! QA exited with error code $error"
-    echo "QA exited with error code $error" > validation_error.message
-    exit 100
-fi
-
-### AODtrainsim.C
-
-echo "AliAOD.root" >> validation_extrafiles.list
-rm -f outputs_valid &>/dev/null
-
-echo "* Running the FILTERING train..."
-echo "aliroot -b -q -x $ALIDPG_ROOT/AOD/AODtrainsim.C\(\)"
-time aliroot -b -q -x $ALIDPG_ROOT/AOD/AODtrainsim.C\(\) &> aod.log
-error=$?
-
-for file in *.stat; do
-    mv $file $file.aod
-done
-
-if [ $error -ne 0 ]; then
-    echo "*! AOD filtering exited with error code $error"
-    echo "AOD filtering exited with error code $error" > validation_error.message
-    exit 200
 fi
 
 ### 

@@ -60,7 +60,7 @@ GeneratorConfig(Int_t tag, Int_t run)
 
   AliGenerator *gen = NULL;
   
-  switch(tag) {
+  switch (tag) {
 
     // Default
   case kGeneratorDefault:

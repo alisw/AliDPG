@@ -13,7 +13,6 @@
 #include "TStopwatch.h"
 #endif
 
-
 void CreateSnapshot(const char* snapshotName=0, const char* rawdata=0);
 
 
@@ -72,6 +71,30 @@ Bool_t IsExcluded(const char* objName)
   TString nameS = objName;
   for (int i=kNExclude;i--;) if (nameS==kCDBExclude[i]) return kTRUE;
   return kFALSE;
+}
+
+const Char_t *snapshotName[2] = {
+  "OCDBsim.root",
+  "OCDBrec.root"
+};
+
+CreateSnapshot(Int_t mode)
+{
+
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+  
+  // run number
+  Int_t runNumber = -1;
+  if (gSystem->Getenv("CONFIG_RUN"))
+    runNumber = atoi(gSystem->Getenv("CONFIG_RUN"));
+  if (runNumber <= 0) {
+    printf("Invalid run number: %d \n", runNumber);
+    abort();
+  }
+
+  OCDBConfig(kOCDBDefault, runNumber, mode);
+  CreateSnapshot(snapshotName[mode]);
+  
 }
 
 void CreateSnapshot(const char* snapshotName, const char* rawdata)

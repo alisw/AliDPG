@@ -56,7 +56,7 @@ DetectorConfig(Int_t tag, Int_t run)
       abort();
       return;
     }
-    DetectorCustom();
+    DetectorCustom(run);
     break;
     
   }
