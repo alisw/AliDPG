@@ -10,14 +10,15 @@
 
 // global variables
 
-static Int_t  runNumber       = 0;         // run number
-static Int_t  neventsConfig   = 200;       // number of events
-static Int_t  magnetConfig    = 0;         // magnetic field
-static Int_t  detectorConfig  = 0;         // detector
-static Int_t  generatorConfig = 0;         // MC generator
-static Float_t energyConfig   = 0.;        // CMS energy
-static Float_t crossingConfig = 0.;        // 2.8e-4 // crossing angle
-static Int_t  seedConfig      = 123456789; // random seed
+static Int_t   runNumber       = 0;         // run number
+static Int_t   neventsConfig   = 200;       // number of events
+static Int_t   magnetConfig    = 0;         // magnetic field
+static Int_t   detectorConfig  = 0;         // detector
+static Int_t   generatorConfig = 0;         // MC generator
+static Float_t energyConfig    = 0.;        // CMS energy
+static Float_t crossingConfig  = 0.;        // 2.8e-4 // crossing angle
+static Int_t   seedConfig      = 123456789; // random seed
+static Int_t   uidConfig       = 1;         // unique ID
 
 /*****************************************************************/
 
@@ -145,6 +146,11 @@ ProcessEnvironment()
   seedConfig = TDatime().Get();
   if (gSystem->Getenv("CONFIG_SEED"))
     seedConfig = atoi(gSystem->Getenv("CONFIG_SEED"));
+  
+  // unique ID configuration
+  uidConfig = 1;
+  if (gSystem->Getenv("CONFIG_UID"))
+    uidConfig = atoi(gSystem->Getenv("CONFIG_UID"));
   
 }
 

@@ -82,10 +82,13 @@ GeneratorConfig(Int_t tag, Int_t run)
     // Pythia8 (Monash2013) - Rsn001
   case kGeneratorPythia8_Monash2013_Rsn001:
     Int_t pdglist[4] = {225, 3124, -3124, 9010221}; // injected f2(1270), Lambda(1520)+ap, f0(980)
-    Int_t pdg = pdglist[gRandom->Integer(4)]; // randomly select one of the above pdg codes
+    Int_t pdg = pdglist[uidConfig % 4]; // select according to unique ID
+    AliGenCocktail *ctl = new AliGenCocktail();
+    ctl->SetProjectile("p", 1, 1);
+    ctl->SetTarget("p", 1, 1);
+    ctl->SetEnergyCMS(energyConfig);
     AliGenerator   *py8 = GeneratorPythia8(kMonash2013);
     AliGenerator   *inj = GeneratorInjector(1, pdg, 0., 10., -0.6, 0.6);
-    AliGenCocktail *ctl = new AliGenCocktail();
     ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
     ctl->AddGenerator(inj, "Injector (Rsn001)", 1.);
     gen = ctl;
