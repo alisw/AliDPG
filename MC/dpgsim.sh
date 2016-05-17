@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # set job and simulation variables as :
-COMMAND_HELP="./dpgsim.sh  --run <runNumber> --generator <generatorConfig> --energy <energy> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --mode <simrunMode>"
+COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig>"
 
 function runcommand(){
     echo -e "\n"
@@ -14,7 +14,7 @@ function runcommand(){
     time aliroot -b -q -x $2 >>$3 2>&1
     exitcode=$?
     END=`date "+%s"`
-    echo "$1 TIME: $((QAEND-QASTART))"
+    echo "$1 TIME: $((END-START))"
     
     expectedCode=${5-0}
     
@@ -78,11 +78,12 @@ function runBenchmark(){
 pthardbin_loweredges=( 0 5 11 21 36 57 84 117 152 191 234 )
 pthardbin_higheredges=( 5 11 21 36 57 84 117 152 191 234 -1)
 
-CONFIG_NEVENTS=""
+CONFIG_NEVENTS="200"
 CONFIG_SEED=""
 CONFIG_GENERATOR=""
 CONFIG_MAGNET=""
 CONFIG_ENERGY=""
+CONFIG_SYSTEM=""
 CONFIG_DETECTOR=""
 CONFIG_PHYSICSLIST=""
 CONFIG_BMIN=""
@@ -95,6 +96,8 @@ CONFIG_RUN=""
 CONFIG_UID="1"
 CONFIG_SIMULATION=""
 CONFIG_RECONSTRUCTION=""
+CONFIG_QA=""
+CONFIG_AOD=""
 CONFIG_MODE="full"
 
 RUNMODE=""
@@ -127,6 +130,10 @@ while [ ! -z "$1" ]; do
         CONFIG_DETECTOR="$1"
 	export CONFIG_DETECTOR
         shift
+    elif [ "$option" = "--system" ]; then
+        CONFIG_SYSTEM="$1"
+	export CONFIG_SYSTEM
+        shift
     elif [ "$option" = "--energy" ]; then
         CONFIG_ENERGY="$1"
 	export CONFIG_ENERGY
@@ -138,6 +145,14 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--reconstruction" ]; then
         CONFIG_RECONSTRUCTION="$1"
 	export CONFIG_RECONSTRUCTION
+        shift
+    elif [ "$option" = "--qa" ]; then
+        CONFIG_QA="$1"
+	export CONFIG_QA
+        shift
+    elif [ "$option" = "--aod" ]; then
+        CONFIG_AOD="$1"
+	export CONFIG_AOD
         shift
     elif [ "$option" = "--physicslist" ]; then
         CONFIG_PHYSICSLIST="$1"
@@ -218,20 +233,23 @@ echo
 echo "============================================"
 echo " DPGSIM"
 echo "============================================"
-echo "Mode............$CONFIG_MODE"
-echo "Run.............$CONFIG_RUN"
-echo "Unique-ID.......$CONFIG_UID"
-echo "MC seed.........$CONFIG_SEED (based on $CONFIG_SEED_BASED)"
-echo "Generator.......$CONFIG_GENERATOR"
-echo "No. Events......$CONFIG_NEVENTS"
-echo "Energy..........$CONFIG_ENERGY"
-echo "Simulation......$CONFIG_SIMULATION"
-echo "Reconstruction..$CONFIG_RECONSTRUCTION"
-echo "B-field.........$CONFIG_MAGNET"
-echo "Physicslist.....$CONFIG_PHYSICSLIST"
-echo "b-min...........$CONFIG_BMIN"
-echo "b-max...........$CONFIG_BMAX"
-echo "pT hard bin.....$CONFIG_PTHARDBIN"
+echo "Mode............. $CONFIG_MODE"
+echo "Run.............. $CONFIG_RUN"
+echo "Unique-ID........ $CONFIG_UID"
+echo "MC seed.......... $CONFIG_SEED (based on $CONFIG_SEED_BASED)"
+echo "No. Events....... $CONFIG_NEVENTS"
+echo "Generator........ $CONFIG_GENERATOR"
+echo "System........... $CONFIG_SYSTEM"
+echo "Energy........... $CONFIG_ENERGY"
+echo "Simulation....... $CONFIG_SIMULATION"
+echo "Reconstruction... $CONFIG_RECONSTRUCTION"
+echo "QA train......... $CONFIG_QA"
+echo "AOD train........ $CONFIG_AOD"
+echo "B-field.......... $CONFIG_MAGNET"
+echo "Physicslist...... $CONFIG_PHYSICSLIST"
+echo "b-min............ $CONFIG_BMIN"
+echo "b-max............ $CONFIG_BMAX"
+echo "pT hard bin...... $CONFIG_PTHARDBIN"
 echo "============================================"
 echo
 
@@ -260,9 +278,20 @@ if [[ $CONFIG_MODE == *"ocdb"* ]]; then
     
     runcommand "OCDB SIM SNAPSHOT" $OCDBC\(0\) ocdbsim.log 500
     mv -f syswatch.log ocdbsimwatch.log
+    if [ ! -f OCDBsim.root ]; then
+	echo "*! Could not find OCDBsim.root, the snapshot creation chain failed!"
+	echo "Could not find OCDBsim.root, the snapshot creation chain failed!" > validation_error.message
+	exit 2
+    fi
+
     runcommand "OCDB REC SNAPSHOT" $OCDBC\(1\) ocdbrec.log 500
     mv -f syswatch.log ocdbrecwatch.log
-    
+    if [ ! -f OCDBrec.root ]; then
+	echo "*! Could not find OCDBrec.root, the snapshot creation chain failed!"
+	echo "Could not find OCDBrec.root, the snapshot creation chain failed!" > validation_error.message
+	exit 2
+    fi
+
 fi
 
 ### sim.C
@@ -270,7 +299,13 @@ fi
 if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     
     if [[ $CONFIG_GENERATOR == "" ]]; then
-	echo ">>>>> ERROR: generator is required for simulation!"
+	echo ">>>>> ERROR: generator is required for full production mode!"
+	echo $COMMAND_HELP
+	exit 2
+    fi
+
+    if [[ $CONFIG_SYSTEM == "" ]]; then
+	echo ">>>>> ERROR: system is required for full production mode!"
 	echo $COMMAND_HELP
 	exit 2
     fi
@@ -297,21 +332,27 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     fi
     
     runcommand "RECONSTRUCTION" $RECC rec.log 10
-    mv -f syswatch.log recwatch.log
-    
-    runcommand "TAG" "tag.C" tag.log 50
-    runcommand "CHECK ESD" "CheckESD.C" check.log 60 1
+    mv -f syswatch.log recwatch.log    
+    if [ ! -f AliESDs.root ]; then
+	echo "*! Could not find AliESDs.root, the simulation/reconstruction chain failed!"
+	echo "Could not find AliESDs.root, the simulation/reconstruction chain failed!" > validation_error.message
+	exit 2
+    fi
+
+    TAGC=$ALIDPG_ROOT/MC/tag.C
+    if [ -f tag.C ]; then
+	TAGC=tag.C
+    fi    
+    runcommand "TAG" $TAGC tag.log 50
+
+    CHECKESDC=$ALIDPG_ROOT/MC/CheckESD.C
+    if [ -f CheckESD.C ]; then
+	CHECKESDC=CheckESD.C
+    fi    
+    runcommand "CHECK ESD" $CHECKESDC check.log 60 1
     rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
 
 fi
-
-### check ESD creation
-
-#if [ ! -f AliESDs.root ]; then
-#    echo "*! Could not find AliESDs.root, the simulation/reconstruction chain failed!"
-#    echo "Could not find AliESDs.root, the simulation/reconstruction chain failed!" > validation_error.message
-#    exit 2
-#fi
 
 ### QAtrainsim.C
 
