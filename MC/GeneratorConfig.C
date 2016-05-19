@@ -88,7 +88,7 @@ GeneratorConfig(Int_t tag, Int_t run)
     ctl->SetTarget("p", 1, 1);
     ctl->SetEnergyCMS(energyConfig);
     AliGenerator   *py8 = GeneratorPythia8(kMonash2013);
-    AliGenerator   *inj = GeneratorInjector(1, pdg, 0., 10., -0.6, 0.6);
+    AliGenerator   *inj = GeneratorInjector(1, pdg, 0., 15., -0.6, 0.6);
     ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
     ctl->AddGenerator(inj, "Injector (Rsn001)", 1.);
     gen = ctl;
