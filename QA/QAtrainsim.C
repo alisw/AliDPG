@@ -2,6 +2,24 @@
 void LoadLibraries();
 void AddAnalysisTasks(); 
 void QAmerge(const char *, Int_t);
+void ProcessEnvironment();
+
+enum ECOLLISIONSYSTEM_t
+{
+    kpp,
+    kPbPb,
+    kpPb,
+    kPbp,
+    kNSystem
+};
+
+const Char_t* CollisionSystem[kNSystem] =
+{
+    "p-p",
+    "Pb-Pb",
+    "p-Pb",
+    "Pb-p"
+};
 
 Int_t iCollisionType = 0; // 0=pp, 1=PbPb
 // Trigger mask.
@@ -16,15 +34,16 @@ UInt_t kTriggerHM   = AliVEvent::kHighMult;
 UInt_t kTriggerMask = kTriggerInt;
 
 Int_t runNumbers[5] = {158626};
+TString periodName  = "LHC15f";
 
 Bool_t doCDBconnect   = 1;
 Bool_t doEventStat    = 1;
 Bool_t doCentrality   = 0;
 Bool_t doQAsym        = 0;
 Bool_t doVZERO        = 1;   // there is a 2nd file
-Bool_t doVZEROPbPb    = 0; 
+Bool_t doVZEROPbPb    = 0;
 Bool_t doVertex       = 1;
-Bool_t doSPD          = 1;   // needs RP   
+Bool_t doSPD          = 1;   // needs RP
 Bool_t doTPC          = 1;
 Bool_t doHLT          = 1;
 Bool_t doSDD          = 1;   // needs RP
@@ -32,10 +51,9 @@ Bool_t doSSDdEdx      = 1;
 
 Bool_t doTRD          = 1;
 Bool_t doITS          = 1;
-Bool_t doITSsaTracks  = 1; 
-Bool_t doITSalign     = 1;  
+Bool_t doITSsaTracks  = 1;
+Bool_t doITSalign     = 1;
 Bool_t doCALO         = 1;
-
 Bool_t doMUONTrig     = 1;
 Bool_t doImpParRes    = 1;
 Bool_t doMUON         = 1;
@@ -57,15 +75,30 @@ Bool_t doAD           = 1; //decetrot AD
 Bool_t doEvTrk        = 1; //analysis task uses the CF framework 
 
                // Debug level
-Int_t       debug_level        = 1;        // Debugging
-Int_t       run_number = 0;
+Int_t debug_level     = 1;        // Debugging
+Int_t run_number      = 0;
+Int_t run_flag        = 1500;
 
-void QAtrainsim(Int_t run = 0, 
+void QAtrainsim(Int_t run = 0,
              const char *xmlfile   = "wn.xml",
              Int_t  stage          = 0, /*0 = QA train, 1...n - merging stage*/
              const char *cdb     = "raw://")
 {
   run_number = run;
+
+  ProcessEnvironment();
+
+  if(iCollisionType == kPbPb)
+  {
+    doCentrality =kTRUE;
+    doVZEROPbPb =kTRUE;
+  }
+
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
+  Int_t year =RunToYear(run_number);
+  if(year<2015)  run_flag =1100;
+  if(year<=2010) run_flag =1000;
+
   TString cdbString(cdb);
   if (cdbString.Contains("raw://"))
  {
@@ -73,9 +106,9 @@ void QAtrainsim(Int_t run = 0,
   if (!gGrid || !gGrid->IsConnected()) {
     ::Error("QAtrain", "No grid connection");
     return;
-  }  
-  
-}  
+  }
+
+}
 //  gSystem->SetIncludePath("-I. -I$ROOTSYS/include -I$ALICE_ROOT/include -I$ALICE_ROOT -I$ALICE_PHYSICS -I$ALICE_PHYSICS/include -I$ALICE_PHYSICS/PWGPP/TRD/macros");
   // Set temporary merging directory to current one
   gSystem->Setenv("TMPDIR", gSystem->pwd());
@@ -125,39 +158,6 @@ void QAtrainsim(Int_t run = 0,
   }
   timer.Print();
 }
-/*
-void LoadLibraries()
-{
-  gSystem->SetIncludePath("-I. -I$ROOTSYS/include -I$ALICE_ROOT/include -I$ALICE_ROOT -I$ALICE_ROOT/ITS -I$ALICE_ROOT/TRD -I$ALICE_ROOT/PWGPP -I$ALICE_ROOT/PWGPP/TRD");
-  gSystem->Load("libANALYSIS");
-  gSystem->Load("libANALYSISalice");
-  gSystem->Load("libESDfilter.so");
-  gSystem->Load("libCORRFW");
-  gSystem->Load("libTENDER");
-  gSystem->Load("libPWGPP.so");
-  gSystem->Load("libAliHLTTrigger.so");
-
-  if (doEMCAL || doPHOS || doCALO) {
-     gSystem->Load("libEMCALUtils");
-     gSystem->Load("libPHOSUtils");
-     gSystem->Load("libPWGCaloTrackCorrBase");
-     gSystem->Load("libPWGGACaloTrackCorrelations");
-     gSystem->Load("libPWGGACaloTasks");
-     gSystem->Load("libPWGGAPHOSTasks");
-     gSystem->Load("libPWGTools");
-     gSystem->Load("libPWGEMCAL");
-     gSystem->Load("libPWGGAEMCALTasks");
-  }  
-  if(doMUON || doMUONTrig) {
-     gSystem->Load("libPWGmuon");
-     gSystem->Load("libPWGPPMUONlite");
-     gSystem->Load("libPWGmuondep");
-  }
-  if (doFMD) {
-     gSystem->Load("libPWGLFforward2");
-  }      
-}
-*/ 
 
 void AddAnalysisTasks(const char *cdb_location)
 {
@@ -194,15 +194,22 @@ void AddAnalysisTasks(const char *cdb_location)
   //
   // Centrality (A. Toia)
   //
-  if (doCentrality) {
-//     if (!iCollisionType) {
-//        printf("Disabling centrality task for p-p\n");
-//        doCentrality = kFALSE;
-//     } else {           
+  if (doCentrality) 
+  {
+    if(run_flag >= 1500)
+    {
+      gROOT->LoadMacro("$ALICE_PHYSICS/OADB/COMMON/MULTIPLICITY/macros/AddTaskMultSelection.C");
+      AliMultSelectionTask *taskMult = AddTaskMultSelection();
+      taskMult->SetAlternateOADBforEstimators(periodName);
+    }
+    else
+      // old scheme is only valid for PbPb
+      if (iCollisionType == kPbPb)
+      {
         gROOT->LoadMacro("$ALICE_PHYSICS/OADB/macros/AddTaskCentrality.C");
         AliCentralitySelectionTask *taskCentrality = AddTaskCentrality();
-        taskCentrality->SetMCInput();        
-//     }   
+        taskCentrality->SetMCInput();
+      }
   }   
   
   // Vertexing (A. Dainese)
@@ -249,7 +256,7 @@ void AddAnalysisTasks(const char *cdb_location)
   if (doTPC) {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/TPC/macros/AddTaskPerformanceTPCdEdxQA.C");
     AliPerformanceTask *tpcQA = 0;
-    if (iCollisionType) {
+    if (iCollisionType==kPbPb) {
        // High multiplicity Pb-Pb
        tpcQA = AddTaskPerformanceTPCdEdxQA(kTRUE, kTRUE, kTRUE);
     } else {
@@ -273,7 +280,7 @@ void AddAnalysisTasks(const char *cdb_location)
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/PilotTrain/AddTaskSPDQA.C");
     AliAnalysisTaskSPD* taskspdqa = (AliAnalysisTaskSPD*)AddTaskSPDQA();
     // Request from Annalisa
-    if (iCollisionType) taskspdqa->SetHeavyIonMode();
+    if (iCollisionType==kPbPb) taskspdqa->SetHeavyIonMode();
     taskspdqa->SelectCollisionCandidates(kTriggerMask);
     taskspdqa->SetOCDBInfo(run_number, "raw://");
   }  
@@ -304,7 +311,7 @@ void AddAnalysisTasks(const char *cdb_location)
       AliAnalysisTaskITSTrackingCheck *itsQACent0010 = 0;
       AliAnalysisTaskITSTrackingCheck *itsQACent3050 = 0;
       AliAnalysisTaskITSTrackingCheck *itsQACent6080 = 0;
-      if(iCollisionType==0) {
+      if(iCollisionType==kpp) {
         itsQA = AddTaskPerformanceITS(kTRUE);
       } else {
         itsQA = AddTaskPerformanceITS(kTRUE);
@@ -370,25 +377,21 @@ void AddAnalysisTasks(const char *cdb_location)
   // Calorimetry (Gustavo Conesa)
   //
 
-  if(doCALO)
-  {
+  if(doCALO) {
+        
+      gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/CaloTrackCorrelations/macros/QA/AddTaskCalorimeterQA.C");
+      AliAnalysisTaskCaloTrackCorrelation *taskCaloQA = AddTaskCalorimeterQA("default");
+      taskCaloQA->SetDebugLevel(0);
+      
+      taskCaloQA->GetAnalysisMaker()->GetCaloUtils()->SetEMCALGeometryName("EMCAL_COMPLETE12SMV1_DCAL_8SM");
+      taskCaloQA->GetAnalysisMaker()->GetCaloUtils()->SetImportGeometryFromFile(kFALSE);
+      taskCaloQA->GetAnalysisMaker()->GetCaloUtils()->SetNumberOfSuperModulesUsed(20);
 
-    gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/CaloTrackCorrelations/macros/QA/AddTaskCalorimeterQA.C");
-    AliAnalysisTaskCaloTrackCorrelation *taskCaloQA = AddTaskCalorimeterQA("default");
-    taskCaloQA->SetDebugLevel(0);
-    
-//      gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/CaloTrackCorrelations/macros/QA/AddTaskCalorimeterQA.C");
-//      AliAnalysisTaskCaloTrackCorrelation *taskCaloQA = AddTaskCalorimeterQA("default");
-//      taskCaloQA->SetDebugLevel(0);
-//      
-//      taskCaloQA->GetAnalysisMaker()->GetCaloUtils()->SetEMCALGeometryName("EMCAL_COMPLETE12SMV1_DCAL_8SM");
-//      taskCaloQA->GetAnalysisMaker()->GetCaloUtils()->SetImportGeometryFromFile(kFALSE);
-//      taskCaloQA->GetAnalysisMaker()->GetCaloUtils()->SetNumberOfSuperModulesUsed(20);
-//
-//      AliAnaCalorimeterQA * caloqa = (AliAnaCalorimeterQA*) taskCaloQA->GetAnalysisMaker()->GetListOfAnalysisContainers()->At(0);
-//      AliHistogramRanges* histoRanges = caloqa->GetHistogramRanges();
-//      histoRanges->SetHistoPhiRangeAndNBins(77*TMath::DegToRad(), 330*TMath::DegToRad(), 253) ;
+      AliAnaCalorimeterQA * caloqa = (AliAnaCalorimeterQA*) taskCaloQA->GetAnalysisMaker()->GetListOfAnalysisContainers()->At(0);
+      AliHistogramRanges* histoRanges = caloqa->GetHistogramRanges();
+      histoRanges->SetHistoPhiRangeAndNBins(77*TMath::DegToRad(), 330*TMath::DegToRad(), 253) ;
 
+      
       // offline mask set in AddTask to kMB
 //      taskCaloQA->SelectCollisionCandidates(kTriggerMask);
       // Add a new calo task with EMC1 trigger only
@@ -451,7 +454,7 @@ void AddAnalysisTasks(const char *cdb_location)
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskImpParRes.C");
     AliAnalysisTaskSE* taskimpparres=0;
     // Specific setting for MC
-    if(iCollisionType==0) {
+    if(iCollisionType==kpp) {
        taskimpparres= AddTaskImpParRes(kTRUE);
     } else {
        taskimpparres= AddTaskImpParRes(kTRUE,-1,kTRUE,kFALSE);
@@ -514,14 +517,16 @@ void AddAnalysisTasks(const char *cdb_location)
   //
   if (doPHOS) {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/PHOSTasks/CaloCellQA/macros/AddTaskCaloCellsQA.C");
-    AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = AddTaskCaloCellsQA(4, 1, NULL,"PHOSCellsQA_AnyInt"); 
+    //AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = AddTaskCaloCellsQA(4, 1, NULL,"PHOSCellsQA_AnyInt");
+    AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_AnyInt");
     taskPHOSCellQA1->SelectCollisionCandidates(kTriggerMask);
     taskPHOSCellQA1->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
-    AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = AddTaskCaloCellsQA(4, 1, NULL,"PHOSCellsQA_PHI7"); 
+    //AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = AddTaskCaloCellsQA(4, 1, NULL,"PHOSCellsQA_PHI7"); 
+    AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_PHI7");
     taskPHOSCellQA2->SelectCollisionCandidates(AliVEvent::kPHI7);
     taskPHOSCellQA2->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
     // Pi0 QA fo PbPb
-    if (iCollisionType == 1) {
+    if (iCollisionType == kPbPb) {
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/PHOSTasks/PHOS_PbPbQA/macros/AddTaskPHOSPbPb.C");
       AliAnalysisTaskPHOSPbPbQA* phosPbPb = AddTaskPHOSPbPbQA(0);
     }
@@ -616,4 +621,34 @@ void QAmerge(const char *dir, Int_t stage)
   out.open("outputs_valid", ios::out);
   out.close();
   timer.Print();
+}
+
+//______________________________________________________________________________
+void ProcessEnvironment()
+{
+  // collision system configuration
+  iCollisionType = kpp;
+  if (gSystem->Getenv("CONFIG_SYSTEM")) {
+    Bool_t valid = kFALSE;
+    for (Int_t icoll = 0; icoll < kNSystem; icoll++)
+      if (strcmp(gSystem->Getenv("CONFIG_SYSTEM"), CollisionSystem[icoll]) == 0) {
+        iCollisionType = icoll;
+        valid = kTRUE;
+        break;
+      }
+    if (!valid) {
+      printf(">>>>> Unknown collision system configuration: %s \n", gSystem->Getenv("CONFIG_SYSTEM"));
+      abort();
+    }
+  }
+
+//   // run number
+//   run_number = -1;
+//   if (gSystem->Getenv("CONFIG_RUN"))
+//     run_number = atoi(gSystem->Getenv("CONFIG_RUN"));
+//   if (run_number <= 0) {
+//     printf(">>>>> Invalid run number: %d \n", run_number);
+//     abort();
+//   }
+
 }
