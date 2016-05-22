@@ -41,12 +41,14 @@ const Char_t *GeneratorName[kNGenerators] = {
 /*****************************************************************/
 
 // functions
+AliGenerator *GeneratorCocktail(TString projN, Int_t projA, Int_t projZ, TString targN, Int_t targA, Int_t targZ);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax); 
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC(TString system);
 AliGenerator *GeneratorHijing();
+AliGenerator *GeneratorInjectorRsn001();
 
 /*****************************************************************/
 
@@ -81,14 +83,9 @@ GeneratorConfig(Int_t tag, Int_t run)
     
     // Pythia8 (Monash2013) - Rsn001
   case kGeneratorPythia8_Monash2013_Rsn001:
-    Int_t pdglist[4] = {225, 3124, -3124, 9010221}; // injected f2(1270), Lambda(1520)+ap, f0(980)
-    Int_t pdg = pdglist[uidConfig % 4]; // select according to unique ID
-    AliGenCocktail *ctl = new AliGenCocktail();
-    ctl->SetProjectile("p", 1, 1);
-    ctl->SetTarget("p", 1, 1);
-    ctl->SetEnergyCMS(energyConfig);
+    AliGenCocktail *ctl = GeneratorCocktail("p", 1, 1, "p", 1, 1);
     AliGenerator   *py8 = GeneratorPythia8(kMonash2013);
-    AliGenerator   *inj = GeneratorInjector(1, pdg, 0., 15., -0.6, 0.6);
+    AliGenerator   *inj = GeneratorInjectorRsn001();
     ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
     ctl->AddGenerator(inj, "Injector (Rsn001)", 1.);
     gen = ctl;
@@ -289,12 +286,26 @@ GeneratorHijing()
   return gener;
 }
 
+/*** COCKTAIL ****************************************************/
+
+AliGenerator * 
+GeneratorCocktail(TString projN, Int_t projA, Int_t projZ,
+		  TString targN, Int_t targA, Int_t targZ)
+{
+  comment = comment.Append(Form(" | cocktail %s-%s", projN.Data(), targN.Data()));
+  //
+  AliGenCocktail *ctl = new AliGenCocktail();
+  ctl->SetProjectile(projN, projA, projZ);
+  ctl->SetTarget(targN, targA, targZ);
+  ctl->SetEnergyCMS(energyConfig);
+  return ctl;
+}
+
 /*** INJECTOR ****************************************************/
 
 AliGenerator * 
 GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax)
 {
-  
   comment = comment.Append(Form(" | injected (pdg=%d, %d particles)", pdg, ninj));
   //
   // Injected particles
@@ -305,3 +316,22 @@ GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t y
   box->SetPhiRange(0., 360.);
   return box;
 }
+
+/*** INJECTOR RSN001 ****************************************************/
+
+AliGenerator * 
+GeneratorInjectorRsn001()
+{
+  comment = comment.Append(" | Rsn001");
+  //
+  // injected particles
+  Int_t pdglist[] = {
+    225,     // f2(1270)
+    3124,    // Lambda(1520)
+    -3124,   // Lambda_bar(1520)
+    9010221  // f0(980)
+  };
+  Int_t pdg = pdglist[uidConfig % (sizeof(pdglist) / 4)]; // select according to unique ID
+  return GeneratorInjector(1, pdg, 0., 15., -0.6, 0.6);
+}
+
