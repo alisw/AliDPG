@@ -130,7 +130,7 @@ GeneratorConfig(Int_t tag, Int_t run)
 AliGenerator *
 GeneratorPythia6(Int_t tune, Int_t ntrig, Int_t *trig)
 {
-  comment = comment.Append(" pp: Pythia6 low-pt");
+  comment = comment.Append(" | Pythia6 low-pt");
   //
   // Pythia
   AliGenPythia* pythia = new AliGenPythia(-1); 
@@ -170,7 +170,7 @@ GeneratorPythia8(Int_t tune, Int_t ntrig, Int_t *trig)
   gSystem->Load("libAliPythia8.so");
   //
   //
-  comment = comment.Append(" pp: Pythia8 low-pt");
+  comment = comment.Append(" | Pythia8 low-pt");
   //
   // Pythia
   AliGenPythiaPlus *pythia = new AliGenPythiaPlus(AliPythia8::Instance()); 
@@ -208,7 +208,7 @@ GeneratorPythia8(Int_t tune, Int_t ntrig, Int_t *trig)
 AliGenerator *
 GeneratorPhojet()
 {
-  comment = comment.Append(" pp: Phojet low-pt");
+  comment = comment.Append(" | Phojet low-pt");
   //                                                                                      
   //    DPMJET                                                                            
   AliGenDPMjet* dpmjet = new AliGenDPMjet(-1);
@@ -229,7 +229,7 @@ GeneratorEPOSLHC(TString system)
 {
   
   if (system.EqualTo("pp")) {
-    comment = comment.Append(" pp: EPOS-LHC");
+    comment = comment.Append(" | EPOS-LHC");
     Float_t beamEnergy = energyConfig / 2.;
     TString fifoname = Form("/tmp/crmceventfifo%d", gRandom->Integer(kMaxInt));
     gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
@@ -260,7 +260,7 @@ GeneratorHijing()
   gSystem->Load("libHIJING");
   gSystem->Load("libTHijing");
 
-  comment = comment.Append(" PbPb: HIJING");
+  comment = comment.Append(" | HIJING");
   AliGenHijing *gener = new AliGenHijing(-1);
   // centre of mass energy
   gener->SetEnergyCMS(energyConfig);
@@ -292,7 +292,7 @@ AliGenerator *
 GeneratorCocktail(TString projN, Int_t projA, Int_t projZ,
 		  TString targN, Int_t targA, Int_t targZ)
 {
-  comment = comment.Append(Form(" | cocktail %s-%s", projN.Data(), targN.Data()));
+  comment = comment.Append(Form(" | cocktail (%s-%s)", projN.Data(), targN.Data()));
   //
   AliGenCocktail *ctl = new AliGenCocktail();
   ctl->SetProjectile(projN, projA, projZ);
