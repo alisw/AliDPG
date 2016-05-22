@@ -150,11 +150,11 @@ ProcessEnvironment()
   bminConfig = 0.;
   if (gSystem->Getenv("CONFIG_BMIN"))
     bminConfig = atoi(gSystem->Getenv("CONFIG_BMIN"));
-  if (bminConfig <= 0) {
+  if (bminConfig < 0) {
     printf(">>>>> Invalid min impact parameter: %f \n", bminConfig);
     abort();
   }
-  bmaxConfig = 0.;
+  bmaxConfig = 20.;
   if (gSystem->Getenv("CONFIG_BMAX"))
     bmaxConfig = atoi(gSystem->Getenv("CONFIG_BMAX"));
   if (bmaxConfig <= bminConfig) {
