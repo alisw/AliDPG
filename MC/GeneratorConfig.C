@@ -264,7 +264,7 @@ GeneratorHijing()
   AliGenHijing *gener = new AliGenHijing(-1);
   // centre of mass energy
   gener->SetEnergyCMS(energyConfig);
-  gener->SetImpactParameterRange(0., 20.);
+  gener->SetImpactParameterRange(bminConfig, bmaxConfig);
   // reference frame
   gener->SetReferenceFrame("CMS");
   // projectile

@@ -16,6 +16,8 @@ static Int_t   magnetConfig    = 0;         // magnetic field
 static Int_t   detectorConfig  = 0;         // detector
 static Int_t   generatorConfig = 0;         // MC generator
 static Float_t energyConfig    = 0.;        // CMS energy
+static Float_t bminConfig      = 20.;       // impact parameter min
+static Float_t bmaxConfig      = 0.;        // impact parameter max
 static Float_t crossingConfig  = 0.;        // 2.8e-4 // crossing angle
 static Int_t   seedConfig      = 123456789; // random seed
 static Int_t   uidConfig       = 1;         // unique ID
@@ -39,6 +41,8 @@ Config()
   printf(">>>>>         detector: %s \n", DetectorName[detectorConfig]);
   printf(">>>>>     MC generator: %s \n", GeneratorName[generatorConfig]);
   printf(">>>>>       CMS energy: %f \n", energyConfig);
+  printf(">>>>>            b-min: %f \n", bminConfig);
+  printf(">>>>>            b-max: %f \n", bmaxConfig);
   printf(">>>>>   crossing angle: %f \n", crossingConfig);
   printf(">>>>>      random seed: %d \n", seedConfig);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
@@ -139,6 +143,22 @@ ProcessEnvironment()
     energyConfig = atoi(gSystem->Getenv("CONFIG_ENERGY"));
   if (energyConfig <= 0) {
     printf(">>>>> Invalid CMS energy: %f \n", energyConfig);
+    abort();
+  }
+
+  // impact parameter configuration
+  bminConfig = 0.;
+  if (gSystem->Getenv("CONFIG_BMIN"))
+    bminConfig = atoi(gSystem->Getenv("CONFIG_BMIN"));
+  if (bminConfig <= 0) {
+    printf(">>>>> Invalid min impact parameter: %f \n", bminConfig);
+    abort();
+  }
+  bmaxConfig = 0.;
+  if (gSystem->Getenv("CONFIG_BMAX"))
+    bmaxConfig = atoi(gSystem->Getenv("CONFIG_BMAX"));
+  if (bmaxConfig <= bminConfig) {
+    printf(">>>>> Invalid max impact parameter: %f \n", bmaxConfig);
     abort();
   }
 

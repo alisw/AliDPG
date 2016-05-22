@@ -1,5 +1,8 @@
 test_pp: test_Pythia8	
 test_PbPb: test_Hijing	
+test_PbPb_central: test_Hijing_central
+test_PbPb_semicentral: test_Hijing_semicentral	
+test_PbPb_peripheral: test_Hijing_peripheral
 
 test_Pythia8: clean
 	$(ALIDPG_ROOT)/bin/aliroot_dpgsim --run 225106 --mode ocdb
@@ -15,7 +18,19 @@ test_EPOSLHC_pp: clean
 
 test_Hijing: clean
 	$(ALIDPG_ROOT)/bin/aliroot_dpgsim --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim --run 245064 --mode full --nevents 2 --uid 1 --generator --generator Hijing --system Pb-Pb
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing --system Pb-Pb
+
+test_Hijing_central: clean
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim --run 245064 --mode ocdb
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing --bmin  0 --bmax  5 --system Pb-Pb
+
+test_Hijing_semicentral: clean
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim --run 245064 --mode ocdb
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing --bmin  5 --bmax 11 --system Pb-Pb
+
+test_Hijing_peripheral: clean
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim --run 245064 --mode ocdb
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing --bmin 11 --bmax 15 --system Pb-Pb
 
 clean:
 	rm -rf *~ *.root *.log *.inp *.dat stress* validation* GRP input
