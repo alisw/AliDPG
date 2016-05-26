@@ -21,7 +21,7 @@ function runcommand(){
     if [ "$exitcode" -ne "$expectedCode" ]; then
         echo "*! $2 failed with exitcode $exitcode, expecting $expectedCode"
         echo "*! $2 failed with exitcode $exitcode, expecting $expectedCode" >&2
-        echo "$2 failed with exitcode $exitcode, expecting $expectedCode" > validation_error.message
+        echo "$2 failed with exitcode $exitcode, expecting $expectedCode" >> validation_error.message
         exit ${4-$exitcode}
     else
         echo "* $2 finished with the expected exit code ($expectedCode), moving on"
@@ -280,7 +280,7 @@ if [[ $CONFIG_MODE == *"ocdb"* ]]; then
     mv -f syswatch.log ocdbsimwatch.log
     if [ ! -f OCDBsim.root ]; then
 	echo "*! Could not find OCDBsim.root, the snapshot creation chain failed!"
-	echo "Could not find OCDBsim.root, the snapshot creation chain failed!" > validation_error.message
+	echo "Could not find OCDBsim.root, the snapshot creation chain failed!" >> validation_error.message
 	exit 2
     fi
 
@@ -288,7 +288,7 @@ if [[ $CONFIG_MODE == *"ocdb"* ]]; then
     mv -f syswatch.log ocdbrecwatch.log
     if [ ! -f OCDBrec.root ]; then
 	echo "*! Could not find OCDBrec.root, the snapshot creation chain failed!"
-	echo "Could not find OCDBrec.root, the snapshot creation chain failed!" > validation_error.message
+	echo "Could not find OCDBrec.root, the snapshot creation chain failed!" >> validation_error.message
 	exit 2
     fi
 
@@ -335,7 +335,7 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     mv -f syswatch.log recwatch.log    
     if [ ! -f AliESDs.root ]; then
 	echo "*! Could not find AliESDs.root, the simulation/reconstruction chain failed!"
-	echo "Could not find AliESDs.root, the simulation/reconstruction chain failed!" > validation_error.message
+	echo "Could not find AliESDs.root, the simulation/reconstruction chain failed!" >> validation_error.message
 	exit 2
     fi
 
