@@ -84,6 +84,7 @@ CONFIG_GENERATOR=""
 CONFIG_MAGNET=""
 CONFIG_ENERGY=""
 CONFIG_SYSTEM=""
+CONFIG_TRIGGER=""
 CONFIG_DETECTOR=""
 CONFIG_PHYSICSLIST=""
 CONFIG_BMIN=""
@@ -133,6 +134,8 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--system" ]; then
         CONFIG_SYSTEM="$1"
 	export CONFIG_SYSTEM
+        CONFIG_TRIGGER="$1"
+	export CONFIG_TRIGGER
         shift
     elif [ "$option" = "--energy" ]; then
         CONFIG_ENERGY="$1"
@@ -240,6 +243,7 @@ echo "MC seed.......... $CONFIG_SEED (based on $CONFIG_SEED_BASED)"
 echo "No. Events....... $CONFIG_NEVENTS"
 echo "Generator........ $CONFIG_GENERATOR"
 echo "System........... $CONFIG_SYSTEM"
+echo "Trigger.......... $CONFIG_TRIGGER"
 echo "Energy........... $CONFIG_ENERGY"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"

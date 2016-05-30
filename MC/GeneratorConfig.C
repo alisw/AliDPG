@@ -33,6 +33,19 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Custom"
 };
 
+enum ETrigger_t {
+  kTriggerDefault,
+  kTriggerPP,
+  kTriggerPbPb,
+  kNTriggers
+};
+
+const Char_t *TriggerName[kNTriggers] = {
+  "ocdb",
+  "p-p",
+  "Pb-Pb"
+};
+
 enum EPythiaTune_t {
   kPerugia2011 = 350,
   kMonash2013  = 14
@@ -49,7 +62,7 @@ AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NU
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC(TString system);
-AliGenerator *GeneratorHijing(Float_t bmin = bminConfig, Float_t bmax = bmaxConfig);
+AliGenerator *GeneratorHijing();
 
 /*****************************************************************/
 
@@ -144,7 +157,10 @@ GeneratorConfig(Int_t tag, Int_t run)
   gen->SetVertexSmear(kPerEvent);
   gen->Init();
   printf(">>>>> Generator Configuration: %s \n", comment.Data());
-  
+  // Set the trigger configuration: proton-proton
+  AliSimulation::Instance()->SetTriggerConfig(TriggerName[triggerConfig]);
+  printf(">>>>> Trigger configuration:   %s \n", TriggerName[triggerConfig]);
+ 
 }
 
 /*** PYTHIA 6 ****************************************************/
@@ -275,18 +291,18 @@ GeneratorEPOSLHC(TString system)
 /*** HIJING ****************************************************/
 
 AliGenerator * 
-GeneratorHijing(Float_t bmin = bminConfig, Float_t bmax = bmaxConfig)
+GeneratorHijing()
 {
   //
   // Libraries
   gSystem->Load("libHIJING");
   gSystem->Load("libTHijing");
 
-  comment = comment.Append(Form(" | HIJING (b = %f-%f fm)", bmin, bmax);
+  comment = comment.Append(Form(" | HIJING (b = %f-%f fm)", bminConfig, bmaxConfig));
   AliGenHijing *gener = new AliGenHijing(-1);
   // centre of mass energy
   gener->SetEnergyCMS(energyConfig);
-  gener->SetImpactParameterRange(bmin, bmax);
+  gener->SetImpactParameterRange(bminConfig, bmaxConfig);
   // reference frame
   gener->SetReferenceFrame("CMS");
   // projectile
