@@ -229,6 +229,27 @@ if [ -f "$G4INSTALL/bin/geant4.sh" ]; then
     source $G4INSTALL/bin/geant4.sh
 fi
 
+### check whether we are in OCDB generation job 
+
+if [[ $ALIEN_JDL_LPMOCDBJOB == "true" ]]; then
+    echo ">>>>> OCDB generation: force MODE to 'ocdb'"
+    export CONFIG_MODE="ocdb"
+fi
+    
+### check basic requirememts
+    
+    if [[ $CONFIG_MODE == "" ]]; then
+	echo ">>>>> ERROR: mode is required!"
+	echo $COMMAND_HELP
+	exit 2
+    fi
+
+if [[ $CONFIG_RUN == "" ]]; then
+    echo ">>>>> ERROR: run number is required!"
+    echo $COMMAND_HELP
+    exit 2
+fi
+
 echo
 echo "============================================"
 echo " DPGSIM"
@@ -252,20 +273,6 @@ echo "b-max............ $CONFIG_BMAX"
 echo "pT hard bin...... $CONFIG_PTHARDBIN"
 echo "============================================"
 echo
-
-### check basic requirememts
-
-if [[ $CONFIG_MODE == "" ]]; then
-    echo ">>>>> ERROR: mode is required!"
-    echo $COMMAND_HELP
-    exit 2
-fi
-
-if [[ $CONFIG_RUN == "" ]]; then
-    echo ">>>>> ERROR: run number is required!"
-    echo $COMMAND_HELP
-    exit 2
-fi
 
 ### createSnapshot.C
 
