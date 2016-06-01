@@ -169,12 +169,7 @@ DetectorDefault(Int_t run)
     {
       //=================== ITS parameters ============================
       
-      if (year == 2010) {
-	AliITS *ITS  = new AliITSv11Hybrid("ITS","ITS v11Hybrid"); // check with experts
-      }
-      else {
-	AliITS *ITS  = new AliITSv11("ITS","ITS v11");
-      }    
+      AliITS *ITS  = new AliITSv11("ITS","ITS v11");
     }
 
   if (iTPC)
