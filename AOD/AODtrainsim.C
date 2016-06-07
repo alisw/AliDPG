@@ -2,7 +2,7 @@
 //==============================================================================
 Int_t       runOnData          = 0;       // Set to 1 if processing real data
 Int_t       iCollision         = 0;       // 0=pp, 1=Pb-Pb
-Int_t       run_flag           = 1100;   // year (2011 = 1100)
+Int_t       run_flag           = 1500;   // year (2011 = 1100)
 //==============================================================================
 Bool_t      doCDBconnect      = 1;
 Bool_t      usePhysicsSelection = kTRUE; // use physics selection
@@ -24,13 +24,13 @@ Int_t       iESDfilter         = 1;      // ESD to AOD filter (barrel + muon tra
 Int_t       iMUONcopyAOD       = 1;      // Task that copies only muon events in a separate AOD (PWG3)
 Int_t       iJETAN             = 0;      // Jet analysis (PWG4)
 Int_t       iJETANdelta        = 0;      // Jet delta AODs
-Int_t       iPWGHFvertexing     = 1;      // Vertexing HF task (PWG3)
-Int_t       iPWGDQJPSIfilter    = 0;      // JPSI filtering (PWG3)
-Int_t       iPWGHFd2h           = 1;      // D0->2 hadrons (PWG3)
-Int_t       iPIDResponse        = 1;      // PID response
-Int_t       iPWGLFForward       = 1;      // Forward mult task (PWGLF)
-Int_t       iPWGGAgammaconv     = 1;      // Gamma conversion analysis (PWG4)
-Int_t       iPWGPP              = 1;      // high pt filter task
+Int_t       iPWGHFvertexing    = 1;      // Vertexing HF task (PWG3)
+Int_t       iPWGDQJPSIfilter   = 0;      // JPSI filtering (PWG3)
+Int_t       iPWGHFd2h          = 1;      // D0->2 hadrons (PWG3)
+Int_t       iPWGPP             = 1;      // high pt filter task
+Int_t       iPIDResponse       = 1;      // PID response
+Int_t       iPWGLFForward      = 1;      // Forward mult task (PWGLF)
+Int_t       iPWGGAgammaconv    = 1;      // Gamma conversion analysis (PWG4)
 
 Int_t run_number = 0;
 
@@ -186,6 +186,12 @@ void AddAnalysisTasks(const char *cdb_location){
 //      physSelTask->GetPhysicsSelection()->SetCustomOADBObjects(oadbDefaultPbPb,0,0);
       mgr->AddStatisticsTask(AliVEvent::kAny);
     }
+//Jacek
+   if (iPWGPP) 
+   {
+      gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskFilteredTree.C");
+      AddTaskFilteredTree("FilterEvents_Trees.root");
+   }
    // Centrality (only Pb-Pb)
    if (useCentrality) {
       gROOT->LoadMacro("$ALICE_PHYSICS/OADB/macros/AddTaskCentrality.C");
@@ -193,13 +199,7 @@ void AddAnalysisTasks(const char *cdb_location){
       taskCentrality->SetMCInput();
     //  taskCentrality->SelectCollisionCandidates(AliVEvent::kAny);
    }
-
-//Jacek
-   if (iPWGPP) {
-      gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskFilteredTree.C");
-      AddTaskFilteredTree("FilterEvents_Trees.root");
-   }   
-      
+   
 // --- PWGLF - Forward (cholm@nbi.dk) -----------------------------
    if (iPWGLFForward && usePhysicsSelection) { 
         gROOT->LoadMacro("$ALICE_PHYSICS/PWGLF/FORWARD/analysis2/AddTaskForwardMult.C");
@@ -333,7 +333,7 @@ void AddAnalysisTasks(const char *cdb_location){
    if (iPWGGAgammaconv) 
    {
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/GammaConv/macros/AddTask_ConversionAODProduction.C");
-      AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(iCollision, kTRUE /*, periodName*/);
+      AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(iCollision, kTRUE);
       mgr->RegisterExtraFile("AliAODGammaConversion.root");
    }    
 }
