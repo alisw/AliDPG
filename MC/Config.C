@@ -16,6 +16,7 @@ static Int_t   magnetConfig    = 0;         // magnetic field
 static Int_t   detectorConfig  = 0;         // detector
 static Int_t   generatorConfig = 0;         // MC generator
 static Float_t energyConfig    = 0.;        // CMS energy
+static Float_t triggerConfig   = 0.;        // trigger
 static Float_t bminConfig      = 20.;       // impact parameter min
 static Float_t bmaxConfig      = 0.;        // impact parameter max
 static Float_t crossingConfig  = 0.;        // 2.8e-4 // crossing angle
@@ -41,6 +42,7 @@ Config()
   printf(">>>>>         detector: %s \n", DetectorName[detectorConfig]);
   printf(">>>>>     MC generator: %s \n", GeneratorName[generatorConfig]);
   printf(">>>>>       CMS energy: %f \n", energyConfig);
+  printf(">>>>>          trigger: %s \n", TriggerName[triggerConfig]);
   printf(">>>>>            b-min: %f \n", bminConfig);
   printf(">>>>>            b-max: %f \n", bmaxConfig);
   printf(">>>>>   crossing angle: %f \n", crossingConfig);
@@ -146,6 +148,22 @@ ProcessEnvironment()
     abort();
   }
 
+  // trigger configuration
+  triggerConfig = kGeneratorDefault;
+  if (gSystem->Getenv("CONFIG_TRIGGER")) {
+    Bool_t valid = kFALSE;
+    for (Int_t itrg = 0; itrg < kNTriggers; itrg++)
+      if (strcmp(gSystem->Getenv("CONFIG_TRIGGER"), TriggerName[itrg]) == 0) {
+	triggerConfig = itrg;
+	valid = kTRUE;
+	break;
+      }
+    if (!valid) {
+      printf(">>>>> Unknown trigger configuration: %s \n", gSystem->Getenv("CONFIG_TRIGGER"));
+      abort();
+    }
+  }
+  
   // impact parameter configuration
   bminConfig = 0.;
   if (gSystem->Getenv("CONFIG_BMIN"))
@@ -226,23 +244,7 @@ GeneratorOptions()
   //======================//
   //    Set MC options    //
   //======================//
-
-  enum PprTrigConf_t
-  {
-    kDefaultPPTrig, kDefaultPbPbTrig
-  };
   
-  const char * pprTrigConfName[] =
-    {
-      "p-p","Pb-Pb"
-      //    "ocdb","ocdb"
-    };
-
-  Int_t strig = kDefaultPPTrig;
-  
-  // Set the trigger configuration: proton-proton
-  AliSimulation::Instance()->SetTriggerConfig(pprTrigConfName[strig]);
-  cout <<"Trigger configuration is set to  "<<pprTrigConfName[strig]<<endl;
   //
   gMC->SetProcess("DCAY",1);
   gMC->SetProcess("PAIR",1);

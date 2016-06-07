@@ -14,13 +14,9 @@ enum EGenerator_t {
   kGeneratorPhojet,
   kGeneratorEPOSLHC_pp,
   kGeneratorHijing,
+  kGeneratorHijing_Rsn002a, kGeneratorHijing_Rsn002b, kGeneratorHijing_Rsn002c, // [ALIROOT-6721] [ALIROOT-6722]
   kGeneratorCustom,
   kNGenerators
-};
-
-enum EPythiaTune_t {
-  kPerugia2011 = 350,
-  kMonash2013  = 14
 };
 
 const Char_t *GeneratorName[kNGenerators] = {
@@ -33,7 +29,26 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Phojet",
   "EPOSLHC_pp",
   "Hijing",
+  "Hijing_Rsn002a", "Hijing_Rsn002b", "Hijing_Rsn002c",
   "Custom"
+};
+
+enum ETrigger_t {
+  kTriggerDefault,
+  kTriggerPP,
+  kTriggerPbPb,
+  kNTriggers
+};
+
+const Char_t *TriggerName[kNTriggers] = {
+  "ocdb",
+  "p-p",
+  "Pb-Pb"
+};
+
+enum EPythiaTune_t {
+  kPerugia2011 = 350,
+  kMonash2013  = 14
 };
 
 /*****************************************************************/
@@ -48,7 +63,6 @@ AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NU
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC(TString system);
 AliGenerator *GeneratorHijing();
-AliGenerator *GeneratorInjectorRsn001();
 
 /*****************************************************************/
 
@@ -84,10 +98,15 @@ GeneratorConfig(Int_t tag, Int_t run)
     // Pythia8 (Monash2013) - Rsn001
   case kGeneratorPythia8_Monash2013_Rsn001:
     AliGenCocktail *ctl = GeneratorCocktail("p", 1, 1, "p", 1, 1);
+    // pythia8
     AliGenerator   *py8 = GeneratorPythia8(kMonash2013);
-    AliGenerator   *inj = GeneratorInjectorRsn001();
     ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
+    // randomly injected particles
+    Int_t pdglist[] = {225, 3124, -3124, 9010221}; // f2(1270), Lambda(1520), Lambda_bar(1520), f0(980)
+    Int_t pdg = pdglist[uidConfig % (sizeof(pdglist) / 4)]; // select according to unique ID
+    inj = GeneratorInjector(1, pdg, 0., 15., -0.6, 0.6);
     ctl->AddGenerator(inj, "Injector (Rsn001)", 1.);
+    //
     gen = ctl;
     break;
     
@@ -106,6 +125,22 @@ GeneratorConfig(Int_t tag, Int_t run)
     gen = GeneratorHijing();
     break;
 
+    // Hijing - Rsn002
+  case kGeneratorHijing_Rsn002a:
+  case kGeneratorHijing_Rsn002b:
+  case kGeneratorHijing_Rsn002c:
+    Int_t ninjlist[3] = {25, 7, 3};
+    Int_t ninj = ninjlist[tag - kGeneratorHijing_Rsn002a];
+    AliGenCocktail *ctl  = GeneratorCocktail("A", 208, 82, "A", 208, 82);
+    AliGenerator   *hij  = GeneratorHijing();
+    AliGenerator   *inj1 = GeneratorInjector(ninj,  3124, 0., 10., -0.6, 0.6);
+    AliGenerator   *inj2 = GeneratorInjector(ninj, -3124, 0., 10., -0.6, 0.6);
+    ctl->AddGenerator(hij, "Hijing (central)", 1.);
+    ctl->AddGenerator(inj1, "Injector (Rsn002)", 1.);
+    ctl->AddGenerator(inj2, "Injector (Rsn002)", 1.);
+    gen = ctl;
+    break;
+    
     // Custom
   case kGeneratorCustom:
     if ((gROOT->LoadMacro("GeneratorCustom.C")) != 0) {
@@ -122,7 +157,10 @@ GeneratorConfig(Int_t tag, Int_t run)
   gen->SetVertexSmear(kPerEvent);
   gen->Init();
   printf(">>>>> Generator Configuration: %s \n", comment.Data());
-  
+  // Set the trigger configuration: proton-proton
+  AliSimulation::Instance()->SetTriggerConfig(TriggerName[triggerConfig]);
+  printf(">>>>> Trigger configuration:   %s \n", TriggerName[triggerConfig]);
+ 
 }
 
 /*** PYTHIA 6 ****************************************************/
@@ -260,7 +298,7 @@ GeneratorHijing()
   gSystem->Load("libHIJING");
   gSystem->Load("libTHijing");
 
-  comment = comment.Append(" | HIJING");
+  comment = comment.Append(Form(" | HIJING (b = %f-%f fm)", bminConfig, bmaxConfig));
   AliGenHijing *gener = new AliGenHijing(-1);
   // centre of mass energy
   gener->SetEnergyCMS(energyConfig);
@@ -315,23 +353,5 @@ GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t y
   box->SetYRange(ymin, ymax);
   box->SetPhiRange(0., 360.);
   return box;
-}
-
-/*** INJECTOR RSN001 ****************************************************/
-
-AliGenerator * 
-GeneratorInjectorRsn001()
-{
-  comment = comment.Append(" | Rsn001");
-  //
-  // injected particles
-  Int_t pdglist[] = {
-    225,     // f2(1270)
-    3124,    // Lambda(1520)
-    -3124,   // Lambda_bar(1520)
-    9010221  // f0(980)
-  };
-  Int_t pdg = pdglist[uidConfig % (sizeof(pdglist) / 4)]; // select according to unique ID
-  return GeneratorInjector(1, pdg, 0., 15., -0.6, 0.6);
 }
 

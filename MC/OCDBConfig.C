@@ -64,10 +64,15 @@ OCDBDefault(Int_t run, Int_t mode)
 DefaultSpecificStorage(AliCDBManager *man, Int_t run, Int_t mode)
 {
   
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
+  Int_t year = RunToYear(run);
+
+  const Char_t *Raw      = Form("alien://Folder=/alice/data/%d/OCDB", year);
   const Char_t *Ideal    = "alien://Folder=/alice/simulation/2008/v4-15-Release/Ideal/";
   const Char_t *Residual = "alien://Folder=/alice/simulation/2008/v4-15-Release/Residual/";
   const Char_t *Full     = "alien://Folder=/alice/simulation/2008/v4-15-Release/Full/";
   
+  // DEFAULT
   const Int_t nSpecificStorages = 12;
   const Char_t *SpecificStorageList[nSpecificStorages][3] = {
     // path                    sim       rec
@@ -93,8 +98,14 @@ DefaultSpecificStorage(AliCDBManager *man, Int_t run, Int_t mode)
   for (Int_t isto = 0; isto < nSpecificStorages; isto++) {
     if (SpecificStorageList[mode][isto]) {
       printf("Setting specific storage: %s -> %s\n", SpecificStorageList[isto][0], SpecificStorageList[isto][mode+1]);
-      man->SetSpecificStorage(SpecificStorageList[isto][0], SpecificStorageList[isto][mode+1]);
-      
+      man->SetSpecificStorage(SpecificStorageList[isto][0], SpecificStorageList[isto][mode+1]);      
     }
   }
+
+  // temporary HACK 
+  if (year < 2015) {
+    man->SetSpecificStorage("AD/Calib/QAParam", "alien://Folder=/alice/data/2015/OCDB");
+  }
+
 }
+
