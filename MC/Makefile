@@ -10,7 +10,7 @@ test_Pythia8: clean
 
 test_Muon: clean
 	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode full --nevents 2 --uid 1 --generator Pythia6_Perugia2011 --detector Muon --simulation Muon --reconstruction Muon --system p-p
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode full,Muon --nevents 2 --uid 1 --generator Pythia6_Perugia2011 --system p-p
 
 test_Rsn001: clean
 	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode ocdb
