@@ -20,7 +20,7 @@ Bool_t      useTR               = kTRUE;   // use track references
 Bool_t      useCORRFW           = kFALSE;  // do not change
 Bool_t      useAODTAGS          = kFALSE;  // use AOD tags
 Bool_t      useSysInfo          = kFALSE;  // use sys info
-Bool_t      isMuonCaloPass      = kFALSE;  // setting this to kTRUE will disable some not needed analysis tasks for a muon_calo pass
+Bool_t      isMuonCaloPass      = kTRUE;   // setting this to kTRUE will disable some not needed analysis tasks for a muon_calo pass
 
 // ### Analysis modules to be included. Some may not be yet fully implemented.
 //==============================================================================
