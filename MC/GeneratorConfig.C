@@ -246,6 +246,11 @@ GeneratorPythia8(Int_t tune, Int_t ntrig, Int_t *trig)
 AliGenerator *
 GeneratorPhojet()
 {
+  //
+  // Libraries
+  gSystem->Load("libDPMJET");
+  gSystem->Load("libTDPMjet");
+  //
   comment = comment.Append(" | Phojet low-pt");
   //                                                                                      
   //    DPMJET                                                                            
