@@ -20,7 +20,7 @@ Bool_t      useTR               = kTRUE;   // use track references
 Bool_t      useCORRFW           = kFALSE;  // do not change
 Bool_t      useAODTAGS          = kFALSE;  // use AOD tags
 Bool_t      useSysInfo          = kFALSE;  // use sys info
-Bool_t      isMuonCaloPass      = kTRUE;   // setting this to kTRUE will disable some not needed analysis tasks for a muon_calo pass
+Bool_t      isMuonCaloPass      = kFALSE;  // setting this to kTRUE will disable some not needed analysis tasks for a muon_calo pass
 
 // ### Analysis modules to be included. Some may not be yet fully implemented.
 //==============================================================================
@@ -473,7 +473,8 @@ void ProcessEnvironment()
 {
   // collision system configuration
   iCollision = kpp;
-  if (gSystem->Getenv("CONFIG_SYSTEM")) {
+  if (gSystem->Getenv("CONFIG_SYSTEM"))
+  {
     Bool_t valid = kFALSE;
     for (Int_t icoll = 0; icoll < kNSystem; icoll++)
       if (strcmp(gSystem->Getenv("CONFIG_SYSTEM"), CollisionSystem[icoll]) == 0) {
@@ -491,9 +492,18 @@ void ProcessEnvironment()
   run_number = -1;
   if (gSystem->Getenv("CONFIG_RUN"))
     run_number = atoi(gSystem->Getenv("CONFIG_RUN"));
-  if (run_number <= 0) {
+  if (run_number <= 0)
+  {
     printf(">>>>> Invalid run number: %d \n", run_number);
     abort();
   }
 
+  // Setting this to kTRUE will disable some not needed analysis tasks for a muon_calo pass
+  isMuonCaloPass = kFALSE;
+  if (gSystem->Getenv("CONFIG_AOD"))
+  {
+    TString configstr = gSystem->Getenv("CONFIG_AOD");
+    if (configstr.Contains("Muon"))
+      isMuonCaloPass = kTRUE;
+  }
 }
