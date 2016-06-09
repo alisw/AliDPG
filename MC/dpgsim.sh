@@ -253,6 +253,28 @@ if [[ $CONFIG_RUN == "" ]]; then
     exit 2
 fi
 
+### automatic settings from CONFIG_MODE
+
+if [[ $CONFIG_MODE == *"Muon"* ]]; then
+    if [[ $CONFIG_DETECTOR == "" ]]; then
+	export CONFIG_DETECTOR="Muon"
+    fi
+    if [[ $CONFIG_SIMULATION == "" ]]; then
+	export CONFIG_SIMULATION="Muon"
+    fi
+    if [[ $CONFIG_RECONSTRUCTION == "" ]]; then
+	export CONFIG_RECONSTRUCTION="Muon"
+    fi
+    if [[ $CONFIG_QA == "" ]]; then
+	export CONFIG_QA="Muon"
+    fi
+    if [[ $CONFIG_AOD == "" ]]; then
+	export CONFIG_AOD="Muon"
+    fi
+fi
+
+##########################################
+
 echo
 echo "============================================"
 echo " DPGSIM"
@@ -266,6 +288,7 @@ echo "Generator........ $CONFIG_GENERATOR"
 echo "System........... $CONFIG_SYSTEM"
 echo "Trigger.......... $CONFIG_TRIGGER"
 echo "Energy........... $CONFIG_ENERGY"
+echo "Detector......... $CONFIG_DETECTOR"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
 echo "QA train......... $CONFIG_QA"

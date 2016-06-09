@@ -199,11 +199,6 @@ LoadLibraries()
 {
   gSystem->Load("liblhapdf");
   gSystem->Load("libEGPythia6");
-  // phojet libraries have to be loaded before geant3
-  if (generatorConfig == kGeneratorPhojet) {
-    gSystem->Load("libDPMJET");
-    gSystem->Load("libTDPMjet");
-  }
   gSystem->Load("libgeant321");
   gSystem->Load("libpythia6_4_25");
   gSystem->Load("libAliPythia6");

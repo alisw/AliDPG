@@ -98,12 +98,7 @@ void AODtrainsim(Int_t merge=0)
 
   if(iCollision == kPbPb)
     useCentrality =kTRUE;
-  
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
-  Int_t year =RunToYear(run_number);
-  if(year<2015)  run_flag =1100;
-  if(year<=2010) run_flag =1000;
-  
+    
   UpdateFlags();
   
   if (merge || doCDBconnect) {
@@ -471,9 +466,12 @@ void AODmerge()
 //______________________________________________________________________________
 void ProcessEnvironment()
 {
-  // collision system configuration
+  //
+  // Collision system configuration
+  //
   iCollision = kpp;
-  if (gSystem->Getenv("CONFIG_SYSTEM")) {
+  if (gSystem->Getenv("CONFIG_SYSTEM"))
+  {
     Bool_t valid = kFALSE;
     for (Int_t icoll = 0; icoll < kNSystem; icoll++)
       if (strcmp(gSystem->Getenv("CONFIG_SYSTEM"), CollisionSystem[icoll]) == 0) {
@@ -487,13 +485,35 @@ void ProcessEnvironment()
     }
   }
 
-  // run number
+  //
+  // Run number
+  //
   run_number = -1;
   if (gSystem->Getenv("CONFIG_RUN"))
     run_number = atoi(gSystem->Getenv("CONFIG_RUN"));
-  if (run_number <= 0) {
+  if (run_number <= 0)
+  {
     printf(">>>>> Invalid run number: %d \n", run_number);
     abort();
   }
 
+  //
+  // Setting this to kTRUE will disable some not needed analysis tasks for a muon_calo pass
+  //
+  isMuonCaloPass = kFALSE;
+  if (gSystem->Getenv("CONFIG_AOD"))
+  {
+    TString configstr = gSystem->Getenv("CONFIG_AOD");
+    if (configstr.Contains("Muon"))
+      isMuonCaloPass = kTRUE;
+  }
+
+  //
+  // Figure out the run_flag - still the "poor-man-solution" :)
+  //
+  run_flag = 1500;
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
+  Int_t year =RunToYear(run_number);
+  if(year<2015)  run_flag =1100;
+  if(year<=2010) run_flag =1000;
 }

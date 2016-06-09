@@ -62,20 +62,19 @@ Bool_t doHMPID        = 1;
 Bool_t doT0           = 1;
 Bool_t doZDC          = 1;
 Bool_t doPIDResponse  = 1;
-Bool_t doPIDqa        = 1; //new
-Bool_t doFMD          = 1; // new
-Bool_t doPHOS         = 1; // new
-Bool_t doPHOSTrig     = 1; // new
+Bool_t doPIDqa        = 1;    //new
+Bool_t doFMD          = 1;    // new
+Bool_t doPHOS         = 1;    // new
+Bool_t doPHOSTrig     = 1;    // new
 Bool_t doEMCAL        = 0;
-Bool_t doFBFqa        = 1; // new - not ported yet to revision
+Bool_t doFBFqa        = 1;    // new - not ported yet to revision
 
-Bool_t doMUONEff      = 0;   // NEEDS geometry
-Bool_t doV0           = 0;   // NEEDS MCtruth 
-Bool_t doAD           = 1; //decetrot AD
-Bool_t doEvTrk        = 1; //analysis task uses the CF framework 
+Bool_t doMUONEff      = 0;    // NEEDS geometry
+Bool_t doV0           = 0;    // NEEDS MCtruth 
+Bool_t doAD           = 1;    //decetrot AD
+Bool_t doEvTrk        = 1;    // analysis task uses the CF framework 
 
-               // Debug level
-Int_t debug_level     = 1;        // Debugging
+Int_t debug_level     = 1;    // Debugging
 Int_t run_number      = 0;
 Int_t run_flag        = 1500;
 
@@ -93,11 +92,6 @@ void QAtrainsim(Int_t run = 0,
     doCentrality =kTRUE;
     doVZEROPbPb =kTRUE;
   }
-
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
-  Int_t year =RunToYear(run_number);
-  if(year<2015)  run_flag =1100;
-  if(year<=2010) run_flag =1000;
 
   TString cdbString(cdb);
   if (cdbString.Contains("raw://"))
@@ -626,7 +620,9 @@ void QAmerge(const char *dir, Int_t stage)
 //______________________________________________________________________________
 void ProcessEnvironment()
 {
-  // collision system configuration
+  //
+  // Collision system configuration
+  //
   iCollisionType = kpp;
   if (gSystem->Getenv("CONFIG_SYSTEM")) {
     Bool_t valid = kFALSE;
@@ -651,4 +647,12 @@ void ProcessEnvironment()
 //     abort();
 //   }
 
+  //
+  // Figure out the run_flag - still the "poor-man-solution" :)
+  //
+  run_flag = 1500;
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
+  Int_t year =RunToYear(run_number);
+  if(year<2015)  run_flag =1100;
+  if(year<=2010) run_flag =1000;
 }

@@ -10,12 +10,14 @@
 
 enum ESimulation_t {
   kSimulationDefault,
+  kSimulationMuon,
   kSimulationCustom,
   kNSimulations
 };
 
 const Char_t *SimulationName[kNSimulations] = {
   "Default",
+  "Muon",
   "Custom"
 };
 
@@ -30,32 +32,14 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag, Int_t run)
     
     // Default
   case kSimulationDefault:
-    //
-    // set OCDB snapshot mode
-    //    AliCDBManager *man = AliCDBManager::Instance();
-    //    man->SetDefaultStorage("alien://Folder=/alice/data/2015/OCDB");
-    //    man->SetRun(run);
-    //    man->SetSnapshotMode("OCDBsim.root");
-    sim.SetCDBSnapshotMode("OCDBsim.root");
-    //
-    if (run < 222222)
-      {
-	sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD");
-      }
-    else
-      {
-	sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD AD");
-      }
-    sim.SetMakeDigitsFromHits("ITS TPC");
-    //  sim.SetRunHLT(""); // can't detect from GRP if HLT was running, off for safety now 
-    //
-    SimulationConfigPHOS(sim, run);
-    //
-    sim.UseVertexFromCDB();
-    sim.UseMagFieldFromGRP();
-    //
-    sim.SetRunQA(":");
-    //
+    SimulationDefault(sim, run);
+    return;
+    
+    // Muon
+  case kSimulationMuon:
+    SimulationDefault(sim, run);
+    sim.SetMakeSDigits("MUON VZERO");
+    sim.SetMakeDigitsFromHits("ITS");
     return;
     
     // Custom
@@ -72,40 +56,32 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag, Int_t run)
   
 }
 
-/*** ITS ****************************************************/
-
-SimulationConfigITS(AliSimulation &sim, Int_t run)
+SimulationDefault(AliSimulation &sim, Int_t run)
 {
-  //  sim.SetSpecificStorage("ITS/Align/Data", Ideal);
-  //  sim.SetSpecificStorage("ITS/Calib/SPDSparseDead", Full); // only for PbPb ?
-}
 
-/*** TPC ****************************************************/
-
-SimulationConfigTPC(AliSimulation &sim, Int_t run)
-{
-  //  sim.SetSpecificStorage("TPC/Calib/Parameters",   Residual);
-  //  sim.SetSpecificStorage("TPC/Calib/ClusterParam", Residual);
-  //  sim.SetSpecificStorage("TPC/Calib/RecoParam",    Full);
-  //  sim.SetSpecificStorage("TPC/Calib/TimeGain",     Ideal);
-  //  sim.SetSpecificStorage("TPC/Calib/Correction",   Ideal);
-  //  sim.SetSpecificStorage("TPC/Align/Data",         Ideal);
-  //  sim.SetSpecificStorage("TPC/Calib/TimeDrift",    Ideal);
-}
-
-/*** MUON ****************************************************/
-
-SimulationConfigMUON(AliSimulation &sim, Int_t run)
-{
-  //  sim.SetSpecificStorage("MUON/Align/Data", Ideal);
-}
-
-/*** ZDC ****************************************************/
-
-SimulationConfigZDC(AliSimulation &sim, Int_t run)
-{
-  //  sim.SetSpecificStorage("ZDC/Align/Data", Ideal);
-  //  sim.SetSpecificStorage("ZDC/Calib/Pedestals", Ideal); // only for PbPb ?
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
+  Int_t year = RunToYear(run);
+  
+  //
+  // set OCDB snapshot mode
+  //    AliCDBManager *man = AliCDBManager::Instance();
+  //    man->SetDefaultStorage("alien://Folder=/alice/data/2015/OCDB");
+  //    man->SetRun(run);
+  //    man->SetSnapshotMode("OCDBsim.root");
+  sim.SetCDBSnapshotMode("OCDBsim.root");
+  //
+  if (year < 2015) sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD");
+  else             sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD AD");
+  sim.SetMakeDigitsFromHits("ITS TPC");
+  //  sim.SetRunHLT(""); // can't detect from GRP if HLT was running, off for safety now 
+  //
+  SimulationConfigPHOS(sim, run);
+  //
+  sim.UseVertexFromCDB();
+  sim.UseMagFieldFromGRP();
+  //
+  sim.SetRunQA(":");
+  //
 }
 
 /*** PHOS ****************************************************/

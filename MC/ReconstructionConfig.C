@@ -10,12 +10,14 @@
 
 enum EReconstruction_t {
   kReconstructionDefault,
+  kReconstructionMuon,
   kReconstructionCustom,
   kNReconstructions
 };
 
 const Char_t *ReconstructionName[kNReconstructions] = {
   "Default",
+  "Muon",
   "Custom"
 };
 
@@ -28,6 +30,31 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag, Int_t run)
 
     // Default
   case kReconstructionDefault:
+    ReconstructionDefault(rec, run);
+    return;
+    
+    // Muon
+  case kReconstructionMuon:
+    ReconstructionDefault(rec, run);
+    rec.SetRunReconstruction("MUON ITS VZERO");
+    return;
+    
+    // Custom
+  case kReconstructionCustom:
+    if ((gROOT->LoadMacro("ReconstructionCustom.C")) != 0) {
+      printf("ERROR: cannot find ReconstructionCustom.C\n");
+      abort();
+      return;
+    }
+    ReconstructionCustom(rec, run);
+    return;
+
+  }  
+
+}
+
+ReconstructionDefault(AliReconstruction &rec, Int_t run)
+{
     //
     //    // set OCDB snapshot mode
     //    AliCDBManager *man = AliCDBManager::Instance();
@@ -46,84 +73,4 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag, Int_t run)
     //
     rec.SetRunQA(":");
     //
-    return;
-    
-    // Custom
-  case kReconstructionCustom:
-    if ((gROOT->LoadMacro("ReconstructionCustom.C")) != 0) {
-      printf("ERROR: cannot find ReconstructionCustom.C\n");
-      abort();
-      return;
-    }
-    ReconstructionCustom(rec, run);
-    return;
-
-  }  
-
-}
-
-/*** ITS ****************************************************/
-
-ReconstructionConfigITS(AliReconstruction &rec, Int_t run)
-{
-  //  rec.SetSpecificStorage("ITS/Align/Data", Residual);
-  //  rec.SetSpecificStorage("ITS/Calib/SPDSparseDead", Residual);
-}
-
-/*** TPC ****************************************************/
-
-ReconstructionConfigTPC(AliReconstruction &rec, Int_t run)
-{
-  //  rec.SetSpecificStorage("TPC/Calib/Parameters",   Residual);
-  //  rec.SetSpecificStorage("TPC/Calib/ClusterParam", Residual);
-  //  rec.SetSpecificStorage("TPC/Calib/RecoParam",    Full);
-  //  rec.SetSpecificStorage("TPC/Align/Data",         Residual);
-  //  rec.SetSpecificStorage("TPC/Calib/TimeGain",     Residual);
-  //  rec.SetSpecificStorage("TPC/Calib/TimeDrift",    Residual);
-  //  rec.SetSpecificStorage("TPC/Calib/Correction",   Residual);
-}
-
-/*** TRD ****************************************************/
-
-ReconstructionConfigTRD(AliReconstruction &rec, Int_t run)
-{
-}
-
-/*** TOF ****************************************************/
-
-ReconstructionConfigTOF(AliReconstruction &rec, Int_t run)
-{
-}
-
-/*** HMPID ****************************************************/
-
-ReconstructionConfigHMPID(AliReconstruction &rec, Int_t run)
-{
-}
-
-/*** PHOS ****************************************************/
-
-ReconstructionConfigPHOS(AliReconstruction &rec, Int_t run)
-{
-}
-
-/*** EMCAL ****************************************************/
-
-ReconstructionConfigEMCAL(AliReconstruction &rec, Int_t run)
-{
-}
-
-/*** MUON ****************************************************/
-
-ReconstructionConfigMUON(AliReconstruction &rec, Int_t run)
-{
-  //  rec.SetSpecificStorage("MUON/Align/Data", Residual); 
-}
-
-/*** ZDC ****************************************************/
-
-ReconstructionConfigZDC(AliReconstruction &rec, Int_t run)
-{
-  //  rec.SetSpecificStorage("ZDC/Align/Data", Ideal);
-  //  rec.SetSpecificStorage("ZDC/Calib/Pedestals", Ideal); // only for PbPb ?
 }

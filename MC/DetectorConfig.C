@@ -10,12 +10,14 @@
 
 enum EDetector_t {
   kDetectorDefault,
+  kDetectorMuon,
   kDetectorCustom,
   kNDetectors
 };
 
 const Char_t *DetectorName[kNDetectors] = {
   "Default",
+  "Muon",
   "Custom"
 };
 
@@ -37,6 +39,33 @@ const Char_t *MagnetName[kNMagnets] = {
 };
 
 /*****************************************************************/
+/*****************************************************************/
+/*****************************************************************/
+
+Int_t iABSO   = 1;
+Int_t iACORDE = 1;
+Int_t iAD     = 1;
+Int_t iDIPO   = 1;
+Int_t iEMCAL  = 1;
+Int_t iFMD    = 1;
+Int_t iFRAME  = 1;
+Int_t iHALL   = 1;
+Int_t iITS    = 1;
+Int_t iMAG    = 1;
+Int_t iMUON   = 1;
+Int_t iPHOS   = 1;
+Int_t iPIPE   = 1;
+Int_t iPMD    = 1;
+Int_t iHMPID  = 1;
+Int_t iSHIL   = 1;
+Int_t iT0     = 1;
+Int_t iTOF    = 1;
+Int_t iTPC    = 1;
+Int_t iTRD    = 1;
+Int_t iVZERO  = 1;
+Int_t iZDC    = 1;
+  
+/*****************************************************************/
 
 void
 DetectorConfig(Int_t tag, Int_t run)
@@ -47,6 +76,11 @@ DetectorConfig(Int_t tag, Int_t run)
     // kDetectorDefault
   case kDetectorDefault:
     DetectorDefault(run);
+    break;
+    
+    // kDetectorMuon
+  case kDetectorMuon:
+    DetectorMuon(run);
     break;
     
     // kDetectorCustom
@@ -78,30 +112,89 @@ DetectorDefault(Int_t run)
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
   Int_t year = RunToYear(run);
   
-  Int_t iABSO   = 1;
-  Int_t iACORDE = 1;
-  Int_t iAD     = year < 2015 ? 0 : 1;
-  Int_t iDIPO   = 1;
-  Int_t iEMCAL  = 1;
-  Int_t iFMD    = 1;
-  Int_t iFRAME  = 1;
-  Int_t iHALL   = 1;
-  Int_t iITS    = 1;
-  Int_t iMAG    = 1;
-  Int_t iMUON   = 1;
-  Int_t iPHOS   = 1;
-  Int_t iPIPE   = 1;
-  Int_t iPMD    = 1;
-  Int_t iHMPID  = 1;
-  Int_t iSHIL   = 1;
-  Int_t iT0     = 1;
-  Int_t iTOF    = 1;
-  Int_t iTPC    = 1;
-  Int_t iTRD    = 1;
-  Int_t iVZERO  = 1;
-  Int_t iZDC    = 1;
+  iABSO   = 1;
+  iACORDE = 1;
+  iAD     = year < 2015 ? 0 : 1;
+  iDIPO   = 1;
+  iEMCAL  = 1;
+  iFMD    = 1;
+  iFRAME  = 1;
+  iHALL   = 1;
+  iITS    = 1;
+  iMAG    = 1;
+  iMUON   = 1;
+  iPHOS   = 1;
+  iPIPE   = 1;
+  iPMD    = 1;
+  iHMPID  = 1;
+  iSHIL   = 1;
+  iT0     = 1;
+  iTOF    = 1;
+  iTPC    = 1;
+  iTRD    = 1;
+  iVZERO  = 1;
+  iZDC    = 1;
+
+  DetectorInit(run);
+}
   
+/*****************************************************************/
+
+void
+DetectorMuon(Int_t run)
+{
+  /*
+   * DetectorMuon
+   * configures the detectors to the Muon 
+   * configuration automatically according to run number
+   *
+   */
   
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
+  Int_t year = RunToYear(run);
+  
+  iABSO   = 1;
+  iACORDE = 0;
+  iAD     = year < 2015 ? 0 : 1;
+  iDIPO   = 1;
+  iEMCAL  = 0;
+  iFMD    = 1;
+  iFRAME  = 1;
+  iHALL   = 1;
+  iITS    = 1;
+  iMAG    = 1;
+  iMUON   = 1;
+  iPHOS   = 0;
+  iPIPE   = 1;
+  iPMD    = 0;
+  iHMPID  = 0;
+  iSHIL   = 1;
+  iT0     = 1;
+  iTOF    = 0;
+  iTPC    = 0;
+  iTRD    = 0;
+  iVZERO  = 1;
+  iZDC    = 0;
+
+  DetectorInit(run);
+}
+  
+/*****************************************************************/
+
+void
+DetectorInit(Int_t run)
+{
+  /*
+   * DetectorInit
+   * initialise the detectors to the default 
+   * configuration automatically according to run number
+   *
+   */
+  
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
+  Int_t year = RunToYear(run);
+
+
   //=================== Alice BODY parameters =============================
   AliBODY *BODY = new AliBODY("BODY", "Alice envelop");
   
