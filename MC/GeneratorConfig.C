@@ -271,10 +271,11 @@ AliGenerator *
 GeneratorEPOSLHC(TString system)
 {
   
+  comment = comment.Append(Form(" | EPOS-LHC (%s)", system.Data()));
+  //
   if (system.EqualTo("pp")) {
-    comment = comment.Append(" | EPOS-LHC");
     Float_t beamEnergy = energyConfig / 2.;
-    TString fifoname = Form("/tmp/crmceventfifo%d", gRandom->Integer(kMaxInt));
+    TString fifoname = Form("crmceventfifo%d", gRandom->Integer(kMaxInt));
     gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
     gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
     gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc_pp.sh %s %d %f %f &",
@@ -288,6 +289,7 @@ GeneratorEPOSLHC(TString system)
   AliGenReaderHepMC *reader = new AliGenReaderHepMC();
   reader->SetFileName("crmceventfifo");
   AliGenExtFile *gener = new AliGenExtFile(-1);
+  gener->SetName(Form("EPOSLHC_%s", system.Data()));
   gener->SetReader(reader);
   
   return gener;
