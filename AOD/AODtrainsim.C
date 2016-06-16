@@ -300,7 +300,7 @@ void AddAnalysisTasks(const char *cdb_location)
                                   kFALSE,                // disable kinks
                                   run_flag,              // run flag (YY00)
                                   3,                     // muonMCMode
-                                  kTRUE,                 // useV0Filter 
+                                  kFALSE,                // useV0Filter 
                                   muonWithSPDTracklets,
                                   isMuonCaloPass);
          AliEMCALGeometry::GetInstance("","");
@@ -488,9 +488,20 @@ void ProcessEnvironment()
   //
   // Run number
   //
+  gSystem->Exec("set");
   run_number = -1;
   if (gSystem->Getenv("CONFIG_RUN"))
+  {
     run_number = atoi(gSystem->Getenv("CONFIG_RUN"));
+    printf(">>>>> Using run_number from CONFIG_RUN as %d", run_number);
+  }
+  else
+    if (gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER"))
+    {
+      run_number = atoi(gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER"));
+      printf(">>>>> Using run_number from ALIEN_JDL_LPMRUNNUMBER as %d", run_number);
+    }
+
   if (run_number <= 0)
   {
     printf(">>>>> Invalid run number: %d \n", run_number);
