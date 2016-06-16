@@ -2,7 +2,7 @@
 set -e
 
 if [[ $# -lt 4 ]]; then
-    echo "usage: gen_eposlhc_pp.sh [outfilename] [nevents] [projectile_energy] [target_energy]
+    echo "usage: gen_eposlhc_pp.sh [outfilename] [nevents] [projectile_energy] [target_energy]"
     exit -1
 fi
 
@@ -15,6 +15,13 @@ eval $(alienv printenv CRMC::v1.5.4-2)
 
 # force path to requested output
 sed -e s#__CRMC_BASEDIR__#"$CRMC_ROOT"# ${ALICE_PHYSICS}/PWG/MCLEGO/CRMC/crmc_template.param > crmc.param
+
+# echo crmc.param
+echo "=========================================="
+echo "CRMC.PARAM"
+echo "=========================================="
+cat crmc.param
+echo "=========================================="
 
 # run CRMC
 crmc -o hepmc -p $3 -P-$4 -n $2 -m 0 -f $1

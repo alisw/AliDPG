@@ -275,10 +275,11 @@ GeneratorEPOSLHC(TString system)
   //
   if (system.EqualTo("pp")) {
     Float_t beamEnergy = energyConfig / 2.;
-    TString fifoname = Form("crmceventfifo%d", gRandom->Integer(kMaxInt));
+    //    TString fifoname = Form("crmceventfifo%d", gRandom->Integer(kMaxInt));
+    TString fifoname = "crmceventfifo";
     gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
     gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
-    gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc_pp.sh %s %d %f %f &",
+    gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc_pp.sh %s %d %f %f &> gen_eposlhc_pp.log &",
 			    fifoname.Data(), neventsConfig, beamEnergy, beamEnergy));
   }
   else {
