@@ -32,9 +32,9 @@ Hijing_Rsn002c: clean
 
 ### [ALIROOT-6750]
 
-Hijing_Jpsi2ee001: clean
+Hijing_Jpsiee001: clean
 	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing_Jpsi2ee001 --system Pb-Pb
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing_Jpsiee001 --system Pb-Pb
 
 ###
 

@@ -69,7 +69,7 @@ AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NU
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC(TString system);
 AliGenerator *GeneratorHijing();
-AliGenerator *Generator_Jpsi2ee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
+AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
 
 /*****************************************************************/
 
@@ -152,13 +152,19 @@ GeneratorConfig(Int_t tag, Int_t run)
   case kGeneratorHijing_Jpsiee001:
     AliGenCocktail *ctl   = GeneratorCocktail("A", 208, 82, "A", 208, 82);
     AliGenerator   *hij   = GeneratorHijing();
-    AliGenerator   *jpsi  = Generator_Jpsiee("PbPb 2.76",   1.0, 0.3, 0.3, 0.0);
-    AliGenerator   *bjpsi = Generator_Jpsiee("Pythia BBar", 0.0, 0.0, 0.0, 1.0);
-    ctl->AddGenerator(hij,  "Hijing", 1.);
-    if (uidConfig % 2 == 0)
-      ctl->AddGenerator(jpsi, "Jpsi2ee", 10.);
-    else
-      ctl->AddGenerator(bjpsi, "B2Jpsi2ee", 10.);
+    ctl->AddGenerator(hij,  "Hijing", 1.);    
+    if (uidConfig % 10 < 7) {
+      AliGenerator *jpsi  = Generator_Jpsiee("PbPb 2.76", 1.0, 0.3, 0.3, 0.0);
+      ctl->AddGenerator(jpsi, "Jpsi2ee", 1., new TFormula("ten", "10."));
+      TFile *file = new TFile("typeHF_4.proc", "recreate");
+      file->Close();
+    }
+    else {
+      AliGenerator *bjpsi = Generator_Jpsiee("Pythia BBar", 0.0, 0.0, 0.0, 1.0);
+      ctl->AddGenerator(bjpsi, "B2Jpsi2ee", 1., new TFormula("ten", "10."));
+      TFile *file = new TFile("typeHF_5.proc", "recreate");
+      file->Close();
+    }
     gen = ctl;
     break;
     
@@ -387,7 +393,7 @@ GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t y
 /*** JPSI -> EE ****************************************************/
 
 AliGenerator *
-Generator_Jpsi2ee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac)
+Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac)
 {
 
   /*
@@ -403,6 +409,12 @@ Generator_Jpsi2ee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float
   gSystem->Load("libEvtGen");
   gSystem->Load("libEvtGenExternal");
   gSystem->Load("libTEvtGen");  
+  //
+  // set external decayer
+  TVirtualMCDecayer* decayer = new AliDecayerPythia();
+  decayer->SetForceDecay(kAll);
+  decayer->Init();
+  gMC->SetExternalDecayer(decayer);
 
   comment = comment.Append(Form(" | J/psi -> ee (%s, %.1f/%.1f/%.1f/%.1f)", params, jpsifrac, lowfrac, highfrac, bfrac));
   
