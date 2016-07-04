@@ -15,6 +15,7 @@ enum EGenerator_t {
   kGeneratorEPOSLHC_pp,
   kGeneratorHijing,
   kGeneratorHijing_Rsn002a, kGeneratorHijing_Rsn002b, kGeneratorHijing_Rsn002c, // [ALIROOT-6721] [ALIROOT-6722]
+  kGeneratorHijing_Jpsiee001, // [ALIROOT-6750]
   kGeneratorCustom,
   kNGenerators
 };
@@ -30,6 +31,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "EPOSLHC_pp",
   "Hijing",
   "Hijing_Rsn002a", "Hijing_Rsn002b", "Hijing_Rsn002c",
+  "Hijing_Jpsiee001",
   "Custom"
 };
 
@@ -46,9 +48,13 @@ const Char_t *TriggerName[kNTriggers] = {
   "Pb-Pb"
 };
 
-enum EPythiaTune_t {
-  kPerugia2011 = 350,
-  kMonash2013  = 14
+enum EPythia6Tune_t {
+  kPythia6Tune_Perugia0    = 320,
+  kPythia6Tune_Perugia2011 = 350
+};
+
+enum EPythia8Tune_t {
+  kPythia8Tune_Monash2013  = 14
 };
 
 /*****************************************************************/
@@ -63,6 +69,7 @@ AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NU
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC(TString system);
 AliGenerator *GeneratorHijing();
+AliGenerator *Generator_Jpsi2ee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
 
 /*****************************************************************/
 
@@ -86,20 +93,20 @@ GeneratorConfig(Int_t tag, Int_t run)
     // Pythia6 (Perugia2011)
   case kGeneratorPythia6:
   case kGeneratorPythia6_Perugia2011:
-    gen = GeneratorPythia6(kPerugia2011);
+    gen = GeneratorPythia6(kPythia6Tune_Perugia2011);
     break;
 
     // Pythia8 (Monash2013)
   case kGeneratorPythia8:
   case kGeneratorPythia8_Monash2013:
-    gen = GeneratorPythia8(kMonash2013);
+    gen = GeneratorPythia8(kPythia8Tune_Monash2013);
     break;
     
     // Pythia8 (Monash2013) - Rsn001
   case kGeneratorPythia8_Monash2013_Rsn001:
     AliGenCocktail *ctl = GeneratorCocktail("p", 1, 1, "p", 1, 1);
     // pythia8
-    AliGenerator   *py8 = GeneratorPythia8(kMonash2013);
+    AliGenerator   *py8 = GeneratorPythia8(kPythia8Tune_Monash2013);
     ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
     // randomly injected particles
     Int_t pdglist[] = {225, 3124, -3124, 9010221}; // f2(1270), Lambda(1520), Lambda_bar(1520), f0(980)
@@ -135,9 +142,23 @@ GeneratorConfig(Int_t tag, Int_t run)
     AliGenerator   *hij  = GeneratorHijing();
     AliGenerator   *inj1 = GeneratorInjector(ninj,  3124, 0., 10., -0.6, 0.6);
     AliGenerator   *inj2 = GeneratorInjector(ninj, -3124, 0., 10., -0.6, 0.6);
-    ctl->AddGenerator(hij, "Hijing (central)", 1.);
+    ctl->AddGenerator(hij,  "Hijing",            1.);
     ctl->AddGenerator(inj1, "Injector (Rsn002)", 1.);
     ctl->AddGenerator(inj2, "Injector (Rsn002)", 1.);
+    gen = ctl;
+    break;
+
+    // Hijing - Jpsiee001
+  case kGeneratorHijing_Jpsiee001:
+    AliGenCocktail *ctl   = GeneratorCocktail("A", 208, 82, "A", 208, 82);
+    AliGenerator   *hij   = GeneratorHijing();
+    AliGenerator   *jpsi  = Generator_Jpsiee("PbPb 2.76",   1.0, 0.3, 0.3, 0.0);
+    AliGenerator   *bjpsi = Generator_Jpsiee("Pythia BBar", 0.0, 0.0, 0.0, 1.0);
+    ctl->AddGenerator(hij,  "Hijing", 1.);
+    if (uidConfig % 2 == 0)
+      ctl->AddGenerator(jpsi, "Jpsi2ee", 10.);
+    else
+      ctl->AddGenerator(bjpsi, "B2Jpsi2ee", 10.);
     gen = ctl;
     break;
     
@@ -361,5 +382,83 @@ GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t y
   box->SetYRange(ymin, ymax);
   box->SetPhiRange(0., 360.);
   return box;
+}
+
+/*** JPSI -> EE ****************************************************/
+
+AliGenerator *
+Generator_Jpsi2ee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac)
+{
+
+  /*
+    params
+    "CDF pp 8.8"
+    "PbPb 2.76"
+  */
+  
+  // load libraries to use Evtgen
+  gSystem->Load("libPhotos");
+  //gSystem->Load("libEvtGenBase");
+  //gSystem->Load("libEvtGenModels");
+  gSystem->Load("libEvtGen");
+  gSystem->Load("libEvtGenExternal");
+  gSystem->Load("libTEvtGen");  
+
+  comment = comment.Append(Form(" | J/psi -> ee (%s, %.1f/%.1f/%.1f/%.1f)", params, jpsifrac, lowfrac, highfrac, bfrac));
+  
+  //
+  //Generating a cocktail
+  AliGenCocktail *gener = new AliGenCocktail();
+  gener->UsePerEventRates();
+  //
+  // J/psi
+  AliGenParam *jpsi = new AliGenParam(1, AliGenMUONlib::kJpsi, params, "Jpsi");
+  jpsi->SetPtRange(0., 6.);
+  jpsi->SetYRange(-1.0, 1.0);
+  jpsi->SetPhiRange(0., 360.);
+  jpsi->SetForceDecay(kNoDecay);
+  //
+  // flat low pT
+  AliGenParam *jpsiLowPt = new AliGenParam(1, AliGenMUONlib::kJpsi, "Flat", "Jpsi");  // flat pt distribution
+  jpsiLowPt->SetPtRange(0., 0.5);
+  jpsiLowPt->SetYRange(-1.0, 1.0);
+  jpsiLowPt->SetPhiRange(0., 360.);
+  jpsiLowPt->SetForceDecay(kNoDecay);
+  //
+  // flat high pT
+  AliGenParam *jpsiHighPtFlat = new AliGenParam(1, AliGenMUONlib::kJpsi, "Flat", "Jpsi");  // 7 TeV
+  jpsiHighPtFlat->SetPtRange(6., 25.);
+  jpsiHighPtFlat->SetYRange(-1.0, 1.0);
+  jpsiHighPtFlat->SetPhiRange(0., 360.);
+  jpsiHighPtFlat->SetForceDecay(kNoDecay);
+  //
+  // Jpsi from B
+  AliGenPythia *pythia = new AliGenPythia(-1);
+  pythia->SetMomentumRange(0, 999999.);
+  pythia->SetThetaRange(0., 180.);
+  pythia->SetYRange(-2., 2.);
+  pythia->SetPtRange(0, 1000.);
+  pythia->SetProcess(kPyBeautyppMNRwmi);
+  pythia->SetEnergyCMS(energyConfig);
+  pythia->SetTune(kPythia6Tune_Perugia0);
+  pythia->UseNewMultipleInteractionsScenario();
+  pythia->SetCutOnChild(1);
+  pythia->SetPdgCodeParticleforAcceptanceCut(443);
+  pythia->SetChildYRange(-2, 2);
+  pythia->SetChildPtRange(0, 10000.);
+  pythia->SetForceDecay(kBJpsiUndecayed);
+  pythia->SetStackFillOpt(AliGenPythia::kHeavyFlavor);  
+  //
+  // 
+  AliGenEvtGen *gene = new AliGenEvtGen();
+  gene->SetForceDecay(kBJpsiDiElectron);
+  gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);
+  if (jpsifrac > 0.) gener->AddGenerator(jpsi,           "JPsi",           jpsifrac);
+  if (lowfrac  > 0.) gener->AddGenerator(jpsiLowPt,      "jpsiLowPt",      lowfrac);
+  if (highfrac > 0.) gener->AddGenerator(jpsiHighPtFlat, "jpsiHighPtFlat", highfrac);
+  if (bfrac    > 0.) gener->AddGenerator(pythia,         "Pythia",         bfrac);
+  gener->AddGenerator(gene, "EvtGen", 1.);
+  //
+  return gener;
 }
 

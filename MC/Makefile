@@ -30,6 +30,12 @@ Hijing_Rsn002c: clean
 	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
 	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing_Rsn002c --bmin 11 --bmax 15 --system Pb-Pb
 
+### [ALIROOT-6750]
+
+Hijing_Jpsi2ee001: clean
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing_Jpsi2ee001 --system Pb-Pb
+
 ###
 
 test_EPOSLHC_pp: clean
