@@ -526,5 +526,9 @@ void ProcessEnvironment()
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
   Int_t year =RunToYear(run_number);
   if(year<2015)  run_flag =1100;
-  if(year<=2010) run_flag =1000;
+  if(year<=2010) {
+    run_flag =1000;
+    if (RunToPeriod(run_number).EqualTo("LHC10h"))
+      run_flag = 1001;
+  }
 }
