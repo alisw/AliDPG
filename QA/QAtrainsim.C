@@ -69,7 +69,8 @@ Bool_t doPHOSTrig     = 1;    // new
 Bool_t doEMCAL        = 0;
 Bool_t doFBFqa        = 1;    // new - not ported yet to revision
 
-Bool_t doMUONEff      = 0;    // NEEDS geometry
+Bool_t doMUONPerf     = 1;
+Bool_t doMUONEff      = 1;    // NEEDS geometry
 Bool_t doV0           = 0;    // NEEDS MCtruth 
 Bool_t doAD           = 1;    //decetrot AD
 Bool_t doEvTrk        = 1;    // analysis task uses the CF framework 
@@ -428,11 +429,27 @@ void AddAnalysisTasks(const char *cdb_location)
   // Muon Efficiency (not used)
   //
 
-  if(doMUONEff) {
-      gROOT->LoadMacro("$ALICE_PHYSICS/PWG3/muondep/AddTaskMUONTrackingEfficiency.C");
-      AliAnalysisTaskMuonTrackingEff *taskMuonTrackEff = AddTaskMUONTrackingEfficiency(kTRUE);
+  if(doMUONEff) 
+  {
+    gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/MUON/dep/AddTaskMUONTrackingEfficiency.C");
+    AliAnalysisTaskMuonTrackingEff *muonEfficiency = AddTaskMUONTrackingEfficiency(kTRUE,kFALSE,"");
+    muonEfficiency->SelectCollisionCandidates(kTriggerMask);
+    muonEfficiency->UseMCLabel(kTRUE);
   }
-  
+
+  //
+  // Muon Performance (Philippe Pillot)
+  //
+  //
+  if (doMUONPerf) 
+  {
+    gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/MUON/dep/AddTaskMuonPerformance.C");
+    AliAnalysisTaskMuonPerformance* muonPerformance = AddTaskMuonPerformance();
+    muonPerformance->SelectCollisionCandidates(kTriggerMask);
+    muonPerformance->UseMCKinematics(kTRUE);
+    muonPerformance->SetMCTrigLevelFromMatchTrk(kTRUE);
+ }
+
   //
   // V0-Decay Reconstruction (Ana Marin) (not used)
   // 
