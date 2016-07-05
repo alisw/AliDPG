@@ -18,16 +18,29 @@ how the several files interrelate one to another.
 * Code flow
 *******************************************************
 
-# createSnapshots.sh			[OCDB snapshot steering script]
-  --> ConfigOCDB.C			[OCDB snapshot configuration]
-      --> CreateSnapshot.C		[OCDB snapshot generation]
+### OCDB SNAPSHOT
+#
+# bin/aliroot_dpgsim.sh			[main steering script]
+  --> CreateSnapshot.C		        [OCDB snapshot generation]
+      --> OCDBConfig.C			[OCDB configuration macro]
 
-# dpgsim.sh				[production steering]
-  --> sim.C				[simulation steering]
-      --> SimulationConfig.C	 	[simulation configuration]
-      --> Config.C		 	[main configuration]
-          --> DetectorConfig.C	 	[detector configuration]
-	  --> GeneratorConfig.C	 	[generator configuration]
-  --> rec.C   				[reconstruction steering]
-      --> ReconstructionConfig.C	[reconstruction configuration]
+### SIMULATION & RECONSTRUCTION
+#
+# bin/aliroot_dpgsim.sh			[main steering script]
+  --> sim.C				[simulation steering macro]
+      --> SimulationConfig.C	 	[simulation configuration macro]
+      --> Config.C		 	[main configuration macro]
+          --> DetectorConfig.C	 	[detector configuration macro]
+	  --> GeneratorConfig.C	 	[generator configuration macro]
+  --> rec.C   				[reconstruction steering macro]
+      --> ReconstructionConfig.C	[reconstruction configuration macro]
 
+### QA TRAIN
+#
+# bin/aliroot_dpgsim.sh			[main steering script]
+  --> QA/QAtrainsim.C                   [QA train steering macro]
+
+### AOD TRAIN
+#
+# bin/aliroot_dpgsim.sh			[main steering script]
+  --> AOD/AODtrainsim.C                 [AOD train steering macro]
