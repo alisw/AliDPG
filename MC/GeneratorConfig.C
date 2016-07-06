@@ -14,13 +14,10 @@ enum EGenerator_t {
   kGeneratorPhojet,
   kGeneratorEPOSLHC_pp,
   kGeneratorHijing,
+  kGeneratorHijing_Rsn002a, kGeneratorHijing_Rsn002b, kGeneratorHijing_Rsn002c, // [ALIROOT-6721] [ALIROOT-6722]
+  kGeneratorHijing_Jpsiee001, // [ALIROOT-6750]
   kGeneratorCustom,
   kNGenerators
-};
-
-enum EPythiaTune_t {
-  kPerugia2011 = 350,
-  kMonash2013  = 14
 };
 
 const Char_t *GeneratorName[kNGenerators] = {
@@ -33,7 +30,31 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Phojet",
   "EPOSLHC_pp",
   "Hijing",
+  "Hijing_Rsn002a", "Hijing_Rsn002b", "Hijing_Rsn002c",
+  "Hijing_Jpsiee001",
   "Custom"
+};
+
+enum ETrigger_t {
+  kTriggerDefault,
+  kTriggerPP,
+  kTriggerPbPb,
+  kNTriggers
+};
+
+const Char_t *TriggerName[kNTriggers] = {
+  "ocdb",
+  "p-p",
+  "Pb-Pb"
+};
+
+enum EPythia6Tune_t {
+  kPythia6Tune_Perugia0    = 320,
+  kPythia6Tune_Perugia2011 = 350
+};
+
+enum EPythia8Tune_t {
+  kPythia8Tune_Monash2013  = 14
 };
 
 /*****************************************************************/
@@ -48,7 +69,7 @@ AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NU
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC(TString system);
 AliGenerator *GeneratorHijing();
-AliGenerator *GeneratorInjectorRsn001();
+AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
 
 /*****************************************************************/
 
@@ -72,22 +93,27 @@ GeneratorConfig(Int_t tag, Int_t run)
     // Pythia6 (Perugia2011)
   case kGeneratorPythia6:
   case kGeneratorPythia6_Perugia2011:
-    gen = GeneratorPythia6(kPerugia2011);
+    gen = GeneratorPythia6(kPythia6Tune_Perugia2011);
     break;
 
     // Pythia8 (Monash2013)
   case kGeneratorPythia8:
   case kGeneratorPythia8_Monash2013:
-    gen = GeneratorPythia8(kMonash2013);
+    gen = GeneratorPythia8(kPythia8Tune_Monash2013);
     break;
     
     // Pythia8 (Monash2013) - Rsn001
   case kGeneratorPythia8_Monash2013_Rsn001:
     AliGenCocktail *ctl = GeneratorCocktail("p", 1, 1, "p", 1, 1);
-    AliGenerator   *py8 = GeneratorPythia8(kMonash2013);
-    AliGenerator   *inj = GeneratorInjectorRsn001();
+    // pythia8
+    AliGenerator   *py8 = GeneratorPythia8(kPythia8Tune_Monash2013);
     ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
+    // randomly injected particles
+    Int_t pdglist[] = {225, 3124, -3124, 9010221}; // f2(1270), Lambda(1520), Lambda_bar(1520), f0(980)
+    Int_t pdg = pdglist[uidConfig % (sizeof(pdglist) / 4)]; // select according to unique ID
+    inj = GeneratorInjector(1, pdg, 0., 15., -0.6, 0.6);
     ctl->AddGenerator(inj, "Injector (Rsn001)", 1.);
+    //
     gen = ctl;
     break;
     
@@ -106,6 +132,42 @@ GeneratorConfig(Int_t tag, Int_t run)
     gen = GeneratorHijing();
     break;
 
+    // Hijing - Rsn002
+  case kGeneratorHijing_Rsn002a:
+  case kGeneratorHijing_Rsn002b:
+  case kGeneratorHijing_Rsn002c:
+    Int_t ninjlist[3] = {25, 7, 3};
+    Int_t ninj = ninjlist[tag - kGeneratorHijing_Rsn002a];
+    AliGenCocktail *ctl  = GeneratorCocktail("A", 208, 82, "A", 208, 82);
+    AliGenerator   *hij  = GeneratorHijing();
+    AliGenerator   *inj1 = GeneratorInjector(ninj,  3124, 0., 10., -0.6, 0.6);
+    AliGenerator   *inj2 = GeneratorInjector(ninj, -3124, 0., 10., -0.6, 0.6);
+    ctl->AddGenerator(hij,  "Hijing",            1.);
+    ctl->AddGenerator(inj1, "Injector (Rsn002)", 1.);
+    ctl->AddGenerator(inj2, "Injector (Rsn002)", 1.);
+    gen = ctl;
+    break;
+
+    // Hijing - Jpsiee001
+  case kGeneratorHijing_Jpsiee001:
+    AliGenCocktail *ctl   = GeneratorCocktail("A", 208, 82, "A", 208, 82);
+    AliGenerator   *hij   = GeneratorHijing();
+    ctl->AddGenerator(hij,  "Hijing", 1.);    
+    if (uidConfig % 10 < 7) {
+      AliGenerator *jpsi  = Generator_Jpsiee("PbPb 2.76", 1.0, 0.3, 0.3, 0.0);
+      ctl->AddGenerator(jpsi, "Jpsi2ee", 1., new TFormula("ten", "10."));
+      TFile *file = new TFile("typeHF_4.proc", "recreate");
+      file->Close();
+    }
+    else {
+      AliGenerator *bjpsi = Generator_Jpsiee("Pythia BBar", 0.0, 0.0, 0.0, 1.0);
+      ctl->AddGenerator(bjpsi, "B2Jpsi2ee", 1., new TFormula("ten", "10."));
+      TFile *file = new TFile("typeHF_5.proc", "recreate");
+      file->Close();
+    }
+    gen = ctl;
+    break;
+    
     // Custom
   case kGeneratorCustom:
     if ((gROOT->LoadMacro("GeneratorCustom.C")) != 0) {
@@ -122,7 +184,10 @@ GeneratorConfig(Int_t tag, Int_t run)
   gen->SetVertexSmear(kPerEvent);
   gen->Init();
   printf(">>>>> Generator Configuration: %s \n", comment.Data());
-  
+  // Set the trigger configuration: proton-proton
+  AliSimulation::Instance()->SetTriggerConfig(TriggerName[triggerConfig]);
+  printf(">>>>> Trigger configuration:   %s \n", TriggerName[triggerConfig]);
+ 
 }
 
 /*** PYTHIA 6 ****************************************************/
@@ -208,6 +273,14 @@ GeneratorPythia8(Int_t tune, Int_t ntrig, Int_t *trig)
 AliGenerator *
 GeneratorPhojet()
 {
+<<<<<<< HEAD
+=======
+  //
+  // Libraries
+  gSystem->Load("libDPMJET");
+  gSystem->Load("libTDPMjet");
+  //
+>>>>>>> master
   comment = comment.Append(" | Phojet low-pt");
   //                                                                                      
   //    DPMJET                                                                            
@@ -228,13 +301,19 @@ AliGenerator *
 GeneratorEPOSLHC(TString system)
 {
   
+  comment = comment.Append(Form(" | EPOS-LHC (%s)", system.Data()));
+  //
   if (system.EqualTo("pp")) {
+<<<<<<< HEAD
     comment = comment.Append(" | EPOS-LHC");
+=======
+>>>>>>> master
     Float_t beamEnergy = energyConfig / 2.;
-    TString fifoname = Form("/tmp/crmceventfifo%d", gRandom->Integer(kMaxInt));
+    //    TString fifoname = Form("crmceventfifo%d", gRandom->Integer(kMaxInt));
+    TString fifoname = "crmceventfifo";
     gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
     gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
-    gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc_pp.sh %s %d %f %f &",
+    gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc_pp.sh %s %d %f %f &> gen_eposlhc_pp.log &",
 			    fifoname.Data(), neventsConfig, beamEnergy, beamEnergy));
   }
   else {
@@ -245,6 +324,7 @@ GeneratorEPOSLHC(TString system)
   AliGenReaderHepMC *reader = new AliGenReaderHepMC();
   reader->SetFileName("crmceventfifo");
   AliGenExtFile *gener = new AliGenExtFile(-1);
+  gener->SetName(Form("EPOSLHC_%s", system.Data()));
   gener->SetReader(reader);
   
   return gener;
@@ -260,7 +340,11 @@ GeneratorHijing()
   gSystem->Load("libHIJING");
   gSystem->Load("libTHijing");
 
+<<<<<<< HEAD
   comment = comment.Append(" | HIJING");
+=======
+  comment = comment.Append(Form(" | HIJING (b = %f-%f fm)", bminConfig, bmaxConfig));
+>>>>>>> master
   AliGenHijing *gener = new AliGenHijing(-1);
   // centre of mass energy
   gener->SetEnergyCMS(energyConfig);
@@ -317,21 +401,87 @@ GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t y
   return box;
 }
 
-/*** INJECTOR RSN001 ****************************************************/
+/*** JPSI -> EE ****************************************************/
 
-AliGenerator * 
-GeneratorInjectorRsn001()
+AliGenerator *
+Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac)
 {
-  comment = comment.Append(" | Rsn001");
+
+  /*
+    params
+    "CDF pp 8.8"
+    "PbPb 2.76"
+  */
+  
+  // load libraries to use Evtgen
+  gSystem->Load("libPhotos");
+  //gSystem->Load("libEvtGenBase");
+  //gSystem->Load("libEvtGenModels");
+  gSystem->Load("libEvtGen");
+  gSystem->Load("libEvtGenExternal");
+  gSystem->Load("libTEvtGen");  
   //
-  // injected particles
-  Int_t pdglist[] = {
-    225,     // f2(1270)
-    3124,    // Lambda(1520)
-    -3124,   // Lambda_bar(1520)
-    9010221  // f0(980)
-  };
-  Int_t pdg = pdglist[uidConfig % (sizeof(pdglist) / 4)]; // select according to unique ID
-  return GeneratorInjector(1, pdg, 0., 15., -0.6, 0.6);
+  // set external decayer
+  TVirtualMCDecayer* decayer = new AliDecayerPythia();
+  decayer->SetForceDecay(kAll);
+  decayer->Init();
+  gMC->SetExternalDecayer(decayer);
+
+  comment = comment.Append(Form(" | J/psi -> ee (%s, %.1f/%.1f/%.1f/%.1f)", params, jpsifrac, lowfrac, highfrac, bfrac));
+  
+  //
+  //Generating a cocktail
+  AliGenCocktail *gener = new AliGenCocktail();
+  gener->UsePerEventRates();
+  //
+  // J/psi
+  AliGenParam *jpsi = new AliGenParam(1, AliGenMUONlib::kJpsi, params, "Jpsi");
+  jpsi->SetPtRange(0., 6.);
+  jpsi->SetYRange(-1.0, 1.0);
+  jpsi->SetPhiRange(0., 360.);
+  jpsi->SetForceDecay(kNoDecay);
+  //
+  // flat low pT
+  AliGenParam *jpsiLowPt = new AliGenParam(1, AliGenMUONlib::kJpsi, "Flat", "Jpsi");  // flat pt distribution
+  jpsiLowPt->SetPtRange(0., 0.5);
+  jpsiLowPt->SetYRange(-1.0, 1.0);
+  jpsiLowPt->SetPhiRange(0., 360.);
+  jpsiLowPt->SetForceDecay(kNoDecay);
+  //
+  // flat high pT
+  AliGenParam *jpsiHighPtFlat = new AliGenParam(1, AliGenMUONlib::kJpsi, "Flat", "Jpsi");  // 7 TeV
+  jpsiHighPtFlat->SetPtRange(6., 25.);
+  jpsiHighPtFlat->SetYRange(-1.0, 1.0);
+  jpsiHighPtFlat->SetPhiRange(0., 360.);
+  jpsiHighPtFlat->SetForceDecay(kNoDecay);
+  //
+  // Jpsi from B
+  AliGenPythia *pythia = new AliGenPythia(-1);
+  pythia->SetMomentumRange(0, 999999.);
+  pythia->SetThetaRange(0., 180.);
+  pythia->SetYRange(-2., 2.);
+  pythia->SetPtRange(0, 1000.);
+  pythia->SetProcess(kPyBeautyppMNRwmi);
+  pythia->SetEnergyCMS(energyConfig);
+  pythia->SetTune(kPythia6Tune_Perugia0);
+  pythia->UseNewMultipleInteractionsScenario();
+  pythia->SetCutOnChild(1);
+  pythia->SetPdgCodeParticleforAcceptanceCut(443);
+  pythia->SetChildYRange(-2, 2);
+  pythia->SetChildPtRange(0, 10000.);
+  pythia->SetForceDecay(kBJpsiUndecayed);
+  pythia->SetStackFillOpt(AliGenPythia::kHeavyFlavor);  
+  //
+  // 
+  AliGenEvtGen *gene = new AliGenEvtGen();
+  gene->SetForceDecay(kBJpsiDiElectron);
+  gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);
+  if (jpsifrac > 0.) gener->AddGenerator(jpsi,           "JPsi",           jpsifrac);
+  if (lowfrac  > 0.) gener->AddGenerator(jpsiLowPt,      "jpsiLowPt",      lowfrac);
+  if (highfrac > 0.) gener->AddGenerator(jpsiHighPtFlat, "jpsiHighPtFlat", highfrac);
+  if (bfrac    > 0.) gener->AddGenerator(pythia,         "Pythia",         bfrac);
+  gener->AddGenerator(gene, "EvtGen", 1.);
+  //
+  return gener;
 }
 

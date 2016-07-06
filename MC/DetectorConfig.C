@@ -10,12 +10,14 @@
 
 enum EDetector_t {
   kDetectorDefault,
+  kDetectorMuon,
   kDetectorCustom,
   kNDetectors
 };
 
 const Char_t *DetectorName[kNDetectors] = {
   "Default",
+  "Muon",
   "Custom"
 };
 
@@ -37,6 +39,33 @@ const Char_t *MagnetName[kNMagnets] = {
 };
 
 /*****************************************************************/
+/*****************************************************************/
+/*****************************************************************/
+
+Int_t iABSO   = 1;
+Int_t iACORDE = 1;
+Int_t iAD     = 1;
+Int_t iDIPO   = 1;
+Int_t iEMCAL  = 1;
+Int_t iFMD    = 1;
+Int_t iFRAME  = 1;
+Int_t iHALL   = 1;
+Int_t iITS    = 1;
+Int_t iMAG    = 1;
+Int_t iMUON   = 1;
+Int_t iPHOS   = 1;
+Int_t iPIPE   = 1;
+Int_t iPMD    = 1;
+Int_t iHMPID  = 1;
+Int_t iSHIL   = 1;
+Int_t iT0     = 1;
+Int_t iTOF    = 1;
+Int_t iTPC    = 1;
+Int_t iTRD    = 1;
+Int_t iVZERO  = 1;
+Int_t iZDC    = 1;
+  
+/*****************************************************************/
 
 void
 DetectorConfig(Int_t tag, Int_t run)
@@ -47,6 +76,11 @@ DetectorConfig(Int_t tag, Int_t run)
     // kDetectorDefault
   case kDetectorDefault:
     DetectorDefault(run);
+    break;
+    
+    // kDetectorMuon
+  case kDetectorMuon:
+    DetectorMuon(run);
     break;
     
     // kDetectorCustom
@@ -75,30 +109,92 @@ DetectorDefault(Int_t run)
    *
    */
   
-  Int_t iABSO   = 1;
-  Int_t iACORDE = 1;
-  Int_t iAD     = run < 222222 ? 0 : 1;
-  Int_t iDIPO   = 1;
-  Int_t iEMCAL  = 1;
-  Int_t iFMD    = 1;
-  Int_t iFRAME  = 1;
-  Int_t iHALL   = 1;
-  Int_t iITS    = 1;
-  Int_t iMAG    = 1;
-  Int_t iMUON   = 1;
-  Int_t iPHOS   = 1;
-  Int_t iPIPE   = 1;
-  Int_t iPMD    = 1;
-  Int_t iHMPID  = 1;
-  Int_t iSHIL   = 1;
-  Int_t iT0     = 1;
-  Int_t iTOF    = 1;
-  Int_t iTPC    = 1;
-  Int_t iTRD    = 1;
-  Int_t iVZERO  = 1;
-  Int_t iZDC    = 1;
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
+  Int_t year = RunToYear(run);
   
+  iABSO   = 1;
+  iACORDE = 1;
+  iAD     = year < 2015 ? 0 : 1;
+  iDIPO   = 1;
+  iEMCAL  = 1;
+  iFMD    = 1;
+  iFRAME  = 1;
+  iHALL   = 1;
+  iITS    = 1;
+  iMAG    = 1;
+  iMUON   = 1;
+  iPHOS   = 1;
+  iPIPE   = 1;
+  iPMD    = 1;
+  iHMPID  = 1;
+  iSHIL   = 1;
+  iT0     = 1;
+  iTOF    = 1;
+  iTPC    = 1;
+  iTRD    = 1;
+  iVZERO  = 1;
+  iZDC    = 1;
+
+  DetectorInit(run);
+}
   
+/*****************************************************************/
+
+void
+DetectorMuon(Int_t run)
+{
+  /*
+   * DetectorMuon
+   * configures the detectors to the Muon 
+   * configuration automatically according to run number
+   *
+   */
+  
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
+  Int_t year = RunToYear(run);
+  
+  iABSO   = 1;
+  iACORDE = 0;
+  iAD     = year < 2015 ? 0 : 1;
+  iDIPO   = 1;
+  iEMCAL  = 0;
+  iFMD    = 1;
+  iFRAME  = 1;
+  iHALL   = 1;
+  iITS    = 1;
+  iMAG    = 1;
+  iMUON   = 1;
+  iPHOS   = 0;
+  iPIPE   = 1;
+  iPMD    = 0;
+  iHMPID  = 0;
+  iSHIL   = 1;
+  iT0     = 1;
+  iTOF    = 0;
+  iTPC    = 0;
+  iTRD    = 0;
+  iVZERO  = 1;
+  iZDC    = 0;
+
+  DetectorInit(run);
+}
+  
+/*****************************************************************/
+
+void
+DetectorInit(Int_t run)
+{
+  /*
+   * DetectorInit
+   * initialise the detectors to the default 
+   * configuration automatically according to run number
+   *
+   */
+  
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
+  Int_t year = RunToYear(run);
+
+
   //=================== Alice BODY parameters =============================
   AliBODY *BODY = new AliBODY("BODY", "Alice envelop");
   
@@ -137,7 +233,7 @@ DetectorDefault(Int_t run)
     {
       //=================== FRAME parameters ============================
 
-      if (run < 222222) {
+      if (year < 2015) {
  	AliFRAMEv2 *FRAME = new AliFRAMEv2("FRAME", "Space Frame");
 	FRAME->SetHoles(1);
       }
@@ -165,7 +261,7 @@ DetectorDefault(Int_t run)
   if (iITS)
     {
       //=================== ITS parameters ============================
-
+      
       AliITS *ITS  = new AliITSv11("ITS","ITS v11");
     }
 
@@ -196,7 +292,12 @@ DetectorDefault(Int_t run)
     {
       //=================== ZDC parameters ============================
 
-      if (run < 222222) {
+      if (year == 2010) {
+	AliZDC *ZDC = new AliZDCv3("ZDC", "normal ZDC");
+	ZDC->SetSpectatorsTrack();
+        ZDC->SetLumiLength(0.);
+      }
+      else if (year < 2015) {
 	AliZDC *ZDC = new AliZDCv3("ZDC", "normal ZDC");
 	//Collimators aperture
 	ZDC->SetVCollSideCAperture(0.85);
@@ -225,7 +326,8 @@ DetectorDefault(Int_t run)
       AliTRDgeometry *geoTRD = TRD->GetGeometry();
       // Partial geometry: modules at 0,1,7,8,9,16,17
       // starting at 3h in positive direction
-      if (run < 222222) { // need to be propely set for all years 
+
+      if (year == 2010) {
 	geoTRD->SetSMstatus(2,0);
 	geoTRD->SetSMstatus(3,0);
 	geoTRD->SetSMstatus(4,0);
@@ -236,14 +338,24 @@ DetectorDefault(Int_t run)
 	geoTRD->SetSMstatus(13,0);
 	geoTRD->SetSMstatus(14,0);
 	geoTRD->SetSMstatus(15,0);
-	geoTRD->SetSMstatus(16,0);
+	geoTRD->SetSMstatus(16,0);	
+      }
+      else if (year == 2011) {
+	geoTRD->SetSMstatus(2,0);
+	geoTRD->SetSMstatus(3,0);
+	geoTRD->SetSMstatus(4,0);
+	geoTRD->SetSMstatus(5,0);
+	geoTRD->SetSMstatus(6,0);
+	geoTRD->SetSMstatus(12,0);
+	geoTRD->SetSMstatus(13,0);
+	geoTRD->SetSMstatus(14,0);
       }
     }
-
+  
   if (iFMD)
     {
       //=================== FMD parameters ============================
-
+      
       AliFMD *FMD = new AliFMDv1("FMD", "normal FMD");
     }
 
@@ -261,7 +373,7 @@ DetectorDefault(Int_t run)
     {
       //=================== PHOS parameters ===========================
 
-      if (run < 222222) {
+      if (year < 2015) {
 	AliPHOS *PHOS = new AliPHOSv1("PHOS", "noCPV_Modules123");
       }
       else {
@@ -288,7 +400,7 @@ DetectorDefault(Int_t run)
     {
       //=================== EMCAL parameters ============================
 
-      if (run < 222222) {
+      if (year < 2015) {
 	AliEMCAL *EMCAL = new AliEMCALv2("EMCAL", "EMCAL_FIRSTYEARV1");
       }
       else {
@@ -313,6 +425,7 @@ DetectorDefault(Int_t run)
 
   if (iAD){
     //=================== AD parameters ============================
+
     AliAD *AD = new AliADv1("AD", "normal AD");
   }         
   

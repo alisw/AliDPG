@@ -84,6 +84,7 @@ CONFIG_GENERATOR=""
 CONFIG_MAGNET=""
 CONFIG_ENERGY=""
 CONFIG_SYSTEM=""
+CONFIG_TRIGGER=""
 CONFIG_DETECTOR=""
 CONFIG_PHYSICSLIST=""
 CONFIG_BMIN=""
@@ -133,6 +134,8 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--system" ]; then
         CONFIG_SYSTEM="$1"
 	export CONFIG_SYSTEM
+        CONFIG_TRIGGER="$1"
+	export CONFIG_TRIGGER
         shift
     elif [ "$option" = "--energy" ]; then
         CONFIG_ENERGY="$1"
@@ -250,6 +253,31 @@ if [[ $CONFIG_RUN == "" ]]; then
     exit 2
 fi
 
+<<<<<<< HEAD
+=======
+### automatic settings from CONFIG_MODE
+
+if [[ $CONFIG_MODE == *"Muon"* ]]; then
+    if [[ $CONFIG_DETECTOR == "" ]]; then
+	export CONFIG_DETECTOR="Muon"
+    fi
+    if [[ $CONFIG_SIMULATION == "" ]]; then
+	export CONFIG_SIMULATION="Muon"
+    fi
+    if [[ $CONFIG_RECONSTRUCTION == "" ]]; then
+	export CONFIG_RECONSTRUCTION="Muon"
+    fi
+    if [[ $CONFIG_QA == "" ]]; then
+	export CONFIG_QA="Muon"
+    fi
+    if [[ $CONFIG_AOD == "" ]]; then
+	export CONFIG_AOD="Muon"
+    fi
+fi
+
+##########################################
+
+>>>>>>> master
 echo
 echo "============================================"
 echo " DPGSIM"
@@ -261,7 +289,9 @@ echo "MC seed.......... $CONFIG_SEED (based on $CONFIG_SEED_BASED)"
 echo "No. Events....... $CONFIG_NEVENTS"
 echo "Generator........ $CONFIG_GENERATOR"
 echo "System........... $CONFIG_SYSTEM"
+echo "Trigger.......... $CONFIG_TRIGGER"
 echo "Energy........... $CONFIG_ENERGY"
+echo "Detector......... $CONFIG_DETECTOR"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
 echo "QA train......... $CONFIG_QA"
