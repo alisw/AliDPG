@@ -253,8 +253,6 @@ if [[ $CONFIG_RUN == "" ]]; then
     exit 2
 fi
 
-<<<<<<< HEAD
-=======
 ### automatic settings from CONFIG_MODE
 
 if [[ $CONFIG_MODE == *"Muon"* ]]; then
@@ -277,7 +275,6 @@ fi
 
 ##########################################
 
->>>>>>> master
 echo
 echo "============================================"
 echo " DPGSIM"

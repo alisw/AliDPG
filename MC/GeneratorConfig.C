@@ -273,14 +273,11 @@ GeneratorPythia8(Int_t tune, Int_t ntrig, Int_t *trig)
 AliGenerator *
 GeneratorPhojet()
 {
-<<<<<<< HEAD
-=======
   //
   // Libraries
   gSystem->Load("libDPMJET");
   gSystem->Load("libTDPMjet");
   //
->>>>>>> master
   comment = comment.Append(" | Phojet low-pt");
   //                                                                                      
   //    DPMJET                                                                            
@@ -304,10 +301,6 @@ GeneratorEPOSLHC(TString system)
   comment = comment.Append(Form(" | EPOS-LHC (%s)", system.Data()));
   //
   if (system.EqualTo("pp")) {
-<<<<<<< HEAD
-    comment = comment.Append(" | EPOS-LHC");
-=======
->>>>>>> master
     Float_t beamEnergy = energyConfig / 2.;
     //    TString fifoname = Form("crmceventfifo%d", gRandom->Integer(kMaxInt));
     TString fifoname = "crmceventfifo";
@@ -340,11 +333,7 @@ GeneratorHijing()
   gSystem->Load("libHIJING");
   gSystem->Load("libTHijing");
 
-<<<<<<< HEAD
-  comment = comment.Append(" | HIJING");
-=======
   comment = comment.Append(Form(" | HIJING (b = %f-%f fm)", bminConfig, bmaxConfig));
->>>>>>> master
   AliGenHijing *gener = new AliGenHijing(-1);
   // centre of mass energy
   gener->SetEnergyCMS(energyConfig);
