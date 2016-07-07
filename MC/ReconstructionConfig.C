@@ -55,6 +55,8 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag, Int_t run)
 
 ReconstructionDefault(AliReconstruction &rec, Int_t run)
 {
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
+  Int_t year = RunToYear(run);
     //
     //    // set OCDB snapshot mode
     //    AliCDBManager *man = AliCDBManager::Instance();
@@ -70,6 +72,9 @@ ReconstructionDefault(AliReconstruction &rec, Int_t run)
     rec.SetFractionFriends(.1);
     rec.SetRunPlaneEff(kTRUE);
     rec.SetUseTrackingErrorsForAlignment("ITS");
+    //
+    // IMPORTANT: For pPb productions anchored to 2013 runs, this setting has to be also added in the rec.C using AliRoot from v5-03-Rev-28 (announced in the Physics Board the 6th of June)
+    reco.SetOption("TPC","PID.OADB=TSPLINE3_MC_%s_LHC13B2_FIXn1_PASS1_PPB_MEAN");
     //
     rec.SetRunQA(":");
     //
