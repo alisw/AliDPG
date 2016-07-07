@@ -20,13 +20,13 @@ how the several files interrelate one to another.
 
 ### OCDB SNAPSHOT
 #
-# bin/aliroot_dpgsim.sh			[main steering script]
+# dpgsim.sh				[main steering script]
   --> CreateSnapshot.C		        [OCDB snapshot generation]
       --> OCDBConfig.C			[OCDB configuration macro]
 
 ### SIMULATION & RECONSTRUCTION
 #
-# bin/aliroot_dpgsim.sh			[main steering script]
+# dpgsim.sh				[main steering script]
   --> sim.C				[simulation steering macro]
       --> SimulationConfig.C	 	[simulation configuration macro]
       --> Config.C		 	[main configuration macro]
@@ -37,10 +37,10 @@ how the several files interrelate one to another.
 
 ### QA TRAIN
 #
-# bin/aliroot_dpgsim.sh			[main steering script]
-  --> QA/QAtrainsim.C                   [QA train steering macro]
+# dpgsim.sh				[main steering script]
+  --> ../QA/QAtrainsim.C                [QA train steering macro]
 
 ### AOD TRAIN
 #
-# bin/aliroot_dpgsim.sh			[main steering script]
-  --> AOD/AODtrainsim.C                 [AOD train steering macro]
+# dpgsim.sh				[main steering script]
+  --> ../AOD/AODtrainsim.C              [AOD train steering macro]
