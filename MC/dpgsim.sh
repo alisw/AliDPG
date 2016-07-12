@@ -132,12 +132,12 @@ while [ ! -z "$1" ]; do
         CONFIG_DETECTOR="$1"
 	export CONFIG_DETECTOR
         shift
-    elif [ "$option" = "--system" ]; then
-        CONFIG_SYSTEM="$1"
-	export CONFIG_SYSTEM
-        CONFIG_TRIGGER="$1"
-	export CONFIG_TRIGGER
-        shift
+#    elif [ "$option" = "--system" ]; then
+#        CONFIG_SYSTEM="$1"
+#	export CONFIG_SYSTEM
+#        CONFIG_TRIGGER="$1"
+#	export CONFIG_TRIGGER
+#        shift
     elif [ "$option" = "--energy" ]; then
         CONFIG_ENERGY="$1"
 	export CONFIG_ENERGY
@@ -278,6 +278,10 @@ if [[ $CONFIG_MODE == *"Muon"* ]]; then
     fi
 fi
 
+### automatic settings from GRP info
+
+aliroot -b -q $ALIDPG_ROOT/MC/DumpGRPinfo.C\($CONFIG_RUN\) 2>/dev/null | grep export > grpdump.sh && source grpdump.sh && rm grpdump.sh
+
 ##########################################
 
 echo
@@ -286,12 +290,15 @@ echo " DPGSIM"
 echo "============================================"
 echo "Mode............. $CONFIG_MODE"
 echo "Run.............. $CONFIG_RUN"
+echo "Year............. $CONFIG_YEAR"
+echo "Period........... $CONFIG_PERIOD"
+echo "Beam type........ $CONFIG_BEAMTYPE"
+echo "System........... $CONFIG_SYSTEM"
+echo "Trigger.......... $CONFIG_TRIGGER"
 echo "Unique-ID........ $CONFIG_UID"
 echo "MC seed.......... $CONFIG_SEED (based on $CONFIG_SEED_BASED)"
 echo "No. Events....... $CONFIG_NEVENTS"
 echo "Generator........ $CONFIG_GENERATOR"
-echo "System........... $CONFIG_SYSTEM"
-echo "Trigger.......... $CONFIG_TRIGGER"
 echo "Energy........... $CONFIG_ENERGY"
 echo "Detector......... $CONFIG_DETECTOR"
 echo "Simulation....... $CONFIG_SIMULATION"

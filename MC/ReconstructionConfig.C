@@ -23,19 +23,19 @@ const Char_t *ReconstructionName[kNReconstructions] = {
 
 /*****************************************************************/
 
-ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag, Int_t run)
+ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
 {
 
   switch(tag) {
 
     // Default
   case kReconstructionDefault:
-    ReconstructionDefault(rec, run);
+    ReconstructionDefault(rec);
     return;
     
     // Muon
   case kReconstructionMuon:
-    ReconstructionDefault(rec, run);
+    ReconstructionDefault(rec);
     rec.SetRunReconstruction("MUON ITS VZERO");
     return;
     
@@ -46,17 +46,17 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag, Int_t run)
       abort();
       return;
     }
-    ReconstructionCustom(rec, run);
+    ReconstructionCustom(rec);
     return;
 
   }  
 
 }
 
-ReconstructionDefault(AliReconstruction &rec, Int_t run)
+ReconstructionDefault(AliReconstruction &rec)
 {
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
-  Int_t year = RunToYear(run);
+
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
 
   //
   // set OCDB source
@@ -66,7 +66,7 @@ ReconstructionDefault(AliReconstruction &rec, Int_t run)
   if (ocdbConfig.Contains("alien")) {
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
-    OCDBDefault(run, 1);
+    OCDBDefault(1);
   }
   else {
     // set OCDB snapshot mode

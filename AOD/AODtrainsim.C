@@ -103,7 +103,7 @@ void AODtrainsim(Int_t merge=0)
   if (ocdbConfig.Contains("alien")) {
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
-    OCDBDefault(run, 1);
+    OCDBDefault(1);
   }
   else {
     // set OCDB snapshot mode
@@ -538,12 +538,12 @@ void ProcessEnvironment()
   // Figure out the run_flag - still the "poor-man-solution" :)
   //
   run_flag = 1500;
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
-  Int_t year =RunToYear(run_number);
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
+  TString period = gSystem->Getenv("CONFIG_PERIOD");
   if(year<2015)  run_flag =1100;
   if(year<=2010) {
     run_flag =1000;
-    if (RunToPeriod(run_number).EqualTo("LHC10h"))
+    if (period.EqualTo("LHC10h"))
       run_flag = 1001;
   }
 }

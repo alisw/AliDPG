@@ -11,15 +11,6 @@
 void rec() 
 {
 
-  // run number
-  Int_t runNumber = -1;
-  if (gSystem->Getenv("CONFIG_RUN"))
-    runNumber = atoi(gSystem->Getenv("CONFIG_RUN"));
-  if (runNumber <= 0) {
-    printf("Invalid run number: %d \n", runNumber);
-    abort();
-  }
-
   // reconstruction configuration
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/ReconstructionConfig.C");
   Int_t reconstructionConfig = kReconstructionDefault;
@@ -41,7 +32,7 @@ void rec()
   AliReconstruction rec;
  
   /* configuration */
-  ReconstructionConfig(rec, reconstructionConfig, runNumber);
+  ReconstructionConfig(rec, reconstructionConfig);
 
   /* run */
   rec.Run();

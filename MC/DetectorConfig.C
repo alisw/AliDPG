@@ -68,19 +68,19 @@ Int_t iZDC    = 1;
 /*****************************************************************/
 
 void
-DetectorConfig(Int_t tag, Int_t run)
+DetectorConfig(Int_t tag)
 {
 
   switch (tag) {
 
     // kDetectorDefault
   case kDetectorDefault:
-    DetectorDefault(run);
+    DetectorDefault();
     break;
     
     // kDetectorMuon
   case kDetectorMuon:
-    DetectorMuon(run);
+    DetectorMuon();
     break;
     
     // kDetectorCustom
@@ -90,7 +90,7 @@ DetectorConfig(Int_t tag, Int_t run)
       abort();
       return;
     }
-    DetectorCustom(run);
+    DetectorCustom();
     break;
     
   }
@@ -100,17 +100,16 @@ DetectorConfig(Int_t tag, Int_t run)
 /*****************************************************************/
 
 void
-DetectorDefault(Int_t run)
+DetectorDefault()
 {
   /*
    * DetectorDefault
    * configures the detectors to the default 
-   * configuration automatically according to run number
+   * configuration automatically according to year/period
    *
    */
   
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
-  Int_t year = RunToYear(run);
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
   
   iABSO   = 1;
   iACORDE = 1;
@@ -135,23 +134,22 @@ DetectorDefault(Int_t run)
   iVZERO  = 1;
   iZDC    = 1;
 
-  DetectorInit(run);
+  DetectorInit();
 }
   
 /*****************************************************************/
 
 void
-DetectorMuon(Int_t run)
+DetectorMuon()
 {
   /*
    * DetectorMuon
    * configures the detectors to the Muon 
-   * configuration automatically according to run number
+   * configuration automatically according to year/period
    *
    */
   
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
-  Int_t year = RunToYear(run);
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
   
   iABSO   = 1;
   iACORDE = 0;
@@ -176,23 +174,22 @@ DetectorMuon(Int_t run)
   iVZERO  = 1;
   iZDC    = 0;
 
-  DetectorInit(run);
+  DetectorInit();
 }
   
 /*****************************************************************/
 
 void
-DetectorInit(Int_t run)
+DetectorInit()
 {
   /*
    * DetectorInit
    * initialise the detectors to the default 
-   * configuration automatically according to run number
+   * configuration automatically according to year/period
    *
    */
   
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
-  Int_t year = RunToYear(run);
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
 
 
   //=================== Alice BODY parameters =============================

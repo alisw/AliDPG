@@ -17,14 +17,14 @@ const Char_t *OCDBName[kNOCDBs] = {
 
 /*****************************************************************/
 
-OCDBConfig(Int_t tag, Int_t run, Int_t type)
+OCDBConfig(Int_t tag, Int_t type)
 {
 
   switch (tag) {
     
     // kOCDBDefault
   case kOCDBDefault:
-    OCDBDefault(run, type);
+    OCDBDefault(type);
     break;
     
     // kOCDBCustom
@@ -34,7 +34,7 @@ OCDBConfig(Int_t tag, Int_t run, Int_t type)
       abort();
       return;
     }
-    OCDBCustom(run);
+    OCDBCustom();
     break;
     
   }
@@ -43,28 +43,27 @@ OCDBConfig(Int_t tag, Int_t run, Int_t type)
 
 /*****************************************************************/
 
-OCDBDefault(Int_t run, Int_t mode)
+OCDBDefault(Int_t mode)
 {
 
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
-  Int_t year = RunToYear(run);
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
+  Int_t run  = atoi(gSystem->Getenv("CONFIG_RUN"));
   
   AliCDBManager* man = AliCDBManager::Instance();
   man->SetDefaultStorage(Form("alien://Folder=/alice/data/%d/OCDB", year));
   man->SetRun(run);
   
-  // set detector specific paths according to LHC Run
-  DefaultSpecificStorageRun(man, run, mode);
+  // set detector specific paths
+  DefaultSpecificStorage(man, mode);
 
 }
 
 /*****************************************************************/
 
-DefaultSpecificStorageRun(AliCDBManager *man, Int_t run, Int_t mode)
+DefaultSpecificStorage(AliCDBManager *man, Int_t mode)
 {
   
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
-  Int_t year = RunToYear(run);
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
 
   const Char_t *Raw      = Form("alien://Folder=/alice/data/%d/OCDB", year);
   const Char_t *Ideal    = "alien://Folder=/alice/simulation/2008/v4-15-Release/Ideal/";

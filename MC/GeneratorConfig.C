@@ -78,7 +78,7 @@ static TString comment;
 
 /*****************************************************************/
 
-GeneratorConfig(Int_t tag, Int_t run)
+GeneratorConfig(Int_t tag)
 {
 
   AliGenerator *gen = NULL;
