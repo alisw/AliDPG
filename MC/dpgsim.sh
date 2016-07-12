@@ -280,7 +280,7 @@ fi
 
 ### automatic settings from GRP info
 
-aliroot -b -q $ALIDPG_ROOT/MC/DumpGRPinfo.C\($CONFIG_RUN\) 2>/dev/null | grep export > grpdump.sh && source grpdump.sh && rm grpdump.sh
+aliroot -b -q $ALIDPG_ROOT/MC/ExportGRPinfo.C\($CONFIG_RUN\) 2>/dev/null | grep export > grpdump.sh && source grpdump.sh # && rm grpdump.sh
 
 ##########################################
 
