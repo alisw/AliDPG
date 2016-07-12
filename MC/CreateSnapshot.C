@@ -66,6 +66,7 @@ const char* kCDBExclude[] = {
 
 Bool_t IsExcluded(const char* objName)
 {
+  return kFALSE; // temporaryly bypass this check
   // check if the object should be excluded from the snapshot
   const int kNExclude = sizeof(kCDBExclude)/sizeof(char*);
   TString nameS = objName;
