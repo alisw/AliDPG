@@ -96,6 +96,21 @@ void AODtrainsim(Int_t merge=0)
   // Main analysis train macro.
   ProcessEnvironment();
 
+  // set OCDB source
+  TString ocdbConfig = "default,snapshot";
+  if (gSystem->Getenv("CONFIG_OCDB"))
+    ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
+  if (ocdbConfig.Contains("alien")) {
+    // set OCDB 
+    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+    OCDBDefault(run, 1);
+  }
+  else {
+    // set OCDB snapshot mode
+    AliCDBManager *cdbm = AliCDBManager::Instance();
+    cdbm->SetSnapshotMode("OCDBrec.root");
+  }
+
   if(iCollision == kPbPb)
     useCentrality =kTRUE;
     
