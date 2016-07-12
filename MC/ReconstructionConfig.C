@@ -57,13 +57,24 @@ ReconstructionDefault(AliReconstruction &rec, Int_t run)
 {
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
   Int_t year = RunToYear(run);
-    //
-    //    // set OCDB snapshot mode
-    //    AliCDBManager *man = AliCDBManager::Instance();
-    //    man->SetDefaultStorage("alien://Folder=/alice/data/2015/OCDB");
-    //    man->SetRun(run);
-    //    man->SetSnapshotMode("OCDBrec.root");
-    rec.SetCDBSnapshotMode("OCDBrec.root");
+
+  //
+  // set OCDB source
+  TString ocdbConfig = "default,snapshot";
+  if (gSystem->Getenv("CONFIG_OCDB"))
+    ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
+  if (ocdbConfig.Contains("alien")) {
+    // set OCDB 
+    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+    OCDBDefault(run, 1);
+  }
+  else {
+    // set OCDB snapshot mode
+    rec.SetCDBSnapshotMode("OCDBsim.root");
+    //    AliCDBManager *cdbm = AliCDBManager::Instance();
+    //    cdbm->SetSnapshotMode("OCDBsim.root");
+  }
+
     //
     rec.SetCleanESD(kFALSE);
     rec.SetStopOnError(kFALSE);

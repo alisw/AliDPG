@@ -63,12 +63,22 @@ SimulationDefault(AliSimulation &sim, Int_t run)
   Int_t year = RunToYear(run);
   
   //
-  // set OCDB snapshot mode
-  //    AliCDBManager *man = AliCDBManager::Instance();
-  //    man->SetDefaultStorage("alien://Folder=/alice/data/2015/OCDB");
-  //    man->SetRun(run);
-  //    man->SetSnapshotMode("OCDBsim.root");
-  sim.SetCDBSnapshotMode("OCDBsim.root");
+  // set OCDB source
+  TString ocdbConfig = "default,snapshot";
+  if (gSystem->Getenv("CONFIG_OCDB"))
+    ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
+  if (ocdbConfig.Contains("alien")) {
+    // set OCDB 
+    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+    OCDBDefault(run, 0);
+  }
+  else {
+    // set OCDB snapshot mode
+    sim.SetCDBSnapshotMode("OCDBsim.root");
+    //    AliCDBManager *cdbm = AliCDBManager::Instance();
+    //    cdbm->SetSnapshotMode("OCDBsim.root");
+  }
+
   //
   if (year < 2015) sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD");
   else             sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD AD");
