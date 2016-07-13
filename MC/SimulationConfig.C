@@ -79,15 +79,28 @@ SimulationDefault(AliSimulation &sim)
   }
 
   //
+  //
   if (year < 2015) sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD");
   else             sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD AD");
   sim.SetMakeDigitsFromHits("ITS TPC");
-  //  sim.SetRunHLT(""); // can't detect from GRP if HLT was running, off for safety now 
+
+  //
+  // HLT settings
+  TString hltConfig = "auto";
+  if (gSystem->Getenv("CONFIG_HLT"))
+    hltConfig = gSystem->Getenv("CONFIG_HLT");
+  sim.SetRunHLT(hltConfig.Data());
+
+  //
   //
   SimulationConfigPHOS(sim);
+
+  //
   //
   sim.UseVertexFromCDB();
   sim.UseMagFieldFromGRP();
+
+  //
   //
   sim.SetRunQA(":");
   //

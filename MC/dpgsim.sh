@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # set job and simulation variables as :
-COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig>"
+COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig>"
 
 function runcommand(){
     echo -e "\n"
@@ -101,6 +101,7 @@ CONFIG_QA=""
 CONFIG_AOD=""
 CONFIG_MODE="full"
 CONFIG_OCDB=""
+CONFIG_HLT=""
 
 RUNMODE=""
 
@@ -185,6 +186,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--ocdb" ]; then
         CONFIG_OCDB="$1"
 	export CONFIG_OCDB
+        shift 
+    elif [ "$option" = "--hlt" ]; then
+        CONFIG_HLT="$1"
+	export CONFIG_HLT
         shift 
     elif [ "$option" = "--sdd" ]; then
         RUNMODE="SDD"
@@ -303,6 +308,7 @@ echo "Energy........... $CONFIG_ENERGY"
 echo "Detector......... $CONFIG_DETECTOR"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
+echo "HLT.............. $CONFIG_HLT"
 echo "OCDB............. $CONFIG_OCDB"
 echo "QA train......... $CONFIG_QA"
 echo "AOD train........ $CONFIG_AOD"
