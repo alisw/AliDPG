@@ -684,7 +684,7 @@ void ProcessEnvironment()
   // Figure out the run_flag
   //
   run_flag = 1500;
-  Int_t year = atoi(gSystem->Getenv("CONFIG_RUN"));
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
   TString period = gSystem->Getenv("CONFIG_PERIOD");
   if(year<2015)  run_flag =1100;
   if(year<=2010) {
