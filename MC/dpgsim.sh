@@ -223,10 +223,10 @@ if [ ! -z "$CONFIG_PTHARDBIN" ]; then
     echo "* pt hard from $CONFIG_PTHARDMIN to $CONFIG_PTHARDMAX"
 fi
 
-mkdir input
-mv galice.root ./input/galice.root
-mv Kinematics.root ./input/Kinematics.root
-ls input
+# mkdir input
+# mv galice.root ./input/galice.root
+# mv Kinematics.root ./input/Kinematics.root
+# ls input
 
 export ALIMDC_RAWDB1="./mdc1"
 export ALIMDC_RAWDB2="./mdc2"
