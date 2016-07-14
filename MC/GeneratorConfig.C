@@ -298,6 +298,7 @@ GeneratorCocktail(TString projN, Int_t projA, Int_t projZ,
   ctl->SetProjectile(projN, projA, projZ);
   ctl->SetTarget(targN, targA, targZ);
   ctl->SetEnergyCMS(energyConfig);
+  ctl->SetSeed(seedConfig);
   return ctl;
 }
 
