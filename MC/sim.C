@@ -11,15 +11,6 @@
 void sim() 
 {
 
-  // run number
-  Int_t runNumber = -1;
-  if (gSystem->Getenv("CONFIG_RUN"))
-    runNumber = atoi(gSystem->Getenv("CONFIG_RUN"));
-  if (runNumber <= 0) {
-    printf("Invalid run number: %d \n", runNumber);
-    abort();
-  }
-
   // number of events configuration
   Int_t nev = 200;
   if (gSystem->Getenv("CONFIG_NEVENTS"))
@@ -46,7 +37,7 @@ void sim()
   AliSimulation sim("$ALIDPG_ROOT/MC/Config.C");
 
   /* configuration */
-  SimulationConfig(sim, simulationConfig, runNumber);
+  SimulationConfig(sim, simulationConfig);
 
   /* run */
   sim.Run(nev);
