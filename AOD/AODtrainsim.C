@@ -539,11 +539,11 @@ void ProcessEnvironment()
   //
   run_flag = 1500;
   Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
-  TString period = gSystem->Getenv("CONFIG_PERIOD");
+  periodName = gSystem->Getenv("CONFIG_PERIOD");
   if(year<2015)  run_flag =1100;
   if(year<=2010) {
     run_flag =1000;
-    if (period.EqualTo("LHC10h"))
+    if (periodName.EqualTo("LHC10h"))
       run_flag = 1001;
   }
 }
