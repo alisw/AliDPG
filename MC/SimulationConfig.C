@@ -24,7 +24,7 @@ const Char_t *SimulationName[kNSimulations] = {
 
 /*****************************************************************/
 
-SimulationConfig(AliSimulation &sim, ESimulation_t tag, Int_t run)
+SimulationConfig(AliSimulation &sim, ESimulation_t tag)
 {
   
   
@@ -32,12 +32,12 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag, Int_t run)
     
     // Default
   case kSimulationDefault:
-    SimulationDefault(sim, run);
+    SimulationDefault(sim);
     return;
     
     // Muon
   case kSimulationMuon:
-    SimulationDefault(sim, run);
+    SimulationDefault(sim);
     sim.SetMakeSDigits("MUON VZERO");
     sim.SetMakeDigitsFromHits("ITS");
     return;
@@ -49,18 +49,17 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag, Int_t run)
       abort();
       return;
     }
-    SimulationCustom(sim, run);
+    SimulationCustom(sim);
     return;
 
   }
   
 }
 
-SimulationDefault(AliSimulation &sim, Int_t run)
+SimulationDefault(AliSimulation &sim)
 {
 
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Utils.C");
-  Int_t year = RunToYear(run);
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
   
   //
   // set OCDB source
@@ -70,7 +69,7 @@ SimulationDefault(AliSimulation &sim, Int_t run)
   if (ocdbConfig.Contains("alien")) {
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
-    OCDBDefault(run, 0);
+    OCDBDefault(0);
   }
   else {
     // set OCDB snapshot mode
@@ -80,15 +79,28 @@ SimulationDefault(AliSimulation &sim, Int_t run)
   }
 
   //
+  //
   if (year < 2015) sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD");
   else             sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD AD");
   sim.SetMakeDigitsFromHits("ITS TPC");
-  //  sim.SetRunHLT(""); // can't detect from GRP if HLT was running, off for safety now 
+
   //
-  SimulationConfigPHOS(sim, run);
+  // HLT settings
+  TString hltConfig = "auto";
+  if (gSystem->Getenv("CONFIG_HLT"))
+    hltConfig = gSystem->Getenv("CONFIG_HLT");
+  sim.SetRunHLT(hltConfig.Data());
+
+  //
+  //
+  SimulationConfigPHOS(sim);
+
+  //
   //
   sim.UseVertexFromCDB();
   sim.UseMagFieldFromGRP();
+
+  //
   //
   sim.SetRunQA(":");
   //
@@ -96,7 +108,7 @@ SimulationDefault(AliSimulation &sim, Int_t run)
 
 /*** PHOS ****************************************************/
 
-SimulationConfigPHOS(AliSimulation &sim, Int_t run)
+SimulationConfigPHOS(AliSimulation &sim)
 {
   AliPHOSSimParam *simParam = AliPHOSSimParam::GetInstance();
   simParam->SetCellNonLineairyA(0.001);

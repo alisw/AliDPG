@@ -59,10 +59,10 @@ Config()
   CreateGAlice();
 
   /* configure detector */
-  DetectorConfig(detectorConfig, runNumber);
+  DetectorConfig(detectorConfig);
 
   /* configure MC generator */
-  GeneratorConfig(generatorConfig, runNumber);
+  GeneratorConfig(generatorConfig);
   GeneratorOptions();
 }
 

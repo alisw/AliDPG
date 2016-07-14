@@ -84,16 +84,7 @@ CreateSnapshot(Int_t mode)
 
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
   
-  // run number
-  Int_t runNumber = -1;
-  if (gSystem->Getenv("CONFIG_RUN"))
-    runNumber = atoi(gSystem->Getenv("CONFIG_RUN"));
-  if (runNumber <= 0) {
-    printf("Invalid run number: %d \n", runNumber);
-    abort();
-  }
-
-  OCDBConfig(kOCDBDefault, runNumber, mode);
+  OCDBConfig(kOCDBDefault, mode);
   CreateSnapshot(snapshotName[mode]);
   
 }
