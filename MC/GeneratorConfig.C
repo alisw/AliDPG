@@ -111,7 +111,7 @@ GeneratorConfig(Int_t tag, Int_t run)
     // randomly injected particles
     Int_t pdglist[] = {225, 3124, -3124, 9010221}; // f2(1270), Lambda(1520), Lambda_bar(1520), f0(980)
     Int_t pdg = pdglist[uidConfig % (sizeof(pdglist) / 4)]; // select according to unique ID
-    inj = GeneratorInjector(1, pdg, 0., 15., -0.6, 0.6);
+    AliGenerator   *inj = GeneratorInjector(1, pdg, 0., 15., -0.6, 0.6);
     ctl->AddGenerator(inj, "Injector (Rsn001)", 1.);
     //
     gen = ctl;
@@ -371,6 +371,7 @@ GeneratorCocktail(TString projN, Int_t projA, Int_t projZ,
   ctl->SetProjectile(projN, projA, projZ);
   ctl->SetTarget(targN, targA, targZ);
   ctl->SetEnergyCMS(energyConfig);
+  ctl->SetSeed(seedConfig);
   return ctl;
 }
 
