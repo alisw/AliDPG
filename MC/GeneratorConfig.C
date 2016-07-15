@@ -12,7 +12,7 @@ enum EGenerator_t {
   kGeneratorPythia8_Monash2013,
   kGeneratorPythia8_Monash2013_Rsn001, // [ALIROOT-6685]
   kGeneratorPhojet,
-  kGeneratorEPOSLHC_pp,
+  kGeneratorEPOSLHC, kGeneratorEPOSLHC_pp, kGeneratorEPOSLHC_PbPb,
   kGeneratorHijing,
   kGeneratorHijing_Rsn002a, kGeneratorHijing_Rsn002b, kGeneratorHijing_Rsn002c, // [ALIROOT-6721] [ALIROOT-6722]
   kGeneratorHijing_Jpsiee001, // [ALIROOT-6750]
@@ -28,7 +28,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Pythia8_Monash2013",
   "Pythia8_Monash2013_Rsn001",
   "Phojet",
-  "EPOSLHC_pp",
+  "EPOSLHC", "EPOSLHC_pp", "EPOSLHC_PbPb",
   "Hijing",
   "Hijing_Rsn002a", "Hijing_Rsn002b", "Hijing_Rsn002c",
   "Hijing_Jpsiee001",
@@ -67,7 +67,7 @@ AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t pt
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPhojet();
-AliGenerator *GeneratorEPOSLHC(TString system);
+AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
 
@@ -122,9 +122,11 @@ GeneratorConfig(Int_t tag)
     gen = GeneratorPhojet();
     break;
 
-    // EPOSLHC (pp)
+    // EPOSLHC
+  case kGeneratorEPOSLHC:
   case kGeneratorEPOSLHC_pp:
-    gen = GeneratorEPOSLHC("pp");
+  case kGeneratorEPOSLHC_PbPb:
+    gen = GeneratorEPOSLHC();
     break;
 
     // Hijing
@@ -295,25 +297,47 @@ GeneratorPhojet()
 /*** EPOSLHC ****************************************************/
 
 AliGenerator *
-GeneratorEPOSLHC(TString system)
+GeneratorEPOSLHC()
 {
-  
+
+  TString system = gSystem->Getenv("CONFIG_SYSTEM");
   comment = comment.Append(Form(" | EPOS-LHC (%s)", system.Data()));
   //
-  if (system.EqualTo("pp")) {
-    Float_t beamEnergy = energyConfig / 2.;
-    //    TString fifoname = Form("crmceventfifo%d", gRandom->Integer(kMaxInt));
-    TString fifoname = "crmceventfifo";
-    gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
-    gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
-    gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc_pp.sh %s %d %f %f &> gen_eposlhc_pp.log &",
-			    fifoname.Data(), neventsConfig, beamEnergy, beamEnergy));
+  // configure projectile/target
+  Int_t projectileId = 0; // PDG or Z*10000+A*10
+  Float_t projectileEnergy = 0.; // momentum/(GeV/c)
+  Int_t targetId = 0;
+  Float_t targetEnergy = 0;
+  // pp
+  if (system.EqualTo("p-p")) {
+    projectileId = 2212;
+    targetId = projectileId;
+    projectileEnergy = energyConfig / 2.;
+    targetEnergy = energyConfig / 2.;
   }
+  // PbPb
+  else if (system.EqualTo("Pb-Pb")) {
+    projectileId = 82*10000 + 208*10;
+    targetId = projectileId;
+    projectileEnergy = energyConfig / 2.;
+    targetEnergy = energyConfig / 2.;
+  }
+  // not implemented
   else {
     printf("EPOSLHC not implemented for %s system\n", system.Data());
     abort();
   }
-  
+  //
+  // run CRMC
+  TString fifoname = "crmceventfifo";
+  gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
+  gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
+  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc.sh %s %d %d %f %d %f &> gen_eposlhc.log &",
+			  fifoname.Data(), neventsConfig,
+			  projectileId, projectileEnergy,
+			  targetId, targetEnergy));
+  //
+  // connect HepMC reader
   AliGenReaderHepMC *reader = new AliGenReaderHepMC();
   reader->SetFileName("crmceventfifo");
   AliGenExtFile *gener = new AliGenExtFile(-1);
