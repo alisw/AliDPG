@@ -34,29 +34,41 @@ Hijing_Rsn002c: clean
 
 Hijing_Jpsiee001: clean
 	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing_Jpsiee001 --system Pb-Pb
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 1 --uid 1 --generator Hijing_Jpsiee001 --system Pb-Pb  --bmin 11 --bmax 15
 
 ###
 
-test_EPOSLHC_pp: clean
+EPOSLHC_pp: clean
 	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode full --nevents 2 --uid 1 --generator EPOSLHC_pp --system p-p
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode full --nevents 1 --uid 1 --generator EPOSLHC
 
-test_Hijing: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing --system Pb-Pb
+### [ALIROOT-XXXX] Pb-Pb preparations
 
-test_Hijing_central: clean
+Hijing: clean
 	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing --system Pb-Pb
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 1 --uid 1 --generator Hijing
 
-test_Hijing_semicentral: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing --bmin  5 --bmax 11 --system Pb-Pb
 
-test_Hijing_peripheral: clean
+Hijing_central: clean
 	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing --bmin 11 --bmax 15 --system Pb-Pb
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 1 --uid 1 --generator Hijing --bmin 0 --bmax 5
+
+
+Hijing_semicentral: clean
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 1 --uid 1 --generator Hijing --bmin 5 --bmax 11
+
+
+Hijing_peripheral: clean
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 1 --uid 1 --generator Hijing --bmin 11 --bmax 15
+
+
+EPOSLHC_PbPb: clean
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode ocdb
+	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode full --nevents 1 --uid 1 --generator EPOSLHC
+
+###
 
 clean:
 	rm -rf *~ *.root *.log *.inp *.dat stress* validation* GRP input

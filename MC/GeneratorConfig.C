@@ -386,11 +386,12 @@ GeneratorHijing()
 /*** COCKTAIL ****************************************************/
 
 AliGenerator * 
-GeneratorCocktail(TString name);
+GeneratorCocktail(TString name)
 {
 
   // configure projectile/target
-  TString projN, projA, projZ, targN, targA, targZ;
+  TString projN, targN;
+  Int_t projA, projZ, targA, targZ;
   TString system = gSystem->Getenv("CONFIG_SYSTEM");
   // pp
   if (system.EqualTo("p-p")) {
