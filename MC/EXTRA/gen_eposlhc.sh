@@ -2,7 +2,7 @@
 set -e
 
 if [[ $# -lt 4 ]]; then
-    echo "usage: gen_eposlhc_pp.sh [outfilename] [nevents] [projectile_energy] [target_energy]"
+    echo "usage: gen_eposlhc_PbPb.sh [outfilename] [nevents] [projectile_id] [projectile_energy] [target_id] [target_energy]"
     exit -1
 fi
 
@@ -24,4 +24,4 @@ cat crmc.param
 echo "=========================================="
 
 # run CRMC
-crmc -o hepmc -p $3 -P-$4 -n $2 -m 0 -f $1
+crmc -o hepmc -f $1 -n $2 -m 0 -i $3 -p $4 -I $5 -P-$6
