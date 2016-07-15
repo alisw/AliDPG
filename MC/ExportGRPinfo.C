@@ -29,6 +29,9 @@ ExportGRPinfo(Int_t run)
     printf("export CONFIG_TRIGGER=p-p\n");
   }
   //
+  // ENERGY - must be fixed 
+  printf("export CONFIG_ENERGY=%.0f\n", grp->GetBeamEnergy() * 2.);
+  //
   // return grp
   return grp;
 }

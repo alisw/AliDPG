@@ -68,16 +68,6 @@ Config()
 
 /*****************************************************************/
 
-Float_t
-SetEnergyFromGRP()
-{
-  AliCDBEntry *cdbe = AliCDBManager::Instance()->Get("GRP/GRP/Data");
-  AliGRPObject *grpd = dynamic_cast<AliGRPObject*>(cdbe->GetObject()); 
-  return (grpd->GetBeamEnergy() * 2.);
-}
-
-/*****************************************************************/
-
 void
 ProcessEnvironment()
 {
@@ -140,7 +130,7 @@ ProcessEnvironment()
   }
   
   // energy configuration
-  energyConfig = SetEnergyFromGRP();
+  energyConfig = 0.;
   if (gSystem->Getenv("CONFIG_ENERGY"))
     energyConfig = atoi(gSystem->Getenv("CONFIG_ENERGY"));
   if (energyConfig <= 0) {

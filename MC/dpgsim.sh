@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# check ALIDPG_ROOT is set
+if [ -z "$ALIDPG_ROOT" ]; then
+    echo "ALIDPG_ROOT not set, abort."
+    exit 1
+fi
+
+# check ALICER_ROOT is set
+if [ -z "$ALICE_ROOT" ]; then
+    echo "ALICE_ROOT not set, abort."
+    exit 1
+fi
+
 # set job and simulation variables as :
 COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig>"
 
@@ -99,7 +111,7 @@ CONFIG_SIMULATION="Default"
 CONFIG_RECONSTRUCTION="Default"
 CONFIG_QA=""
 CONFIG_AOD=""
-CONFIG_MODE="full"
+CONFIG_MODE="ocdb,full"
 CONFIG_OCDB="snapshot"
 CONFIG_HLT="auto"
 
@@ -125,10 +137,10 @@ while [ ! -z "$1" ]; do
         CONFIG_GENERATOR="$1"
 	export CONFIG_GENERATOR
         shift
-    elif [ "$option" = "--magnet" ]; then
-        CONFIG_MAGNET="$1"
-	export CONFIG_MAGNET	
-        shift
+#    elif [ "$option" = "--magnet" ]; then
+#        CONFIG_MAGNET="$1"
+#	export CONFIG_MAGNET	
+#        shift
     elif [ "$option" = "--detector" ]; then
         CONFIG_DETECTOR="$1"
 	export CONFIG_DETECTOR
@@ -139,10 +151,10 @@ while [ ! -z "$1" ]; do
 #        CONFIG_TRIGGER="$1"
 #	export CONFIG_TRIGGER
 #        shift
-    elif [ "$option" = "--energy" ]; then
-        CONFIG_ENERGY="$1"
-	export CONFIG_ENERGY
-        shift
+#    elif [ "$option" = "--energy" ]; then
+#        CONFIG_ENERGY="$1"
+#	export CONFIG_ENERGY
+#        shift
     elif [ "$option" = "--simulation" ]; then
         CONFIG_SIMULATION="$1"
 	export CONFIG_SIMULATION
@@ -151,18 +163,18 @@ while [ ! -z "$1" ]; do
         CONFIG_RECONSTRUCTION="$1"
 	export CONFIG_RECONSTRUCTION
         shift
-    elif [ "$option" = "--qa" ]; then
-        CONFIG_QA="$1"
-	export CONFIG_QA
-        shift
-    elif [ "$option" = "--aod" ]; then
-        CONFIG_AOD="$1"
-	export CONFIG_AOD
-        shift
-    elif [ "$option" = "--physicslist" ]; then
-        CONFIG_PHYSICSLIST="$1"
-	export CONFIG_PHYSICSLIST
-        shift
+#    elif [ "$option" = "--qa" ]; then
+#        CONFIG_QA="$1"
+#	export CONFIG_QA
+#        shift
+#    elif [ "$option" = "--aod" ]; then
+#        CONFIG_AOD="$1"
+#	export CONFIG_AOD
+#        shift
+#    elif [ "$option" = "--physicslist" ]; then
+#        CONFIG_PHYSICSLIST="$1"
+#	export CONFIG_PHYSICSLIST
+#        shift
     elif [ "$option" = "--bmin" ]; then
         CONFIG_BMIN="$1"
 	export CONFIG_BMIN
@@ -175,10 +187,10 @@ while [ ! -z "$1" ]; do
         CONFIG_PTHARDBIN="$1"
 	export CONFIG_PTHARDBIN
         shift  
-    elif [ "$option" = "--quench" ]; then
-        CONFIG_QUENCHING="$1"
-	export CONFIG_QUENCHING
-        shift 
+#    elif [ "$option" = "--quench" ]; then
+#        CONFIG_QUENCHING="$1"
+#	export CONFIG_QUENCHING
+#        shift 
     elif [ "$option" = "--nevents" ]; then
         CONFIG_NEVENTS="$1"
 	export CONFIG_NEVENTS
@@ -191,9 +203,10 @@ while [ ! -z "$1" ]; do
         CONFIG_HLT="$1"
 	export CONFIG_HLT
         shift 
-    elif [ "$option" = "--sdd" ]; then
-        RUNMODE="SDD"
-	export RUNMODE
+#    elif [ "$option" = "--sdd" ]; then
+#        RUNMODE="SDD"
+#	export RUNMODE
+#	shift
     fi
 done
 
@@ -283,6 +296,7 @@ if [[ $CONFIG_MODE == *"Muon"* ]]; then
     fi
 fi
 
+
 ### automatic settings from GRP info
 
 aliroot -b -q $ALIDPG_ROOT/MC/ExportGRPinfo.C\($CONFIG_RUN\) 2>/dev/null | grep export > grpdump.sh && source grpdump.sh # && rm grpdump.sh
@@ -293,27 +307,32 @@ echo
 echo "============================================"
 echo " DPGSIM"
 echo "============================================"
-echo "Mode............. $CONFIG_MODE"
 echo "Run.............. $CONFIG_RUN"
+echo "Mode............. $CONFIG_MODE"
+echo "============================================"
 echo "Year............. $CONFIG_YEAR"
 echo "Period........... $CONFIG_PERIOD"
 echo "Beam type........ $CONFIG_BEAMTYPE"
-echo "System........... $CONFIG_SYSTEM"
-echo "Trigger.......... $CONFIG_TRIGGER"
-echo "Unique-ID........ $CONFIG_UID"
-echo "MC seed.......... $CONFIG_SEED (based on $CONFIG_SEED_BASED)"
-echo "No. Events....... $CONFIG_NEVENTS"
-echo "Generator........ $CONFIG_GENERATOR"
 echo "Energy........... $CONFIG_ENERGY"
+echo "============================================"
+echo "Generator........ $CONFIG_GENERATOR"
+echo "No. Events....... $CONFIG_NEVENTS"
+echo "Unique-ID........ $CONFIG_UID"
+echo "MC seed.......... $CONFIG_SEED"
+#echo "MC seed.......... $CONFIG_SEED (based on $CONFIG_SEED_BASED)"
+echo "============================================"
 echo "Detector......... $CONFIG_DETECTOR"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
-echo "HLT.............. $CONFIG_HLT"
+echo "System........... $CONFIG_SYSTEM"
+echo "Trigger.......... $CONFIG_TRIGGER"
 echo "OCDB............. $CONFIG_OCDB"
-echo "QA train......... $CONFIG_QA"
-echo "AOD train........ $CONFIG_AOD"
-echo "B-field.......... $CONFIG_MAGNET"
-echo "Physicslist...... $CONFIG_PHYSICSLIST"
+echo "HLT.............. $CONFIG_HLT"
+echo "============================================"
+#echo "QA train......... $CONFIG_QA"
+#echo "AOD train........ $CONFIG_AOD"
+#echo "B-field.......... $CONFIG_MAGNET"
+#echo "Physicslist...... $CONFIG_PHYSICSLIST"
 echo "b-min............ $CONFIG_BMIN"
 echo "b-max............ $CONFIG_BMAX"
 echo "pT hard bin...... $CONFIG_PTHARDBIN"
