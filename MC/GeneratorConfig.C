@@ -386,7 +386,7 @@ GeneratorHijing()
 /*** COCKTAIL ****************************************************/
 
 AliGenerator * 
-GeneratorCocktail(TString name);
+GeneratorCocktail(TString name)
 {
 
   // configure projectile/target
