@@ -62,7 +62,7 @@ enum EPythia8Tune_t {
 /*****************************************************************/
 
 // functions
-AliGenerator *GeneratorCocktail(TString projN, Int_t projA, Int_t projZ, TString targN, Int_t targA, Int_t targZ);
+AliGenerator *GeneratorCocktail(TString name);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax); 
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
@@ -104,7 +104,7 @@ GeneratorConfig(Int_t tag)
     
     // Pythia8 (Monash2013) - Rsn001
   case kGeneratorPythia8_Monash2013_Rsn001:
-    AliGenCocktail *ctl = GeneratorCocktail("p", 1, 1, "p", 1, 1);
+    AliGenCocktail *ctl = GeneratorCocktail("Monash2013_Rsn001");
     // pythia8
     AliGenerator   *py8 = GeneratorPythia8(kPythia8Tune_Monash2013);
     ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
@@ -140,7 +140,7 @@ GeneratorConfig(Int_t tag)
   case kGeneratorHijing_Rsn002c:
     Int_t ninjlist[3] = {25, 7, 3};
     Int_t ninj = ninjlist[tag - kGeneratorHijing_Rsn002a];
-    AliGenCocktail *ctl  = GeneratorCocktail("A", 208, 82, "A", 208, 82);
+    AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Rsn002");
     AliGenerator   *hij  = GeneratorHijing();
     AliGenerator   *inj1 = GeneratorInjector(ninj,  3124, 0., 10., -0.6, 0.6);
     AliGenerator   *inj2 = GeneratorInjector(ninj, -3124, 0., 10., -0.6, 0.6);
@@ -152,7 +152,7 @@ GeneratorConfig(Int_t tag)
 
     // Hijing - Jpsiee001
   case kGeneratorHijing_Jpsiee001:
-    AliGenCocktail *ctl   = GeneratorCocktail("A", 208, 82, "A", 208, 82);
+    AliGenCocktail *ctl   = GeneratorCocktail("Hijing_Jpsiee001");
     AliGenerator   *hij   = GeneratorHijing();
     ctl->AddGenerator(hij,  "Hijing", 1.);    
     if (uidConfig % 10 < 7) {
@@ -386,12 +386,32 @@ GeneratorHijing()
 /*** COCKTAIL ****************************************************/
 
 AliGenerator * 
-GeneratorCocktail(TString projN, Int_t projA, Int_t projZ,
-		  TString targN, Int_t targA, Int_t targZ)
+GeneratorCocktail(TString name);
 {
-  comment = comment.Append(Form(" | cocktail (%s-%s)", projN.Data(), targN.Data()));
+
+  // configure projectile/target
+  TString projN, projA, projZ, targN, targA, targZ;
+  TString system = gSystem->Getenv("CONFIG_SYSTEM");
+  // pp
+  if (system.EqualTo("p-p")) {
+    projN = "p"; projA = 1; projZ = 1;
+    targN = "p"; targA = 1; targZ = 1;
+  }
+  // PbPb
+  else if (system.EqualTo("Pb-Pb")) {
+    projN = "A"; projA = 208; projZ = 82;
+    targN = "A"; targA = 208; targZ = 82;
+  }
+  // not implemented
+  else {
+    printf("Cocktail not implemented for %s system\n", system.Data());
+    abort();
+  }
+  
+  comment = comment.Append(Form(" | cocktail %s (%s-%s)", name.Data(), projN.Data(), targN.Data()));
   //
   AliGenCocktail *ctl = new AliGenCocktail();
+  ctl->SetName(name.Data());
   ctl->SetProjectile(projN, projA, projZ);
   ctl->SetTarget(targN, targA, targZ);
   ctl->SetEnergyCMS(energyConfig);
