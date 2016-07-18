@@ -163,14 +163,14 @@ while [ ! -z "$1" ]; do
         CONFIG_RECONSTRUCTION="$1"
 	export CONFIG_RECONSTRUCTION
         shift
-#    elif [ "$option" = "--qa" ]; then
-#        CONFIG_QA="$1"
-#	export CONFIG_QA
-#        shift
-#    elif [ "$option" = "--aod" ]; then
-#        CONFIG_AOD="$1"
-#	export CONFIG_AOD
-#        shift
+    elif [ "$option" = "--qa" ]; then
+        CONFIG_QA="$1"
+	export CONFIG_QA
+        shift
+    elif [ "$option" = "--aod" ]; then
+        CONFIG_AOD="$1"
+	export CONFIG_AOD
+        shift
 #    elif [ "$option" = "--physicslist" ]; then
 #        CONFIG_PHYSICSLIST="$1"
 #	export CONFIG_PHYSICSLIST
@@ -329,8 +329,8 @@ echo "Trigger.......... $CONFIG_TRIGGER"
 echo "OCDB............. $CONFIG_OCDB"
 echo "HLT.............. $CONFIG_HLT"
 echo "============================================"
-#echo "QA train......... $CONFIG_QA"
-#echo "AOD train........ $CONFIG_AOD"
+echo "QA train......... $CONFIG_QA"
+echo "AOD train........ $CONFIG_AOD"
 #echo "B-field.......... $CONFIG_MAGNET"
 #echo "Physicslist...... $CONFIG_PHYSICSLIST"
 echo "b-min............ $CONFIG_BMIN"
