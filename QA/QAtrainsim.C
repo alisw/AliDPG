@@ -212,7 +212,11 @@ void AddAnalysisTasks(const char *cdb_location)
     {
       gROOT->LoadMacro("$ALICE_PHYSICS/OADB/COMMON/MULTIPLICITY/macros/AddTaskMultSelection.C");
       AliMultSelectionTask *taskMult = AddTaskMultSelection();
-      taskMult->SetAlternateOADBforEstimators(periodName);
+
+      // check method exists (R+compatibility)
+      if (AliMultSelectionTask::Class()->GetMethodAny("SetAlternateOADBforEstimators"))
+	taskMult->SetAlternateOADBforEstimators(periodName);
+
     }
     else
       // old scheme is only valid for PbPb
@@ -449,9 +453,20 @@ void AddAnalysisTasks(const char *cdb_location)
   if(doMUONEff) 
   {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/MUON/dep/AddTaskMUONTrackingEfficiency.C");
-    AliAnalysisTaskMuonTrackingEff *muonEfficiency = AddTaskMUONTrackingEfficiency(kTRUE,kFALSE,"");
-    muonEfficiency->SelectCollisionCandidates(kTriggerMask);
-    muonEfficiency->UseMCLabel(kTRUE);
+
+    // check function signature (R+compatibility)
+    TFunction *function_AddTaskMUONTrackingEfficiency = gROOT->GetGlobalFunction("AddTaskMUONTrackingEfficiency");
+    TString signature_AddTaskMUONTrackingEfficiency = function_AddTaskMUONTrackingEfficiency->GetSignature();
+    AliAnalysisTaskMuonTrackingEff *muonEfficiency = NULL;
+    if (signature_AddTaskMUONTrackingEfficiency.EqualTo("(Bool_t setDefaultTrackCuts, Bool_t isMC, TString extension = "")")) {
+      muonEfficiency = AddTaskMUONTrackingEfficiency(kTRUE,kFALSE,"");
+      muonEfficiency->SelectCollisionCandidates(kTriggerMask);
+      muonEfficiency->UseMCLabel(kTRUE);
+    }
+    else {
+      printf(">>>>> unknown function signature for AddTaskMUONTrackingEfficiency <<<<< \n");
+    } 
+          
   }
 
   //

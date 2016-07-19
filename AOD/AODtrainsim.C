@@ -41,8 +41,8 @@ Bool_t      doPIDqa             = kTRUE;
 
 // ### Configuration macros used for each module
 //==============================================================================
-// TString configPWGHFd2h = (iCollision==0)?"$ALICE_PHYSICS/PWGHF/vertexingHF/ConfigVertexingHF.C"
-//                          :"$ALICE_PHYSICS/PWGHF/vertexingHF/ConfigVertexingHF_Pb_AllCent_NoLS_PIDLc_PtDepSel_LooseIP.C";
+TString configPWGHFd2h = (iCollision == 0) ? "$ALICE_PHYSICS/PWGHF/vertexingHF/ConfigVertexingHF.C"
+  : "$ALICE_PHYSICS/PWGHF/vertexingHF/ConfigVertexingHF_Pb_AllCent_NoLS_PIDLc_PtDepSel_LooseIP.C";
 
 enum ECOLLISIONSYSTEM_t
 {
@@ -265,7 +265,11 @@ void AddAnalysisTasks(const char *cdb_location)
       {
         gROOT->LoadMacro("$ALICE_PHYSICS/OADB/COMMON/MULTIPLICITY/macros/AddTaskMultSelection.C");
         AliMultSelectionTask *taskMult = AddTaskMultSelection();
-        taskMult->SetAlternateOADBforEstimators(periodName);
+
+	// check method exists (R+compatibility)
+        if (AliMultSelectionTask::Class()->GetMethodAny("SetAlternateOADBforEstimators"))
+	  taskMult->SetAlternateOADBforEstimators(periodName);
+
       }
       else
       {
@@ -305,20 +309,43 @@ void AddAnalysisTasks(const char *cdb_location)
 
       Bool_t muonWithSPDTracklets = (iCollision==kPbPb) ? kFALSE : kTRUE; // add SPD information to muon AOD only for pp
 
-      AliAnalysisTaskESDfilter *taskesdfilter = 
-                 AddTaskESDFilter(useKFILTER, 
-                                  iMUONcopyAOD,          // write Muon AOD
-                                  kFALSE,                // write dimuon AOD 
-                                  kFALSE,                // usePhysicsSelection 
-                                  kFALSE,                // centrality OBSOLETE
-                                  kTRUE,                 // enable TPS only tracks
-                                  kFALSE,                // disable cascades
-                                  kFALSE,                // disable kinks
-                                  run_flag,              // run flag (YY00)
-                                  3,                     // muonMCMode
-                                  kFALSE,                // useV0Filter 
-                                  muonWithSPDTracklets,
-                                  isMuonCaloPass);
+      // switch number of arguments (R+compatibility)
+      switch (gROOT->GetGlobalFunction("AddTaskESDFilter")->GetNargs()) {
+
+      case 12:
+	AliAnalysisTaskESDfilter *taskesdfilter = 
+	  AddTaskESDFilter(useKFILTER, 
+			   iMUONcopyAOD,          // write Muon AOD
+			   kFALSE,                // write dimuon AOD 
+			   kFALSE,                // usePhysicsSelection 
+			   kFALSE,                // centrality OBSOLETE
+			   kTRUE,                 // enable TPS only tracks
+			   kFALSE,                // disable cascades
+			   kFALSE,                // disable kinks
+			   run_flag,              // run flag (YY00)
+			   3,                     // muonMCMode
+			   kFALSE,                // useV0Filter 
+			   muonWithSPDTracklets);
+	break;
+
+      case 13:
+	AliAnalysisTaskESDfilter *taskesdfilter = 
+	  AddTaskESDFilter(useKFILTER, 
+			   iMUONcopyAOD,          // write Muon AOD
+			   kFALSE,                // write dimuon AOD 
+			   kFALSE,                // usePhysicsSelection 
+			   kFALSE,                // centrality OBSOLETE
+			   kTRUE,                 // enable TPS only tracks
+			   kFALSE,                // disable cascades
+			   kFALSE,                // disable kinks
+			   run_flag,              // run flag (YY00)
+			   3,                     // muonMCMode
+			   kFALSE,                // useV0Filter 
+			   muonWithSPDTracklets,
+			   isMuonCaloPass);
+	break;
+      }
+
          AliEMCALGeometry::GetInstance("","");
    }   
 
@@ -327,12 +354,24 @@ void AddAnalysisTasks(const char *cdb_location)
   if (iPWGHFvertexing) 
   {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGHF/vertexingHF/macros/AddTaskVertexingHF.C");
-
-    AliAnalysisTaskSEVertexingHF *taskvertexingHF = AddTaskVertexingHF(iCollision,train_name,"",run_numbers[0],periodName);
+    if (!iPWGHFd2h) TFile::Cp(gSystem->ExpandPathName(configPWGHFd2h.Data()), "file:ConfigVertexingHF.C"); // R+compatibility
+    
+    // check function signature (R+compatibility)
+    TFunction *function_AddTaskVertexingHF = gROOT->GetGlobalFunction("AddTaskVertexingHF");
+    TString signature_AddTaskVertexingHF = function_AddTaskVertexingHF->GetSignature();
+    AliAnalysisTaskSEVertexingHF *taskvertexingHF = NULL;
+    if (signature_AddTaskVertexingHF.EqualTo("(const char* fname = \"AliAOD.VertexingHF.root\")")) {
+      taskvertexingHF = AddTaskVertexingHF();
+      
+    }
+    else
+      taskvertexingHF = AddTaskVertexingHF(iCollision,train_name,"",run_numbers[0],periodName);
+    
     // Now we need to keep in sync with the ESD filter
     if (!taskvertexingHF) ::Warning("AnalysisTrainNew", "AliAnalysisTaskSEVertexingHF cannot run for this train conditions - EXCLUDED");
     else mgr->RegisterExtraFile("AliAOD.VertexingHF.root");
     taskvertexingHF->SelectCollisionCandidates(0);
+
   }
 
    // PWGDQ JPSI filtering (only pp)
@@ -348,14 +387,23 @@ void AddAnalysisTasks(const char *cdb_location)
   if (iPWGHFd2h) 
   {   
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGHF/vertexingHF/AddD2HTrain.C");
-    
+    TFile::Cp(gSystem->ExpandPathName(configPWGHFd2h.Data()), "file:ConfigVertexingHF.C"); // R+compatibility
     AddD2HTrain(kFALSE, 1,0,0,0,0,0,0,0,0,0,0);                                 
   }
    
     //PWGAgammaconv
     if (iPWGGAgammaconv) {
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/GammaConv/macros/AddTask_ConversionAODProduction.C");
-      AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(iCollision, kFALSE, periodName);
+
+      // check function signature (R+compatibility)
+      TFunction *function_ConversionAODProduction = gROOT->GetGlobalFunction("AddTask_ConversionAODProduction");
+      TString signature_ConversionAODProduction = function_ConversionAODProduction->GetSignature();
+      AliAnalysisTask *taskconv = NULL;
+      if (signature_ConversionAODProduction.EqualTo("(Int_t dataset = 0, Bool_t isMC = kFALSE)"))
+	taskconv = AddTask_ConversionAODProduction(iCollision, kFALSE);
+      else 
+	taskconv = AddTask_ConversionAODProduction(iCollision, kFALSE, periodName);
+      
       mgr->RegisterExtraFile("AliAODGammaConversion.root");
    }   
   
