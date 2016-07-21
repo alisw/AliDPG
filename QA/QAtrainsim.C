@@ -34,6 +34,7 @@ UInt_t kTriggerHM   = AliVEvent::kHighMult;
 UInt_t kTriggerMask = kTriggerInt;
 
 Int_t runNumbers[5] = {158626};
+Int_t year          = 2015;
 TString periodName  = "LHC15f";
 
 Bool_t doCDBconnect   = 1;
@@ -684,8 +685,10 @@ void ProcessEnvironment()
   // Figure out the run_flag
   //
   run_flag = 1500;
-  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
-  periodName = gSystem->Getenv("CONFIG_PERIOD");
+  if (gSystem->Getenv("CONFIG_YEAR"))
+    year = atoi(gSystem->Getenv("CONFIG_YEAR"));
+  if (gSystem->Getenv("CONFIG_PERIOD"))
+    periodName = gSystem->Getenv("CONFIG_PERIOD");
   if(year<2015)  run_flag =1100;
   if(year<=2010) {
     run_flag =1000;
