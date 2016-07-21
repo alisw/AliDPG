@@ -3,6 +3,7 @@
 Int_t       runOnData           = 0;       // Set to 1 if processing real data
 Int_t       iCollision          = 0;       // 0=pp, 1=Pb-Pb
 Int_t       run_flag            = 1500;    // year (1000, 2010 pp; 1100, 2011 pp; 1500, 2015)
+Int_t       year                = 2015;
 TString     periodName          = "LHC15f";
 TString	    train_name          = ".";
 Int_t       run_numbers[10]     = {255106};
@@ -538,8 +539,10 @@ void ProcessEnvironment()
   // Figure out the run_flag - still the "poor-man-solution" :)
   //
   run_flag = 1500;
-  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
-  periodName = gSystem->Getenv("CONFIG_PERIOD");
+  if (gSystem->Getenv("CONFIG_YEAR"))
+    year = atoi(gSystem->Getenv("CONFIG_YEAR"));
+  if (gSystem->Getenv("CONFIG_PERIOD"))
+    periodName = gSystem->Getenv("CONFIG_PERIOD");
   if(year<2015)  run_flag =1100;
   if(year<=2010) {
     run_flag =1000;
