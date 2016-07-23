@@ -262,6 +262,39 @@ if [[ $ALIEN_JDL_LPMOCDBJOB == "true" ]]; then
     export CONFIG_MODE="ocdb"
 fi
     
+### createSnapshot.C
+
+if [[ $CONFIG_MODE == *"ocdb"* ]]; then
+
+echo
+echo "============================================"
+echo " DPGSIM - Snapshot"
+echo "============================================"
+echo
+
+    OCDBC=$ALIDPG_ROOT/MC/CreateSnapshot.C
+    if [ -f CreateSnapshot.C ]; then
+	SIMC=CreateSnapshot.C
+    fi
+    
+    runcommand "OCDB SIM SNAPSHOT" $OCDBC\(0\) ocdbsim.log 500
+    mv -f syswatch.log ocdbsimwatch.log
+    if [ ! -f OCDBsim.root ]; then
+	echo "*! Could not find OCDBsim.root, the snapshot creation chain failed!"
+	echo "Could not find OCDBsim.root, the snapshot creation chain failed!" >> validation_error.message
+	exit 2
+    fi
+
+    runcommand "OCDB REC SNAPSHOT" $OCDBC\(1\) ocdbrec.log 500
+    mv -f syswatch.log ocdbrecwatch.log
+    if [ ! -f OCDBrec.root ]; then
+	echo "*! Could not find OCDBrec.root, the snapshot creation chain failed!"
+	echo "Could not find OCDBrec.root, the snapshot creation chain failed!" >> validation_error.message
+	exit 2
+    fi
+
+fi
+
 ### check basic requirememts
     
     if [[ $CONFIG_MODE == "" ]]; then
@@ -295,7 +328,6 @@ if [[ $CONFIG_MODE == *"Muon"* ]]; then
 	export CONFIG_AOD="Muon"
     fi
 fi
-
 
 ### automatic settings from GRP info
 
@@ -338,33 +370,6 @@ echo "b-max............ $CONFIG_BMAX"
 echo "pT hard bin...... $CONFIG_PTHARDBIN"
 echo "============================================"
 echo
-
-### createSnapshot.C
-
-if [[ $CONFIG_MODE == *"ocdb"* ]]; then
-
-    OCDBC=$ALIDPG_ROOT/MC/CreateSnapshot.C
-    if [ -f CreateSnapshot.C ]; then
-	SIMC=CreateSnapshot.C
-    fi
-    
-    runcommand "OCDB SIM SNAPSHOT" $OCDBC\(0\) ocdbsim.log 500
-    mv -f syswatch.log ocdbsimwatch.log
-    if [ ! -f OCDBsim.root ]; then
-	echo "*! Could not find OCDBsim.root, the snapshot creation chain failed!"
-	echo "Could not find OCDBsim.root, the snapshot creation chain failed!" >> validation_error.message
-	exit 2
-    fi
-
-    runcommand "OCDB REC SNAPSHOT" $OCDBC\(1\) ocdbrec.log 500
-    mv -f syswatch.log ocdbrecwatch.log
-    if [ ! -f OCDBrec.root ]; then
-	echo "*! Could not find OCDBrec.root, the snapshot creation chain failed!"
-	echo "Could not find OCDBrec.root, the snapshot creation chain failed!" >> validation_error.message
-	exit 2
-    fi
-
-fi
 
 ### sim.C
 

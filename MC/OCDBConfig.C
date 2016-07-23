@@ -46,11 +46,9 @@ OCDBConfig(Int_t tag, Int_t type)
 OCDBDefault(Int_t mode)
 {
 
-  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
-  Int_t run  = atoi(gSystem->Getenv("CONFIG_RUN"));
-  
+  Int_t run  = atoi(gSystem->Getenv("CONFIG_RUN"));  
   AliCDBManager* man = AliCDBManager::Instance();
-  man->SetDefaultStorage(Form("alien://Folder=/alice/data/%d/OCDB", year));
+  man->SetDefaultStorage("raw://");
   man->SetRun(run);
   
   // set detector specific paths
@@ -62,8 +60,12 @@ OCDBDefault(Int_t mode)
 
 DefaultSpecificStorage(AliCDBManager *man, Int_t mode)
 {
-  
-  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
+
+  AliCDBEntry *cdbe = man->Get("GRP/GRP/Data");
+  if (!cdbe) return NULL;
+  AliGRPObject *grp = (AliGRPObject *)cdbe->GetObject();
+  TDatime date = grp->GetTimeStart();
+  Int_t year = date.GetYear();
 
   const Char_t *Raw      = Form("alien://Folder=/alice/data/%d/OCDB", year);
   const Char_t *Ideal    = "alien://Folder=/alice/simulation/2008/v4-15-Release/Ideal/";

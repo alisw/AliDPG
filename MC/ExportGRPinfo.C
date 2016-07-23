@@ -1,12 +1,26 @@
 AliGRPObject *
 ExportGRPinfo(Int_t run)
 {
+  
+  // set OCDB source
+  AliCDBManager *cdbm = AliCDBManager::Instance();
+  TString ocdbConfig = "default,snapshot";
+  if (gSystem->Getenv("CONFIG_OCDB"))
+    ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
+  if (ocdbConfig.Contains("alien")) {
+    // set OCDB 
+    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+    OCDBDefault(0);
+  }
+  else {
+    // set OCDB snapshot mode
+    cdbm->SetSnapshotMode("OCDBsim.root");
+  }
+
   //
   // obtain GRP
-  AliCDBManager *cdb = AliCDBManager::Instance();
-  cdb->SetDefaultStorage("raw://");
-  cdb->SetRun(run);
-  AliCDBEntry *cdbe = cdb->Get("GRP/GRP/Data");
+  cdbm->SetRun(run);
+  AliCDBEntry *cdbe = cdbm->Get("GRP/GRP/Data");
   if (!cdbe) return NULL;
   AliGRPObject *grp = (AliGRPObject *)cdbe->GetObject();
   if (!grp) abort();
