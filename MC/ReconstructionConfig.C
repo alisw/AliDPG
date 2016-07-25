@@ -116,7 +116,7 @@ OverrideITSRecoParam()
 
   // special settings for ITS-SA-PURE only at all centralities
   itsRecoParam->SetSAUseAllClusters();
-  itsRecoParam->SetTrackerSAOnly(kTRUE);
+  itsRecoParam->SetTrackerSAOnly(kFALSE);
   //  itsRecoParam->SetMaxSPDcontrForSAToUseAllClusters(10000000);
   itsRecoParam->SetNLoopsSA(20);
   itsRecoParam->SetPhiLimitsSA(0.002,0.07);
