@@ -179,7 +179,8 @@ GeneratorConfig(Int_t tag)
     AliGenerator   *hij   = GeneratorHijing();
     ctl->AddGenerator(hij,  "Hijing", 1.);
     AliGenerator   *nux   = Generator_Nuclex(0xFFFFFFFF, 1.);
-    ctl->AddGenerator(jpsi, "Nuclex", 1., new TFormula("ten", "10."));
+    ctl->AddGenerator(nux,  "Nuclex", 1.);
+    gen = ctl;
     break;
     
     // Custom
