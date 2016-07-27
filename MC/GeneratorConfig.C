@@ -16,6 +16,7 @@ enum EGenerator_t {
   kGeneratorHijing,
   kGeneratorHijing_Rsn002a, kGeneratorHijing_Rsn002b, kGeneratorHijing_Rsn002c, // [ALIROOT-6721] [ALIROOT-6722]
   kGeneratorHijing_Jpsiee001, // [ALIROOT-6750]
+  kGeneratorHijing_Nuclex001, // [ALIROOT-6795]
   kGeneratorCustom,
   kNGenerators
 };
@@ -32,6 +33,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Hijing",
   "Hijing_Rsn002a", "Hijing_Rsn002b", "Hijing_Rsn002c",
   "Hijing_Jpsiee001",
+  "Hijing_Nuclex001",
   "Custom"
 };
 
@@ -70,6 +72,7 @@ AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
+AliGenerator *Generator_Nuclex(UInt_t injbit = 0xFFFFFFF, Float_t scale = 1.);
 
 /*****************************************************************/
 
@@ -168,6 +171,15 @@ GeneratorConfig(Int_t tag)
       file->Close();
     }
     gen = ctl;
+    break;
+    
+    // Hijing - Nuclex001
+  case kGeneratorHijing_Nuclex001:
+    AliGenCocktail *ctl   = GeneratorCocktail("Hijing_Nuclex001");
+    AliGenerator   *hij   = GeneratorHijing();
+    ctl->AddGenerator(hij,  "Hijing", 1.);
+    AliGenerator   *nux   = Generator_Nuclex(0xFFFFFFFF, 1.);
+    ctl->AddGenerator(jpsi, "Nuclex", 1., new TFormula("ten", "10."));
     break;
     
     // Custom
@@ -520,3 +532,210 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
   return gener;
 }
 
+/*** NUCLEI EXOTICA ****************************************************/
+
+AliGenerator *
+Generator_Nuclex(UInt_t injbit, Float_t scale)
+{
+
+  comment = comment.Append(" | Nuclex ");
+  
+  //
+  //Generating a cocktail
+  AliGenCocktail *gener = new AliGenCocktail();
+
+  // 2. Deuteron
+  AliGenBox *box2 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  box2->SetPart(1000010020);
+  box2->SetPtRange(0., 10.);
+  box2->SetPhiRange(0., 360.);
+  box2->SetYRange(-1,1);
+
+  // 3. Anti-Deuteron
+  AliGenBox *box3 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  box3->SetPart(-1000010020);
+  box3->SetPtRange(0., 10.);
+  box3->SetPhiRange(0., 360.);
+  box3->SetYRange(-1,1);
+
+  // 4. He-3
+  AliGenBox *box4 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  box4->SetPart(1000020030);
+  box4->SetPtRange(0., 10.);
+  box4->SetPhiRange(0., 360.);
+  box4->SetYRange(-1,1);
+
+  // 5. Anti-He-3
+  AliGenBox *box5 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  box5->SetPart(-1000020030);
+  box5->SetPtRange(0., 10.);
+  box5->SetPhiRange(0., 360.);
+  box5->SetYRange(-1,1);
+
+  // 6. Tritons
+  AliGenBox *box6 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  box6->SetPart(1000010030);
+  box6->SetPtRange(0., 10.);
+  box6->SetPhiRange(0., 360.);
+  box6->SetYRange(-1,1);
+
+  // 7. Anti-Tritons
+  AliGenBox *box7 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  box7->SetPart(-1000010030);
+  box7->SetPtRange(0., 10.);
+  box7->SetPhiRange(0., 360.);
+  box7->SetYRange(-1,1);
+
+  // 8. He-4
+  AliGenBox *box8 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  box8->SetPart(1000020040);
+  box8->SetPtRange(0., 10.);
+  box8->SetPhiRange(0., 360.);
+  box8->SetYRange(-1,1);
+
+  // 9. Anti-He-4
+  AliGenBox *box9 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  box9->SetPart(-1000020040);
+  box9->SetPtRange(0., 10.);
+  box9->SetPhiRange(0., 360.);
+  box9->SetYRange(-1,1);
+
+  // 10. Hypertriton
+  AliGenBox *box10 = new AliGenBox(TMath::Max(1, TMath::Nint(40. * scale)));
+  box10->SetPart(1010010030);
+  box10->SetPtRange(0., 10.);
+  box10->SetPhiRange(0., 360.);
+  box10->SetYRange(-1,1);
+
+  // 11. Anti-hypertriton
+  AliGenBox *box11 = new AliGenBox(TMath::Max(1, TMath::Nint(40. * scale)));
+  box11->SetPart(-1010010030);
+  box11->SetPtRange(0., 10.);
+  box11->SetPhiRange(0., 360.);
+  box11->SetYRange(-1,1);
+
+  // 12. Lambda-Neutron bound state
+  AliGenBox *box12 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box12->SetPart(1010000020);
+  box12->SetPtRange(0., 10.);
+  box12->SetPhiRange(0., 360.);
+  box12->SetYRange(-1,1);
+
+  // 13. Anti-Lambda-Neutron bound state
+  AliGenBox *box13 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box13->SetPart(-1010000020);
+  box13->SetPtRange(0., 10.);
+  box13->SetPhiRange(0., 360.);
+  box13->SetYRange(-1,1);
+
+  // 14. Lambda-Lambda bound state
+  AliGenBox *box14 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box14->SetPart(1020000020);
+  box14->SetPtRange(0., 10.);
+  box14->SetPhiRange(0., 360.);
+  box14->SetYRange(-1,1);
+
+  // 15. Anti-Lambda-Lambda bound state
+  AliGenBox *box15 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box15->SetPart(-1020000020);
+  box15->SetPtRange(0., 10.);
+  box15->SetPhiRange(0., 360.);
+  box15->SetYRange(-1,1);
+
+  // 16. Omega-Proton bound state
+  AliGenBox *box16 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box16->SetPart(1030000020);
+  box16->SetPtRange(0., 10.);
+  box16->SetPhiRange(0., 360.);
+  box16->SetYRange(-1,1);
+
+  // 17. Anti-Omega-Proton bound state
+  AliGenBox *box17 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box17->SetPart(-1030000020);
+  box17->SetPtRange(0., 10.);
+  box17->SetPhiRange(0., 360.);
+  box17->SetYRange(-1,1);
+
+  // 18. Omega-Neutron bound state
+  AliGenBox *box18 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box18->SetPart(1030010020);
+  box18->SetPtRange(0., 10.);
+  box18->SetPhiRange(0., 360.);
+  box18->SetYRange(-1,1);
+
+  // 19. Anti-Omega-Neutron bound state
+  AliGenBox *box19 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box19->SetPart(-1030010020);
+  box19->SetPtRange(0., 10.);
+  box19->SetPhiRange(0., 360.);
+  box19->SetYRange(-1,1);
+
+  // 20. Omega-Omega bound state
+  AliGenBox *box20 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box20->SetPart(1060020020);
+  box20->SetPtRange(0., 10.);
+  box20->SetPhiRange(0., 360.);
+  box20->SetYRange(-1,1);
+
+  // 21. Anti-Omega-Omega bound state
+  AliGenBox *box21 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box21->SetPart(-1060020020);
+  box21->SetPtRange(0., 10.);
+  box21->SetPhiRange(0., 360.);
+  box21->SetYRange(-1,1);
+
+  // 22. Lambda(1405)-proton bound state
+  AliGenBox *box22 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box22->SetPart(1010010021);
+  box22->SetPtRange(0., 10.);
+  box22->SetPhiRange(0., 360.);
+  box22->SetYRange(-1,1);
+
+  // 23. Anti-Lambda(1405)-proton bound state
+  AliGenBox *box23 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box23->SetPart(-1010010021);
+  box23->SetPtRange(0., 10.);
+  box23->SetPhiRange(0., 360.);
+  box23->SetYRange(-1,1);
+
+  // 24. Lambda(1405)-Lambda(1405) bound state
+  AliGenBox *box24 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box24->SetPart(1020000021);
+  box24->SetPtRange(0., 10.);
+  box24->SetPhiRange(0., 360.);
+  box24->SetYRange(-1,1);
+
+  // 25. Lambda(1405)-Lambda(1405) bound state
+  AliGenBox *box25 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box25->SetPart(-1020000021);
+  box25->SetPtRange(0., 10.);
+  box25->SetPhiRange(0., 360.);
+  box25->SetYRange(-1,1);
+
+  if (injbit && 1 << 2)  gener->AddGenerator(box2,"fbox2",1);
+  if (injbit && 1 << 3)  gener->AddGenerator(box3,"fbox3",1);
+  if (injbit && 1 << 4)  gener->AddGenerator(box4,"fbox4",1);
+  if (injbit && 1 << 5)  gener->AddGenerator(box5,"fbox5",1);
+  if (injbit && 1 << 6)  gener->AddGenerator(box6,"fbox6",1);
+  if (injbit && 1 << 7)  gener->AddGenerator(box7,"fbox7",1);
+  if (injbit && 1 << 8)  gener->AddGenerator(box8,"fbox8",1);
+  if (injbit && 1 << 9)  gener->AddGenerator(box9,"fbox9",1);
+  if (injbit && 1 << 10) gener->AddGenerator(box10,"fbox10",1);
+  if (injbit && 1 << 11) gener->AddGenerator(box11,"fbox11",1);
+  if (injbit && 1 << 12) gener->AddGenerator(box12,"fbox12",1);
+  if (injbit && 1 << 13) gener->AddGenerator(box13,"fbox13",1);
+  if (injbit && 1 << 14) gener->AddGenerator(box14,"fbox14",1);
+  if (injbit && 1 << 15) gener->AddGenerator(box15,"fbox15",1);
+  if (injbit && 1 << 16) gener->AddGenerator(box16,"fbox16",1);
+  if (injbit && 1 << 17) gener->AddGenerator(box17,"fbox17",1);
+  if (injbit && 1 << 18) gener->AddGenerator(box18,"fbox18",1);
+  if (injbit && 1 << 19) gener->AddGenerator(box19,"fbox19",1);
+  if (injbit && 1 << 20) gener->AddGenerator(box20,"fbox20",1);
+  if (injbit && 1 << 21) gener->AddGenerator(box21,"fbox21",1);
+  if (injbit && 1 << 22) gener->AddGenerator(box22,"fbox22",1);
+  if (injbit && 1 << 23) gener->AddGenerator(box23,"fbox23",1);
+  if (injbit && 1 << 24) gener->AddGenerator(box24,"fbox24",1);
+  if (injbit && 1 << 25) gener->AddGenerator(box25,"fbox25",1);
+
+  return gener;
+}
