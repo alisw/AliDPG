@@ -72,7 +72,7 @@ AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
-AliGenerator *Generator_Nuclex(UInt_t injbit = 0xFFFFFFF, Float_t scale = 1.);
+AliGenerator *Generator_Nuclex(UInt_t injbit = 0xFFFFFFFF, Float_t scale = 1.);
 
 /*****************************************************************/
 
