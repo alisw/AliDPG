@@ -713,6 +713,20 @@ Generator_Nuclex(UInt_t injbit, Float_t scale)
   box25->SetPhiRange(0., 360.);
   box25->SetYRange(-1,1);
 
+  // 26. Xi0-proton bound state
+  AliGenBox *box26 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box26->SetPart(1020010020);
+  box26->SetPtRange(0., 10.);
+  box26->SetPhiRange(0., 360.);
+  box26->SetYRange(-1,1);
+
+  // 27. Anti-Xi0-proton bound state
+  AliGenBox *box27 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  box27->SetPart(-1020010020);
+  box27->SetPtRange(0., 10.);
+  box27->SetPhiRange(0., 360.);
+  box27->SetYRange(-1,1);
+  
   if (injbit && 1 << 2)  gener->AddGenerator(box2,"fbox2",1);
   if (injbit && 1 << 3)  gener->AddGenerator(box3,"fbox3",1);
   if (injbit && 1 << 4)  gener->AddGenerator(box4,"fbox4",1);
@@ -737,6 +751,8 @@ Generator_Nuclex(UInt_t injbit, Float_t scale)
   if (injbit && 1 << 23) gener->AddGenerator(box23,"fbox23",1);
   if (injbit && 1 << 24) gener->AddGenerator(box24,"fbox24",1);
   if (injbit && 1 << 25) gener->AddGenerator(box25,"fbox25",1);
+  if (injbit && 1 << 26) gener->AddGenerator(box26,"fbox26",1);
+  if (injbit && 1 << 27) gener->AddGenerator(box27,"fbox27",1);
 
   return gener;
 }
