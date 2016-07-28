@@ -194,6 +194,22 @@ Bool_t CheckESD(const char* gAliceFileName = "galice.root",
   pidCombined.SetDetectorMask(maskPID);
   printf("RunNumber = %d\n",runNo);
   //set correct BB parameters. Assume the ones from the ALIROOT OCDB were used for simulation
+
+  // set OCDB source
+  TString ocdbConfig = "default,snapshot";
+  if (gSystem->Getenv("CONFIG_OCDB"))
+    ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
+  if (ocdbConfig.Contains("alien")) {
+    // set OCDB 
+    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+    OCDBDefault(1);
+  }
+  else {
+    // set OCDB snapshot mode
+    AliCDBManager *cdbm = AliCDBManager::Instance();
+    cdbm->SetSnapshotMode("OCDBrec.root");
+  }
+  
   AliCDBManager *man=AliCDBManager::Instance();
   man->SetDefaultStorage("raw://");
   man->SetRun(runNo);
