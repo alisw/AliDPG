@@ -211,7 +211,7 @@ Bool_t CheckESD(const char* gAliceFileName = "galice.root",
   }
   
   AliCDBManager *man=AliCDBManager::Instance();
-  man->SetDefaultStorage("raw://");
+  //  man->SetDefaultStorage("raw://");
   man->SetRun(runNo);
   const AliCDBEntry *eParam   = man->Get("TPC/Calib/Parameters");
   AliTPCParam *params   = (AliTPCParam*)eParam->GetObject();
