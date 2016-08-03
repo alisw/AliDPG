@@ -116,9 +116,17 @@ GeneratorConfig(Int_t tag, Int_t run)
     gen = GeneratorCustom();
 
   }
+
+  // default diamond parameters
+  Float_t betast  = 10;                 // beta* [m]
+  if (runNumber >= 117048) betast = 2.;
+  if (runNumber >  122375) betast = 3.5; // starting with fill 1179
+  Float_t eps     = 5.e-6;            // emittance [m]
+  Float_t gamma   = energyConfig / 2.0 / 0.938272;  // relativistic gamma [1]
+  Float_t sigmaxy = TMath::Sqrt(eps * betast / gamma) / TMath::Sqrt(2.) * 100.; 
+  gen->SetOrigin(0., 0., 0.);
+  gen->SetSigma(sigmaxy, sigmaxy, 5.);
   
-  //  gener->SetOrigin(0.075, 0.522, -0.884); // R+HACK                        
-  //  gener->SetSigma(65e-4, 65e-4, 5.); // R+HACK                                           
   gen->SetVertexSmear(kPerEvent);
   gen->Init();
   printf(">>>>> Generator Configuration: %s \n", comment.Data());
