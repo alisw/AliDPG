@@ -93,6 +93,7 @@ pthardbin_higheredges=( 5 11 21 36 57 84 117 152 191 234 -1)
 CONFIG_NEVENTS="200"
 CONFIG_SEED=""
 CONFIG_GENERATOR=""
+CONFIG_PROCESS=""
 CONFIG_MAGNET=""
 CONFIG_ENERGY=""
 CONFIG_SYSTEM=""
@@ -101,6 +102,8 @@ CONFIG_DETECTOR="Default"
 CONFIG_PHYSICSLIST=""
 CONFIG_BMIN=""
 CONFIG_BMAX=""
+CONFIG_YMIN=""
+CONFIG_YMAX=""
 CONFIG_PTHARDBIN=""
 CONFIG_PTHARDMIN=""
 CONFIG_PTHARDMAX=""
@@ -136,6 +139,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--generator" ]; then
         CONFIG_GENERATOR="$1"
 	export CONFIG_GENERATOR
+        shift
+    elif [ "$option" = "--process" ]; then
+        CONFIG_PROCESS="$1"
+	export CONFIG_PROCESS
         shift
 #    elif [ "$option" = "--magnet" ]; then
 #        CONFIG_MAGNET="$1"
@@ -182,6 +189,14 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--bmax" ]; then
         CONFIG_BMAX="$1"
 	export CONFIG_BMAX
+        shift
+    elif [ "$option" = "--ymin" ]; then
+        CONFIG_YMIN="$1"
+	export CONFIG_YMIN
+        shift
+    elif [ "$option" = "--ymax" ]; then
+        CONFIG_YMAX="$1"
+	export CONFIG_YMAX
         shift
     elif [ "$option" = "--pthardbin" ]; then
         CONFIG_PTHARDBIN="$1"
@@ -348,6 +363,7 @@ echo "Beam type........ $CONFIG_BEAMTYPE"
 echo "Energy........... $CONFIG_ENERGY"
 echo "============================================"
 echo "Generator........ $CONFIG_GENERATOR"
+echo "Process.......... $CONFIG_PROCESS"
 echo "No. Events....... $CONFIG_NEVENTS"
 echo "Unique-ID........ $CONFIG_UID"
 echo "MC seed.......... $CONFIG_SEED"
@@ -367,6 +383,8 @@ echo "AOD train........ $CONFIG_AOD"
 #echo "Physicslist...... $CONFIG_PHYSICSLIST"
 echo "b-min............ $CONFIG_BMIN"
 echo "b-max............ $CONFIG_BMAX"
+echo "b-min............ $CONFIG_YMIN"
+echo "b-max............ $CONFIG_YMAX"
 echo "pT hard bin...... $CONFIG_PTHARDBIN"
 echo "============================================"
 echo

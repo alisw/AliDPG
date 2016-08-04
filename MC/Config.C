@@ -19,9 +19,12 @@ static Float_t energyConfig    = 0.;        // CMS energy
 static Float_t triggerConfig   = 0.;        // trigger
 static Float_t bminConfig      = 0.;        // impact parameter min
 static Float_t bmaxConfig      = 20.;       // impact parameter max
+static Float_t yminConfig      = -1.e6;     // rapidity min
+static Float_t ymaxConfig      =  1.e6;     // rapidity max
 static Float_t crossingConfig  = 0.;        // 2.8e-4 // crossing angle
 static Int_t   seedConfig      = 123456789; // random seed
 static Int_t   uidConfig       = 1;         // unique ID
+static TString processConfig   = "";        // process
 
 /*****************************************************************/
 
@@ -45,6 +48,8 @@ Config()
   printf(">>>>>          trigger: %s \n", TriggerName[triggerConfig]);
   printf(">>>>>            b-min: %f \n", bminConfig);
   printf(">>>>>            b-max: %f \n", bmaxConfig);
+  printf(">>>>>            y-min: %f \n", yminConfig);
+  printf(">>>>>            y-max: %f \n", ymaxConfig);
   printf(">>>>>   crossing angle: %f \n", crossingConfig);
   printf(">>>>>      random seed: %d \n", seedConfig);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
@@ -129,6 +134,12 @@ ProcessEnvironment()
     }
   }
   
+  // process configuration
+  processConfig = "";
+  if (gSystem->Getenv("CONFIG_PROCESS")) {
+    processConfig = gSystem->Getenv("CONFIG_PROCESS");
+  }
+  
   // energy configuration
   energyConfig = 0.;
   if (gSystem->Getenv("CONFIG_ENERGY"))
@@ -157,16 +168,28 @@ ProcessEnvironment()
   // impact parameter configuration
   bminConfig = 0.;
   if (gSystem->Getenv("CONFIG_BMIN"))
-    bminConfig = atoi(gSystem->Getenv("CONFIG_BMIN"));
+    bminConfig = atof(gSystem->Getenv("CONFIG_BMIN"));
   if (bminConfig < 0) {
     printf(">>>>> Invalid min impact parameter: %f \n", bminConfig);
     abort();
   }
   bmaxConfig = 20.;
   if (gSystem->Getenv("CONFIG_BMAX"))
-    bmaxConfig = atoi(gSystem->Getenv("CONFIG_BMAX"));
+    bmaxConfig = atof(gSystem->Getenv("CONFIG_BMAX"));
   if (bmaxConfig <= bminConfig) {
     printf(">>>>> Invalid max impact parameter: %f \n", bmaxConfig);
+    abort();
+  }
+
+  // rapidity configuration
+  yminConfig = -1.e6;
+  if (gSystem->Getenv("CONFIG_YMIN"))
+    yminConfig = atof(gSystem->Getenv("CONFIG_YMIN"));
+  ymaxConfig = 1.e6;
+  if (gSystem->Getenv("CONFIG_YMAX"))
+    ymaxConfig = atof(gSystem->Getenv("CONFIG_YMAX"));
+  if (ymaxConfig <= yminConfig) {
+    printf(">>>>> Invalid max rapidity: %f \n", ymaxConfig);
     abort();
   }
 
