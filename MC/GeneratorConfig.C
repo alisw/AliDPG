@@ -195,12 +195,25 @@ GeneratorConfig(Int_t tag)
   }
 
   // default diamond parameters
-  Float_t betast  = 10;                 // beta* [m]
+  Float_t betast  = 10.;                 // beta* [m]
   if (runNumber >= 117048) betast = 2.;
   if (runNumber >  122375) betast = 3.5; // starting with fill 1179
   Float_t eps     = 5.e-6;            // emittance [m]
   Float_t gamma   = energyConfig / 2.0 / 0.938272;  // relativistic gamma [1]
-  Float_t sigmaxy = TMath::Sqrt(eps * betast / gamma) / TMath::Sqrt(2.) * 100.; 
+  Float_t sigmaxy = TMath::Sqrt(eps * betast / gamma) / TMath::Sqrt(2.) * 100.;  // LHC period specific
+  if (gSystem->Getenv("CONFIG_PERIOD")) {
+    TString periodName = gSystem->Getenv("CONFIG_PERIOD");
+    if (periodName.EqualTo("LHC10h")) sigmaxy =  90.e-4;
+    if (periodName.EqualTo("LHC11a")) sigmaxy = 130.e-4;
+    if (periodName.EqualTo("LHC11h")) sigmaxy = 120.e-4;
+    if (periodName.EqualTo("LHC13b")) sigmaxy =  40.e-4;
+    if (periodName.EqualTo("LHC13c")) sigmaxy =  40.e-4;
+    if (periodName.EqualTo("LHC13d")) sigmaxy =  40.e-4;
+    if (periodName.EqualTo("LHC13e")) sigmaxy =  40.e-4;
+    if (periodName.EqualTo("LHC15n")) sigmaxy = 100.e-4;
+    if (periodName.EqualTo("LHC15o")) sigmaxy =  30.e-4;
+  }
+
   gen->SetOrigin(0., 0., 0.);
   gen->SetSigma(sigmaxy, sigmaxy, 5.);
   
