@@ -96,8 +96,11 @@ CONFIG_GENERATOR=""
 CONFIG_PROCESS=""
 CONFIG_MAGNET=""
 CONFIG_ENERGY=""
+OVERRIDE_ENERGY=""
 CONFIG_SYSTEM=""
+OVERRIDE_SYSTEM=""
 CONFIG_TRIGGER=""
+OVERRIDE_TRIGGER=""
 CONFIG_DETECTOR="Default"
 CONFIG_PHYSICSLIST=""
 CONFIG_BMIN=""
@@ -152,16 +155,13 @@ while [ ! -z "$1" ]; do
         CONFIG_DETECTOR="$1"
 	export CONFIG_DETECTOR
         shift
-#    elif [ "$option" = "--system" ]; then
-#        CONFIG_SYSTEM="$1"
-#	export CONFIG_SYSTEM
-#        CONFIG_TRIGGER="$1"
-#	export CONFIG_TRIGGER
-#        shift
-#    elif [ "$option" = "--energy" ]; then
-#        CONFIG_ENERGY="$1"
-#	export CONFIG_ENERGY
-#        shift
+    elif [ "$option" = "--system" ]; then
+        OVERRIDE_SYSTEM="$1"
+        OVERRIDE_TRIGGER="$1"
+        shift
+    elif [ "$option" = "--energy" ]; then
+        OVERRIDE_ENERGY="$1"
+        shift
     elif [ "$option" = "--simulation" ]; then
         CONFIG_SIMULATION="$1"
 	export CONFIG_SIMULATION
@@ -347,6 +347,21 @@ fi
 ### automatic settings from GRP info
 
 aliroot -b -q $ALIDPG_ROOT/MC/ExportGRPinfo.C\($CONFIG_RUN\) 2>/dev/null | grep export > grpdump.sh && source grpdump.sh # && rm grpdump.sh
+
+### override automatic settings from GRP info if requested 
+
+if [[ $OVERRIDE_ENERGY != "" ]]; then
+    export CONFIG_ENERGY=$OVERRIDE_ENERGY
+fi
+
+if [[ $OVERRIDE_SYSTEM != "" ]]; then
+    export CONFIG_SYSTEM=$OVERRIDE_SYSTEM
+fi
+
+if [[ $OVERRIDE_TRIGGER != "" ]]; then
+    export CONFIG_TRIGGER=$OVERRIDE_TRIGGER
+fi
+
 
 ##########################################
 
