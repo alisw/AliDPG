@@ -25,6 +25,7 @@ static Float_t crossingConfig  = 0.;        // 2.8e-4 // crossing angle
 static Int_t   seedConfig      = 123456789; // random seed
 static Int_t   uidConfig       = 1;         // unique ID
 static TString processConfig   = "";        // process
+static TString systemConfig    = "";        // system
 
 /*****************************************************************/
 
@@ -44,6 +45,8 @@ Config()
   printf(">>>>>   magnetic field: %s \n", MagnetName[magnetConfig]);
   printf(">>>>>         detector: %s \n", DetectorName[detectorConfig]);
   printf(">>>>>     MC generator: %s \n", GeneratorName[generatorConfig]);
+  printf(">>>>>          process: %s \n", processConfig);
+  printf(">>>>>           system: %s \n", systemConfig);
   printf(">>>>>       CMS energy: %f \n", energyConfig);
   printf(">>>>>          trigger: %s \n", TriggerName[triggerConfig]);
   printf(">>>>>            b-min: %f \n", bminConfig);
@@ -138,6 +141,12 @@ ProcessEnvironment()
   processConfig = "";
   if (gSystem->Getenv("CONFIG_PROCESS")) {
     processConfig = gSystem->Getenv("CONFIG_PROCESS");
+  }
+  
+  // system configuration
+  systemConfig = "";
+  if (gSystem->Getenv("CONFIG_SYSTEM")) {
+    systemConfig = gSystem->Getenv("CONFIG_SYSTEM");
   }
   
   // energy configuration

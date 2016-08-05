@@ -17,6 +17,7 @@ enum EGenerator_t {
   kGeneratorHijing_Rsn002a, kGeneratorHijing_Rsn002b, kGeneratorHijing_Rsn002c, // [ALIROOT-6721] [ALIROOT-6722]
   kGeneratorHijing_Jpsiee001, // [ALIROOT-6750]
   kGeneratorHijing_Nuclex001, // [ALIROOT-6795]
+  kGeneratorStarlight,
   kGeneratorCustom,
   kNGenerators
 };
@@ -34,6 +35,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Hijing_Rsn002a", "Hijing_Rsn002b", "Hijing_Rsn002c",
   "Hijing_Jpsiee001",
   "Hijing_Nuclex001",
+  "Starlight",
   "Custom"
 };
 
@@ -73,6 +75,7 @@ AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
 AliGenerator *Generator_Nuclex(UInt_t injbit = 0xFFFFFFFF, Float_t scale = 1.);
+AliGenerator *GeneratorStarlight();
 
 /*****************************************************************/
 
@@ -135,6 +138,11 @@ GeneratorConfig(Int_t tag)
     // Hijing
   case kGeneratorHijing:
     gen = GeneratorHijing();
+    break;
+
+    // Starlight
+  case kGeneratorStarlight:
+    gen = GeneratorStarlight();
     break;
 
     // Hijing - Rsn002
@@ -334,8 +342,7 @@ AliGenerator *
 GeneratorEPOSLHC()
 {
 
-  TString system = gSystem->Getenv("CONFIG_SYSTEM");
-  comment = comment.Append(Form(" | EPOS-LHC (%s)", system.Data()));
+  comment = comment.Append(Form(" | EPOS-LHC (%s)", systemConfig.Data()));
   //
   // configure projectile/target
   Int_t projectileId = 0; // PDG or Z*10000+A*10
@@ -343,14 +350,14 @@ GeneratorEPOSLHC()
   Int_t targetId = 0;
   Float_t targetEnergy = 0;
   // pp
-  if (system.EqualTo("p-p")) {
+  if (systemConfig.EqualTo("p-p")) {
     projectileId = 2212;
     targetId = projectileId;
     projectileEnergy = energyConfig / 2.;
     targetEnergy = energyConfig / 2.;
   }
   // PbPb
-  else if (system.EqualTo("Pb-Pb")) {
+  else if (systemConfig.EqualTo("Pb-Pb")) {
     projectileId = 82*10000 + 208*10;
     targetId = projectileId;
     projectileEnergy = energyConfig / 2.;
@@ -358,7 +365,7 @@ GeneratorEPOSLHC()
   }
   // not implemented
   else {
-    printf("EPOSLHC not implemented for %s system\n", system.Data());
+    printf("EPOSLHC not implemented for %s system\n", systemConfig.Data());
     abort();
   }
   //
@@ -375,7 +382,7 @@ GeneratorEPOSLHC()
   AliGenReaderHepMC *reader = new AliGenReaderHepMC();
   reader->SetFileName("crmceventfifo");
   AliGenExtFile *gener = new AliGenExtFile(-1);
-  gener->SetName(Form("EPOSLHC_%s", system.Data()));
+  gener->SetName(Form("EPOSLHC_%s", systemConfig.Data()));
   gener->SetReader(reader);
   
   return gener;
@@ -417,6 +424,162 @@ GeneratorHijing()
   return gener;
 }
 
+/*** STARLIGHT ****************************************************/
+
+AliGenerator *
+GeneratorStarlight(){
+  //
+  gSystem->Load("libStarLight.so");
+  gSystem->Load("libAliStarLight.so");
+
+  // Supported processes:
+  // kTwoGammaToMuLow    - from 0.4 to 15 GeV
+  // kTwoGammaToElLow    - from 0.4 to 15 GeV
+  // kTwoGammaToMuMedium - from 2.0 to 15 GeV
+  // kTwoGammaToElMedium - from 2.0 to 15 GeV
+  // kTwoGammaToMuHigh   - from 4.0 to 15 GeV
+  // kTwoGammaToElHigh   - from 4.0to 15 GeV
+  // kTwoGammaToRhoRho
+  // kTwoGammaToF2
+  // kCohRhoToPi
+  // kCohJpsiToMu
+  // kCohJpsiToEl
+  // kCohPsi2sToMu
+  // kCohPsi2sToEl
+  // kCohPsi2sToMuPi
+  // kCohPsi2sToElPi
+  // kCohUpsilonToMu
+  // kCohUpsilonToEl
+  // kIncohRhoToPi
+  // kIncohJpsiToMu
+  // kIncohJpsiToEl
+  // kIncohPsi2sToMu
+  // kIncohPsi2sToEl
+  // kIncohPsi2sToMuPi
+  // kIncohPsi2sToElPi
+  // kIncohUpsilonToMu
+  // kIncohUpsilonToEl
+  // kCohRhoPrime
+  // kIncohRhoPrime
+  
+  comment.Append(Form(" | Starlight %s (%s)", processConfig.Data(), systemConfig.Data()));
+  
+  Int_t projA=1,targA=1,projZ=1,targZ=1;
+  // pp
+  if (systemConfig.EqualTo("p-p")) {
+    projA = 1; projZ = 1;
+    targA = 1; targZ = 1;
+  }
+  // PbPb
+  else if (systemConfig.EqualTo("Pb-Pb")) {
+    projA = 208; projZ = 82;
+    targA = 208; targZ = 82;
+  }
+  // p-Pb
+  else if (systemConfig.EqualTo("p-Pb")) {
+    projA =   1; projZ =  1;
+    targA = 208; targZ = 82;
+  }
+  // Pb-p
+  else if (systemConfig.EqualTo("Pb-p")) {
+    projA = 208; projZ = 82;
+    targA =   1; targZ =  1;
+  }
+  
+  Float_t beam1energy = TMath::Sqrt(Double_t(projZ)/projA*targA/targZ)*energyConfig/2;
+  Float_t beam2energy = TMath::Sqrt(Double_t(projA)/projZ*targZ/targA)*energyConfig/2;
+  Float_t gamma1  = beam1energy/0.938272;
+  Float_t gamma2  = beam2energy/0.938272;
+
+  Int_t prod_mode = 4;     // default incoherent
+  if      (processConfig.Contains("TwoGammaToMu")) prod_mode = 1;
+  else if (processConfig.Contains("TwoGammaToEl")) prod_mode = 1;
+  else if (processConfig.Contains("CohRho"))       prod_mode = 3;
+  else if (processConfig.Contains("CohPhi"))       prod_mode = 2;
+  else if (processConfig.Contains("CohJpsi"))      prod_mode = 2;
+  else if (processConfig.Contains("CohPsi2s"))     prod_mode = 2;
+  else if (processConfig.Contains("CohUpsilon"))   prod_mode = 2;
+  
+  Int_t prod_pid = 443013; // default jpsi
+  if      (processConfig.Contains("JpsiToMu"))         prod_pid = 443013;
+  else if (processConfig.Contains("JpsiToEl"))         prod_pid = 443011;
+  else if (processConfig.Contains("Psi2sToMu"))        prod_pid = 444013;
+  else if (processConfig.Contains("Psi2sToEl"))        prod_pid = 444011;
+  else if (processConfig.Contains("UpsilonToMu"))      prod_pid = 553013;
+  else if (processConfig.Contains("UpsilonToEl"))      prod_pid = 553011;
+  else if (processConfig.Contains("RhoToPi"))          prod_pid = 113;
+  else if (processConfig.Contains("PhiToKa"))          prod_pid = 333;
+  else if (processConfig.Contains("TwoGammaToMu"))     prod_pid = 13;
+  else if (processConfig.Contains("TwoGammaToEl"))     prod_pid = 11;
+  else if (processConfig.Contains("TwoGammaToF2"))     prod_pid = 225;
+  else if (processConfig.Contains("TwoGammaToRhoRho")) prod_pid = 33;
+  
+  Float_t wmin = -1;       // automatic wmin
+  Float_t wmax = 15;
+  if      (processConfig.Contains("Low"))    wmin = 0.4;
+  else if (processConfig.Contains("Medium")) wmin = 2.0;
+  else if (processConfig.Contains("High"))   wmin = 4.0;
+  Int_t nwbins = 20*(wmax-wmin);
+  
+  Bool_t cocktail = 0;
+  cocktail |= processConfig.Contains("Psi2sToElPi");
+  cocktail |= processConfig.Contains("Psi2sToMuPi");
+  cocktail |= processConfig.Contains("RhoPrime");
+  
+  AliGenCocktail *genCocktail = 0;
+  if (cocktail)  genCocktail = new AliGenCocktail(); // constructor must be called before other generators
+
+  AliGenStarLight* genStarLight = new AliGenStarLight(1000*1000); 
+  genStarLight->SetParameter(Form("BEAM_1_Z     =    %3i    #Z of target",targZ));
+  genStarLight->SetParameter(Form("BEAM_1_A     =    %3i    #A of target",targA)); 
+  genStarLight->SetParameter(Form("BEAM_2_Z     =    %3i    #Z of projectile",projZ));
+  genStarLight->SetParameter(Form("BEAM_2_A     =    %3i    #A of projectile",projA));
+  genStarLight->SetParameter(Form("BEAM_1_GAMMA = %6.1f    #Gamma of the target",gamma1));
+  genStarLight->SetParameter(Form("BEAM_2_GAMMA = %6.1f    #Gamma of the projectile",gamma2));
+  genStarLight->SetParameter("W_MAX        =   15    #Max value of w");
+  genStarLight->SetParameter(Form("W_MIN        =   %.1f    #Min value of w",wmin));
+  genStarLight->SetParameter(Form("W_N_BINS     =    %3i    #Bins i w",nwbins));
+  genStarLight->SetParameter(Form("RAP_MAX      =   %.1f    #max y",TMath::Max(TMath::Abs(yminConfig),TMath::Abs(ymaxConfig))));
+  genStarLight->SetParameter(Form("RAP_N_BINS   =   %.0f    #Bins i y",10*(ymaxConfig-yminConfig)));
+  genStarLight->SetParameter("CUT_PT       =    0    #Cut in pT? 0 = (no, 1 = yes)");
+  genStarLight->SetParameter("PT_MIN       =    0    #Minimum pT in GeV");
+  genStarLight->SetParameter("PT_MAX       =   10    #Maximum pT in GeV");
+  genStarLight->SetParameter("CUT_ETA      =    0    #Cut in pseudorapidity? (0 = no, 1 = yes)");
+  genStarLight->SetParameter("ETA_MIN      =   -5    #Minimum pseudorapidity");
+  genStarLight->SetParameter("ETA_MAX      =    5    #Maximum pseudorapidity");
+  genStarLight->SetParameter(Form("PROD_MODE    =    %i    #gg or gP switch (1 = 2-photon, 2 = coherent vector meson (narrow), 3 = coherent vector meson (wide), # 4 = incoherent vector meson, 5 = A+A DPMJet single, 6 = A+A DPMJet double, 7 = p+A DPMJet single, 8 = p+A Pythia single )",prod_mode));
+  genStarLight->SetParameter(Form("PROD_PID     =   %6i    #Channel of interest (not relevant for photonuclear processes)",prod_pid));
+  genStarLight->SetParameter(Form("RND_SEED     =    %i    #Random number seed", seedConfig));
+  genStarLight->SetParameter("BREAKUP_MODE  =   5    #Controls the nuclear breakup");
+  genStarLight->SetParameter("INTERFERENCE  =   0    #Interference (0 = off, 1 = on)");
+  genStarLight->SetParameter("IF_STRENGTH   =   1.   #% of interfernce (0.0 - 0.1)");
+  genStarLight->SetParameter("COHERENT      =   0    #Coherent=1,Incoherent=0");
+  genStarLight->SetParameter("INCO_FACTOR   =   1.   #percentage of incoherence");
+  genStarLight->SetParameter("INT_PT_MAX    =   0.24 #Maximum pt considered, when interference is turned on");
+  genStarLight->SetParameter("INT_PT_N_BINS = 120    #Number of pt bins when interference is turned on");
+  genStarLight->SetRapidityMotherRange(yminConfig,ymaxConfig);
+
+  if (!genCocktail) return genStarLight;
+  
+  AliGenSLEvtGen *genEvtGen = new AliGenSLEvtGen();
+  
+  TString decayTable="PSI2S.MUMUPIPI.DEC"; // default
+  if      (processConfig.Contains("Psi2sToMuPi")) decayTable="PSI2S.MUMUPIPI.DEC";
+  else if (processConfig.Contains("Psi2sToElPi")) decayTable="PSI2S.EEPIPI.DEC";
+  else if (processConfig.Contains("RhoPrime"))    decayTable="RHOPRIME.RHOPIPI.DEC";
+  genEvtGen->SetUserDecayTable(gSystem->ExpandPathName(Form("$ALICE_ROOT/STARLIGHT/AliStarLight/DecayTables/%s",decayTable.Data())));
+  
+  if      (processConfig.Contains("Psi2s"))    genEvtGen->SetEvtGenPartNumber(100443);
+  else if (processConfig.Contains("RhoPrime")) genEvtGen->SetEvtGenPartNumber(30113);
+
+  genEvtGen->SetPolarization(1);           // Set polarization: transversal(1),longitudinal(-1),unpolarized(0)
+  gSystem->Setenv("PYTHIA8DATA", gSystem->ExpandPathName("$ALICE_ROOT/PYTHIA8/pythia8/xmldoc"));
+  
+  genCocktail->AddGenerator(genStarLight,"StarLight",1.);
+  genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
+  return genCocktail;
+}
+
 /*** COCKTAIL ****************************************************/
 
 AliGenerator * 
@@ -426,20 +589,19 @@ GeneratorCocktail(TString name)
   // configure projectile/target
   TString projN, targN;
   Int_t projA, projZ, targA, targZ;
-  TString system = gSystem->Getenv("CONFIG_SYSTEM");
   // pp
-  if (system.EqualTo("p-p")) {
+  if (systemConfig.EqualTo("p-p")) {
     projN = "p"; projA = 1; projZ = 1;
     targN = "p"; targA = 1; targZ = 1;
   }
   // PbPb
-  else if (system.EqualTo("Pb-Pb")) {
+  else if (systemConfig.EqualTo("Pb-Pb")) {
     projN = "A"; projA = 208; projZ = 82;
     targN = "A"; targA = 208; targZ = 82;
   }
   // not implemented
   else {
-    printf("Cocktail not implemented for %s system\n", system.Data());
+    printf("Cocktail not implemented for %s system\n", systemConfig.Data());
     abort();
   }
   
