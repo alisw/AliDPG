@@ -83,9 +83,9 @@ ReconstructionDefault(AliReconstruction &rec)
   }
   else {
     // set OCDB snapshot mode
-    rec.SetCDBSnapshotMode("OCDBsim.root");
+    rec.SetCDBSnapshotMode("OCDBrec.root");
     //    AliCDBManager *cdbm = AliCDBManager::Instance();
-    //    cdbm->SetSnapshotMode("OCDBsim.root");
+    //    cdbm->SetSnapshotMode("OCDBrec.root");
   }
 
     //
