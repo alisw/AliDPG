@@ -217,7 +217,7 @@ ProcessEnvironment()
   pthardmaxConfig = -1.;
   if (gSystem->Getenv("CONFIG_PTHARDMAX"))
     pthardmaxConfig = atof(gSystem->Getenv("CONFIG_PTHARDMAX"));
-  if (pthardmaxConfig <= pthardminConfig) {
+  if (pthardmaxConfig != -1 && pthardmaxConfig <= pthardminConfig) {
     printf(">>>>> Invalid max pt-hard: %f \n", pthardmaxConfig);
     abort();
   }
