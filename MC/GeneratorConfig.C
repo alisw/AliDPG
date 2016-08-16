@@ -332,7 +332,7 @@ GeneratorPythia8Jets()
 {
   //
   //
-  comment = comment.Append(" | Pythia8 jets (%.1f, %.1f, %d, %.1f)", pthardminConfig, pthardmaxConfig, quenchingConfig, qhatConfig);
+  comment = comment.Append(Form(" | Pythia8 jets (%.1f, %.1f, %d, %.1f)", pthardminConfig, pthardmaxConfig, quenchingConfig, qhatConfig));
   //
   // Pythia
   AliGenPythiaPlus *pythia = GeneratorPythia8();
