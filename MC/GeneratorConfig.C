@@ -9,6 +9,7 @@ enum EGenerator_t {
   // Pythia6
   kGeneratorPythia6,
   kGeneratorPythia6_Perugia2011,
+  kGeneratorPythia6_Perugia2011_Nuclex002, // [ALIROOT-6796]
   // Pythia8
   kGeneratorPythia8,
   kGeneratorPythia8_Monash2013,
@@ -38,6 +39,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   // Pythia6
   "Pythia6",
   "Pythia6_Perugia2011",
+  "Pythia6_Perugia2011_Nuclex002", 
   // Pythia8
   "Pythia8",
   "Pythia8_Monash2013",
@@ -96,7 +98,7 @@ AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
-AliGenerator *Generator_Nuclex(UInt_t injbit = 0xFFFFFFFF, Float_t scale = 1.);
+AliGenerator *Generator_Nuclex(UInt_t injbit, Int_t ninj);
 AliGenerator *GeneratorStarlight();
 
 /*****************************************************************/
@@ -124,6 +126,16 @@ GeneratorConfig(Int_t tag)
     gen = GeneratorPythia6(kPythia6Tune_Perugia2011);
     break;
 
+    // Pythia6 (Perugia2011) - Nuclex002
+  case kGeneratorPythia6_Perugia2011_Nuclex002:
+    AliGenCocktail *ctl   = GeneratorCocktail("Perugia2011_Nuclex002");
+    AliGenerator   *pyt   = GeneratorPythia6(kPythia6Tune_Perugia2011);
+    ctl->AddGenerator(pyt,  "Pythia6", 1.);
+    AliGenerator   *nux   = Generator_Nuclex(0x000007FE, 10);
+    ctl->AddGenerator(nux,  "Nuclex", 1.);
+    gen = ctl;
+    break;
+    
     // Pythia8 (Monash2013)
   case kGeneratorPythia8:
   case kGeneratorPythia8_Monash2013:
@@ -214,8 +226,12 @@ GeneratorConfig(Int_t tag)
     AliGenCocktail *ctl   = GeneratorCocktail("Hijing_Nuclex001");
     AliGenerator   *hij   = GeneratorHijing();
     ctl->AddGenerator(hij,  "Hijing", 1.);
-    AliGenerator   *nux   = Generator_Nuclex(0xFFFFFFFF, 1.);
-    ctl->AddGenerator(nux,  "Nuclex", 1.);
+    AliGenerator   *nu1   = Generator_Nuclex(0x000001FE, 10);
+    AliGenerator   *nu2   = Generator_Nuclex(0x00000600, 40);
+    AliGenerator   *nu3   = Generator_Nuclex(0x07FFF800, 20);
+    ctl->AddGenerator(nu1,  "Nuclex1", 1.);
+    ctl->AddGenerator(nu2,  "Nuclex2", 1.);
+    ctl->AddGenerator(nu3,  "Nuclex3", 1.);
     gen = ctl;
     break;
     
@@ -804,192 +820,192 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
 /*** NUCLEI EXOTICA ****************************************************/
 
 AliGenerator *
-Generator_Nuclex(UInt_t injbit, Float_t scale)
+Generator_Nuclex(UInt_t injbit, Int_t ninj)
 {
 
-  comment = comment.Append(" | Nuclex ");
+  comment = comment.Append(Form(" | Nuclex (%0xd) ", injbit));
   
   //
   //Generating a cocktail
   AliGenCocktail *gener = new AliGenCocktail();
 
   // 2. Deuteron
-  AliGenBox *box2 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  AliGenBox *box2 = new AliGenBox(ninj);
   box2->SetPart(1000010020);
   box2->SetPtRange(0., 10.);
   box2->SetPhiRange(0., 360.);
   box2->SetYRange(-1,1);
 
   // 3. Anti-Deuteron
-  AliGenBox *box3 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  AliGenBox *box3 = new AliGenBox(ninj);
   box3->SetPart(-1000010020);
   box3->SetPtRange(0., 10.);
   box3->SetPhiRange(0., 360.);
   box3->SetYRange(-1,1);
 
   // 4. He-3
-  AliGenBox *box4 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  AliGenBox *box4 = new AliGenBox(ninj);
   box4->SetPart(1000020030);
   box4->SetPtRange(0., 10.);
   box4->SetPhiRange(0., 360.);
   box4->SetYRange(-1,1);
 
   // 5. Anti-He-3
-  AliGenBox *box5 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  AliGenBox *box5 = new AliGenBox(ninj);
   box5->SetPart(-1000020030);
   box5->SetPtRange(0., 10.);
   box5->SetPhiRange(0., 360.);
   box5->SetYRange(-1,1);
 
   // 6. Tritons
-  AliGenBox *box6 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  AliGenBox *box6 = new AliGenBox(ninj);
   box6->SetPart(1000010030);
   box6->SetPtRange(0., 10.);
   box6->SetPhiRange(0., 360.);
   box6->SetYRange(-1,1);
 
   // 7. Anti-Tritons
-  AliGenBox *box7 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  AliGenBox *box7 = new AliGenBox(ninj);
   box7->SetPart(-1000010030);
   box7->SetPtRange(0., 10.);
   box7->SetPhiRange(0., 360.);
   box7->SetYRange(-1,1);
 
   // 8. He-4
-  AliGenBox *box8 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  AliGenBox *box8 = new AliGenBox(ninj);
   box8->SetPart(1000020040);
   box8->SetPtRange(0., 10.);
   box8->SetPhiRange(0., 360.);
   box8->SetYRange(-1,1);
 
   // 9. Anti-He-4
-  AliGenBox *box9 = new AliGenBox(TMath::Max(1, TMath::Nint(10. * scale)));
+  AliGenBox *box9 = new AliGenBox(ninj);
   box9->SetPart(-1000020040);
   box9->SetPtRange(0., 10.);
   box9->SetPhiRange(0., 360.);
   box9->SetYRange(-1,1);
 
   // 10. Hypertriton
-  AliGenBox *box10 = new AliGenBox(TMath::Max(1, TMath::Nint(40. * scale)));
+  AliGenBox *box10 = new AliGenBox(ninj);
   box10->SetPart(1010010030);
   box10->SetPtRange(0., 10.);
   box10->SetPhiRange(0., 360.);
   box10->SetYRange(-1,1);
 
   // 11. Anti-hypertriton
-  AliGenBox *box11 = new AliGenBox(TMath::Max(1, TMath::Nint(40. * scale)));
+  AliGenBox *box11 = new AliGenBox(ninj);
   box11->SetPart(-1010010030);
   box11->SetPtRange(0., 10.);
   box11->SetPhiRange(0., 360.);
   box11->SetYRange(-1,1);
 
   // 12. Lambda-Neutron bound state
-  AliGenBox *box12 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box12 = new AliGenBox(ninj);
   box12->SetPart(1010000020);
   box12->SetPtRange(0., 10.);
   box12->SetPhiRange(0., 360.);
   box12->SetYRange(-1,1);
 
   // 13. Anti-Lambda-Neutron bound state
-  AliGenBox *box13 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box13 = new AliGenBox(ninj);
   box13->SetPart(-1010000020);
   box13->SetPtRange(0., 10.);
   box13->SetPhiRange(0., 360.);
   box13->SetYRange(-1,1);
 
   // 14. Lambda-Lambda bound state
-  AliGenBox *box14 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box14 = new AliGenBox(ninj);
   box14->SetPart(1020000020);
   box14->SetPtRange(0., 10.);
   box14->SetPhiRange(0., 360.);
   box14->SetYRange(-1,1);
 
   // 15. Anti-Lambda-Lambda bound state
-  AliGenBox *box15 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box15 = new AliGenBox(ninj);
   box15->SetPart(-1020000020);
   box15->SetPtRange(0., 10.);
   box15->SetPhiRange(0., 360.);
   box15->SetYRange(-1,1);
 
   // 16. Omega-Proton bound state
-  AliGenBox *box16 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box16 = new AliGenBox(ninj);
   box16->SetPart(1030000020);
   box16->SetPtRange(0., 10.);
   box16->SetPhiRange(0., 360.);
   box16->SetYRange(-1,1);
 
   // 17. Anti-Omega-Proton bound state
-  AliGenBox *box17 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box17 = new AliGenBox(ninj);
   box17->SetPart(-1030000020);
   box17->SetPtRange(0., 10.);
   box17->SetPhiRange(0., 360.);
   box17->SetYRange(-1,1);
 
   // 18. Omega-Neutron bound state
-  AliGenBox *box18 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box18 = new AliGenBox(ninj);
   box18->SetPart(1030010020);
   box18->SetPtRange(0., 10.);
   box18->SetPhiRange(0., 360.);
   box18->SetYRange(-1,1);
 
   // 19. Anti-Omega-Neutron bound state
-  AliGenBox *box19 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box19 = new AliGenBox(ninj);
   box19->SetPart(-1030010020);
   box19->SetPtRange(0., 10.);
   box19->SetPhiRange(0., 360.);
   box19->SetYRange(-1,1);
 
   // 20. Omega-Omega bound state
-  AliGenBox *box20 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box20 = new AliGenBox(ninj);
   box20->SetPart(1060020020);
   box20->SetPtRange(0., 10.);
   box20->SetPhiRange(0., 360.);
   box20->SetYRange(-1,1);
 
   // 21. Anti-Omega-Omega bound state
-  AliGenBox *box21 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box21 = new AliGenBox(ninj);
   box21->SetPart(-1060020020);
   box21->SetPtRange(0., 10.);
   box21->SetPhiRange(0., 360.);
   box21->SetYRange(-1,1);
 
   // 22. Lambda(1405)-proton bound state
-  AliGenBox *box22 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box22 = new AliGenBox(ninj);
   box22->SetPart(1010010021);
   box22->SetPtRange(0., 10.);
   box22->SetPhiRange(0., 360.);
   box22->SetYRange(-1,1);
 
   // 23. Anti-Lambda(1405)-proton bound state
-  AliGenBox *box23 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box23 = new AliGenBox(ninj);
   box23->SetPart(-1010010021);
   box23->SetPtRange(0., 10.);
   box23->SetPhiRange(0., 360.);
   box23->SetYRange(-1,1);
 
   // 24. Lambda(1405)-Lambda(1405) bound state
-  AliGenBox *box24 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box24 = new AliGenBox(ninj);
   box24->SetPart(1020000021);
   box24->SetPtRange(0., 10.);
   box24->SetPhiRange(0., 360.);
   box24->SetYRange(-1,1);
 
   // 25. Lambda(1405)-Lambda(1405) bound state
-  AliGenBox *box25 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box25 = new AliGenBox(ninj);
   box25->SetPart(-1020000021);
   box25->SetPtRange(0., 10.);
   box25->SetPhiRange(0., 360.);
   box25->SetYRange(-1,1);
 
   // 26. Xi0-proton bound state
-  AliGenBox *box26 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box26 = new AliGenBox(ninj);
   box26->SetPart(1020010020);
   box26->SetPtRange(0., 10.);
   box26->SetPhiRange(0., 360.);
   box26->SetYRange(-1,1);
 
   // 27. Anti-Xi0-proton bound state
-  AliGenBox *box27 = new AliGenBox(TMath::Max(1, TMath::Nint(20. * scale)));
+  AliGenBox *box27 = new AliGenBox(ninj);
   box27->SetPart(-1020010020);
   box27->SetPtRange(0., 10.);
   box27->SetPhiRange(0., 360.);
