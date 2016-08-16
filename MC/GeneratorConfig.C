@@ -17,7 +17,7 @@ enum EGenerator_t {
   kGeneratorHijing_Rsn002a, kGeneratorHijing_Rsn002b, kGeneratorHijing_Rsn002c, // [ALIROOT-6721] [ALIROOT-6722]
   kGeneratorHijing_Jpsiee001, // [ALIROOT-6750]
   kGeneratorHijing_Nuclex001, // [ALIROOT-6795]
-  kGeneratorHijing_Jets001,   // [ALIROOT-xxxx]
+  kGeneratorHijing_Jets001, kGeneratorHijing_Jets001a, kGeneratorHijing_Jets001b, kGeneratorHijing_Jets001c, kGeneratorHijing_Jets001d, kGeneratorHijing_Jets001e,  // [ALIROOT-xxxx] 
   kGeneratorStarlight,
   kGeneratorCustom,
   kNGenerators
@@ -36,7 +36,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Hijing_Rsn002a", "Hijing_Rsn002b", "Hijing_Rsn002c",
   "Hijing_Jpsiee001",
   "Hijing_Nuclex001",
-  "Hijing_Jets001",
+  "Hijing_Jets001", "Hijing_Jets001a", "Hijing_Jets001b", "Hijing_Jets001c", "Hijing_Jets001d", "Hijing_Jets001e",
   "Starlight",
   "Custom"
 };
@@ -196,11 +196,18 @@ GeneratorConfig(Int_t tag)
     
     // Hijing - Jets001
   case kGeneratorHijing_Jets001:
+  case kGeneratorHijing_Jets001a:
+  case kGeneratorHijing_Jets001b:
+  case kGeneratorHijing_Jets001c:
+  case kGeneratorHijing_Jets001d:
+  case kGeneratorHijing_Jets001e:
+    Int_t ninjlist[6] = {1, 10, 5, 3, 2, 1};
+    Int_t ninj = ninjlist[tag - kGeneratorHijing_Jets001];
     AliGenCocktail *ctl   = GeneratorCocktail("Hijing_Jets001");
     AliGenerator   *hij   = GeneratorHijing();
     ctl->AddGenerator(hij,  "Hijing", 1.);
     AliGenerator   *jet   = GeneratorPythia8Jets();
-    ctl->AddGenerator(jet,  "Jets", 1.);
+    ctl->AddGenerator(jet,  "Jets", 1., new TFormula(Form("ninj_%d", ninj), Form("%d", ninj)));
     gen = ctl;
     break;
     
@@ -291,6 +298,11 @@ GeneratorPythia8(Int_t tune, Int_t ntrig, Int_t *trig)
   gSystem->Load("libpythia8.so");
   gSystem->Load("libAliPythia8.so");
   //
+  // Environment settings
+  gSystem->Setenv("PYTHIA8DATA", gSystem->ExpandPathName("$ALICE_ROOT/PYTHIA8/pythia8/xmldoc"));
+  gSystem->Setenv("LHAPDF",      gSystem->ExpandPathName("$ALICE_ROOT/LHAPDF"));
+  gSystem->Setenv("LHAPATH",     gSystem->ExpandPathName("$ALICE_ROOT/LHAPDF/PDFsets"));
+  //
   //
   comment = comment.Append(" | Pythia8 low-pt");
   //
@@ -308,6 +320,7 @@ GeneratorPythia8(Int_t tune, Int_t ntrig, Int_t *trig)
   pythia->SetEventListRange(-1, 2); 
   (AliPythia8::Instance())->ReadString("Random:setSeed = on");
   (AliPythia8::Instance())->ReadString(Form("Random:seed = %ld", seedConfig % 900000000)); 
+  (AliPythia8::Instance())->ReadString("111:mayDecay = on");
   //
   // Tune
   if (tune > 0) {
