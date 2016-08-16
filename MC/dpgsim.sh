@@ -86,10 +86,6 @@ function runBenchmark(){
     fi
 }
 
-# Define the pt hard bin arrays
-pthardbin_loweredges=( 0 5 11 21 36 57 84 117 152 191 234 )
-pthardbin_higheredges=( 5 11 21 36 57 84 117 152 191 234 -1)
-
 CONFIG_NEVENTS="200"
 CONFIG_SEED=""
 CONFIG_GENERATOR=""
@@ -111,6 +107,7 @@ CONFIG_PTHARDBIN=""
 CONFIG_PTHARDMIN=""
 CONFIG_PTHARDMAX=""
 CONFIG_QUENCHING=""
+CONFIG_QHAT=""
 CONFIG_RUN=""
 CONFIG_UID="1"
 CONFIG_SIMULATION="Default"
@@ -202,10 +199,22 @@ while [ ! -z "$1" ]; do
         CONFIG_PTHARDBIN="$1"
 	export CONFIG_PTHARDBIN
         shift  
-#    elif [ "$option" = "--quench" ]; then
-#        CONFIG_QUENCHING="$1"
-#	export CONFIG_QUENCHING
-#        shift 
+    elif [ "$option" = "--pthardmin" ]; then
+        CONFIG_PTHARDMIN="$1"
+	export CONFIG_PTHARDMIN
+        shift  
+    elif [ "$option" = "--pthardmax" ]; then
+        CONFIG_PTHARDMAX="$1"
+	export CONFIG_PTHARDMAX
+        shift  
+    elif [ "$option" = "--quenching" ]; then
+        CONFIG_QUENCHING="$1"
+	export CONFIG_QUENCHING
+        shift 
+    elif [ "$option" = "--qhat" ]; then
+        CONFIG_QHAT="$1"
+	export CONFIG_QHAT
+        shift 
     elif [ "$option" = "--nevents" ]; then
         CONFIG_NEVENTS="$1"
 	export CONFIG_NEVENTS
@@ -243,12 +252,16 @@ if [ "$CONFIG_SEED" -eq 0 ]; then
 fi
 
 if [ ! -z "$CONFIG_PTHARDBIN" ]; then
+
+    # Define the pt hard bin arrays
+    pthardbin_loweredges=(0 5 7 9 12 16 21 28 36 45 57 70 85 99 115 132 150 169 190 212 235)
+    pthardbin_higheredges=( 5 7 9 12 16 21 28 36 45 57 70 85 99 115 132 150 169 190 212 235 -1)
+
     # Define environmental vars for pt binning
     CONFIG_PTHARDMIN=${pthardbin_loweredges[$CONFIG_PTHARDBIN]}
     CONFIG_PTHARDMAX=${pthardbin_higheredges[$CONFIG_PTHARDBIN]}
     export CONFIG_PTHARDMIN CONFIG_PTHARDMAX
 
-    echo "* pt hard from $CONFIG_PTHARDMIN to $CONFIG_PTHARDMAX"
 fi
 
 # mkdir input
@@ -371,6 +384,8 @@ echo " DPGSIM"
 echo "============================================"
 echo "Run.............. $CONFIG_RUN"
 echo "Mode............. $CONFIG_MODE"
+echo "QA train......... $CONFIG_QA"
+echo "AOD train........ $CONFIG_AOD"
 echo "============================================"
 echo "Year............. $CONFIG_YEAR"
 echo "Period........... $CONFIG_PERIOD"
@@ -392,15 +407,18 @@ echo "Trigger.......... $CONFIG_TRIGGER"
 echo "OCDB............. $CONFIG_OCDB"
 echo "HLT.............. $CONFIG_HLT"
 echo "============================================"
-echo "QA train......... $CONFIG_QA"
-echo "AOD train........ $CONFIG_AOD"
 #echo "B-field.......... $CONFIG_MAGNET"
 #echo "Physicslist...... $CONFIG_PHYSICSLIST"
 echo "b-min............ $CONFIG_BMIN"
 echo "b-max............ $CONFIG_BMAX"
 echo "y-min............ $CONFIG_YMIN"
 echo "y-max............ $CONFIG_YMAX"
-echo "pT hard bin...... $CONFIG_PTHARDBIN"
+echo "============================================"
+echo "pT-hard bin...... $CONFIG_PTHARDBIN"
+echo "pT-hard min...... $CONFIG_PTHARDMIN"
+echo "pT-hard max...... $CONFIG_PTHARDMAX"
+echo "quenching........ $CONFIG_QUECHING"
+echo "q-hat............ $CONFIG_QHAT"
 echo "============================================"
 echo
 

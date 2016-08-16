@@ -17,6 +17,7 @@ enum EGenerator_t {
   kGeneratorHijing_Rsn002a, kGeneratorHijing_Rsn002b, kGeneratorHijing_Rsn002c, // [ALIROOT-6721] [ALIROOT-6722]
   kGeneratorHijing_Jpsiee001, // [ALIROOT-6750]
   kGeneratorHijing_Nuclex001, // [ALIROOT-6795]
+  kGeneratorHijing_Jets001,   // [ALIROOT-xxxx]
   kGeneratorStarlight,
   kGeneratorCustom,
   kNGenerators
@@ -35,6 +36,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Hijing_Rsn002a", "Hijing_Rsn002b", "Hijing_Rsn002c",
   "Hijing_Jpsiee001",
   "Hijing_Nuclex001",
+  "Hijing_Jets001",
   "Starlight",
   "Custom"
 };
@@ -70,6 +72,7 @@ AliGenerator *GeneratorCocktail(TString name);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax); 
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
+AliGenerator *GeneratorPythia8Jets();
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
@@ -191,6 +194,16 @@ GeneratorConfig(Int_t tag)
     gen = ctl;
     break;
     
+    // Hijing - Jets001
+  case kGeneratorHijing_Jets001:
+    AliGenCocktail *ctl   = GeneratorCocktail("Hijing_Jets001");
+    AliGenerator   *hij   = GeneratorHijing();
+    ctl->AddGenerator(hij,  "Hijing", 1.);
+    AliGenerator   *jet   = GeneratorPythia8Jets();
+    ctl->AddGenerator(jet,  "Jets", 1.);
+    gen = ctl;
+    break;
+    
     // Custom
   case kGeneratorCustom:
     if ((gROOT->LoadMacro("GeneratorCustom.C")) != 0) {
@@ -307,6 +320,40 @@ GeneratorPythia8(Int_t tune, Int_t ntrig, Int_t *trig)
     Int_t pdg = trig[gRandom->Integer(ntrig)];
     comment = comment.Append(Form(" | %s enhanced", DatabasePDG::Instance()->GetParticle(pdg)->GetName()));
     pythia->SetTriggerParticle(pdg, 1.2);
+  }
+  //
+  return pythia;
+}
+
+/*** PYTHIA 8 JETS ***********************************************/
+
+AliGenerator *
+GeneratorPythia8Jets()
+{
+  //
+  //
+  comment = comment.Append(" | Pythia8 jets (%.1f, %.1f, %d, %.1f)", pthardminConfig, pthardmaxConfig, quenchingConfig, qhatConfig);
+  //
+  // Pythia
+  AliGenPythiaPlus *pythia = GeneratorPythia8();
+  //
+  // jets settings
+  pythia->SetProcess(kPyJets);
+  pythia->SetJetEtaRange(-1.5, 1.5); // Final state kinematic cuts
+  pythia->SetJetPhiRange(0., 360.);
+  pythia->SetJetEtRange(5., 1000.);
+  pythia->SetPtHard(pthardminConfig, pthardmaxConfig); // Pt transfer of the hard scattering
+  pythia->SetStrucFunc(kCTEQ5L);
+  // quenching
+  pythia->SetQuench(quenchingConfig);
+  switch (quenchingConfig) {
+  case 1:
+    Float_t k = 6.e5 * (qhatConfig / 1.7);  //qhat=1.7, k=6e5, default value
+    AliPythia8::Instance()->InitQuenching(0., 0.1, k, 0, 0.95, 6);		
+    break;
+  case 2:
+    pythia->SetPyquenPar(1.,0.1,0,0,1);			
+    break;
   }
   //
   return pythia;

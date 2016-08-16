@@ -26,6 +26,10 @@ static Int_t   seedConfig      = 123456789; // random seed
 static Int_t   uidConfig       = 1;         // unique ID
 static TString processConfig   = "";        // process
 static TString systemConfig    = "";        // system
+static Float_t pthardminConfig = 0.;        // pt-hard min
+static Float_t pthardmaxConfig = -1.;       // pt-hard max
+static Int_t   quenchingConfig = 0;         // quenching
+static Float_t qhatConfig      = 1.7;       // q-hat
 
 /*****************************************************************/
 
@@ -53,6 +57,10 @@ Config()
   printf(">>>>>            b-max: %f \n", bmaxConfig);
   printf(">>>>>            y-min: %f \n", yminConfig);
   printf(">>>>>            y-max: %f \n", ymaxConfig);
+  printf(">>>>>      pt-hard min: %f \n", pthardminConfig);
+  printf(">>>>>      pt-hard max: %f \n", pthardmaxConfig);
+  printf(">>>>>        quenching: %d \n", quenchingConfig);
+  printf(">>>>>            q-hat: %f \n", qhatConfig);
   printf(">>>>>   crossing angle: %f \n", crossingConfig);
   printf(">>>>>      random seed: %d \n", seedConfig);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
@@ -201,7 +209,25 @@ ProcessEnvironment()
     printf(">>>>> Invalid max rapidity: %f \n", ymaxConfig);
     abort();
   }
-
+  
+  // pt-hard and quenching configuration
+  pthardminConfig = 0.;
+  if (gSystem->Getenv("CONFIG_PTHARDMIN"))
+    ptHardMin = atof(gSystem->Getenv("CONFIG_PTHARDMIN"));
+  pthardmaxConfig = -1.;
+  if (gSystem->Getenv("CONFIG_PTHARDMAX"))
+    ptHardMax = atof(gSystem->Getenv("CONFIG_PTHARDMAX"));
+  if (ptHardMax <= ptHardMin) {
+    printf(">>>>> Invalid max ptHard: %f \n", ptHardMax);
+    abort();
+  }
+  quenchingConfig = 0;
+  if (gSystem->Getenv("CONFIG_QUENCHING"))
+    quenching = atoi(gSystem->Getenv("CONFIG_QUENCHING"));
+  qhatConfig = 1.7;
+  if (gSystem->Getenv("CONFIG_QHAT"))
+    qhat = atof(gSystem->Getenv("CONFIG_QHAT"));
+  
   // seed configuration
   seedConfig = TDatime().Get();
   if (gSystem->Getenv("CONFIG_SEED"))
