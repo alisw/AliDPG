@@ -417,7 +417,7 @@ echo "============================================"
 echo "pT-hard bin...... $CONFIG_PTHARDBIN"
 echo "pT-hard min...... $CONFIG_PTHARDMIN"
 echo "pT-hard max...... $CONFIG_PTHARDMAX"
-echo "quenching........ $CONFIG_QUECHING"
+echo "quenching........ $CONFIG_QUENCHING"
 echo "q-hat............ $CONFIG_QHAT"
 echo "============================================"
 echo

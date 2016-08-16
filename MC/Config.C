@@ -49,8 +49,8 @@ Config()
   printf(">>>>>   magnetic field: %s \n", MagnetName[magnetConfig]);
   printf(">>>>>         detector: %s \n", DetectorName[detectorConfig]);
   printf(">>>>>     MC generator: %s \n", GeneratorName[generatorConfig]);
-  printf(">>>>>          process: %s \n", processConfig);
-  printf(">>>>>           system: %s \n", systemConfig);
+  printf(">>>>>          process: %s \n", processConfig.Data());
+  printf(">>>>>           system: %s \n", systemConfig.Data());
   printf(">>>>>       CMS energy: %f \n", energyConfig);
   printf(">>>>>          trigger: %s \n", TriggerName[triggerConfig]);
   printf(">>>>>            b-min: %f \n", bminConfig);
@@ -213,20 +213,20 @@ ProcessEnvironment()
   // pt-hard and quenching configuration
   pthardminConfig = 0.;
   if (gSystem->Getenv("CONFIG_PTHARDMIN"))
-    ptHardMin = atof(gSystem->Getenv("CONFIG_PTHARDMIN"));
+    pthardminConfig = atof(gSystem->Getenv("CONFIG_PTHARDMIN"));
   pthardmaxConfig = -1.;
   if (gSystem->Getenv("CONFIG_PTHARDMAX"))
-    ptHardMax = atof(gSystem->Getenv("CONFIG_PTHARDMAX"));
-  if (ptHardMax <= ptHardMin) {
-    printf(">>>>> Invalid max ptHard: %f \n", ptHardMax);
+    pthardmaxConfig = atof(gSystem->Getenv("CONFIG_PTHARDMAX"));
+  if (pthardmaxConfig <= pthardminConfig) {
+    printf(">>>>> Invalid max pt-hard: %f \n", pthardmaxConfig);
     abort();
   }
   quenchingConfig = 0;
   if (gSystem->Getenv("CONFIG_QUENCHING"))
-    quenching = atoi(gSystem->Getenv("CONFIG_QUENCHING"));
+    quenchingConfig = atoi(gSystem->Getenv("CONFIG_QUENCHING"));
   qhatConfig = 1.7;
   if (gSystem->Getenv("CONFIG_QHAT"))
-    qhat = atof(gSystem->Getenv("CONFIG_QHAT"));
+    qhatConfig = atof(gSystem->Getenv("CONFIG_QHAT"));
   
   // seed configuration
   seedConfig = TDatime().Get();
