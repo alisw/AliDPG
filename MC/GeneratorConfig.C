@@ -6,37 +6,56 @@
 
 enum EGenerator_t {
   kGeneratorDefault,
+  // Pythia6
   kGeneratorPythia6,
   kGeneratorPythia6_Perugia2011,
+  // Pythia8
   kGeneratorPythia8,
   kGeneratorPythia8_Monash2013,
-  kGeneratorPythia8_Monash2013_Rsn001, // [ALIROOT-6685]
+  kGeneratorPythia8_Monash2013_Rsn001,  // [ALIROOT-6685]
+  // Pythia8 jets
+  kGeneratorPythia8Jets, 
+  kGeneratorPythia8Jets_Monash2013, 
+  // Phojet
   kGeneratorPhojet,
+  // EPOS-LHC
   kGeneratorEPOSLHC, kGeneratorEPOSLHC_pp, kGeneratorEPOSLHC_PbPb,
+  // Hijing
   kGeneratorHijing,
   kGeneratorHijing_Rsn002a, kGeneratorHijing_Rsn002b, kGeneratorHijing_Rsn002c, // [ALIROOT-6721] [ALIROOT-6722]
   kGeneratorHijing_Jpsiee001, // [ALIROOT-6750]
   kGeneratorHijing_Nuclex001, // [ALIROOT-6795]
   kGeneratorHijing_Jets001, kGeneratorHijing_Jets001a, kGeneratorHijing_Jets001b, kGeneratorHijing_Jets001c, kGeneratorHijing_Jets001d, kGeneratorHijing_Jets001e,  // [ALIROOT-xxxx] 
+  // Starlight
   kGeneratorStarlight,
+  //
   kGeneratorCustom,
   kNGenerators
 };
 
 const Char_t *GeneratorName[kNGenerators] = {
   "Default",
+  // Pythia6
   "Pythia6",
   "Pythia6_Perugia2011",
+  // Pythia8
   "Pythia8",
   "Pythia8_Monash2013",
   "Pythia8_Monash2013_Rsn001",
+  // Pythia8 jets
+  "Pythia8Jets", 
+  "Pythia8Jets_Monash2013",
+  // Phijet
   "Phojet",
+  // EPOS-LHC
   "EPOSLHC", "EPOSLHC_pp", "EPOSLHC_PbPb",
+  // Hijing
   "Hijing",
   "Hijing_Rsn002a", "Hijing_Rsn002b", "Hijing_Rsn002c",
   "Hijing_Jpsiee001",
   "Hijing_Nuclex001",
   "Hijing_Jets001", "Hijing_Jets001a", "Hijing_Jets001b", "Hijing_Jets001c", "Hijing_Jets001d", "Hijing_Jets001e",
+  // Starlight
   "Starlight",
   "Custom"
 };
@@ -72,7 +91,7 @@ AliGenerator *GeneratorCocktail(TString name);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax); 
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
-AliGenerator *GeneratorPythia8Jets();
+AliGenerator *GeneratorPythia8Jets(Int_t tune = 0);
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
@@ -124,6 +143,12 @@ GeneratorConfig(Int_t tag)
     ctl->AddGenerator(inj, "Injector (Rsn001)", 1.);
     //
     gen = ctl;
+    break;
+    
+    // Pythia8Jets (Monash2013)
+  case kGeneratorPythia8Jets: 
+  case kGeneratorPythia8Jets_Monash2013:
+    gen = GeneratorPythia8Jets(kPythia8Tune_Monash2013);
     break;
     
     // Phojet
@@ -341,7 +366,7 @@ GeneratorPythia8(Int_t tune, Int_t ntrig, Int_t *trig)
 /*** PYTHIA 8 JETS ***********************************************/
 
 AliGenerator *
-GeneratorPythia8Jets()
+GeneratorPythia8Jets(Int_t tune)
 {
   //
   //
