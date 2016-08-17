@@ -24,10 +24,12 @@ enum EGenerator_t {
   kGeneratorEPOSLHC, kGeneratorEPOSLHC_pp, kGeneratorEPOSLHC_PbPb,
   // Hijing
   kGeneratorHijing,
+  kGeneratorHijing_QA001,
   kGeneratorHijing_Rsn002a, kGeneratorHijing_Rsn002b, kGeneratorHijing_Rsn002c, // [ALIROOT-6721] [ALIROOT-6722]
   kGeneratorHijing_Jpsiee001, // [ALIROOT-6750]
-  kGeneratorHijing_Nuclex001, // [ALIROOT-6795]
-  kGeneratorHijing_Jets001, kGeneratorHijing_Jets001a, kGeneratorHijing_Jets001b, kGeneratorHijing_Jets001c, kGeneratorHijing_Jets001d, kGeneratorHijing_Jets001e,  // [ALIROOT-xxxx] 
+  kGeneratorHijing_Nuclex001, // [ALIROOT-6795] [ALIROOT-6825]
+  kGeneratorHijing_Jets001, kGeneratorHijing_Jets001a, kGeneratorHijing_Jets001b, kGeneratorHijing_Jets001c, kGeneratorHijing_Jets001d, kGeneratorHijing_Jets001e,  // [ALIROOT-6822] [ALIROOT-6823] 
+  kGeneratorHijing_Gamma001, // [ALIROOT-6824]
   // Starlight
   kGeneratorStarlight,
   //
@@ -55,10 +57,12 @@ const Char_t *GeneratorName[kNGenerators] = {
   "EPOSLHC", "EPOSLHC_pp", "EPOSLHC_PbPb",
   // Hijing
   "Hijing",
+  "Hijing_QA001",
   "Hijing_Rsn002a", "Hijing_Rsn002b", "Hijing_Rsn002c",
   "Hijing_Jpsiee001",
   "Hijing_Nuclex001",
   "Hijing_Jets001", "Hijing_Jets001a", "Hijing_Jets001b", "Hijing_Jets001c", "Hijing_Jets001d", "Hijing_Jets001e",
+  "Hijing_Gamma001",
   // Starlight
   "Starlight",
   "Custom"
@@ -92,7 +96,7 @@ enum EPythia8Tune_t {
 
 // functions
 AliGenerator *GeneratorCocktail(TString name);
-AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax); 
+AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax, Float_t phimin = 0., Float_t phimax = 360.); 
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPythia8Jets(Int_t tune = 0);
@@ -209,6 +213,26 @@ GeneratorConfig(Int_t tag)
     gen = GeneratorStarlight();
     break;
 
+    // Hijing - QA001
+  case kGeneratorHijing_QA001:
+    AliGenCocktail *ctl    = GeneratorCocktail("Hijing_QA001");
+    AliGenerator   *hij    = GeneratorHijing();
+    AliGenerator   *injpip = GeneratorInjector(10,  211, 10., 110., -1.0, 1.0);
+    AliGenerator   *injpim = GeneratorInjector(10, -211, 10., 110., -1.0, 1.0);
+    AliGenerator   *injkap = GeneratorInjector(5,   321, 10., 110., -1.0, 1.0);
+    AliGenerator   *injkam = GeneratorInjector(5,  -321, 10., 110., -1.0, 1.0);
+    AliGenerator   *injprp = GeneratorInjector(1,  2212, 10., 110., -1.0, 1.0);
+    AliGenerator   *injprm = GeneratorInjector(1, -2212, 10., 110., -1.0, 1.0);
+    ctl->AddGenerator(hij,    "Hijing",         1.);
+    ctl->AddGenerator(injpip, "Injector (pip)", 1.);
+    ctl->AddGenerator(injpim, "Injector (pim)", 1.);
+    ctl->AddGenerator(injkap, "Injector (kap)", 1.);
+    ctl->AddGenerator(injkam, "Injector (kam)", 1.);
+    ctl->AddGenerator(injprp, "Injector (prp)", 1.);
+    ctl->AddGenerator(injprm, "Injector (prm)", 1.);
+    gen = ctl;
+    break;
+
     // Hijing - Rsn002
   case kGeneratorHijing_Rsn002a:
   case kGeneratorHijing_Rsn002b:
@@ -282,6 +306,31 @@ GeneratorConfig(Int_t tag)
     gen = ctl;
     break;
     
+    // Hijing - Gamma001
+  case kGeneratorHijing_Gamma001:
+    AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Rsn002");
+    AliGenerator   *hij  = GeneratorHijing();
+    ctl->AddGenerator(hij,  "Hijing",         1.);
+    // PCM
+    TFormula* neutralsF  = new TFormula("neutrals",  "30. + 30. * exp(- 0.5 * x * x / 5.12 / 5.12)");
+    AliGenerator   *pi0  = GeneratorInjector(1, 111, 0., 50., -1.2, 1.2);
+    AliGenerator   *eta  = GeneratorInjector(1, 221, 0., 50., -1.2, 1.2);
+    ctl->AddGenerator(pi0,  "Injector (pi0)", 1., neutralsF);
+    ctl->AddGenerator(eta,  "Injector (eta)", 1., neutralsF);
+    // PHOS
+    AliGenerator   *pi0a = GeneratorInjector(1, 111, 0., 50., -0.155, 0.155, 240., 260.);
+    AliGenerator   *pi0b = GeneratorInjector(1, 111, 0., 50., -0.155, 0.155, 260., 280.);
+    AliGenerator   *pi0c = GeneratorInjector(1, 111, 0., 50., -0.155, 0.155, 280., 300.);
+    AliGenerator   *pi0d = GeneratorInjector(1, 111, 0., 50., -0.155, 0.155, 300., 320.);
+    AliGenerator   *etaa = GeneratorInjector(1, 221, 0., 50., -0.155, 0.155, 240., 320.);
+    ctl->AddGenerator(pi0a, "Injector (pi0a)", 1.);
+    ctl->AddGenerator(pi0b, "Injector (pi0b)", 1.);
+    ctl->AddGenerator(pi0c, "Injector (pi0c)", 1.);
+    ctl->AddGenerator(pi0d, "Injector (pi0d)", 1.);
+    ctl->AddGenerator(etaa, "Injector (etaa)", 1.);
+    gen = ctl;
+    break;
+
     // Custom
   case kGeneratorCustom:
     if ((gROOT->LoadMacro("GeneratorCustom.C")) != 0) {
@@ -750,7 +799,7 @@ GeneratorCocktail(TString name)
 /*** INJECTOR ****************************************************/
 
 AliGenerator * 
-GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax)
+GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax, Float_t phimin, Float_t phimax)
 {
   comment = comment.Append(Form(" | injected (pdg=%d, %d particles)", pdg, ninj));
   //
@@ -759,7 +808,7 @@ GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t y
   box->SetPart(pdg);
   box->SetPtRange(ptmin, ptmax);
   box->SetYRange(ymin, ymax);
-  box->SetPhiRange(0., 360.);
+  box->SetPhiRange(phimin, phimax);
   return box;
 }
 
