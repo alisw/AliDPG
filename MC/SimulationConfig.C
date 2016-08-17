@@ -110,8 +110,14 @@ SimulationDefault(AliSimulation &sim)
 
 SimulationConfigPHOS(AliSimulation &sim)
 {
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
   AliPHOSSimParam *simParam = AliPHOSSimParam::GetInstance();
-  simParam->SetCellNonLineairyA(0.001);
-  simParam->SetCellNonLineairyB(0.2);
-  simParam->SetCellNonLineairyC(1.02);
+  if (year < 2015) {
+    simParam->SetCellNonLineairyA(0.001);
+    simParam->SetCellNonLineairyB(0.2);
+    simParam->SetCellNonLineairyC(1.02);
+  }
+  else {
+    simParam->SetCellNonLinearity(kFALSE);
+  }
 }
