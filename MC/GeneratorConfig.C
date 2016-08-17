@@ -308,7 +308,7 @@ GeneratorConfig(Int_t tag)
     
     // Hijing - Gamma001
   case kGeneratorHijing_Gamma001:
-    AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Rsn002");
+    AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Gamma001");
     AliGenerator   *hij  = GeneratorHijing();
     ctl->AddGenerator(hij,  "Hijing",         1.);
     // PCM
