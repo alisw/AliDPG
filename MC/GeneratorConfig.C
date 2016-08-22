@@ -30,6 +30,7 @@ enum EGenerator_t {
   kGeneratorHijing_Nuclex001, // [ALIROOT-6795] [ALIROOT-6825]
   kGeneratorHijing_Jets001, kGeneratorHijing_Jets001a, kGeneratorHijing_Jets001b, kGeneratorHijing_Jets001c, kGeneratorHijing_Jets001d, kGeneratorHijing_Jets001e,  // [ALIROOT-6822] [ALIROOT-6823] 
   kGeneratorHijing_Gamma001, // [ALIROOT-6824]
+  kGeneratorHijing_HFhad001, kGeneratorHijing_HFele001,
   // Starlight
   kGeneratorStarlight,
   //
@@ -63,6 +64,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Hijing_Nuclex001",
   "Hijing_Jets001", "Hijing_Jets001a", "Hijing_Jets001b", "Hijing_Jets001c", "Hijing_Jets001d", "Hijing_Jets001e",
   "Hijing_Gamma001",
+  "Hijing_HFhad001", "Hijing_HFele001",
   // Starlight
   "Starlight",
   "Custom"
@@ -90,6 +92,13 @@ enum EPythia8Tune_t {
   kPythia8Tune_Monash2013  = 14
 };
 
+enum EPythia6Heavy_t {
+  kPythia6Heavy_Charm,
+  kPythia6Heavy_Beauty,
+  kPythia6Heavy_Hadrons,
+  kPythia6Heavy_Electron
+};
+
 /*****************************************************************/
 /*****************************************************************/
 /*****************************************************************/
@@ -98,6 +107,7 @@ enum EPythia8Tune_t {
 AliGenerator *GeneratorCocktail(TString name);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax, Float_t phimin = 0., Float_t phimax = 360.); 
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
+AliGenerator *GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune = 0);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
 AliGenerator *GeneratorPythia8Jets(Int_t tune = 0);
 AliGenerator *GeneratorPhojet();
@@ -331,6 +341,30 @@ GeneratorConfig(Int_t tag)
     gen = ctl;
     break;
 
+    // Hijing - HFhad001
+  case kGeneratorHijing_HFhad001:
+  case kGeneratorHijing_HFele001:
+    AliGenCocktail *ctl  = GeneratorCocktail("Hijing_HF");
+    AliGenerator   *hij  = GeneratorHijing();
+    ctl->AddGenerator(hij, "Hijing", 1.);
+    //
+    Int_t process[2] = {kPythia6Heavy_Charm, kPythia6Heavy_Beauty};
+    Int_t decay[2]   = {kPythia6Heavy_Hadrons, kPythia6Heavy_Electron};
+    TFormula *formula = new TFormula("Signals", "max(1.,60.*(x<5.)+80.*(1.-x/20.)*(x>5.)*(x<11.)+240.*(1.-x/13.)*(x>11.))");
+    Int_t iprocess = uidConfig % 2;
+    Int_t idecay   = tag - kGeneratorHijing_HFhad001;
+    AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], tune[itune]);
+    //
+    Float_t pth[4] = {2.76, 20., 50., 1000.};
+    Int_t ipt;
+    if      ((uidConfig / 2) % 10 < 7) ipt = 0;
+    else if ((uidConfig / 2) % 10 < 9) ipt = 1;
+    else                               ipt = 2;
+    ((AliGenPythia *)phf)->SetPtHard(pth[ipt], pth[ipt + 1])l
+    ctl->AddGenerator(phf, "Pytha6Heavy", 1., formula);
+    gen = ctl;
+    break;
+
     // Custom
   case kGeneratorCustom:
     if ((gROOT->LoadMacro("GeneratorCustom.C")) != 0) {
@@ -408,6 +442,47 @@ GeneratorPythia6(Int_t tune, Int_t ntrig, Int_t *trig)
   return pythia;
 }
 
+/*** PYTHIA 6 ****************************************************/
+
+AliGenerator *
+GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune)
+{
+  //
+  //
+  comment = comment.Append(Form(" | Pythia6 heavy (%d, %d)", process, decay));
+  //
+  // Pythia
+  AliGenPythia *pythia = GeneratorPythia6(tune);
+  //
+  // heavy process
+  switch (process) {
+  case kPythia6Heavy_Charm:
+    pythia->SetProcess(kPyCharmppMNRwmi);
+    break;
+  case kPythia6Heavy_Beauty:
+    pythia->SetProcess(kPyBeautyppMNRwmi);
+    break;
+  }
+  //
+  // heavy decay
+  switch (decay) {
+  case kPythia6Heavy_Hadrons:
+    pythia->SetHeavyQuarkYRange(-1.5, 1.5);
+    pythia->SetForceDecay(kHadronicDWithout4Bodies);
+    break;
+  case kPythia6Heavy_Electron:
+    pythia->SetCutOnChild(1);
+    pythia->SetPdgCodeParticleforAcceptanceCut(11);
+    pythia->SetChildYRange(-1.2, 1.2);
+    pythia->SetChildPtRange(0, 10000.);
+    break;
+  }
+  //  
+  pythia->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
+  return pythia;
+}
+
+
 /*** PYTHIA 8 ****************************************************/
 
 AliGenerator *
@@ -468,7 +543,7 @@ GeneratorPythia8Jets(Int_t tune)
   comment = comment.Append(Form(" | Pythia8 jets (%.1f, %.1f, %d, %.1f)", pthardminConfig, pthardmaxConfig, quenchingConfig, qhatConfig));
   //
   // Pythia
-  AliGenPythiaPlus *pythia = GeneratorPythia8();
+  AliGenPythiaPlus *pythia = GeneratorPythia8(tune);
   //
   // jets settings
   pythia->SetProcess(kPyJets);
