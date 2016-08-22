@@ -353,7 +353,7 @@ GeneratorConfig(Int_t tag)
     TFormula *formula = new TFormula("Signals", "max(1.,60.*(x<5.)+80.*(1.-x/20.)*(x>5.)*(x<11.)+240.*(1.-x/13.)*(x>11.))");
     Int_t iprocess = uidConfig % 2;
     Int_t idecay   = tag - kGeneratorHijing_HFhad001;
-    AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], tune[itune]);
+    AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], kPythia6Tune_Perugia2011);
     //
     Float_t pth[4] = {2.76, 20., 50., 1000.};
     Int_t ipt;
