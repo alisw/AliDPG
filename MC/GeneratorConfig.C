@@ -360,7 +360,7 @@ GeneratorConfig(Int_t tag)
     if      ((uidConfig / 2) % 10 < 7) ipt = 0;
     else if ((uidConfig / 2) % 10 < 9) ipt = 1;
     else                               ipt = 2;
-    ((AliGenPythia *)phf)->SetPtHard(pth[ipt], pth[ipt + 1])l
+    ((AliGenPythia *)phf)->SetPtHard(pth[ipt], pth[ipt + 1]);
     ctl->AddGenerator(phf, "Pytha6Heavy", 1., formula);
     gen = ctl;
     break;
