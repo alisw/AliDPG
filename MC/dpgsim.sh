@@ -156,6 +156,9 @@ while [ ! -z "$1" ]; do
         OVERRIDE_SYSTEM="$1"
         OVERRIDE_TRIGGER="$1"
         shift
+    elif [ "$option" = "--trigger" ]; then
+        OVERRIDE_TRIGGER="$1"
+        shift
     elif [ "$option" = "--energy" ]; then
         OVERRIDE_ENERGY="$1"
         shift
