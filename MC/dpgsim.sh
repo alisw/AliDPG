@@ -90,6 +90,7 @@ CONFIG_NEVENTS="200"
 CONFIG_SEED=""
 CONFIG_GENERATOR=""
 CONFIG_PROCESS=""
+CONFIG_PROCESSBIN=""
 CONFIG_MAGNET=""
 CONFIG_ENERGY=""
 OVERRIDE_ENERGY=""
@@ -144,6 +145,10 @@ while [ ! -z "$1" ]; do
         CONFIG_PROCESS="$1"
 	export CONFIG_PROCESS
         shift
+    elif [ "$option" = "--processbin" ]; then
+        CONFIG_PROCESSBIN="$1"
+	export CONFIG_PROCESSBIN
+        shift  
 #    elif [ "$option" = "--magnet" ]; then
 #        CONFIG_MAGNET="$1"
 #	export CONFIG_MAGNET	
@@ -264,6 +269,19 @@ if [ ! -z "$CONFIG_PTHARDBIN" ]; then
     CONFIG_PTHARDMIN=${pthardbin_loweredges[$CONFIG_PTHARDBIN]}
     CONFIG_PTHARDMAX=${pthardbin_higheredges[$CONFIG_PTHARDBIN]}
     export CONFIG_PTHARDMIN CONFIG_PTHARDMAX
+
+fi
+
+if [ ! -z "$CONFIG_PROCESSBIN" ]; then
+
+    # Define process array
+    if [[ $CONFIG_GENERATOR == *"Starlight"* ]]; then
+	process_names=(TwoGammaToMuLow TwoGammaToElLow TwoGammaToMuMedium TwoGammaToElMedium TwoGammaToMuHigh TwoGammaToElHigh CohRhoToPi CohJpsiToMu CohJpsiToEl CohPsi2sToMu CohPsi2sToEl CohPsi2sToMuPi CohPsi2sToElPi CohUpsilonToMu CohUpsilonToEl IncohRhoToPi IncohJpsiToMu IncohJpsiToEl IncohPsi2sToMu IncohPsi2sToEl IncohPsi2sToMuPi IncohPsi2sToElPi IncohUpsilonToMu IncohUpsilonToEl)
+	CONFIG_PROCESS=${process_names[$CONFIG_PTHARDBIN]}
+    fi
+
+    # Define environmental vars for pt binning
+    export CONFIG_PROCESS
 
 fi
 
