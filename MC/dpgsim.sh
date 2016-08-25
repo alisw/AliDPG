@@ -277,10 +277,14 @@ if [ ! -z "$CONFIG_PROCESSBIN" ]; then
     # Define process array
     if [[ $CONFIG_GENERATOR == *"Starlight"* ]]; then
 	process_names=(TwoGammaToMuLow TwoGammaToElLow TwoGammaToMuMedium TwoGammaToElMedium TwoGammaToMuHigh TwoGammaToElHigh CohRhoToPi CohJpsiToMu CohJpsiToEl CohPsi2sToMu CohPsi2sToEl CohPsi2sToMuPi CohPsi2sToElPi CohUpsilonToMu CohUpsilonToEl IncohRhoToPi IncohJpsiToMu IncohJpsiToEl IncohPsi2sToMu IncohPsi2sToEl IncohPsi2sToMuPi IncohPsi2sToElPi IncohUpsilonToMu IncohUpsilonToEl)
-	CONFIG_PROCESS=${process_names[$CONFIG_PTHARDBIN]}
+	CONFIG_PROCESS=${process_names[$CONFIG_PROCESSBIN]}
     fi
 
-    # Define environmental vars for pt binning
+    # check if well defined
+    if [ -z "$CONFIG_PROCESS" ]; then
+	echo "Undefined processbin $CONFIG_PROCESSBIN for generator $CONFIG_GENERATOR"
+	exit 1;
+    fi
     export CONFIG_PROCESS
 
 fi
