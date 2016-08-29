@@ -27,7 +27,7 @@ enum EGenerator_t {
   kGeneratorHijing_QA001,
   kGeneratorHijing_Rsn002a, kGeneratorHijing_Rsn002b, kGeneratorHijing_Rsn002c, // [ALIROOT-6721] [ALIROOT-6722]
   kGeneratorHijing_Jpsiee001, // [ALIROOT-6750]
-  kGeneratorHijing_Nuclex001, // [ALIROOT-6795] [ALIROOT-6825]
+  kGeneratorHijing_Nuclex001, kGeneratorHijing_Nuclex003, // [ALIROOT-6795] [ALIROOT-6825]
   kGeneratorHijing_Jets001, kGeneratorHijing_Jets001a, kGeneratorHijing_Jets001b, kGeneratorHijing_Jets001c, kGeneratorHijing_Jets001d, kGeneratorHijing_Jets001e,  // [ALIROOT-6822] [ALIROOT-6823] 
   kGeneratorHijing_Gamma001, // [ALIROOT-6824]
   kGeneratorHijing_HFhad001, kGeneratorHijing_HFele001,
@@ -61,7 +61,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Hijing_QA001",
   "Hijing_Rsn002a", "Hijing_Rsn002b", "Hijing_Rsn002c",
   "Hijing_Jpsiee001",
-  "Hijing_Nuclex001",
+  "Hijing_Nuclex001", "Hijing_Nuclex003",
   "Hijing_Jets001", "Hijing_Jets001a", "Hijing_Jets001b", "Hijing_Jets001c", "Hijing_Jets001d", "Hijing_Jets001e",
   "Hijing_Gamma001",
   "Hijing_HFhad001", "Hijing_HFele001",
@@ -290,6 +290,26 @@ GeneratorConfig(Int_t tag)
     AliGenerator   *nu2b  = Generator_Nuclex(0x10, kTRUE, 40);
     AliGenerator   *nu3a  = Generator_Nuclex(0xFE0, kFALSE, 20);
     AliGenerator   *nu3b  = Generator_Nuclex(0xFE0, kTRUE, 20);
+    ctl->AddGenerator(nu1a,  "Nuclex1a", 1.);
+    ctl->AddGenerator(nu1b,  "Nuclex1b", 1.);
+    ctl->AddGenerator(nu2a,  "Nuclex2a", 1.);
+    ctl->AddGenerator(nu2b,  "Nuclex2b", 1.);
+    ctl->AddGenerator(nu3a,  "Nuclex3a", 1.);
+    ctl->AddGenerator(nu3b,  "Nuclex3b", 1.);
+    gen = ctl;
+    break;
+    
+    // Hijing - Nuclex003
+  case kGeneratorHijing_Nuclex003:
+    AliGenCocktail *ctl   = GeneratorCocktail("Hijing_Nuclex003");
+    AliGenerator   *hij   = GeneratorHijing();
+    ctl->AddGenerator(hij,  "Hijing", 1.);
+    AliGenerator   *nu1a  = Generator_Nuclex(0xF, kFALSE, 10);
+    AliGenerator   *nu1b  = Generator_Nuclex(0xF, kTRUE, 10);
+    AliGenerator   *nu2a  = Generator_Nuclex(0x10, kFALSE, 40);
+    AliGenerator   *nu2b  = Generator_Nuclex(0x10, kTRUE, 40);
+    AliGenerator   *nu3a  = Generator_Nuclex(0xFFE0, kFALSE, 20);
+    AliGenerator   *nu3b  = Generator_Nuclex(0xFFE0, kTRUE, 20);
     ctl->AddGenerator(nu1a,  "Nuclex1a", 1.);
     ctl->AddGenerator(nu1b,  "Nuclex1b", 1.);
     ctl->AddGenerator(nu2a,  "Nuclex2a", 1.);
@@ -1017,7 +1037,7 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj)
     "Lambda(1405)-Lambda(1405)", // 0x800
     "Xi0-proton", // 0x1000
     "Lambda-Neutron-Neutron", // 0x2000
-    "Hyper-Hydrogen-4", // 0x2000
+    "Hyper-Hydrogen-4", // 0x4000
     "Hyper-Helium-4" // 0x8000
   };
 
