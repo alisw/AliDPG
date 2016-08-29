@@ -370,6 +370,10 @@ GeneratorConfig(Int_t tag)
     //
     Int_t process[2] = {kPythia6Heavy_Charm, kPythia6Heavy_Beauty};
     Int_t decay[2]   = {kPythia6Heavy_Hadrons, kPythia6Heavy_Electron};
+    const Char_t *label[2][2] = {
+      "chadr PYTHIA", "cele PYTHIA",
+      "bchadr PYTHIA", "bele PYTHIA"
+    };
     TFormula *formula = new TFormula("Signals", "max(1.,60.*(x<5.)+80.*(1.-x/20.)*(x>5.)*(x<11.)+240.*(1.-x/13.)*(x>11.))");
     Int_t iprocess = uidConfig % 2;
     Int_t idecay   = tag - kGeneratorHijing_HFhad001;
@@ -381,7 +385,16 @@ GeneratorConfig(Int_t tag)
     else if ((uidConfig / 2) % 10 < 9) ipt = 1;
     else                               ipt = 2;
     ((AliGenPythia *)phf)->SetPtHard(pth[ipt], pth[ipt + 1]);
-    ctl->AddGenerator(phf, "Pytha6Heavy", 1., formula);
+    ctl->AddGenerator(phf, label[iprocess][idecay], 1., formula);
+    printf(">>>>> added HF generator %s \n", label[iprocess][idecay]);
+    // add pi0 and eta enhancement
+    if (tag == kGeneratorHijing_HFele001) {
+      TFormula* neutralsF  = new TFormula("neutrals",  "20. + 80. * exp(- 0.5 * x * x / 5.12 / 5.12)");
+      AliGenerator   *pi0  = GeneratorInjector(1, 111, 0., 50., -1.2, 1.2);
+      AliGenerator   *eta  = GeneratorInjector(1, 221, 0., 50., -1.2, 1.2);
+      ctl->AddGenerator(pi0,  "Injector (pi0)", 1., neutralsF);
+      ctl->AddGenerator(eta,  "Injector (eta)", 1., neutralsF);
+    }
     gen = ctl;
     break;
 
@@ -470,6 +483,14 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune)
   //
   //
   comment = comment.Append(Form(" | Pythia6 heavy (%d, %d)", process, decay));
+  //
+  // set external decayer
+  if (decay == kPythia6Heavy_Electron) {
+    TVirtualMCDecayer* decayer = new AliDecayerPythia();
+    decayer->SetForceDecay(kAll);
+    decayer->Init();
+    gMC->SetExternalDecayer(decayer);
+  }
   //
   // Pythia
   AliGenPythia *pythia = GeneratorPythia6(tune);
