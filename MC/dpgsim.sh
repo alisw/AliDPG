@@ -87,7 +87,7 @@ function runBenchmark(){
 }
 
 CONFIG_NEVENTS="200"
-CONFIG_SEED=""
+CONFIG_SEED="0"
 CONFIG_GENERATOR=""
 CONFIG_PROCESS=""
 CONFIG_PROCESSBIN=""
@@ -99,6 +99,7 @@ OVERRIDE_SYSTEM=""
 CONFIG_TRIGGER=""
 OVERRIDE_TRIGGER=""
 CONFIG_DETECTOR="Default"
+CONFIG_DETECTORMASK="0x0"
 CONFIG_PHYSICSLIST=""
 CONFIG_BMIN=""
 CONFIG_BMAX=""
@@ -136,6 +137,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--uid" ]; then
         CONFIG_UID="$1"
 	export CONFIG_UID
+        shift
+    elif [ "$option" = "--seed" ]; then
+        CONFIG_SEED="$1"
+	export CONFIG_SEED
         shift
     elif [ "$option" = "--generator" ]; then
         CONFIG_GENERATOR="$1"
@@ -246,7 +251,9 @@ DC_RUN=$CONFIG_RUN
 DC_EVENT=$CONFIG_UID
 export DC_RUN DC_EVENT
 
-CONFIG_SEED=$((ALIEN_PROC_ID%1000000000))
+if [ "$CONFIG_SEED" -eq 0 ]; then
+    CONFIG_SEED=$((ALIEN_PROC_ID%1000000000))
+fi
 if [ "$CONFIG_SEED" -eq 0 ]; then
     CONFIG_SEED=$(((CONFIG_RUN*100000+CONFIG_UID)%1000000000))
     CONFIG_SEED_BASED="run / unique-id : $CONFIG_RUN / $CONFIG_UID"
@@ -362,6 +369,17 @@ if [[ $CONFIG_RUN == "" ]]; then
     exit 2
 fi
 
+if [[ $CONFIG_OCDB == *"snapshot"* ]]; then
+    
+    if [ ! -f OCDBsim.root]; then
+	echo ">>>>> ERROR: Could not find OCDBsim.root"
+    fi
+    if [ ! -f OCDBrec.root ]; then
+	echo ">>>>> ERROR: Could not find OCDBrec.root"
+	exit 2
+    fi    
+fi
+
 ### automatic settings from CONFIG_MODE
 
 if [[ $CONFIG_MODE == *"Muon"* ]]; then
@@ -416,6 +434,7 @@ echo "Year............. $CONFIG_YEAR"
 echo "Period........... $CONFIG_PERIOD"
 echo "Beam type........ $CONFIG_BEAMTYPE"
 echo "Energy........... $CONFIG_ENERGY"
+echo "Detector mask.... $CONFIG_DETECTORMASK"
 echo "============================================"
 echo "Generator........ $CONFIG_GENERATOR"
 echo "Process.......... $CONFIG_PROCESS"

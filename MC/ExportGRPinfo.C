@@ -25,6 +25,10 @@ ExportGRPinfo(Int_t run)
   AliGRPObject *grp = (AliGRPObject *)cdbe->GetObject();
   if (!grp) abort();
   //
+  // DETECTOR MASK
+  UInt_t mask = grp->GetDetectorMask();
+  printf("export CONFIG_DETECTORMASK=0x%x\n", mask);
+  //
   // YEAR
   TDatime date = grp->GetTimeStart();
   printf("export CONFIG_YEAR=%d\n", date.GetYear());
