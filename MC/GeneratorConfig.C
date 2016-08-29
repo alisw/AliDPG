@@ -151,8 +151,8 @@ GeneratorConfig(Int_t tag)
     AliGenerator   *nu1b  = Generator_Nuclex(0xF, kTRUE, 10);
     AliGenerator   *nu2a  = Generator_Nuclex(0x10, kFALSE, 40);
     AliGenerator   *nu2b  = Generator_Nuclex(0x10, kTRUE, 40);
-    AliGenerator   *nu3a  = Generator_Nuclex(0x1F60, kFALSE, 20);
-    AliGenerator   *nu3b  = Generator_Nuclex(0x1F60, kTRUE, 20);
+    AliGenerator   *nu3a  = Generator_Nuclex(0xFE0, kFALSE, 20);
+    AliGenerator   *nu3b  = Generator_Nuclex(0xFE0, kTRUE, 20);
     ctl->AddGenerator(nu1a,  "Nuclex1a", 1.);
     ctl->AddGenerator(nu1b,  "Nuclex1b", 1.);
     ctl->AddGenerator(nu2a,  "Nuclex2a", 1.);
@@ -288,8 +288,8 @@ GeneratorConfig(Int_t tag)
     AliGenerator   *nu1b  = Generator_Nuclex(0xF, kTRUE, 10);
     AliGenerator   *nu2a  = Generator_Nuclex(0x10, kFALSE, 40);
     AliGenerator   *nu2b  = Generator_Nuclex(0x10, kTRUE, 40);
-    AliGenerator   *nu3a  = Generator_Nuclex(0x1F60, kFALSE, 20);
-    AliGenerator   *nu3b  = Generator_Nuclex(0x1F60, kTRUE, 20);
+    AliGenerator   *nu3a  = Generator_Nuclex(0xFE0, kFALSE, 20);
+    AliGenerator   *nu3b  = Generator_Nuclex(0xFE0, kTRUE, 20);
     ctl->AddGenerator(nu1a,  "Nuclex1a", 1.);
     ctl->AddGenerator(nu1b,  "Nuclex1b", 1.);
     ctl->AddGenerator(nu2a,  "Nuclex2a", 1.);
@@ -977,7 +977,7 @@ AliGenerator *
 Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj)
 {
 
-  comment = comment.Append(Form(" | Nuclex (%0xd) ", injbit));
+  comment = comment.Append(Form(" | Nuclex (0x%x) ", injbit));
   
   //
   //Generating a cocktail
@@ -1003,22 +1003,22 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj)
   };
 
   const Char_t *names[16] = {
-    "Deuteron",
-    "Helium-3",
-    "Triton",
-    "Helium-4",
-    "Hyper-Triton",
-    "Lambda-Neutron",
-    "Lambda-Lambda",
-    "Omega-Proton",
-    "Omega-Neutron", 
-    "Omega-Omega",
-    "Lambda(1405)-proton", 
-    "Lambda(1405)-Lambda(1405)",
-    "Xi0-proton",
-    "Lambda-Neutron-Neutron",
-    "Hyper-Hydrogen-4",
-    "Hyper-Helium-4"
+    "Deuteron", // 0x1
+    "Helium-3", // 0x2
+    "Triton",   // 0x4
+    "Helium-4", // 0x8
+    "Hyper-Triton", // 0x10
+    "Lambda-Neutron", // 0x20
+    "Lambda-Lambda", // 0x40
+    "Omega-Proton", // 0x80
+    "Omega-Neutron", // 0x100
+    "Omega-Omega", // 0x200
+    "Lambda(1405)-proton", // 0x400
+    "Lambda(1405)-Lambda(1405)", // 0x800
+    "Xi0-proton", // 0x1000
+    "Lambda-Neutron-Neutron", // 0x2000
+    "Hyper-Hydrogen-4", // 0x2000
+    "Hyper-Helium-4" // 0x8000
   };
 
   for (Int_t ipart = 0; ipart < 16; ipart++) {
