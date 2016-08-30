@@ -389,11 +389,18 @@ GeneratorConfig(Int_t tag)
     printf(">>>>> added HF generator %s \n", label[iprocess][idecay]);
     // add pi0 and eta enhancement
     if (tag == kGeneratorHijing_HFele001) {
-      TFormula* neutralsF  = new TFormula("neutrals",  "20. + 80. * exp(- 0.5 * x * x / 5.12 / 5.12)");
-      AliGenerator   *pi0  = GeneratorInjector(1, 111, 0., 50., -1.2, 1.2);
-      AliGenerator   *eta  = GeneratorInjector(1, 221, 0., 50., -1.2, 1.2);
-      ctl->AddGenerator(pi0,  "Injector (pi0)", 1., neutralsF);
-      ctl->AddGenerator(eta,  "Injector (eta)", 1., neutralsF);
+      TFormula* neutralsF = new TFormula("neutrals", "20.+ 80. * exp(- 0.5 * x * x / 5.12 / 5.12)");
+      AliGenPHOSlib *plib = new AliGenPHOSlib();
+      AliGenParam *pi0 = new AliGenParam(1, plib, AliGenPHOSlib::kPi0Flat);
+      pi0->SetPhiRange(0., 360.) ;
+      pi0->SetYRange(-1.2, 1.2) ;
+      pi0->SetPtRange(0., 50.) ;
+      ctl->AddGenerator(pi0,  "pi0", 1., neutralsF);
+      AliGenParam *eta = new AliGenParam(1, plib, AliGenPHOSlib::kEtaFlat);
+      eta->SetPhiRange(0., 360.) ;
+      eta->SetYRange(-1.2, 1.2) ;
+      eta->SetPtRange(0., 50.) ;
+      ctl->AddGenerator(eta,  "eta", 1., neutralsF);
     }
     gen = ctl;
     break;
