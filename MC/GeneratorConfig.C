@@ -31,6 +31,7 @@ enum EGenerator_t {
   kGeneratorHijing_Jets001, kGeneratorHijing_Jets001a, kGeneratorHijing_Jets001b, kGeneratorHijing_Jets001c, kGeneratorHijing_Jets001d, kGeneratorHijing_Jets001e,  // [ALIROOT-6822] [ALIROOT-6823] 
   kGeneratorHijing_Gamma001, // [ALIROOT-6824]
   kGeneratorHijing_HFhad001, kGeneratorHijing_HFele001,
+  kGeneratorHijing_Str001a,   kGeneratorHijing_Str001b,   kGeneratorHijing_Str001c, // [ALIROOT-6858]
   // Starlight
   kGeneratorStarlight,
   //
@@ -65,6 +66,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Hijing_Jets001", "Hijing_Jets001a", "Hijing_Jets001b", "Hijing_Jets001c", "Hijing_Jets001d", "Hijing_Jets001e",
   "Hijing_Gamma001",
   "Hijing_HFhad001", "Hijing_HFele001",
+  "Hijing_Str001a", "Hijing_Str001b", "Hijing_Str001c", 
   // Starlight
   "Starlight",
   "Custom"
@@ -402,6 +404,30 @@ GeneratorConfig(Int_t tag)
       eta->SetPtRange(0., 50.) ;
       ctl->AddGenerator(eta,  "eta", 1., neutralsF);
     }
+    gen = ctl;
+    break;
+
+    // Hijing - Str001
+  case kGeneratorHijing_Str001a:
+  case kGeneratorHijing_Str001b:
+  case kGeneratorHijing_Str001c:
+    Int_t ninjk0[3] = {10, 5, 1};
+    Int_t ninjla[3] = {10, 5, 1};
+    Int_t ninjxi[3] = {20, 8, 1};
+    Int_t ninjom[3] = {17, 4, 1};
+    Int_t iinj = tag - kGeneratorHijing_Str001a;
+    Int_t sign = uidConfig % 2 == 0 ? 1 : -1;
+    AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Rsn002");
+    AliGenerator   *hij  = GeneratorHijing();
+    AliGenerator   *ik0 = GeneratorInjector(ninjk0[iinj],         310, 0., 20., -0.7, 0.7);
+    AliGenerator   *ila = GeneratorInjector(ninjla[iinj], sign * 3122, 0., 20., -0.7, 0.7);
+    AliGenerator   *ixi = GeneratorInjector(ninjxi[iinj], sign * 3112, 0., 12., -0.7, 0.7);
+    AliGenerator   *iom = GeneratorInjector(ninjom[iinj], sign * 3334, 0., 10., -0.7, 0.7);
+    ctl->AddGenerator(hij,  "Hijing",            1.);
+    ctl->AddGenerator(ik0, "Injector (K0s)", 1.);
+    ctl->AddGenerator(ila, "Injector (Lambda)", 1.);
+    ctl->AddGenerator(ixi, "Injector (Xi)", 1.);
+    ctl->AddGenerator(iom, "Injector (Omega)", 1.);
     gen = ctl;
     break;
 
