@@ -11,6 +11,7 @@ enum EGenerator_t {
   kGeneratorPythia6_Perugia2011,
   kGeneratorPythia6_Perugia2011_Nuclex001, // [ALIROOT-6795]
   kGeneratorPythia6_Perugia2011_Nuclex002, // [ALIROOT-6796]
+  kGeneratorPythia6_Perugia2011_HFhad001, kGeneratorPythia6_Perugia2011_HFele001,
   // Pythia8
   kGeneratorPythia8,
   kGeneratorPythia8_Monash2013,
@@ -46,6 +47,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Pythia6_Perugia2011",
   "Pythia6_Perugia2011_Nuclex001", 
   "Pythia6_Perugia2011_Nuclex002", 
+  "Pythia6_Perugia2011_HFhad001", "Pythia6_Perugia2011_HFele001",
   // Pythia8
   "Pythia8",
   "Pythia8_Monash2013",
@@ -173,6 +175,46 @@ GeneratorConfig(Int_t tag)
     AliGenerator   *nu1b  = Generator_Nuclex(0x1F, kTRUE, 10);
     ctl->AddGenerator(nu1a,  "Nuclex1a", 1.);
     ctl->AddGenerator(nu1b,  "Nuclex1b", 1.);
+    gen = ctl;
+    break;
+
+    // Pythia6 - HF001
+  case kGeneratorPythia6_Perugia2011_HFhad001:
+  case kGeneratorPythia6_Perugia2011_HFele001:
+    AliGenCocktail *ctl  = GeneratorCocktail("Perugia2011_HF");
+    //
+    Int_t process[2] = {kPythia6Heavy_Charm, kPythia6Heavy_Beauty};
+    Int_t decay[2]   = {kPythia6Heavy_Hadrons, kPythia6Heavy_Electron};
+    const Char_t *label[2][2] = {
+      "chadr PYTHIA", "cele PYTHIA",
+      "bchadr PYTHIA", "bele PYTHIA"
+    };
+    Int_t iprocess = uidConfig % 2;
+    Int_t idecay   = tag - kGeneratorPythia6_Perugia2011_HFhad001;
+    AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], kPythia6Tune_Perugia2011);
+    //
+    Float_t pth[4] = {2.76, 20., 50., 1000.};
+    Int_t ipt;
+    if      ((uidConfig / 2) % 10 < 7) ipt = 0;
+    else if ((uidConfig / 2) % 10 < 9) ipt = 1;
+    else                               ipt = 2;
+    ((AliGenPythia *)phf)->SetPtHard(pth[ipt], pth[ipt + 1]);
+    ctl->AddGenerator(phf, label[iprocess][idecay], 1.);
+    printf(">>>>> added HF generator %s \n", label[iprocess][idecay]);
+    // add pi0 and eta enhancement
+    if (tag == kGeneratorPythia6_Perugia2011_HFele001) {
+      AliGenPHOSlib *plib = new AliGenPHOSlib();
+      AliGenParam *pi0 = new AliGenParam(2, plib, AliGenPHOSlib::kPi0Flat);
+      pi0->SetPhiRange(0., 360.) ;
+      pi0->SetYRange(-1.2, 1.2) ;
+      pi0->SetPtRange(0., 50.) ;
+      ctl->AddGenerator(pi0,  "pi0", 1.);
+      AliGenParam *eta = new AliGenParam(1, plib, AliGenPHOSlib::kEtaFlat);
+      eta->SetPhiRange(0., 360.) ;
+      eta->SetYRange(-1.2, 1.2) ;
+      eta->SetPtRange(0., 50.) ;
+      ctl->AddGenerator(eta,  "eta", 1.);
+    }
     gen = ctl;
     break;
     
