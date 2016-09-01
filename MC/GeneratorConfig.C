@@ -192,13 +192,6 @@ GeneratorConfig(Int_t tag)
     Int_t iprocess = uidConfig % 2;
     Int_t idecay   = tag - kGeneratorPythia6_Perugia2011_HFhad001;
     AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], kPythia6Tune_Perugia2011);
-    //
-    Float_t pth[4] = {2.76, 20., 50., 1000.};
-    Int_t ipt;
-    if      ((uidConfig / 2) % 10 < 7) ipt = 0;
-    else if ((uidConfig / 2) % 10 < 9) ipt = 1;
-    else                               ipt = 2;
-    ((AliGenPythia *)phf)->SetPtHard(pth[ipt], pth[ipt + 1]);
     ctl->AddGenerator(phf, label[iprocess][idecay], 1.);
     printf(">>>>> added HF generator %s \n", label[iprocess][idecay]);
     // add pi0 and eta enhancement
