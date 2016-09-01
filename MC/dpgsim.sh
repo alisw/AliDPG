@@ -371,7 +371,7 @@ fi
 
 if [[ $CONFIG_OCDB == *"snapshot"* ]]; then
     
-    if [ ! -f OCDBsim.root]; then
+    if [ ! -f OCDBsim.root ]; then
 	echo ">>>>> ERROR: Could not find OCDBsim.root"
     fi
     if [ ! -f OCDBrec.root ]; then
