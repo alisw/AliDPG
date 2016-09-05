@@ -20,7 +20,9 @@ function runcommand(){
     echo -e "\n" >&2
 
     echo "* $1 : $2"
+    echo "* $1 : output log in $3"
     echo "* $1 : $2" >&2
+    echo "* $1 : output log in $3" >&2
 
     START=`date "+%s"`
     time aliroot -b -q -x $2 >>$3 2>&1
