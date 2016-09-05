@@ -452,7 +452,7 @@ GeneratorConfig(Int_t tag)
     Int_t ninjom[3] = {17, 4, 1};
     Int_t iinj = tag - kGeneratorHijing_Str001a;
     Int_t sign = uidConfig % 2 == 0 ? 1 : -1;
-    AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Rsn002");
+    AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Str001");
     AliGenerator   *hij  = GeneratorHijing();
     AliGenerator   *ik0 = GeneratorInjector(ninjk0[iinj],         310, 0., 20., -0.7, 0.7);
     AliGenerator   *ila = GeneratorInjector(ninjla[iinj], sign * 3122, 0., 20., -0.7, 0.7);
