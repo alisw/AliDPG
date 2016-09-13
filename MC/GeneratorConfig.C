@@ -35,6 +35,8 @@ enum EGenerator_t {
   kGeneratorHijing_Str001a,   kGeneratorHijing_Str001b,   kGeneratorHijing_Str001c, // [ALIROOT-6858]
   // Starlight
   kGeneratorStarlight,
+  // AMPT
+  kGeneratorAMPT,
   //
   kGeneratorCustom,
   kNGenerators
@@ -71,6 +73,9 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Hijing_Str001a", "Hijing_Str001b", "Hijing_Str001c", 
   // Starlight
   "Starlight",
+  // AMPT
+  "AMPT",
+  //
   "Custom"
 };
 
@@ -120,6 +125,7 @@ AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj);
 AliGenerator *GeneratorStarlight();
+AliGenerator *GeneratorAMPT();
 
 /*****************************************************************/
 
@@ -258,6 +264,11 @@ GeneratorConfig(Int_t tag)
     // Starlight
   case kGeneratorStarlight:
     gen = GeneratorStarlight();
+    break;
+
+    // AMPT
+  case kGeneratorAMPT:
+    gen = GeneratorAMPT();
     break;
 
     // Hijing - QA001
@@ -942,6 +953,75 @@ GeneratorStarlight(){
   genCocktail->AddGenerator(genStarLight,"StarLight",1.);
   genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
   return genCocktail;
+}
+
+/*** AMPT ********************************************************/
+
+AliGenerator *
+GeneratorAMPT() {
+
+  //
+  // load libs
+  gSystem->Load("libAMPT");  
+  gSystem->Load("libTAmpt");
+  //
+  comment.Append(Form(" | AMPT %s (%s)", processConfig.Data(), systemConfig.Data()));
+  //
+  // configure projectile/target
+  TString projN, targN;
+  Int_t projA, projZ, targA, targZ;
+  // pp
+  if (systemConfig.EqualTo("p-p")) {
+    projN = "p"; projA = 1; projZ = 1;
+    targN = "p"; targA = 1; targZ = 1;
+  }
+  // PbPb
+  else if (systemConfig.EqualTo("Pb-Pb")) {
+    projN = "A"; projA = 208; projZ = 82;
+    targN = "A"; targA = 208; targZ = 82;
+  }
+  //
+  // configure AMPT processes
+  Int_t isoft = 1;  //1: defaul - 4: string melting
+  Int_t ntmax = 150;        // NTMAX: number of timesteps (D=150)
+  if (processConfig.Contains("StringMelting")) isoft = 4;
+  if (processConfig.Contains("NoART")) ntmax = 3;
+
+  //
+  // AMPT
+  AliGenAmpt *genHi = new AliGenAmpt(-1);
+  AliDecayer *decayer = new AliDecayerPythia();
+  genHi->SetForceDecay(kHadronicD);
+  genHi->SetDecayer(decayer);
+  genHi->SetEnergyCMS(energyConfig);
+  genHi->SetReferenceFrame("CMS");
+  genHi->SetProjectile(projN.Data(), projA, projZ);
+  genHi->SetTarget(targN.Data(), targA, targZ);
+  genHi->SetIsoft(isoft);  //1: defaul - 4: string melting
+  genHi->SetStringFrag(0.5, 0.9); //Lund string frgmentation parameters
+  genHi->SetPtHardMin(3);
+  genHi->SetImpactParameterRange(bminConfig, bmaxConfig);
+    
+  // Xmu = 3.2 fm^-1 and as = 0.33 ==> sigma_{partonic} = 1.5mb
+  // Ntmax = 150
+  // v_2{2} = 0.102105 +/- 0.000266894
+  // v_2{4} = 0.0829477 +/- 0.00106158
+    
+  genHi->SetNtMax(ntmax);        // NTMAX: number of timesteps (D=150)
+  genHi->SetXmu(3.2264);        // parton screening mass in fm^(-1) (D=3.2264d0)
+    
+  genHi->SetJetQuenching(0);  // enable jet quenching
+  genHi->SetShadowing(1);     // enable shadowing
+  genHi->SetDecaysOff(1);     // neutral pion and heavy particle decays switched off
+  genHi->SetSpectators(0);    // track spectators
+  //Boost into LHC lab frame
+  genHi->SetBoostLHC(1);
+  //  genHi->Init();
+  genHi->SetRandomReactionPlane(kTRUE);
+ 
+  return genHi;
+
+  
 }
 
 /*** COCKTAIL ****************************************************/
