@@ -16,6 +16,7 @@ enum EGenerator_t {
   kGeneratorPythia8,
   kGeneratorPythia8_Monash2013,
   kGeneratorPythia8_Monash2013_Rsn001,  // [ALIROOT-6685]
+  kGeneratorPythia8_Monash2013_Str002,  // [ALIROOT-6874]
   // Pythia8 jets
   kGeneratorPythia8Jets, 
   kGeneratorPythia8Jets_Monash2013, 
@@ -54,6 +55,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Pythia8",
   "Pythia8_Monash2013",
   "Pythia8_Monash2013_Rsn001",
+  "Pythia8_Monash2013_Str002",
   // Pythia8 jets
   "Pythia8Jets", 
   "Pythia8Jets_Monash2013",
@@ -115,9 +117,9 @@ enum EPythia6Heavy_t {
 // functions
 AliGenerator *GeneratorCocktail(TString name);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax, Float_t phimin = 0., Float_t phimax = 360.); 
-AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
+AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t pdgtrig = 0, Float_t ytrig = 1.2);
 AliGenerator *GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune = 0);
-AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t ntrig = 0, Int_t *trig = NULL);
+AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t pdgtrig = 0, Float_t ytrig = 1.2);
 AliGenerator *GeneratorPythia8Jets(Int_t tune = 0);
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
@@ -236,6 +238,16 @@ GeneratorConfig(Int_t tag)
     ctl->AddGenerator(inj, "Injector (Rsn001)", 1.);
     //
     gen = ctl;
+    break;
+    
+    // Pythia8 (Monash2013) - Str002
+  case kGeneratorPythia8_Monash2013_Str002:
+    // triggered particles
+    Int_t pdglist[] = {310, 3122, 3112, 3334, 310, -3122, -3112, -3334}; // K0s, Lambda, Xi, Omega
+    Int_t pdg = pdglist[uidConfig % (sizeof(pdglist) / 4)]; // select according to unique ID
+    AliGenerator   *py8 = GeneratorPythia8(kPythia8Tune_Monash2013, pdg, 1.2);
+    //
+    gen = py8;
     break;
     
     // Pythia8Jets (Monash2013)
@@ -523,7 +535,7 @@ GeneratorConfig(Int_t tag)
 /*** PYTHIA 6 ****************************************************/
 
 AliGenerator *
-GeneratorPythia6(Int_t tune, Int_t ntrig, Int_t *trig)
+GeneratorPythia6(Int_t tune, Int_t pdgtrig, Float_t ytrig)
 {
   comment = comment.Append(" | Pythia6 low-pt");
   //
@@ -545,10 +557,9 @@ GeneratorPythia6(Int_t tune, Int_t ntrig, Int_t *trig)
   }
   //
   // Trigger particles
-  if (ntrig > 0) {
-    Int_t pdg = trig[gRandom->Integer(ntrig)];
-    comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdg)->GetName()));
-    pythia->SetTriggerParticle(pdg, 1.2);
+  if (pdgtrig != 0) {
+    comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdgtrig)->GetName()));
+    pythia->SetTriggerParticle(pdgtrig, ytrig);
   }
   //
   return pythia;
@@ -606,7 +617,7 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune)
 /*** PYTHIA 8 ****************************************************/
 
 AliGenerator *
-GeneratorPythia8(Int_t tune, Int_t ntrig, Int_t *trig)
+GeneratorPythia8(Int_t tune, Int_t pdgtrig, Float_t ytrig)
 {
   //
   // Libraries
@@ -644,10 +655,9 @@ GeneratorPythia8(Int_t tune, Int_t ntrig, Int_t *trig)
   }
   //
   // Trigger particles
-  if (ntrig > 0) {
-    Int_t pdg = trig[gRandom->Integer(ntrig)];
-    comment = comment.Append(Form(" | %s enhanced", DatabasePDG::Instance()->GetParticle(pdg)->GetName()));
-    pythia->SetTriggerParticle(pdg, 1.2);
+  if (pdgtrig != 0) {
+    comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdgtrig)->GetName()));
+    pythia->SetTriggerParticle(pdgtrig, ytrig);
   }
   //
   return pythia;
