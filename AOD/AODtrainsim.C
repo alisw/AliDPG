@@ -69,11 +69,7 @@ Bool_t LoadAnalysisLibraries();
 Bool_t LoadLibrary(const char *);
 void ProcessEnvironment();
 TChain *CreateChain();
-
-// ORNL
-//const char *cdbPath = "raw://";
-const char *cdbPath = "local://";
-
+const char *cdbPath = "raw://";
 Int_t run_number = 0;
 
 //______________________________________________________________________________
@@ -105,37 +101,29 @@ void AODtrainsim(Int_t merge=0)
   TString ocdbConfig = "default,snapshot";
   if (gSystem->Getenv("CONFIG_OCDB"))
     ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
-
-// ORNL
-  /*if (ocdbConfig.Contains("alien")) {
+  if (ocdbConfig.Contains("alien")) {
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
     OCDBDefault(1);
   }
   else {
-  */
     // set OCDB snapshot mode
     AliCDBManager *cdbm = AliCDBManager::Instance();
     cdbm->SetSnapshotMode("OCDBrec.root");
-//  }
+  }
 
   if(iCollision == kPbPb)
     useCentrality =kTRUE;
     
   UpdateFlags();
   
-  printf("Some debugging info ================");
-
-// ORNL
-/*  if (merge || doCDBconnect) {
+  if (merge || doCDBconnect) {
     TGrid::Connect("alien://");
     if (!gGrid || !gGrid->IsConnected()) {
       ::Error("AODtrainsim", "No grid connection");
       return;
     }
   }
- */
-
   // Set temporary merging directory to current one
   gSystem->Setenv("TMPDIR", gSystem->pwd());
   // Set temporary compilation directory to current one
@@ -247,25 +235,14 @@ void AddAnalysisTasks(const char *cdb_location)
   }  
   // CDB connection
   //
-
-// ORNL
-  /* if (doCDBconnect && !useTender) {
+  if (doCDBconnect && !useTender) {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/PilotTrain/AddTaskCDBconnect.C");
     AliTaskCDBconnect *taskCDB = AddTaskCDBconnect(cdb_location, run_number);
     if (!taskCDB) return;
     AliCDBManager *cdb = AliCDBManager::Instance();
     cdb->SetDefaultStorage(cdb_location);
 //    taskCDB->SetRunNumber(run_number);
-  }  */  
-
-  if (doCDBconnect) {
-      gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/PilotTrain/AddTaskCDBconnect.C");
-          AliTaskCDBconnect *taskCDB = AddTaskCDBconnect(cdb_location, run_number);
-	      if (!taskCDB) return;
-	      //    AliCDBManager *cdb = AliCDBManager::Instance();
-	      //    cdb->SetDefaultStorage(cdb_location);
-	      //    taskCDB->SetRunNumber(run_number);
-	        }
+  }    
 
    if (usePhysicsSelection) {
    // Physics selection task
