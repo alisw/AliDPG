@@ -117,9 +117,9 @@ enum EPythia6Heavy_t {
 // functions
 AliGenerator *GeneratorCocktail(TString name);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax, Float_t phimin = 0., Float_t phimax = 360.); 
-AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t pdgtrig = 0, Float_t ytrig = 1.2);
+AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
 AliGenerator *GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune = 0);
-AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t pdgtrig = 0, Float_t ytrig = 1.2);
+AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
 AliGenerator *GeneratorPythia8Jets(Int_t tune = 0);
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
@@ -535,7 +535,7 @@ GeneratorConfig(Int_t tag)
 /*** PYTHIA 6 ****************************************************/
 
 AliGenerator *
-GeneratorPythia6(Int_t tune, Int_t pdgtrig, Float_t ytrig)
+GeneratorPythia6(Int_t tune, Int_t pdgtrig, Float_t etatrig)
 {
   comment = comment.Append(" | Pythia6 low-pt");
   //
@@ -559,7 +559,7 @@ GeneratorPythia6(Int_t tune, Int_t pdgtrig, Float_t ytrig)
   // Trigger particles
   if (pdgtrig != 0) {
     comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdgtrig)->GetName()));
-    pythia->SetTriggerParticle(pdgtrig, ytrig);
+    pythia->SetTriggerParticle(pdgtrig, etatrig);
   }
   //
   return pythia;
@@ -617,7 +617,7 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune)
 /*** PYTHIA 8 ****************************************************/
 
 AliGenerator *
-GeneratorPythia8(Int_t tune, Int_t pdgtrig, Float_t ytrig)
+GeneratorPythia8(Int_t tune, Int_t pdgtrig, Float_t etatrig)
 {
   //
   // Libraries
@@ -657,7 +657,7 @@ GeneratorPythia8(Int_t tune, Int_t pdgtrig, Float_t ytrig)
   // Trigger particles
   if (pdgtrig != 0) {
     comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdgtrig)->GetName()));
-    pythia->SetTriggerParticle(pdgtrig, ytrig);
+    pythia->SetTriggerParticle(pdgtrig, etatrig);
   }
   //
   return pythia;
