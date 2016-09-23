@@ -95,6 +95,11 @@ void QAtrainsim(Int_t run = 0,
   if (gSystem->Getenv("CONFIG_OCDB"))
     ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
   if (ocdbConfig.Contains("alien")) {
+    TGrid::Connect("alien://");
+    if (!gGrid || !gGrid->IsConnected()) {
+      ::Error("QAtrain", "No grid connection");
+      return;
+    }
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
     OCDBDefault(1);
@@ -109,15 +114,6 @@ void QAtrainsim(Int_t run = 0,
   {
     doCentrality =kTRUE;
     doVZEROPbPb =kTRUE;
-  }
-
-  TString cdbString(cdb);
-  if (cdbString.Contains("raw://"))
- {
-  TGrid::Connect("alien://");
-  if (!gGrid || !gGrid->IsConnected()) {
-    ::Error("QAtrain", "No grid connection");
-    return;
   }
 
 }
