@@ -55,7 +55,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Pythia8",
   "Pythia8_Monash2013",
   "Pythia8_Monash2013_Rsn001",
-  "Pythia8_Monash2013_Str002,
+  "Pythia8_Monash2013_Str002",
   // Pythia8 jets
   "Pythia8Jets", 
   "Pythia8Jets_Monash2013",
