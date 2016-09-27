@@ -479,7 +479,7 @@ GeneratorConfig(Int_t tag)
     AliGenerator   *hij  = GeneratorHijing();
     AliGenerator   *ik0 = GeneratorInjector(ninjk0[iinj],         310, 0., 20., -0.7, 0.7);
     AliGenerator   *ila = GeneratorInjector(ninjla[iinj], sign * 3122, 0., 20., -0.7, 0.7);
-    AliGenerator   *ixi = GeneratorInjector(ninjxi[iinj], sign * 3112, 0., 12., -0.7, 0.7);
+    AliGenerator   *ixi = GeneratorInjector(ninjxi[iinj], sign * 3312, 0., 12., -0.7, 0.7);
     AliGenerator   *iom = GeneratorInjector(ninjom[iinj], sign * 3334, 0., 10., -0.7, 0.7);
     ctl->AddGenerator(hij,  "Hijing",            1.);
     ctl->AddGenerator(ik0, "Injector (K0s)", 1.);
