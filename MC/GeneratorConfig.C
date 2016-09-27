@@ -55,7 +55,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Pythia8",
   "Pythia8_Monash2013",
   "Pythia8_Monash2013_Rsn001",
-  "Pythia8_Monash2013_Str002",
+  "Pythia8_Monash2013_Str002,
   // Pythia8 jets
   "Pythia8Jets", 
   "Pythia8Jets_Monash2013",
@@ -243,7 +243,7 @@ GeneratorConfig(Int_t tag)
     // Pythia8 (Monash2013) - Str002
   case kGeneratorPythia8_Monash2013_Str002:
     // triggered particles
-    Int_t pdglist[] = {310, 3122, 3112, 3334, 310, -3122, -3112, -3334}; // K0s, Lambda, Xi, Omega
+    Int_t pdglist[] = {310, 3122, 3312, 3334, 310, -3122, -3312, -3334};
     Int_t pdg = pdglist[uidConfig % (sizeof(pdglist) / 4)]; // select according to unique ID
     AliGenerator   *py8 = GeneratorPythia8(kPythia8Tune_Monash2013, pdg, 1.2);
     //
