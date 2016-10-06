@@ -818,6 +818,7 @@ GeneratorStarlight(){
   gSystem->Load("libAliStarLight.so");
 
   // Supported processes:
+  // _STARLIGHT_PROCESSES_BEGIN_ this comment is used by AliRoot/STARLIGHT/test/testsl.C
   // kTwoGammaToMuLow    - from 0.4 to 15 GeV
   // kTwoGammaToElLow    - from 0.4 to 15 GeV
   // kTwoGammaToMuMedium - from 2.0 to 15 GeV
@@ -846,9 +847,15 @@ GeneratorStarlight(){
   // kIncohUpsilonToEl
   // kCohRhoPrime
   // kIncohRhoPrime
-  
+  // _STARLIGHT_PROCESSES_END_ this comment is used by AliRoot/STARLIGHT/test/testsl.C
+
   comment.Append(Form(" | Starlight %s (%s)", processConfig.Data(), systemConfig.Data()));
-  
+
+  // restict ymin,ymax to [-8,8] as with the default ymin,ymax set in Config.C
+  // there is a floating point exception in starlight
+  yminConfig = TMath::Max(yminConfig, -8.0f);
+  ymaxConfig = TMath::Min(ymaxConfig,  8.0f);
+
   Int_t projA=1,targA=1,projZ=1,targZ=1;
   // pp
   if (systemConfig.EqualTo("p-p")) {
@@ -870,21 +877,20 @@ GeneratorStarlight(){
     projA = 208; projZ = 82;
     targA =   1; targZ =  1;
   }
-  
+
   Float_t beam1energy = TMath::Sqrt(Double_t(projZ)/projA*targA/targZ)*energyConfig/2;
   Float_t beam2energy = TMath::Sqrt(Double_t(projA)/projZ*targZ/targA)*energyConfig/2;
   Float_t gamma1  = beam1energy/0.938272;
   Float_t gamma2  = beam2energy/0.938272;
 
   Int_t prod_mode = 4;     // default incoherent
-  if      (processConfig.Contains("TwoGammaToMu")) prod_mode = 1;
-  else if (processConfig.Contains("TwoGammaToEl")) prod_mode = 1;
+  if      (processConfig.Contains("TwoGamma")) prod_mode = 1;
   else if (processConfig.Contains("CohRho"))       prod_mode = 3;
   else if (processConfig.Contains("CohPhi"))       prod_mode = 2;
   else if (processConfig.Contains("CohJpsi"))      prod_mode = 2;
   else if (processConfig.Contains("CohPsi2s"))     prod_mode = 2;
   else if (processConfig.Contains("CohUpsilon"))   prod_mode = 2;
-  
+
   Int_t prod_pid = 443013; // default jpsi
   if      (processConfig.Contains("JpsiToMu"))         prod_pid = 443013;
   else if (processConfig.Contains("JpsiToEl"))         prod_pid = 443011;
@@ -898,33 +904,40 @@ GeneratorStarlight(){
   else if (processConfig.Contains("TwoGammaToEl"))     prod_pid = 11;
   else if (processConfig.Contains("TwoGammaToF2"))     prod_pid = 225;
   else if (processConfig.Contains("TwoGammaToRhoRho")) prod_pid = 33;
-  
-  Float_t wmin = -1;       // automatic wmin
-  Float_t wmax = 15;
-  if      (processConfig.Contains("Low"))    wmin = 0.4;
-  else if (processConfig.Contains("Medium")) wmin = 2.0;
-  else if (processConfig.Contains("High"))   wmin = 4.0;
-  Int_t nwbins = 20*(wmax-wmin);
-  
+
+  // by default use automatic wmin, wmax
+  Float_t wmin = -1;
+  Float_t wmax = -1;
+  Int_t nwbins = 20;
+  if (processConfig.Contains("TwoGammaToMu") ||
+      processConfig.Contains("TwoGammaToEl")) {
+    wmax = 15;
+    if      (processConfig.Contains("Low"))    wmin = 0.4;
+    else if (processConfig.Contains("Medium")) wmin = 2.0;
+    else if (processConfig.Contains("High"))   wmin = 4.0;
+
+    nwbins = 20*(wmax-wmin);
+  }
+
   Bool_t cocktail = 0;
   cocktail |= processConfig.Contains("Psi2sToElPi");
   cocktail |= processConfig.Contains("Psi2sToMuPi");
   cocktail |= processConfig.Contains("RhoPrime");
-  
+
   AliGenCocktail *genCocktail = 0;
   if (cocktail)  genCocktail = new AliGenCocktail(); // constructor must be called before other generators
 
-  AliGenStarLight* genStarLight = new AliGenStarLight(1000*1000); 
+  AliGenStarLight* genStarLight = new AliGenStarLight(1000*1000);
   genStarLight->SetParameter(Form("BEAM_1_Z     =    %3i    #Z of target",targZ));
-  genStarLight->SetParameter(Form("BEAM_1_A     =    %3i    #A of target",targA)); 
+  genStarLight->SetParameter(Form("BEAM_1_A     =    %3i    #A of target",targA));
   genStarLight->SetParameter(Form("BEAM_2_Z     =    %3i    #Z of projectile",projZ));
   genStarLight->SetParameter(Form("BEAM_2_A     =    %3i    #A of projectile",projA));
   genStarLight->SetParameter(Form("BEAM_1_GAMMA = %6.1f    #Gamma of the target",gamma1));
   genStarLight->SetParameter(Form("BEAM_2_GAMMA = %6.1f    #Gamma of the projectile",gamma2));
-  genStarLight->SetParameter("W_MAX        =   15    #Max value of w");
+  genStarLight->SetParameter(Form("W_MAX        =   %.1f    #Max value of w",wmax));
   genStarLight->SetParameter(Form("W_MIN        =   %.1f    #Min value of w",wmin));
   genStarLight->SetParameter(Form("W_N_BINS     =    %3i    #Bins i w",nwbins));
-  genStarLight->SetParameter(Form("RAP_MAX      =   %.1f    #max y",TMath::Max(TMath::Abs(yminConfig),TMath::Abs(ymaxConfig))));
+  genStarLight->SetParameter(Form("RAP_MAX      =   %.2f    #max y",TMath::Max(TMath::Abs(yminConfig),TMath::Abs(ymaxConfig))));
   genStarLight->SetParameter(Form("RAP_N_BINS   =   %.0f    #Bins i y",10*(ymaxConfig-yminConfig)));
   genStarLight->SetParameter("CUT_PT       =    0    #Cut in pT? 0 = (no, 1 = yes)");
   genStarLight->SetParameter("PT_MIN       =    0    #Minimum pT in GeV");
@@ -938,28 +951,29 @@ GeneratorStarlight(){
   genStarLight->SetParameter("BREAKUP_MODE  =   5    #Controls the nuclear breakup");
   genStarLight->SetParameter("INTERFERENCE  =   0    #Interference (0 = off, 1 = on)");
   genStarLight->SetParameter("IF_STRENGTH   =   1.   #% of interfernce (0.0 - 0.1)");
-  genStarLight->SetParameter("COHERENT      =   0    #Coherent=1,Incoherent=0");
-  genStarLight->SetParameter("INCO_FACTOR   =   1.   #percentage of incoherence");
   genStarLight->SetParameter("INT_PT_MAX    =   0.24 #Maximum pt considered, when interference is turned on");
   genStarLight->SetParameter("INT_PT_N_BINS = 120    #Number of pt bins when interference is turned on");
-  genStarLight->SetRapidityMotherRange(yminConfig,ymaxConfig);
+  genStarLight->SetParameter("XSEC_METHOD   = 1      # Set to 0 to use old method for calculating gamma-gamma luminosity"); //CM
+  genStarLight->SetParameter("BSLOPE_DEFINITION = 0");   // using default slope
+  genStarLight->SetParameter("BSLOPE_VALUE      = 4.0"); // default slope value
 
+  genStarLight->SetRapidityMotherRange(yminConfig,ymaxConfig);
   if (!genCocktail) return genStarLight;
-  
+
   AliGenSLEvtGen *genEvtGen = new AliGenSLEvtGen();
-  
+
   TString decayTable="PSI2S.MUMUPIPI.DEC"; // default
   if      (processConfig.Contains("Psi2sToMuPi")) decayTable="PSI2S.MUMUPIPI.DEC";
   else if (processConfig.Contains("Psi2sToElPi")) decayTable="PSI2S.EEPIPI.DEC";
   else if (processConfig.Contains("RhoPrime"))    decayTable="RHOPRIME.RHOPIPI.DEC";
   genEvtGen->SetUserDecayTable(gSystem->ExpandPathName(Form("$ALICE_ROOT/STARLIGHT/AliStarLight/DecayTables/%s",decayTable.Data())));
-  
+
   if      (processConfig.Contains("Psi2s"))    genEvtGen->SetEvtGenPartNumber(100443);
   else if (processConfig.Contains("RhoPrime")) genEvtGen->SetEvtGenPartNumber(30113);
 
   genEvtGen->SetPolarization(1);           // Set polarization: transversal(1),longitudinal(-1),unpolarized(0)
   gSystem->Setenv("PYTHIA8DATA", gSystem->ExpandPathName("$ALICE_ROOT/PYTHIA8/pythia8/xmldoc"));
-  
+
   genCocktail->AddGenerator(genStarLight,"StarLight",1.);
   genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
   return genCocktail;
