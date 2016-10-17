@@ -103,13 +103,11 @@ DefaultSpecificStorage(AliCDBManager *man, Int_t mode)
     }
   }
 
-  // temporary hacks
+  // Run-1 settings
   if (year < 2015) {
     man->SetSpecificStorage("AD/Calib/QAParam", Raw2015);
     const Char_t *muonHack[2] = {Ideal, Residual};
     man->SetSpecificStorage("MUON/Align/Data", muonHack[mode]);
   }
-  if (year > 2015)
-    man->SetSpecificStorage("TPC/Calib/RecoParam", Full);
-  
+
 }
