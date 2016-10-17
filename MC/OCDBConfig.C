@@ -96,7 +96,7 @@ DefaultSpecificStorage(AliCDBManager *man, Int_t mode)
 
   // set specific storages
   for (Int_t isto = 0; isto < nSpecificStorages; isto++) {
-    if (SpecificStorageList[mode+1][isto]) {
+    if (SpecificStorageList[isto][mode+1]) {
       printf("Setting specific storage: %s -> %s\n", SpecificStorageList[isto][0], SpecificStorageList[isto][mode+1]);
       man->SetSpecificStorage(SpecificStorageList[isto][0], SpecificStorageList[isto][mode+1]);
     }
@@ -135,7 +135,7 @@ NoDistortionSpecificStorage(AliCDBManager *man, Int_t mode) {
   printf(">>>>> mode=%d | %d nodist specific \n", mode, nSpecificStorages);
 
   for (Int_t isto = 0; isto < nSpecificStorages; isto++) {
-    if (SpecificStorageList[mode+1][isto]) {
+    if (SpecificStorageList[isto][mode+1]) {
       printf("Setting specific storage: %s -> %s\n", SpecificStorageList[isto][0], SpecificStorageList[isto][mode+1]);
       man->SetSpecificStorage(SpecificStorageList[isto][0], SpecificStorageList[isto][mode+1]);
     }
