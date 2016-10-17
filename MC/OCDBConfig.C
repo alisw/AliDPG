@@ -131,8 +131,6 @@ NoDistortionSpecificStorage(AliCDBManager *man, Int_t mode) {
   };
   const Int_t nSpecificStorages = sizeof(SpecificStorageList) / (3 * sizeof(Char_t *));
 
-  printf(">>>>> mode=%d | %d nodist specific \n", mode, nSpecificStorages);
-
   for (Int_t isto = 0; isto < nSpecificStorages; isto++) {
     if (SpecificStorageList[isto][mode+1]) {
       printf("Setting specific storage: %s -> %s\n", SpecificStorageList[isto][0], SpecificStorageList[isto][mode+1]);
