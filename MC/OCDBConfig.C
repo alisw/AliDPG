@@ -160,7 +160,7 @@ RecoParamWithTPCDistortions(AliCDBManager *man) {
   // get TPC RecoParam for event specie
   AliCDBEntry *pare = man->Get("TPC/Calib/RecoParam");
   if (!pare) return kFALSE;
-  TOBjArray *parl = (TObjArray *)pare->GetObject();
+  TObjArray *parl = (TObjArray *)pare->GetObject();
   AliTPCRecoParam *par = NULL;
   for (Int_t i = parl->GetEntriesFast(); i--;) {
     AliTPCRecoParam *p = (AliTPCRecoParam *)parl->UncheckedAt(i);
