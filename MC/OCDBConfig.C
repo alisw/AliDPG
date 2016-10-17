@@ -121,6 +121,9 @@ DefaultSpecificStorage(AliCDBManager *man, Int_t mode)
 
 NoDistortionSpecificStorage(AliCDBManager *man, Int_t mode) {
 
+  const Char_t *Ideal    = "alien://Folder=/alice/simulation/2008/v4-15-Release/Ideal/";
+  const Char_t *Residual = "alien://Folder=/alice/simulation/2008/v4-15-Release/Residual/";
+
   const Char_t *SpecificStorageList[][3] = {
     // path                    sim       rec
     //
@@ -129,9 +132,11 @@ NoDistortionSpecificStorage(AliCDBManager *man, Int_t mode) {
   };
   const Int_t nSpecificStorages = sizeof(SpecificStorageList) / (3 * sizeof(Char_t *));
 
+  printf(">>>>> mode=%d | %d nodist specific \n", mode, nSpecificStorages);
+
   for (Int_t isto = 0; isto < nSpecificStorages; isto++) {
     if (SpecificStorageList[mode+1][isto]) {
-      printf("Setting specific storage: %s -> %s\n", ExtraSpecificStorageList[isto][0], SpecificStorageList[isto][mode+1]);
+      printf("Setting specific storage: %s -> %s\n", SpecificStorageList[isto][0], SpecificStorageList[isto][mode+1]);
       man->SetSpecificStorage(SpecificStorageList[isto][0], SpecificStorageList[isto][mode+1]);
     }
   }
