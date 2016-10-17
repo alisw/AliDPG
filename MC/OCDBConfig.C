@@ -134,7 +134,6 @@ NoDistortionSpecificStorage(AliCDBManager *man, Int_t mode) {
       man->SetSpecificStorage(SpecificStorageList[isto][0], SpecificStorageList[isto][mode+1]);
     }
   }
- }
   
 }
 
