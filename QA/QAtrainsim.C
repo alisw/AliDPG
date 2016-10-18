@@ -80,6 +80,9 @@ Int_t debug_level     = 1;    // Debugging
 Int_t run_number      = 0;
 Int_t run_flag        = 1500;
 
+const Char_t *raw_cdb = "raw://";
+const Char_t *local_cdb = "local://";
+
 void QAtrainsim(Int_t run = 0,
              const char *xmlfile   = "wn.xml",
              Int_t  stage          = 0, /*0 = QA train, 1...n - merging stage*/
@@ -103,11 +106,13 @@ void QAtrainsim(Int_t run = 0,
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
     OCDBDefault(1);
+    cdb = raw_cdb;
   }
   else {
     // set OCDB snapshot mode
     AliCDBManager *cdbm = AliCDBManager::Instance();
     cdbm->SetSnapshotMode("OCDBrec.root");
+    cdb = local_cdb;
   }
 
   if(iCollisionType == kPbPb)
@@ -289,7 +294,7 @@ void AddAnalysisTasks(const char *cdb_location)
     // Request from Annalisa
     if (iCollisionType==kPbPb) taskspdqa->SetHeavyIonMode();
     taskspdqa->SelectCollisionCandidates(kTriggerMask);
-    taskspdqa->SetOCDBInfo(run_number, "raw://");
+    taskspdqa->SetOCDBInfo(run_number, cdb_location);
   }  
   //
   // SDD (F. Prino)
