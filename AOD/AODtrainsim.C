@@ -69,6 +69,10 @@ Bool_t LoadAnalysisLibraries();
 Bool_t LoadLibrary(const char *);
 void ProcessEnvironment();
 TChain *CreateChain();
+
+const Char_t *raw_cdb = "raw://";
+const Char_t *local_cdb = "local://";
+
 const char *cdbPath = "raw://";
 Int_t run_number = 0;
 
@@ -102,14 +106,21 @@ void AODtrainsim(Int_t merge=0)
   if (gSystem->Getenv("CONFIG_OCDB"))
     ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
   if (ocdbConfig.Contains("alien")) {
+    TGrid::Connect("alien://");
+    if (!gGrid || !gGrid->IsConnected()) {
+      ::Error("QAtrain", "No grid connection");
+      return;
+    }
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
     OCDBDefault(1);
+    cdbPath = raw_cdb;
   }
   else {
     // set OCDB snapshot mode
     AliCDBManager *cdbm = AliCDBManager::Instance();
     cdbm->SetSnapshotMode("OCDBrec.root");
+    cdbPath = local_cdb;
   }
 
   if(iCollision == kPbPb)
@@ -117,7 +128,7 @@ void AODtrainsim(Int_t merge=0)
     
   UpdateFlags();
   
-  if (merge || doCDBconnect) {
+  if (merge) {
     TGrid::Connect("alien://");
     if (!gGrid || !gGrid->IsConnected()) {
       ::Error("AODtrainsim", "No grid connection");
