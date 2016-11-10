@@ -42,5 +42,27 @@ void sim()
   /* run */
   sim.Run(nev);
 
+  /* write cross-section */
+  WriteXsection();
+
 }
 
+WriteXsection()
+{
+
+  TPythia6 *pythia = TPythia6::Instance();
+  if (!pythia) return;
+  pythia->Pystat(1);
+  Double_t xsection = pythia->GetPARI(1);
+  UInt_t ntrials = pythia->GetMSTI(5);
+  TFile *file = new TFile("pyxsec.root","recreate");
+  TTree *tree = new TTree("Xsection","Pythia cross section");
+  TBranch *branch = tree->Branch("xsection", &xsection, "X/D");
+  TBranch *branch = tree->Branch("ntrials" , &ntrials , "X/i");
+  tree->Fill();
+  tree->Write();
+  file->Close();
+  cout << "Pythia cross section: " << xsection
+       << ", number of trials: " << ntrials << endl;
+
+}
