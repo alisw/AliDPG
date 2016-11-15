@@ -118,7 +118,7 @@ enum EPythia6Heavy_t {
 AliGenerator *GeneratorCocktail(TString name);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax, Float_t phimin = 0., Float_t phimax = 360.); 
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
-AliGenerator *GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune = 0);
+AliGenerator *GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune = 0, Bool_t HFonly = kTRUE);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
 AliGenerator *GeneratorPythia8Jets(Int_t tune = 0);
 AliGenerator *GeneratorPhojet();
@@ -199,7 +199,7 @@ GeneratorConfig(Int_t tag)
     };
     Int_t iprocess = uidConfig % 2;
     Int_t idecay   = tag - kGeneratorPythia6_Perugia2011_HFhad001;
-    AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], kPythia6Tune_Perugia2011);
+    AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], kPythia6Tune_Perugia2011, kFALSE);
     ctl->AddGenerator(phf, label[iprocess][idecay], 1.);
     printf(">>>>> added HF generator %s \n", label[iprocess][idecay]);
     // add pi0 and eta enhancement
@@ -588,7 +588,7 @@ GeneratorPythia6(Int_t tune, Int_t pdgtrig, Float_t etatrig)
 /*** PYTHIA 6 ****************************************************/
 
 AliGenerator *
-GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune)
+GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune, Bool_t HFonly)
 {
   //
   //
@@ -629,7 +629,8 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune)
     break;
   }
   //  
-  pythia->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
+  if (HFonly)
+    pythia->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
   return pythia;
 }
 
