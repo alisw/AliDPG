@@ -21,7 +21,7 @@ enum EGenerator_t {
   kGeneratorPythia8Jets, 
   kGeneratorPythia8Jets_Monash2013, 
   // Phojet
-  kGeneratorPhojet,
+  kGeneratorPhojet, kGeneratorDpmjet,
   // EPOS-LHC
   kGeneratorEPOSLHC, kGeneratorEPOSLHC_pp, kGeneratorEPOSLHC_PbPb,
   // Hijing
@@ -59,8 +59,8 @@ const Char_t *GeneratorName[kNGenerators] = {
   // Pythia8 jets
   "Pythia8Jets", 
   "Pythia8Jets_Monash2013",
-  // Phijet
-  "Phojet",
+  // Phijet / DPMjet
+  "Phojet", "Dpmjet",
   // EPOS-LHC
   "EPOSLHC", "EPOSLHC_pp", "EPOSLHC_PbPb",
   // Hijing
@@ -256,8 +256,9 @@ GeneratorConfig(Int_t tag)
     gen = GeneratorPythia8Jets(kPythia8Tune_Monash2013);
     break;
     
-    // Phojet
+    // Phojet / DPMjet
   case kGeneratorPhojet:
+  case kGeneratorDpmjet:
     gen = GeneratorPhojet();
     break;
 
@@ -728,7 +729,7 @@ GeneratorPhojet()
   gSystem->Load("libDPMJET");
   gSystem->Load("libTDPMjet");
   //
-  comment = comment.Append(" | Phojet low-pt");
+  comment = comment.Append(" | Phojet/DPMjet low-pt");
   //                                                                                      
   //    DPMJET                                                                            
   AliGenDPMjet* dpmjet = new AliGenDPMjet(-1);
@@ -739,6 +740,26 @@ GeneratorPhojet()
   dpmjet->SetProcess(kDpmMb);
   dpmjet->SetEnergyCMS(energyConfig);
   dpmjet->SetCrossingAngle(0,crossingConfig);
+
+  // projectile-target
+  if (systemConfig.EqualTo("Pb-Pb")) {
+    gener->SetProjectile("A", 208, 82);
+    gener->SetTarget    ("A", 208, 82);
+    gener->SetImpactParameterRange(bminConfig, bmaxConfig);
+  }
+  else if (systemConfig.EqualTo("p-Pb")) {
+    gener->SetProjectile("P", 1, 1);
+    gener->SetTarget    ("A", 208, 82);
+    gener->SetProjectileBeamEnergy(0.5 * energyConfig * TMath::Sqrt(208./82.));
+    gener->SetImpactParameterRange(bminConfig, bmaxConfig);
+  }
+  else if (systemConfig.EqualTo("Pb-p")) {
+    gener->SetProjectile("A", 208, 82);
+    gener->SetTarget    ("P", 1, 1);
+    gener->SetProjectileBeamEnergy(0.5 * energyConfig * TMath::Sqrt(82./208.));
+    gener->SetImpactParameterRange(bminConfig, bmaxConfig);
+  }
+
   return dpmjet;
 }
 
