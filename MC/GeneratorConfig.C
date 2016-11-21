@@ -811,9 +811,24 @@ GeneratorHijing()
   gener->SetImpactParameterRange(bminConfig, bmaxConfig);
   // reference frame
   gener->SetReferenceFrame("CMS");
-  // projectile
-  gener->SetProjectile("A", 208, 82);
-  gener->SetTarget    ("A", 208, 82);
+  // projectile-target
+  if (systemConfig.EqualTo("Pb-Pb")) {
+    gener->SetProjectile("A", 208, 82);
+    gener->SetTarget    ("A", 208, 82);
+    gener->SetSpectators(0);
+  }
+  else if (systemConfig.EqualTo("p-Pb")) {
+    gener->SetProjectile("P", 1, 1);
+    gener->SetTarget    ("A", 208, 82);
+    gener->SetBoostLHC(1);
+    gener->SetSpectators(1);
+  }
+  else if (systemConfig.EqualTo("Pb-p")) {
+    gener->SetProjectile("A", 208, 82);
+    gener->SetTarget    ("P", 1, 1);
+    gener->SetBoostLHC(1);
+    gener->SetSpectators(1);
+  }
   // tell hijing to keep the full parent child chain
   gener->KeepFullEvent();
   // enable jet quenching
@@ -822,8 +837,6 @@ GeneratorHijing()
   gener->SetShadowing(1);
   // neutral pion and heavy particle decays switched off
   gener->SetDecaysOff(1);
-  // Don't track spectators
-  gener->SetSpectators(0);
   // kinematic selection
   gener->SetSelectAll(0);
   gener->SetPtHardMin (2.3);
