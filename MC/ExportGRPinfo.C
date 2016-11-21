@@ -49,12 +49,12 @@ ExportGRPinfo(Int_t run)
     printf("export CONFIG_ENERGY=%.0f\n", grp->GetBeamEnergy() * 2.);
   }
   if (grp->GetBeamType().EqualTo("p-A")) {
-    printf("export CONFIG_SYSTEM=p-Pb\n");
+    printf("export CONFIG_SYSTEM=Pb-p\n");
     printf("export CONFIG_TRIGGER=p-p\n");
     printf("export CONFIG_ENERGY=%.0f\n", grp->GetBeamEnergy() * 2. * TMath::Sqrt(82./208.));
   }
   if (grp->GetBeamType().EqualTo("A-p")) {
-    printf("export CONFIG_SYSTEM=Pb-p\n");
+    printf("export CONFIG_SYSTEM=p-Pb\n");
     printf("export CONFIG_TRIGGER=p-p\n");
     printf("export CONFIG_ENERGY=%.0f\n", grp->GetBeamEnergy() * 2. * TMath::Sqrt(82./208.));
   }
