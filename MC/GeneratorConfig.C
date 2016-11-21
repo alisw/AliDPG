@@ -726,8 +726,8 @@ GeneratorPhojet()
 {
   //
   // Libraries
-  gSystem->Load("libDPMJET");
-  gSystem->Load("libTDPMjet");
+  //  gSystem->Load("libDPMJET");
+  //  gSystem->Load("libTDPMjet");
   //
   comment = comment.Append(" | Phojet/DPMjet low-pt");
   //                                                                                      
@@ -743,21 +743,21 @@ GeneratorPhojet()
 
   // projectile-target
   if (systemConfig.EqualTo("Pb-Pb")) {
-    gener->SetProjectile("A", 208, 82);
-    gener->SetTarget    ("A", 208, 82);
-    gener->SetImpactParameterRange(bminConfig, bmaxConfig);
+    dpmjet->SetProjectile("A", 208, 82);
+    dpmjet->SetTarget    ("A", 208, 82);
+    dpmjet->SetImpactParameterRange(bminConfig, bmaxConfig);
   }
   else if (systemConfig.EqualTo("p-Pb")) {
-    gener->SetProjectile("P", 1, 1);
-    gener->SetTarget    ("A", 208, 82);
-    gener->SetProjectileBeamEnergy(0.5 * energyConfig * TMath::Sqrt(208./82.));
-    gener->SetImpactParameterRange(bminConfig, bmaxConfig);
+    dpmjet->SetProjectile("P", 1, 1);
+    dpmjet->SetTarget    ("A", 208, 82);
+    dpmjet->SetProjectileBeamEnergy(0.5 * energyConfig * TMath::Sqrt(208./82.));
+    dpmjet->SetImpactParameterRange(bminConfig, bmaxConfig);
   }
   else if (systemConfig.EqualTo("Pb-p")) {
-    gener->SetProjectile("A", 208, 82);
-    gener->SetTarget    ("P", 1, 1);
-    gener->SetProjectileBeamEnergy(0.5 * energyConfig * TMath::Sqrt(82./208.));
-    gener->SetImpactParameterRange(bminConfig, bmaxConfig);
+    dpmjet->SetProjectile("A", 208, 82);
+    dpmjet->SetTarget    ("P", 1, 1);
+    dpmjet->SetProjectileBeamEnergy(0.5 * energyConfig * TMath::Sqrt(82./208.));
+    dpmjet->SetImpactParameterRange(bminConfig, bmaxConfig);
   }
 
   return dpmjet;
