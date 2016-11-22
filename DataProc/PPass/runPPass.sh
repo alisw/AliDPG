@@ -125,6 +125,49 @@ echo ""
 
 timeUsed=0
 
+if [ -f raw2clust.C ]; then
+    echo "Use raw2clust.C macro passed as input"
+else
+    echo "Use raw2clust.C macro from AliDPG"
+    cp $ALIDPG_ROOT/DataProc/Common/raw2clust.C .
+fi
+
+if [ -f rec.C ]; then
+    echo "Use rec.C macro passed as input"
+else
+    echo "Use rec.C macro from AliDPG"
+    cp $ALIDPG_ROOT/DataProc/PPass/rec.C .
+fi
+
+if [ -f tag.C ]; then
+    echo "Use tag.C macro passed as input"
+else
+    echo "Use tag.C macro from AliDPG"
+    cp $ALIDPG_ROOT/DataProc/PPass/tag.C .
+fi
+
+if [ -f QAtrain_duo.C ]; then
+    echo "Use QAtrain_duo.C macro passed as input"
+else
+    echo "Use QAtrain_duo.C macro from AliDPG"
+    cp $ALIDPG_ROOT/QA/QAtrain_duo.C .
+fi
+
+if [ -f mergeQAgroups.C ]; then
+    echo "Use mergeQAgroups.C macro passed as input"
+else
+    echo "Use mergeQAgroups.C macro from AliDPG"
+    cp $ALIDPG_ROOT/QA/mergeQAgroups.C .
+fi
+
+if [ -f AODtrain.C ]; then
+    echo "Use AODtrain.C macro passed as input"
+else
+    echo "Use AODtrain.C macro from AliDPG"
+    cp $ALIDPG_ROOT/AOD/AODtrain.C .
+fi
+
+
 # Extraction of TPC clusters
 if [ "$preclusterizeTPC" = "1" ] && [ "$OCDB_SNAPSHOT_CREATE" != "kTRUE" ] && [ -f raw2clust.C ]; then
     echo ""

@@ -173,6 +173,13 @@ echo ""
 timeUsed=0
 
 # Extraction of TPC clusters - only if not in OCDB snapshot mode, and if requested, and if the rawToClust.C macro is there
+if [ -f raw2clust.C ]; then
+    echo "Use raw2clust.C macro passed as input"
+else
+    echo "Use raw2clust.C macro from AliDPG"
+    cp $ALIDPG_ROOT/DataProc/Common/raw2clust.C .
+fi
+
 if [ "$preclusterizeTPC" = "1" ] && [ "$2" != "OCDB" ] && [ -f raw2clust.C ]; then
     echo ""
     echo "running the following raw2clust.C macro:"
@@ -196,6 +203,14 @@ if [ "$preclusterizeTPC" = "1" ] && [ "$2" != "OCDB" ] && [ -f raw2clust.C ]; th
     fi
 # Cleanup after the extraction of TPC clusters
     rm -f galice.root AliESDs.root Run*.root Trigger.root QA.root
+fi
+
+
+if [ -f recCPass0.C ]; then
+    echo "Use recCPass0.C macro passed as input"
+else
+    echo "Use recCPass0.C macro from AliDPG"
+    cp $ALIDPG_ROOT/DataProc/CPass0/recCPass0.C .
 fi
 
 echo ""
@@ -245,6 +260,13 @@ if [ -n "$preclusterizeTPC" ] && [ -f TPC.RecPoints.root ]; then
 fi
 
 echo "* Running AliRoot to make calibration..."
+if [ -f runCalibTrain.C ]; then
+    echo "Use runCalibTrain.C macro passed as input"
+else
+    echo "Use runCalibTrain.C macro from AliDPG"
+    cp $ALIDPG_ROOT/DataProc/CPass0/runCalibTrain.C .
+fi
+
 echo ""
 echo "running the following runCalibTrain.C macro:"
 cat runCalibTrain.C
