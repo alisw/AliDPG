@@ -446,12 +446,19 @@ validateMerging()
 
 copyScripts()
 {
-  [[ ! -f mergeByComponent.C ]] && \
-    cp -f $ALICE_ROOT/PWGPP/CalibMacros/CPass0/mergeByComponent.C $PWD && \
-    echo "taking the default scripts from $ALICE_ROOT"
-  [[ ! -f makeOCDB.C ]] && \
-    cp -f $ALICE_ROOT/PWGPP/CalibMacros/CPass0/makeOCDB.C $PWD && \
-    echo "taking the default scripts from $ALICE_ROOT"
+  if [ -f mergeByComponent.C ]; then
+      echo "Use mergeByComponent.C macro passed as input"
+  else
+      echo "Use mergeByComponent.C macro from AliDPG"
+      cp $ALIDPG_ROOT/DataProc/MergeOutputs/mergeByComponent.C .
+  fi
+
+  if [ -f makeOCDB.C ]; then
+      echo "Use makeOCDB.C macro passed as input"
+  else
+      echo "Use makeOCDB.C macro from AliDPG"
+      cp $ALIDPG_ROOT/DataProc/CPass1/makeOCDB.C .
+  fi
 }
 
 extractFileNamesFromXMLCollection()

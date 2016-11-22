@@ -26,6 +26,13 @@ if [ -z "$TO_MERGE" ]; then
   TO_MERGE="FilterEvents_Trees.root"
 fi
 
+if [ -f merge.C ]; then
+    echo "Use merge.C macro passed as input"
+else
+    echo "Use merge.C macro from AliDPG"
+    cp $ALIDPG_ROOT/DataProc/MergeOutputs/merge.C .
+fi
+
 time aliroot -b -q -x merge.C\(\"$TO_MERGE\"\)
 
 echo "FILESTOCHECK=\"outputs_valid $TO_MERGE\"" | tr ',' ' ' > validation_merge.rc

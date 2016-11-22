@@ -189,6 +189,49 @@ echo "* PATH: $PATH"
 echo "* LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
 echo
 
+if [ -f raw2clust.C ]; then
+    echo "Use raw2clust.C macro passed as input"
+else
+    echo "Use raw2clust.C macro from AliDPG"
+    cp $ALIDPG_ROOT/DataProc/Common/raw2clust.C .
+fi
+
+if [ -f recCPass1.C ]; then
+    echo "Use recCPass1.C macro passed as input"
+else
+    echo "Use recCPass1.C macro from AliDPG"
+    cp $ALIDPG_ROOT/DataProc/CPass1/recCPass1.C .
+fi
+
+if [ -f runCalibTrain.C ]; then
+    echo "Use runCalibTrain.C macro passed as input"
+else
+    echo "Use runCalibTrain.C macro from AliDPG"
+    cp $ALIDPG_ROOT/DataProc/CPass1/runCalibTrain.C .
+fi
+
+if [ -f QAtrain_duo.C ]; then
+    echo "Use QAtrain_duo.C macro passed as input"
+else
+    echo "Use QAtrain_duo.C macro from AliDPG"
+    cp $ALIDPG_ROOT/QA/QAtrain_duo.C .
+fi
+
+if [ -f mergeQAgroups.C ]; then
+    echo "Use mergeQAgroups.C macro passed as input"
+else
+    echo "Use mergeQAgroups.C macro from AliDPG"
+    cp $ALIDPG_ROOT/QA/mergeQAgroups.C .
+fi
+
+if [ -f recCPass1_OuterDet.C ]; then
+    echo "Use recCPass1_OuterDet.C macro passed as input"
+else
+    echo "Use recCPass1_OuterDet.C macro from AliDPG"
+    cp $ALIDPG_ROOT/DataProc/CPass1/recCPass1_OuterDet.C .
+fi
+
+
 if [ "$2" == "OCDB" ]; then
     export OCDB_SNAPSHOT_CREATE="kTRUE"
     export OCDB_SNAPSHOT_FILENAME="OCDB.root"
