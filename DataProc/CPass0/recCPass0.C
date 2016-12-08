@@ -60,8 +60,10 @@ void recCPass0(const char *filename="raw.root",Int_t nevents=-1, const char *ocd
   AliReconstruction rec;
   //
   // do we extract the TPC recpoints in advance
-  Bool_t noTPCLocalRec = gSystem->Getenv("preclusterizeTPC")!=NULL;
-  if (noTPCLocalRec) printf("TPC local reconstruction assumed to be already done\n");
+  Int_t preclustTPC = TString(gSystem->Getenv("preclusterizeTPC")).Atoi();
+  Bool_t noTPCLocalRec = preclustTPC==1;
+  if (noTPCLocalRec) printf("preclustTPC = %d: TPC local reconstruction assumed to be already done\n", preclustTPC);
+  else printf("preclustTPC = %d: TPC local reconstruction assumed to NOT be already done\n", preclustTPC);
   //
   if (gSystem->Getenv("disableOuter")!=NULL){
     TString disOuter = gSystem->Getenv("disableOuter");
