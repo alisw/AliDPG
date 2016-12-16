@@ -2,11 +2,11 @@
 When running in local mode, you need
 to write a file containing, for example:
 
-export ALIEN_JDL_LPMInteractionType=pp
-export ALIEN_JDL_LPMAnchorYear=2015
-export ALIEN_JDL_LPMProductionTag=LHC15n
-export ALIEN_JDL_LPMRunNumber=244628
-export ALIEN_JDL_LPMRAWPassID=2
+export ALIEN_JDL_LPMINTERACTIONTYPE=pp
+export ALIEN_JDL_LPMANCHORYEAR=2015
+export ALIEN_JDL_LPMPRODUCTIONTAG=LHC15n
+export ALIEN_JDL_LPMRUNNUMBER=244628
+export ALIEN_JDL_LPMRAWPASSID=2
 
 then source the same file
 ******************************************/
@@ -240,7 +240,7 @@ void AddAnalysisTasks(const char *cdb_location)
     if (!taskCDB) return;
     AliCDBManager *cdb = AliCDBManager::Instance();
     cdb->SetDefaultStorage(cdb_location);
-//    taskCDB->SetRunNumber(run_number);
+//    taskCDB->SetRUNNUMBER(run_number);
   }    
  
    if (usePhysicsSelection) {
@@ -483,10 +483,10 @@ void ProcessEnvironment()
   //
   // Collision system configuration
   //
-  if(gSystem->Getenv("ALIEN_JDL_LPMInteractionType"))
+  if(gSystem->Getenv("ALIEN_JDL_LPMINTERACTIONTYPE"))
   {
     for (Int_t icoll = 0; icoll < kNSystem; icoll++)
-      if (strcmp(gSystem->Getenv("ALIEN_JDL_LPMInteractionType"), CollisionSystem[icoll]) == 0) 
+      if (strcmp(gSystem->Getenv("ALIEN_JDL_LPMINTERACTIONTYPE"), CollisionSystem[icoll]) == 0) 
       {
         iCollision = icoll;
 
@@ -500,16 +500,16 @@ void ProcessEnvironment()
   else
     if(!localRunning)
     {
-      printf(">>>>> Unknown collision system configuration ALIEN_JDL_LPMInteractionType \n");
+      printf(">>>>> Unknown collision system configuration ALIEN_JDL_LPMINTERACTIONTYPE \n");
       abort();
     }
 
   //
   // Run flag configuration
   //
-  if(gSystem->Getenv("ALIEN_JDL_LPMAnchorYear"))
+  if(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"))
   {
-    Int_t year = atoi(gSystem->Getenv("ALIEN_JDL_LPMAnchorYear"));
+    Int_t year = atoi(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"));
 
     if(year<2015)
       run_flag =1100;
@@ -525,28 +525,28 @@ void ProcessEnvironment()
   else
     if(!localRunning)
     {
-      printf(">>>>> Unknown anchor year system configuration ALIEN_JDL_LPMAnchorYear \n");
+      printf(">>>>> Unknown anchor year system configuration ALIEN_JDL_LPMANCHORYEAR \n");
       abort();
     }
     
-  if(gSystem->Getenv("ALIEN_JDL_LPMProductionTag"))
-    periodName = gSystem->Getenv("ALIEN_JDL_LPMProductionTag");
+  if(gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG"))
+    periodName = gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG");
   else
     if(!localRunning)
     {
-      printf(">>>>> Unknown production tag configuration ALIEN_JDL_LPMProductionTag \n");
+      printf(">>>>> Unknown production tag configuration ALIEN_JDL_LPMPRODUCTIONTAG \n");
       abort();
     }
 
   //
   // Run number
   //
-  if (gSystem->Getenv("ALIEN_JDL_LPMRunNumber"))
-    run_number = atoi(gSystem->Getenv("ALIEN_JDL_LPMRunNumber"));
+  if (gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER"))
+    run_number = atoi(gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER"));
   else
     if(!localRunning)
     {
-      printf(">>>>> Unknown run number ALIEN_JDL_LPMRunNumber \n");
+      printf(">>>>> Unknown run number ALIEN_JDL_LPMRUNNUMBER \n");
       abort();
     }
   if (run_number <= 0)
@@ -555,9 +555,9 @@ void ProcessEnvironment()
   //
   // Setting this to kTRUE will disable some not needed analysis tasks for a muon_calo pass
   //
-  if (gSystem->Getenv("ALIEN_JDL_LPMRAWPassID"))
+  if (gSystem->Getenv("ALIEN_JDL_LPMRAWPASSID"))
   {
-    Int_t passNo = atoi(gSystem->Getenv("ALIEN_JDL_LPMRAWPassID"));
+    Int_t passNo = atoi(gSystem->Getenv("ALIEN_JDL_LPMRAWPASSID"));
     if (passNo == 5) // hard-coded, check for all possible values
       isMuonCaloPass = kTRUE;
     else
@@ -566,7 +566,7 @@ void ProcessEnvironment()
   else
     if(!localRunning)
     {
-      printf(">>>>> Unknown pass id ALIEN_JDL_LPMRAWPassID \n");
+      printf(">>>>> Unknown pass id ALIEN_JDL_LPMRAWPASSID \n");
       abort();
     }
 }
