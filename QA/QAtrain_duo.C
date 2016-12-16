@@ -31,10 +31,10 @@
 When running in local mode, you need
 to write a file containing, for example
 
-export ALIEN_JDL_LPMInteractionType=pp
-export ALIEN_JDL_LPMAnchorYear=2015
-export ALIEN_JDL_LPMProductionTag=LHC15n
-export ALIEN_JDL_LPMRunNumber=244628
+export ALIEN_JDL_LPMINTERACTIONTYPE=pp
+export ALIEN_JDL_LPMANCHORYEAR=2015
+export ALIEN_JDL_LPMPRODUCTIONTAG=LHC15n
+export ALIEN_JDL_LPMRUNNUMBER=244628
 export ALIEN_JDL_LPMRAWPassID=2
 
 then source it
@@ -216,7 +216,7 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     if (!taskCDB) return;
 //    AliCDBManager *cdb = AliCDBManager::Instance();
 //    cdb->SetDefaultStorage(cdb_location);
-//    taskCDB->SetRunNumber(run_number);
+//    taskCDB->SetRUNNUMBER(run_number);
   }    
   
   //
@@ -679,10 +679,10 @@ void ProcessEnvironmentVars()
   //
   // Collision system configuration
   //
-  if(gSystem->Getenv("ALIEN_JDL_LPMInteractionType"))
+  if(gSystem->Getenv("ALIEN_JDL_LPMINTERACTIONTYPE"))
   {
     for (Int_t icoll = 0; icoll < kNSystem; icoll++)
-      if (strcmp(gSystem->Getenv("ALIEN_JDL_LPMInteractionType"), CollisionSystem[icoll]) == 0) 
+      if (strcmp(gSystem->Getenv("ALIEN_JDL_LPMINTERACTIONTYPE"), CollisionSystem[icoll]) == 0) 
       {
         iCollisionType = icoll;
 
@@ -700,19 +700,19 @@ void ProcessEnvironmentVars()
   else
     if(!localRunning)
     {
-      printf(">>>>> Unknown collision system configuration ALIEN_JDL_LPMInteractionType \n");
+      printf(">>>>> Unknown collision system configuration ALIEN_JDL_LPMINTERACTIONTYPE \n");
       abort();
     }
 
   //
   // Run number
   //
-  if (gSystem->Getenv("ALIEN_JDL_LPMRunNumber"))
-    run_number = atoi(gSystem->Getenv("ALIEN_JDL_LPMRunNumber"));
+  if (gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER"))
+    run_number = atoi(gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER"));
   else
     if(!localRunning)
     {
-      printf(">>>>> Unknown run number configuration ALIEN_JDL_LPMRunNumber \n");
+      printf(">>>>> Unknown run number configuration ALIEN_JDL_LPMRUNNUMBER \n");
       abort();
     }
   if (run_number <= 0)
