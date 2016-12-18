@@ -152,7 +152,7 @@ void makeOCDB(Int_t runNumber, TString  targetOCDBstorage="", TString sourceOCDB
       procesTPC->SetMinTracksVdrift(100000);
     }else{
       procesTPC->SetMinTracksVdrift(10000);
-      if(LHCperiod.Contains("LHC16") procesTPC->SetMaxVDriftCorr(0.2); 
+      if(LHCperiod.Contains("LHC16")) procesTPC->SetMaxVDriftCorr(0.2); 
     }
     procesTPC->SwitchOnValidation();
 
