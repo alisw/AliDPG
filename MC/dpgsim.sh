@@ -420,6 +420,11 @@ if [[ $OVERRIDE_TRIGGER != "" ]]; then
     export CONFIG_TRIGGER=$OVERRIDE_TRIGGER
 fi
 
+### check if custom trigger configuration file Custom.cfg is present
+if [ $CONFIG_TRIGGER = "Custom.cfg" ] && [ ! -f Custom.cfg ]; then
+    echo "Custom.cfg trigger configuration requested, file not present"
+    exit 1
+fi
 
 ##########################################
 

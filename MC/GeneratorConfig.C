@@ -85,13 +85,15 @@ enum ETrigger_t {
   kTriggerDefault,
   kTriggerPP,
   kTriggerPbPb,
+  kTriggerCustom,
   kNTriggers
 };
 
 const Char_t *TriggerName[kNTriggers] = {
   "ocdb",
   "p-p",
-  "Pb-Pb"
+  "Pb-Pb",
+  "Custom.cfg"
 };
 
 enum EPythia6Tune_t {
