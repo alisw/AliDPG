@@ -60,10 +60,22 @@ void recCPass1(const char *filename="raw.root",Int_t nevents=-1, const char *ocd
   if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {        
     rec.SetCDBSnapshotMode("OCDB.root");
   }
-
-  if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists)==0) {        
-    gROOT->LoadMacro("localOCDBaccessConfig.C");
-    localOCDBaccessConfig();
+  else {
+    // setup ocdb by custom (if any) or default settings
+    if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists)==0) {        
+      gROOT->LoadMacro("localOCDBaccessConfig.C");
+      localOCDBaccessConfig();
+    }
+    }else { // default settings
+      AliCDBManager* man = AliCDBManager::Instance();
+      man->SetRaw(kTRUE);
+    }
+    TString cdbMode = gSystem->Getenv("OCDB_SNAPSHOT_CREATE");
+    if (cdbMode == "kTRUE") {
+      gROOT->LoadMacro("$ALIDPG_ROOT/MC/CreateSnapshot.C");
+      CreateSnapshot("OCDB.root",filename);
+      return;
+    }
   }
 
   // All friends
