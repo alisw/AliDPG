@@ -11,6 +11,8 @@
 
 void recCPass1(const char *filename="raw.root",Int_t nevents=-1, const char *ocdb="raw://", const char* options="?Trigger=kCalibBarrelMB")
 {
+  Printf("filename = %s", filename);
+  return;
   if (gSystem->Getenv("ALIROOT_FORCE_COREDUMP"))
   {
     printf("ALIROOT_FORCE_COREDUMP set\n");
@@ -65,7 +67,6 @@ void recCPass1(const char *filename="raw.root",Int_t nevents=-1, const char *ocd
     if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists)==0) {        
       gROOT->LoadMacro("localOCDBaccessConfig.C");
       localOCDBaccessConfig();
-    }
     }else { // default settings
       AliCDBManager* man = AliCDBManager::Instance();
       man->SetRaw(kTRUE);
