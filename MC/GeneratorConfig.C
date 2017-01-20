@@ -21,7 +21,7 @@ enum EGenerator_t {
   kGeneratorPythia8Jets, 
   kGeneratorPythia8Jets_Monash2013, 
   // Phojet
-  kGeneratorPhojet,
+  kGeneratorPhojet, kGeneratorDpmjet,
   // EPOS-LHC
   kGeneratorEPOSLHC, kGeneratorEPOSLHC_pp, kGeneratorEPOSLHC_PbPb,
   // Hijing
@@ -59,8 +59,8 @@ const Char_t *GeneratorName[kNGenerators] = {
   // Pythia8 jets
   "Pythia8Jets", 
   "Pythia8Jets_Monash2013",
-  // Phijet
-  "Phojet",
+  // Phijet / DPMjet
+  "Phojet", "Dpmjet",
   // EPOS-LHC
   "EPOSLHC", "EPOSLHC_pp", "EPOSLHC_PbPb",
   // Hijing
@@ -258,8 +258,9 @@ GeneratorConfig(Int_t tag)
     gen = GeneratorPythia8Jets(kPythia8Tune_Monash2013);
     break;
     
-    // Phojet
+    // Phojet / DPMjet
   case kGeneratorPhojet:
+  case kGeneratorDpmjet:
     gen = GeneratorPhojet();
     break;
 
@@ -727,10 +728,10 @@ GeneratorPhojet()
 {
   //
   // Libraries
-  gSystem->Load("libDPMJET");
-  gSystem->Load("libTDPMjet");
+  //  gSystem->Load("libDPMJET");
+  //  gSystem->Load("libTDPMjet");
   //
-  comment = comment.Append(" | Phojet low-pt");
+  comment = comment.Append(" | Phojet/DPMjet low-pt");
   //                                                                                      
   //    DPMJET                                                                            
   AliGenDPMjet* dpmjet = new AliGenDPMjet(-1);
@@ -741,6 +742,26 @@ GeneratorPhojet()
   dpmjet->SetProcess(kDpmMb);
   dpmjet->SetEnergyCMS(energyConfig);
   dpmjet->SetCrossingAngle(0,crossingConfig);
+
+  // projectile-target
+  if (systemConfig.EqualTo("Pb-Pb")) {
+    dpmjet->SetProjectile("A", 208, 82);
+    dpmjet->SetTarget    ("A", 208, 82);
+    dpmjet->SetImpactParameterRange(bminConfig, bmaxConfig);
+  }
+  else if (systemConfig.EqualTo("p-Pb")) {
+    dpmjet->SetProjectile("P", 1, 1);
+    dpmjet->SetTarget    ("A", 208, 82);
+    dpmjet->SetProjectileBeamEnergy(0.5 * energyConfig * TMath::Sqrt(208./82.));
+    dpmjet->SetImpactParameterRange(bminConfig, bmaxConfig);
+  }
+  else if (systemConfig.EqualTo("Pb-p")) {
+    dpmjet->SetProjectile("A", 208, 82);
+    dpmjet->SetTarget    ("P", 1, 1);
+    dpmjet->SetProjectileBeamEnergy(0.5 * energyConfig * TMath::Sqrt(82./208.));
+    dpmjet->SetImpactParameterRange(bminConfig, bmaxConfig);
+  }
+
   return dpmjet;
 }
 
@@ -770,6 +791,20 @@ GeneratorEPOSLHC()
     targetId = projectileId;
     projectileEnergy = energyConfig / 2.;
     targetEnergy = energyConfig / 2.;
+  }
+  // pPb
+  else if (systemConfig.EqualTo("p-Pb")) {
+    projectileId = 2212;
+    targetId = 82*10000 + 208*10;
+    projectileEnergy = 0.5 * energyConfig * TMath::Sqrt(208./82.);
+    targetEnergy = 0.5 * energyConfig * TMath::Sqrt(82./208.);
+  }
+  // Pbp
+  else if (systemConfig.EqualTo("Pb-p")) {
+    projectileId = 82*10000 + 208*10;
+    targetId = 2212;
+    projectileEnergy = 0.5 * energyConfig * TMath::Sqrt(82./208.);
+    targetEnergy = 0.5 * energyConfig * TMath::Sqrt(208./82.);
   }
   // not implemented
   else {
@@ -813,9 +848,24 @@ GeneratorHijing()
   gener->SetImpactParameterRange(bminConfig, bmaxConfig);
   // reference frame
   gener->SetReferenceFrame("CMS");
-  // projectile
-  gener->SetProjectile("A", 208, 82);
-  gener->SetTarget    ("A", 208, 82);
+  // projectile-target
+  if (systemConfig.EqualTo("Pb-Pb")) {
+    gener->SetProjectile("A", 208, 82);
+    gener->SetTarget    ("A", 208, 82);
+    gener->SetSpectators(0);
+  }
+  else if (systemConfig.EqualTo("p-Pb")) {
+    gener->SetProjectile("P", 1, 1);
+    gener->SetTarget    ("A", 208, 82);
+    gener->SetBoostLHC(1);
+    gener->SetSpectators(1);
+  }
+  else if (systemConfig.EqualTo("Pb-p")) {
+    gener->SetProjectile("A", 208, 82);
+    gener->SetTarget    ("P", 1, 1);
+    gener->SetBoostLHC(1);
+    gener->SetSpectators(1);
+  }
   // tell hijing to keep the full parent child chain
   gener->KeepFullEvent();
   // enable jet quenching
@@ -824,8 +874,6 @@ GeneratorHijing()
   gener->SetShadowing(1);
   // neutral pion and heavy particle decays switched off
   gener->SetDecaysOff(1);
-  // Don't track spectators
-  gener->SetSpectators(0);
   // kinematic selection
   gener->SetSelectAll(0);
   gener->SetPtHardMin (2.3);
