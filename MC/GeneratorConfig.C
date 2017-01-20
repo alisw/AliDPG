@@ -790,6 +790,20 @@ GeneratorEPOSLHC()
     projectileEnergy = energyConfig / 2.;
     targetEnergy = energyConfig / 2.;
   }
+  // pPb
+  else if (systemConfig.EqualTo("p-Pb")) {
+    projectileId = 2212;
+    targetId = 82*10000 + 208*10;
+    projectileEnergy = 0.5 * energyConfig * TMath::Sqrt(208./82.);
+    targetEnergy = 0.5 * energyConfig * TMath::Sqrt(82./208.);
+  }
+  // Pbp
+  else if (systemConfig.EqualTo("Pb-p")) {
+    projectileId = 82*10000 + 208*10;
+    targetId = 2212;
+    projectileEnergy = 0.5 * energyConfig * TMath::Sqrt(82./208.);
+    targetEnergy = 0.5 * energyConfig * TMath::Sqrt(208./82.);
+  }
   // not implemented
   else {
     printf("EPOSLHC not implemented for %s system\n", systemConfig.Data());
