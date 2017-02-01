@@ -99,8 +99,8 @@ echo sourcing alilog4bash.sh
 source $ALICE_PHYSICS/PWGPP/scripts/alilog4bash.sh  
 
 loadLibMacro="$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/LoadLibraries.C"
-inclMacro="$ALICE_PHYSICS/PWGPP/TPC/CalibMacros/includeMacro.C"
-macroName="$ALICE_PHYSICS/PWGPP/TPC/CalibMacros/procResidData.C"
+inclMacro="$ALIDPG_ROOT/DataProc/TPCSPCalibration/includeMacro.C"
+macroName="$ALIDPG_ROOT/DataProc/TPCSPCalibration/procResidData.C"
 
 extractEnvVars
 

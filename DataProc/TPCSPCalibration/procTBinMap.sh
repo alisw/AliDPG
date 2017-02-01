@@ -55,6 +55,9 @@ extractEnvVars()
     # number of tracks for closure test, hardly will be done of the grid
     export distNTracksClosureTest=${ALIEN_JDL_DISTNTRACKSCLOSURETEST-$distNTracksClosureTest}
     #
+    # extract correction map for MC (must be undefined or "true" or "false"
+    export distCreateDistortion=${ALIEN_JDL_DISTCREATEDISTORTION-$distCreateDistortion}
+    
     echo ""
     echo "Listing all env.vars"
     printenv
@@ -83,8 +86,8 @@ export distNTracksClosureTest
 if [[ $# -gt 3 ]] ; then distNTracksClosureTest=$4 ;fi
 
 loadLibMacro="$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/LoadLibraries.C"
-inclMacro="$ALICE_PHYSICS/PWGPP/TPC/CalibMacros/includeMacro.C"
-macroName="$ALICE_PHYSICS/PWGPP/TPC/CalibMacros/procResidData.C"
+inclMacro="$ALIDPG_ROOT/DataProc/TPCSPCalibration/includeMacro.C"
+macroName="$ALIDPG_ROOT/DataProc/TPCSPCalibration/procResidData.C"
 locMacro=$(basename "$macroName")
 [[ ! -f "$locMacro" ]] && cp $macroName ./
 [[ ! -f "$locMacro" ]] && echo "did not find $locMacro" && exit 1
