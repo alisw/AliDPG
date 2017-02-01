@@ -30,6 +30,7 @@ static Float_t pthardminConfig = 0.;        // pt-hard min
 static Float_t pthardmaxConfig = -1.;       // pt-hard max
 static Int_t   quenchingConfig = 0;         // quenching
 static Float_t qhatConfig      = 1.7;       // q-hat
+static Bool_t  isGeant4        = kFALSE;    // geant4 flag
 
 /*****************************************************************/
 
@@ -63,19 +64,26 @@ Config()
   printf(">>>>>            q-hat: %f \n", qhatConfig);
   printf(">>>>>   crossing angle: %f \n", crossingConfig);
   printf(">>>>>      random seed: %d \n", seedConfig);
+  printf(">>>>>           geant4: %d \n", isGeant4);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
 
   /* load libraries */
   LoadLibraries();
 
-  /* setup geant */
-  new TGeant3TGeo("C++ Interface to Geant3");
+  /* setup geant3 */
+  if (!isGeant4) new TGeant3TGeo("C++ Interface to Geant3");
 
   /* create galice.root */
   CreateGAlice();
 
   /* configure detector */
   DetectorConfig(detectorConfig);
+
+  /* configure Geant4 if requested */
+  if (isGeant4) {
+    gROOT->LoadMacro("$ALIDPG_ROOT/MC/Geant4Config.C");
+    Geant4Config();
+  }
 
   /* configure MC generator */
   GeneratorConfig(generatorConfig);
@@ -237,6 +245,11 @@ ProcessEnvironment()
   uidConfig = 1;
   if (gSystem->Getenv("CONFIG_UID"))
     uidConfig = atoi(gSystem->Getenv("CONFIG_UID"));
+  
+  // Geant4 configuration
+  isGeant4 = kFALSE;
+  if (gSystem->Getenv("CONFIG_GEANT4"))
+    isGeant4 = kTRUE;
   
 }
 
