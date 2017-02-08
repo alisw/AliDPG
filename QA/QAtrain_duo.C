@@ -35,7 +35,7 @@ export ALIEN_JDL_LPMINTERACTIONTYPE=pp
 export ALIEN_JDL_LPMANCHORYEAR=2015
 export ALIEN_JDL_LPMPRODUCTIONTAG=LHC15n
 export ALIEN_JDL_LPMRUNNUMBER=244628
-export ALIEN_JDL_LPMRAWPassID=2
+export ALIEN_JDL_LPMRAWPASSID=2
 
 then source it
 ******************************************/
@@ -45,6 +45,7 @@ enum ECOLLISIONSYSTEM_t
     kpp,
     kPbPb,
     kpA,
+    kAp,
     kNSystem
 };
 
@@ -53,6 +54,7 @@ const Char_t* CollisionSystem[kNSystem] =
     "pp",
     "PbPb",
     "pA",
+    "Ap"
 };
 
 void AddAnalysisTasks(const char *, const char *); 
@@ -64,13 +66,13 @@ Bool_t CheckEnvS(const char* var,TString& envString);
 Int_t iCollisionType = 0; // 0=pp, 1=PbPb
 // Trigger mask.
 
+UInt_t kTriggerInt;
 
-UInt_t kTriggerInt = AliVEvent::kINT7 | AliVEvent::kINT8;
 UInt_t kTriggerMuonBarrel = AliVEvent::kMUU7 | AliVEvent::kMuonUnlikeLowPt8 | AliVEvent::kMuonUnlikeLowPt0;
 UInt_t kTriggerEMC   = AliVEvent::kEMC7 | AliVEvent::kEMC8 | AliVEvent::kEMCEJE | AliVEvent::kEMCEGA;
 UInt_t kTriggerHM   = AliVEvent::kHighMult;
 // Main trigger mask used:
-UInt_t kTriggerMask = kTriggerInt;
+UInt_t kTriggerMask;
 //UInt_t kTriggerMask = 0;
 
 Bool_t localRunning = kFALSE; // Missing environment vars will cause a crash; change it to kTRUE if running locally w/o env vars
@@ -132,6 +134,8 @@ void QAtrain_duo(const char *suffix="", Int_t run = 0,
   Bool_t ibarrel = (ss.Contains("barrel"))?kTRUE:kFALSE;
 
   ProcessEnvironmentVars();
+  
+  kTriggerMask = kTriggerInt;
   
   PrintSettings();
 
@@ -216,7 +220,7 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     if (!taskCDB) return;
 //    AliCDBManager *cdb = AliCDBManager::Instance();
 //    cdb->SetDefaultStorage(cdb_location);
-//    taskCDB->SetRUNNUMBER(run_number);
+//    taskCDB->SetRunNumber(run_number);
   }    
   
   //
@@ -498,8 +502,8 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     else 
       taskmuonqa = AddTaskMuonQA(kFALSE); 
 
-//    taskmuonqa->GetTrackCuts()->SetCustomParamFromRun(160000,2);
-  }  
+    // taskmuonqa->GetTrackCuts()->SetCustomParamFromRun(160000,2);
+  }
   //
   // TOF (Francesca Bellini)
   // 
@@ -686,7 +690,7 @@ void ProcessEnvironmentVars()
       {
         iCollisionType = icoll;
 
-        if(icoll == kpA)
+        if(icoll == kpA || icoll == kAp)
             iCollisionType =kpp;
 
         break;
@@ -718,6 +722,23 @@ void ProcessEnvironmentVars()
   if (run_number <= 0)
     printf(">>>>> Invalid run number: %d \n", run_number);
 
+  //
+  // TriggerInt configuration
+  //
+  if(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"))
+  {
+    Int_t year = atoi(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"));
+    if(year <= 2015) 
+      kTriggerInt = AliVEvent::kAnyINT;
+    else // 2016
+      kTriggerInt=  AliVEvent::kINT7 | AliVEvent::kINT8;
+  }
+  else
+    if(!localRunning)
+    {
+      printf(">>>>> Unknown year for configuration ALIEN_JDL_LPMANCHORYEAR \n");
+      abort();
+    }
 
   int var=0;
   TString envS;
@@ -1099,6 +1120,10 @@ void PrintSettings()
   printf("   * System:         %d\n", iCollisionType);
   printf("   * Run number:     %d\n", run_number);
   printf("   * Centrality:     %d\n", doCentrality);
+  printf("   * TriggerInt:     %d\n", kTriggerInt);
+  printf("   * TriggerMask:    %d\n", kTriggerMask);
   printf("   * \n");
+  printf("   **********************************\n");
+  gSystem->Exec("set");
   printf("   **********************************\n\n");
 }
