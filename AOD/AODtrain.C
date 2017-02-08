@@ -62,6 +62,7 @@ enum ECOLLISIONSYSTEM_t
     kpp,
     kPbPb,
     kpA,
+    kAp,
     kNSystem
 };
 
@@ -70,6 +71,7 @@ const Char_t* CollisionSystem[kNSystem] =
     "pp",
     "PbPb",
     "pA",
+    "Ap"
 };
 
 // Temporaries.
@@ -236,11 +238,11 @@ void AddAnalysisTasks(const char *cdb_location)
   //
   if (doCDBconnect && !useTender) {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/PilotTrain/AddTaskCDBconnect.C");
-    AliTaskCDBconnect *taskCDB = AddTaskCDBconnect(cdb_location, run_number);
+    AliTaskCDBconnect *taskCDB = AddTaskCDBconnect(cdb_location, 0 /*run_number*/);
     if (!taskCDB) return;
     AliCDBManager *cdb = AliCDBManager::Instance();
     cdb->SetDefaultStorage(cdb_location);
-//    taskCDB->SetRUNNUMBER(run_number);
+//    taskCDB->SetRunNumber(run_number);
   }    
  
    if (usePhysicsSelection) {
@@ -490,7 +492,7 @@ void ProcessEnvironment()
       {
         iCollision = icoll;
 
-        if(icoll == kpA)
+        if(icoll == kpA || icoll == kAp)
             iCollision =kpp;
       }
 
@@ -558,7 +560,7 @@ void ProcessEnvironment()
   if (gSystem->Getenv("ALIEN_JDL_LPMRAWPASSID"))
   {
     Int_t passNo = atoi(gSystem->Getenv("ALIEN_JDL_LPMRAWPASSID"));
-    if (passNo == 5) // hard-coded, check for all possible values
+    if (passNo == 5 || passNo == 15) // hard-coded, check for all possible values
       isMuonCaloPass = kTRUE;
     else
       isMuonCaloPass = kFALSE;
@@ -583,5 +585,7 @@ void PrintSettings()
   printf("   * Muon calo pass: %d\n", isMuonCaloPass);
   printf("   * Centrality:     %d\n", useCentrality);
   printf("   * \n");
+  printf("   **********************************\n");
+  gSystem->Exec("set");
   printf("   **********************************\n\n");
 }
