@@ -162,7 +162,8 @@ void makeOCDB(Int_t runNumber, TString  targetOCDBstorage="", TString sourceOCDB
     if (isMagFieldON) procesTPC->CalibTimeGain("CalibObjects.root", runNumber, runNumber, targetStorage, residualStorage);
 
     // ---| Make vdrift calibration |-------------------------------------------
-    procesTPC->CalibTimeVdrift("CalibObjects.root",runNumber, runNumber, residualStorage);
+    // ---| Disabling: now the vdrift is done in the TPC SP calibration process (but the input is still available in the CalibObjects.root file, if needed
+    // procesTPC->CalibTimeVdrift("CalibObjects.root",runNumber, runNumber, residualStorage);
   }
   else {
     Printf("\n******* NOT Calibrating TPC: detStr = %s, TPC_qf = %d *******", detStr.Data(), (Int_t)TPC_qf);
