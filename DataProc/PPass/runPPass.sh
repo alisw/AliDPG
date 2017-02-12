@@ -82,7 +82,7 @@ echo runstripped is $runstripped
 
 # run TPC clusterization in separate process before reconstruction
 export preclusterizeTPC='0'
-if [ "$runstripped" -ge 244917 ] && [ "$runstripped" -le 246994 ]; then
+if [ "$pass_type" == "ppass" ] && [ "$runstripped" -ge 244917 ] && [ "$runstripped" -le 246994 ]; then
  preclusterizeTPC='1'
 fi
 
@@ -136,7 +136,14 @@ if [ -f rec.C ]; then
     echo "Use rec.C macro passed as input"
 else
     echo "Use rec.C macro from AliDPG"
-    cp $ALIDPG_ROOT/DataProc/PPass/rec.C .
+    echo "Pass type = $pass_type"
+    if [ "$pass_type" == "ppass" ]; then
+	echo "Pass type = ppass"
+	cp $ALIDPG_ROOT/DataProc/PPass/rec.C .
+    else
+	echo "Pass type = muon_calo"
+	cp $ALIDPG_ROOT/DataProc/muon_calo/rec.C .
+    fi
 fi
 
 if [ -f tag.C ]; then
@@ -169,7 +176,7 @@ fi
 
 
 # Extraction of TPC clusters
-if [ "$preclusterizeTPC" = "1" ] && [ "$OCDB_SNAPSHOT_CREATE" != "kTRUE" ] && [ -f raw2clust.C ]; then
+if [ "$pass_type" == "ppass" ] && [ "$preclusterizeTPC" = "1" ] && [ "$OCDB_SNAPSHOT_CREATE" != "kTRUE" ] && [ -f raw2clust.C ]; then
     echo ""
     echo "running the following raw2clust.C macro:"
     cat raw2clust.C
@@ -236,7 +243,7 @@ if [ "$OCDB_SNAPSHOT_CREATE" == "kTRUE" ]; then
     exit 0
 fi
 
-if [ -n "$preclusterizeTPC" ] && [ -f TPC.RecPoints.root ]; then
+if [ "$pass_type" == "ppass" ] && [ -n "$preclusterizeTPC" ] && [ -f TPC.RecPoints.root ]; then
 # clean TPC recpoints
     echo "Removing preproduced TPC recpoints"
     rm TPC.RecPoints.root
