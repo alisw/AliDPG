@@ -12,7 +12,6 @@
 void recCPass1(const char *filename="raw.root",Int_t nevents=-1, const char *ocdb="raw://", const char* options="?Trigger=kCalibBarrelMB")
 {
   Printf("filename = %s", filename);
-  return;
   if (gSystem->Getenv("ALIROOT_FORCE_COREDUMP"))
   {
     printf("ALIROOT_FORCE_COREDUMP set\n");
