@@ -489,6 +489,17 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
        taskimpparres= AddTaskImpParRes(kFALSE,-1,kFALSE,kFALSE);
     }
     taskimpparres->SelectCollisionCandidates(kTriggerMask);
+
+    gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskImpParResSparse.C");
+    AliAnalysisTaskSEImpParResSparse* taskimpparressp=0;
+    if(iCollisionType==0) {
+      taskimpparressp = AddTaskImpParResSparse(kFALSE,-1,kTRUE,kTRUE,0,1000000,1,"withSparse");
+      taskimpparressp->SetUsePtWeights(1,1.);
+    } else {
+      taskimpparressp = AddTaskImpParResSparse(kFALSE,-1,kFALSE,kFALSE,0,1000000,1,"withSparse");
+      taskimpparressp->SetUsePtWeights(3,1.);
+    }
+    taskimpparressp->SelectCollisionCandidates(kTriggerMask);
   }  
   //
   // MUON QA (Philippe Pillot)
