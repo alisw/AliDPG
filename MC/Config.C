@@ -247,7 +247,13 @@ LoadLibraries()
 {
   gSystem->Load("liblhapdf");
   gSystem->Load("libEGPythia6");
-  gSystem->Load("libpythia6_4_25");
+  // Phojet/DPMjet with PYTHIA 6.2.14
+  if (generatorConfig == kGeneratorPhojet || generatorConfig == kGeneratorDpmjet) {
+    gSystem->Load("libpythia6");
+  }
+  else { 
+    gSystem->Load("libpythia6_4_25");
+  }
   gSystem->Load("libAliPythia6");
   // hack to make Phojet/DPMjet work
   if (generatorConfig == kGeneratorPhojet || generatorConfig == kGeneratorDpmjet) {
