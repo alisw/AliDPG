@@ -121,6 +121,7 @@ CONFIG_AOD=""
 CONFIG_MODE="ocdb,full"
 CONFIG_OCDB="snapshot"
 CONFIG_HLT="auto"
+CONFIG_GEANT4="off"
 
 RUNMODE=""
 
@@ -241,6 +242,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--hlt" ]; then
         CONFIG_HLT="$1"
 	export CONFIG_HLT
+        shift 
+    elif [ "$option" = "--geant4" ]; then
+        CONFIG_GEANT4="on"
+	export CONFIG_GEANT4
         shift 
 #    elif [ "$option" = "--sdd" ]; then
 #        RUNMODE="SDD"
@@ -451,6 +456,7 @@ echo "MC seed.......... $CONFIG_SEED"
 #echo "MC seed.......... $CONFIG_SEED (based on $CONFIG_SEED_BASED)"
 echo "============================================"
 echo "Detector......... $CONFIG_DETECTOR"
+echo "GEANT4........... $CONFIG_GEANT4"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
 echo "System........... $CONFIG_SYSTEM"

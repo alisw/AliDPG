@@ -754,12 +754,18 @@ GeneratorPhojet()
     dpmjet->SetTarget    ("A", 208, 82);
     dpmjet->SetProjectileBeamEnergy(0.5 * energyConfig * TMath::Sqrt(208./82.));
     dpmjet->SetImpactParameterRange(bminConfig, bmaxConfig);
+    dpmjet->SetFragmentProd(kFALSE);
+    if (processConfig.Contains("fragments")) 
+      dpmjet->SetFragmentProd(kTRUE);
   }
   else if (systemConfig.EqualTo("Pb-p")) {
     dpmjet->SetProjectile("A", 208, 82);
     dpmjet->SetTarget    ("P", 1, 1);
     dpmjet->SetProjectileBeamEnergy(0.5 * energyConfig * TMath::Sqrt(82./208.));
     dpmjet->SetImpactParameterRange(bminConfig, bmaxConfig);
+    dpmjet->SetFragmentProd(kFALSE);
+    if (processConfig.Contains("fragments")) 
+      dpmjet->SetFragmentProd(kTRUE);
   }
 
   return dpmjet;
