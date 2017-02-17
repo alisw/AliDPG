@@ -17,10 +17,10 @@ Bool_t ProcessOutputCheb(TString filesToProcess, Int_t startRun, Int_t endRun, c
     ::Info("ProcessOutputCheb","using local version of ProcessOutputCheb.C");
   }
   else {
-    gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/TPC/CalibMacros/CreateCorrMapObj.C");
-    ::Info("ProcessOutputCheb","using %s","$ALICE_PHYSICS/PWGPP/TPC/CalibMacros/CreateCorrMapObj.C");
+    gROOT->LoadMacro("$ALIDPG_ROOT/PWGPP/TPC/CalibMacros/CreateCorrMapObj.C");
+    ::Info("ProcessOutputCheb","using %s","$ALIDPG_ROOT/PWGPP/TPC/CalibMacros/CreateCorrMapObj.C");
   }
-  //gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/TPC/CalibMacros/CreateCorrMapObj.C");
+  //gROOT->LoadMacro("$ALIDPG_ROOT/PWGPP/TPC/CalibMacros/CreateCorrMapObj.C");
   //gROOT->LoadMacro("CreateCorrMapObj.C");
     
   Bool_t isGrid = kTRUE;
