@@ -276,6 +276,8 @@ DetectorInit()
       //============================ TPC parameters =====================
 
       AliTPC *TPC = new AliTPCv2("TPC", "Default");
+      if (isGeant4) 
+	TPC->SetPrimaryIonisation(1);
     }
 
 
@@ -328,7 +330,12 @@ DetectorInit()
     {
       //=================== TRD parameters ============================
 
-      AliTRD *TRD = new AliTRDv1("TRD", "TRD slow simulator");
+      if (isGeant4) {
+	AliTRDtestG4 *TRD = new AliTRDtestG4("TRD", "TRD slow simulator");
+	TRD->SetScaleG4(1.11);
+      }
+      else
+	AliTRD *TRD = new AliTRDv1("TRD", "TRD slow simulator");
       AliTRDgeometry *geoTRD = TRD->GetGeometry();
       // Partial geometry: modules at 0,1,7,8,9,16,17
       // starting at 3h in positive direction
