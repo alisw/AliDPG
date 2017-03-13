@@ -89,8 +89,10 @@ function runBenchmark(){
 }
 
 CONFIG_NEVENTS="200"
+CONFIG_NBKG=""
 CONFIG_SEED="0"
 CONFIG_GENERATOR=""
+CONFIG_BACKGROUND=""
 CONFIG_PROCESS=""
 CONFIG_PROCESSBIN=""
 CONFIG_MAGNET=""
@@ -148,6 +150,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--generator" ]; then
         CONFIG_GENERATOR="$1"
 	export CONFIG_GENERATOR
+        shift
+    elif [ "$option" = "--background" ]; then
+        CONFIG_BACKGROUND="$1"
+	export CONFIG_BACKGROUND
         shift
     elif [ "$option" = "--process" ]; then
         CONFIG_PROCESS="$1"
@@ -234,6 +240,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--nevents" ]; then
         CONFIG_NEVENTS="$1"
 	export CONFIG_NEVENTS
+        shift 
+    elif [ "$option" = "--nbkg" ]; then
+        CONFIG_NBKG="$1"
+	export CONFIG_NBKG
         shift 
     elif [ "$option" = "--ocdb" ]; then
         CONFIG_OCDB="$1"
@@ -453,6 +463,9 @@ echo "Process.......... $CONFIG_PROCESS"
 echo "No. Events....... $CONFIG_NEVENTS"
 echo "Unique-ID........ $CONFIG_UID"
 echo "MC seed.......... $CONFIG_SEED"
+echo "============================================"
+echo "Background....... $CONFIG_BACKGROUND"
+echo "No. Events....... $CONFIG_NBKG"
 #echo "MC seed.......... $CONFIG_SEED (based on $CONFIG_SEED_BASED)"
 echo "============================================"
 echo "Detector......... $CONFIG_DETECTOR"
@@ -500,6 +513,35 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	SIMC=sim.C
     fi
     
+    if [[ $CONFIG_BACKGROUND != "" ]]; then
+	echo ">>>>> EMBEDDING: request to embed $CONFIG_GENERATOR signal in $CONFIG_BACKGROUND background"
+
+	if [[ $CONFIG_NBKG == "" ]]; then
+	    export CONFIG_NBKG=1
+	fi
+	    
+	SAVE_CONFIG_GENERATOR=$CONFIG_GENERATOR
+	SAVE_CONFIG_NEVENTS=$CONFIG_NEVENTS
+	SAVE_CONFIG_SIMULATION=$CONFIG_SIMULATION
+	export CONFIG_GENERATOR=$CONFIG_BACKGROUND
+	export CONFIG_NEVENTS=$CONFIG_NBKG
+	export CONFIG_SIMULATION="EmbedBkg"
+	
+	mkdir BKG
+	cp OCDB*.root *.C BKG/.
+	cd BKG
+
+	runcommand "BACKGROUND" $SIMC sim.log 5
+	mv -f syswatch.log simwatch.log
+
+	cd ..
+
+	export CONFIG_GENERATOR=$SAVE_CONFIG_GENERATOR
+	export CONFIG_NEVENTS=$SAVE_CONFIG_NEVENTS
+	export CONFIG_SIMULATION="EmbedSig"
+	
+    fi
+
     runcommand "SIMULATION" $SIMC sim.log 5
     mv -f syswatch.log simwatch.log
 
