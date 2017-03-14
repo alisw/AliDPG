@@ -11,7 +11,7 @@ enum EGenerator_t {
   kGeneratorPythia6_Perugia2011,
   kGeneratorPythia6_Perugia2011_Nuclex001, // [ALIROOT-6795]
   kGeneratorPythia6_Perugia2011_Nuclex002, // [ALIROOT-6796]
-  kGeneratorPythia6_Perugia2011_HFhad001, kGeneratorPythia6_Perugia2011_HFele001,
+  kGeneratorPythia6_Perugia2011_HFhad001, kGeneratorPythia6_Perugia2011_HFhv0001, kGeneratorPythia6_Perugia2011_HFele001,
   // Pythia8
   kGeneratorPythia8,
   kGeneratorPythia8_Monash2013,
@@ -32,7 +32,7 @@ enum EGenerator_t {
   kGeneratorHijing_Nuclex001, kGeneratorHijing_Nuclex003, kGeneratorHijing_Nuclex004, // [ALIROOT-6795] [ALIROOT-6825]
   kGeneratorHijing_Jets001, kGeneratorHijing_Jets001a, kGeneratorHijing_Jets001b, kGeneratorHijing_Jets001c, kGeneratorHijing_Jets001d, kGeneratorHijing_Jets001e,  // [ALIROOT-6822] [ALIROOT-6823] 
   kGeneratorHijing_Gamma001, // [ALIROOT-6824]
-  kGeneratorHijing_HFhad001, kGeneratorHijing_HFele001,
+  kGeneratorHijing_HFhad001, kGeneratorHijing_HFhv0001, kGeneratorHijing_HFele001,
   kGeneratorHijing_Str001a,   kGeneratorHijing_Str001b,   kGeneratorHijing_Str001c, // [ALIROOT-6858]
   // Starlight
   kGeneratorStarlight,
@@ -50,7 +50,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Pythia6_Perugia2011",
   "Pythia6_Perugia2011_Nuclex001", 
   "Pythia6_Perugia2011_Nuclex002", 
-  "Pythia6_Perugia2011_HFhad001", "Pythia6_Perugia2011_HFele001",
+  "Pythia6_Perugia2011_HFhad001", "Pythia6_Perugia2011_HFhv0001", "Pythia6_Perugia2011_HFele001",
   // Pythia8
   "Pythia8",
   "Pythia8_Monash2013",
@@ -71,7 +71,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Hijing_Nuclex001", "Hijing_Nuclex003", "Hijing_Nuclex004",
   "Hijing_Jets001", "Hijing_Jets001a", "Hijing_Jets001b", "Hijing_Jets001c", "Hijing_Jets001d", "Hijing_Jets001e",
   "Hijing_Gamma001",
-  "Hijing_HFhad001", "Hijing_HFele001",
+  "Hijing_HFhad001", "Hijing_HFhv0001", "Hijing_HFele001",
   "Hijing_Str001a", "Hijing_Str001b", "Hijing_Str001c", 
   // Starlight
   "Starlight",
@@ -105,11 +105,15 @@ enum EPythia8Tune_t {
   kPythia8Tune_Monash2013  = 14
 };
 
-enum EPythia6Heavy_t {
-  kPythia6Heavy_Charm,
-  kPythia6Heavy_Beauty,
-  kPythia6Heavy_Hadrons,
-  kPythia6Heavy_Electron
+enum EPythia6HeavyProcess_t {
+  kPythia6HeavyProcess_Charm,
+  kPythia6HeavyProcess_Beauty
+};
+
+enum EPythia6HeavyDecay_t {
+  kPythia6HeavyDecay_Hadrons,
+  kPythia6HeavyDecay_HadronsWithV0,
+  kPythia6HeavyDecay_Electron
 };
 
 /*****************************************************************/
@@ -190,14 +194,15 @@ GeneratorConfig(Int_t tag)
 
     // Pythia6 - HF001
   case kGeneratorPythia6_Perugia2011_HFhad001:
+  case kGeneratorPythia6_Perugia2011_HFhv0001:
   case kGeneratorPythia6_Perugia2011_HFele001:
     AliGenCocktail *ctl  = GeneratorCocktail("Perugia2011_HF");
     //
-    Int_t process[2] = {kPythia6Heavy_Charm, kPythia6Heavy_Beauty};
-    Int_t decay[2]   = {kPythia6Heavy_Hadrons, kPythia6Heavy_Electron};
-    const Char_t *label[2][2] = {
-      "chadr PYTHIA", "cele PYTHIA",
-      "bchadr PYTHIA", "bele PYTHIA"
+    Int_t process[2] = {kPythia6HeavyProcess_Charm, kPythia6HeavyProcess_Beauty};
+    Int_t decay[3]   = {kPythia6HeavyDecay_Hadrons, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Electron};
+    const Char_t *label[2][3] = {
+      "chadr PYTHIA", "chadr PYTHIA", "cele PYTHIA",
+      "bchadr PYTHIA", "bchadr PYTHIA", "bele PYTHIA"
     };
     Int_t iprocess = uidConfig % 2;
     Int_t idecay   = tag - kGeneratorPythia6_Perugia2011_HFhad001;
@@ -446,16 +451,17 @@ GeneratorConfig(Int_t tag)
 
     // Hijing - HFhad001
   case kGeneratorHijing_HFhad001:
+  case kGeneratorHijing_HFhv0001:
   case kGeneratorHijing_HFele001:
     AliGenCocktail *ctl  = GeneratorCocktail("Hijing_HF");
     AliGenerator   *hij  = GeneratorHijing();
     ctl->AddGenerator(hij, "Hijing", 1.);
     //
-    Int_t process[2] = {kPythia6Heavy_Charm, kPythia6Heavy_Beauty};
-    Int_t decay[2]   = {kPythia6Heavy_Hadrons, kPythia6Heavy_Electron};
-    const Char_t *label[2][2] = {
-      "chadr PYTHIA", "cele PYTHIA",
-      "bchadr PYTHIA", "bele PYTHIA"
+    Int_t process[2] = {kPythia6HeavyProcess_Charm, kPythia6HeavyProcess_Beauty};
+    Int_t decay[3]   = {kPythia6HeavyDecay_Hadrons, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Electron};
+    const Char_t *label[2][3] = {
+      "chadr PYTHIA", "chadr PYTHIA", "cele PYTHIA",
+      "bchadr PYTHIA", "bchadr PYTHIA", "bele PYTHIA"
     };
     TFormula *formula = new TFormula("Signals", "max(1.,120.*(x<5.)+80.*(1.-x/20.)*(x>5.)*(x<11.)+240.*(1.-x/13.)*(x>11.))");
     Int_t iprocess = uidConfig % 2;
@@ -598,7 +604,7 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune, Bool_t HFonly)
   comment = comment.Append(Form(" | Pythia6 heavy (%d, %d)", process, decay));
   //
   // set external decayer
-  if (decay == kPythia6Heavy_Electron) {
+  if (decay == kPythia6HeavyDecay_Electron) {
     TVirtualMCDecayer* decayer = new AliDecayerPythia();
     decayer->SetForceDecay(kAll);
     decayer->Init();
@@ -610,21 +616,25 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune, Bool_t HFonly)
   //
   // heavy process
   switch (process) {
-  case kPythia6Heavy_Charm:
+  case kPythia6HeavyProcess_Charm:
     pythia->SetProcess(kPyCharmppMNRwmi);
     break;
-  case kPythia6Heavy_Beauty:
+  case kPythia6HeavyProcess_Beauty:
     pythia->SetProcess(kPyBeautyppMNRwmi);
     break;
   }
   //
   // heavy decay
   switch (decay) {
-  case kPythia6Heavy_Hadrons:
+  case kPythia6HeavyDecay_Hadrons:
     pythia->SetHeavyQuarkYRange(-1.5, 1.5);
     pythia->SetForceDecay(kHadronicDWithout4Bodies);
     break;
-  case kPythia6Heavy_Electron:
+  case kPythia6HeavyDecay_HadronsWithV0:
+    pythia->SetHeavyQuarkYRange(-1.5, 1.5);
+    pythia->SetForceDecay(kHadronicDWithout4BodiesWithV0);
+    break;
+  case kPythia6HeavyDecay_Electron:
     pythia->SetCutOnChild(1);
     pythia->SetPdgCodeParticleforAcceptanceCut(11);
     pythia->SetChildYRange(-1.2, 1.2);
