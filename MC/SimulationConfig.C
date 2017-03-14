@@ -11,6 +11,8 @@
 enum ESimulation_t {
   kSimulationDefault,
   kSimulationMuon,
+  kSimulationEmbedBkg,
+  kSimulationEmbedSig,
   kSimulationCustom,
   kNSimulations
 };
@@ -18,6 +20,8 @@ enum ESimulation_t {
 const Char_t *SimulationName[kNSimulations] = {
   "Default",
   "Muon",
+  "EmbedBkg",
+  "EmbedSig",
   "Custom"
 };
 
@@ -40,6 +44,21 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     SimulationDefault(sim);
     sim.SetMakeSDigits("MUON VZERO");
     sim.SetMakeDigitsFromHits("ITS");
+    return;
+    
+    // EmbedBkg
+  case kSimulationEmbedBkg:
+    SimulationDefault(sim);
+    sim.SetMakeSDigits("ALL");
+    sim.SetMakeDigitsFromHits("");
+    return;
+    
+    // EmbedSig
+  case kSimulationEmbedSig:
+    SimulationDefault(sim);
+    sim.SetMakeSDigits("ALL");
+    sim.SetMakeDigitsFromHits("");
+    sim.EmbedInto("BKG/galice.root");
     return;
     
     // Custom
