@@ -1,7 +1,12 @@
 #!/bin/bash
 
 export PRODUCTION_METADATA="$ALIEN_JDL_LPMMETADATA"
-export pass_type=ppass
+export pass_type="$ALIEN_JDL_RAWPRODTYPE"
+if [ "$pass_type" = "" ]; then
+    echo "*! ERROR: No pass_type defined, exiting..."
+    echo "*! ERROR: No pass_type defined, exiting..." > validation_error.message
+exit
+fi
 
 ###
 
