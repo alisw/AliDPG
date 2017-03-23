@@ -12,6 +12,7 @@ enum EGenerator_t {
   kGeneratorPythia6_Perugia2011_Nuclex001, // [ALIROOT-6795]
   kGeneratorPythia6_Perugia2011_Nuclex002, // [ALIROOT-6796]
   kGeneratorPythia6_Perugia2011_HFhad001, kGeneratorPythia6_Perugia2011_HFhv0001, kGeneratorPythia6_Perugia2011_HFele001,
+  kGeneratorPythia6_Perugia2011_Jpsiee001,
   // Pythia8
   kGeneratorPythia8,
   kGeneratorPythia8_Monash2013,
@@ -51,6 +52,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Pythia6_Perugia2011_Nuclex001", 
   "Pythia6_Perugia2011_Nuclex002", 
   "Pythia6_Perugia2011_HFhad001", "Pythia6_Perugia2011_HFhv0001", "Pythia6_Perugia2011_HFele001",
+  "Pythia6_Perugia2011_Jpsiee001",
   // Pythia8
   "Pythia8",
   "Pythia8_Monash2013",
@@ -222,6 +224,26 @@ GeneratorConfig(Int_t tag)
       eta->SetYRange(-1.2, 1.2) ;
       eta->SetPtRange(0., 50.) ;
       ctl->AddGenerator(eta,  "eta", 1.);
+    }
+    gen = ctl;
+    break;
+
+    // Pythia6 - Jpsiee001
+  case kGeneratorPythia6_Perugia2011_Jpsiee001:
+    AliGenCocktail *ctl   = GeneratorCocktail("Pythia6_Perugia2011_Jpsiee001");
+    AliGenerator   *pyt   = GeneratorPythia6(kPythia6Tune_Perugia2011);
+    ctl->AddGenerator(pyt,  "Pythia6", 1.);
+    if (uidConfig % 10 < 7) {
+      AliGenerator *jpsi  = Generator_Jpsiee("pp 5.03", 0.7, 0.0, 0.3, 0.0);
+      ctl->AddGenerator(jpsi, "Jpsi2ee", 1., NULL, 2);
+      TFile *file = new TFile("typeHF_4.proc", "recreate");
+      file->Close();
+    }
+    else {
+      AliGenerator *bjpsi = Generator_Jpsiee("Pythia BBar", 0.0, 0.0, 0.0, 1.0);
+      ctl->AddGenerator(bjpsi, "B2Jpsi2ee", 1.);
+      TFile *file = new TFile("typeHF_5.proc", "recreate");
+      file->Close();
     }
     gen = ctl;
     break;
