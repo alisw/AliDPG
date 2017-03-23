@@ -111,6 +111,13 @@ SimulationDefault(AliSimulation &sim)
   sim.SetRunHLT(hltConfig.Data());
 
   //
+  // material budget settings
+  if (gSystem->Getenv("CONFIG_MATERIAL")) {
+    Float_t material = atof(gSystem->Getenv("CONFIG_MATERIAL"));
+    sim.AliModule::SetDensityFactor(material);
+  }
+
+  //
   //
   SimulationConfigPHOS(sim);
 
