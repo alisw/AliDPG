@@ -124,6 +124,7 @@ CONFIG_MODE="ocdb,full"
 CONFIG_OCDB="snapshot"
 CONFIG_HLT="auto"
 CONFIG_GEANT4="off"
+CONFIG_MATERIAL=""
 
 RUNMODE=""
 
@@ -252,6 +253,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--hlt" ]; then
         CONFIG_HLT="$1"
 	export CONFIG_HLT
+        shift 
+    elif [ "$option" = "--material" ]; then
+        CONFIG_MATERIAL="$1"
+	export CONFIG_MATERIAL
         shift 
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
@@ -470,6 +475,7 @@ echo "No. Events....... $CONFIG_NBKG"
 echo "============================================"
 echo "Detector......... $CONFIG_DETECTOR"
 echo "GEANT4........... $CONFIG_GEANT4"
+echo "Material Budget.. $CONFIG_MATERIAL"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
 echo "System........... $CONFIG_SYSTEM"
