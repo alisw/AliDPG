@@ -9,15 +9,9 @@ enum EGenerator_t {
   // Pythia6
   kGeneratorPythia6,
   kGeneratorPythia6_Perugia2011,
-  kGeneratorPythia6_Perugia2011_Nuclex001, // [ALIROOT-6795]
-  kGeneratorPythia6_Perugia2011_Nuclex002, // [ALIROOT-6796]
-  kGeneratorPythia6_Perugia2011_HFhad001, kGeneratorPythia6_Perugia2011_HFhv0001, kGeneratorPythia6_Perugia2011_HFele001,
-  kGeneratorPythia6_Perugia2011_Jpsiee001,
   // Pythia8
   kGeneratorPythia8,
   kGeneratorPythia8_Monash2013,
-  kGeneratorPythia8_Monash2013_Rsn001,  // [ALIROOT-6685]
-  kGeneratorPythia8_Monash2013_Str002,  // [ALIROOT-6874]
   // Pythia8 jets
   kGeneratorPythia8Jets, 
   kGeneratorPythia8Jets_Monash2013, 
@@ -28,7 +22,6 @@ enum EGenerator_t {
   // Hijing
   kGeneratorHijing,
   kGeneratorHijing_QA001,
-  kGeneratorHijing_Rsn002a, kGeneratorHijing_Rsn002b, kGeneratorHijing_Rsn002c, // [ALIROOT-6721] [ALIROOT-6722]
   kGeneratorHijing_Jpsiee001, // [ALIROOT-6750]
   kGeneratorHijing_Nuclex001, kGeneratorHijing_Nuclex003, kGeneratorHijing_Nuclex004, // [ALIROOT-6795] [ALIROOT-6825]
   kGeneratorHijing_Jets001, kGeneratorHijing_Jets001a, kGeneratorHijing_Jets001b, kGeneratorHijing_Jets001c, kGeneratorHijing_Jets001d, kGeneratorHijing_Jets001e,  // [ALIROOT-6822] [ALIROOT-6823] 
@@ -51,15 +44,9 @@ const Char_t *GeneratorName[kNGenerators] = {
   // Pythia6
   "Pythia6",
   "Pythia6_Perugia2011",
-  "Pythia6_Perugia2011_Nuclex001", 
-  "Pythia6_Perugia2011_Nuclex002", 
-  "Pythia6_Perugia2011_HFhad001", "Pythia6_Perugia2011_HFhv0001", "Pythia6_Perugia2011_HFele001",
-  "Pythia6_Perugia2011_Jpsiee001",
   // Pythia8
   "Pythia8",
   "Pythia8_Monash2013",
-  "Pythia8_Monash2013_Rsn001",
-  "Pythia8_Monash2013_Str002",
   // Pythia8 jets
   "Pythia8Jets", 
   "Pythia8Jets_Monash2013",
@@ -70,7 +57,6 @@ const Char_t *GeneratorName[kNGenerators] = {
   // Hijing
   "Hijing",
   "Hijing_QA001",
-  "Hijing_Rsn002a", "Hijing_Rsn002b", "Hijing_Rsn002c",
   "Hijing_Jpsiee001",
   "Hijing_Nuclex001", "Hijing_Nuclex003", "Hijing_Nuclex004",
   "Hijing_Jets001", "Hijing_Jets001a", "Hijing_Jets001b", "Hijing_Jets001c", "Hijing_Jets001d", "Hijing_Jets001e",
@@ -166,123 +152,12 @@ GeneratorConfig(Int_t tag)
     gen = GeneratorPythia6(kPythia6Tune_Perugia2011);
     break;
 
-    // Pythia6 (Perugia2011) - Nuclex001
-  case kGeneratorPythia6_Perugia2011_Nuclex001:
-    AliGenCocktail *ctl   = GeneratorCocktail("Perugia2011_Nuclex001");
-    AliGenerator   *pyt   = GeneratorPythia6(kPythia6Tune_Perugia2011);
-    ctl->AddGenerator(pyt,  "Pythia6", 1.);
-    AliGenerator   *nu1a  = Generator_Nuclex(0xF, kFALSE, 10);
-    AliGenerator   *nu1b  = Generator_Nuclex(0xF, kTRUE, 10);
-    AliGenerator   *nu2a  = Generator_Nuclex(0x10, kFALSE, 40);
-    AliGenerator   *nu2b  = Generator_Nuclex(0x10, kTRUE, 40);
-    AliGenerator   *nu3a  = Generator_Nuclex(0xFE0, kFALSE, 20);
-    AliGenerator   *nu3b  = Generator_Nuclex(0xFE0, kTRUE, 20);
-    ctl->AddGenerator(nu1a,  "Nuclex1a", 1.);
-    ctl->AddGenerator(nu1b,  "Nuclex1b", 1.);
-    ctl->AddGenerator(nu2a,  "Nuclex2a", 1.);
-    ctl->AddGenerator(nu2b,  "Nuclex2b", 1.);
-    ctl->AddGenerator(nu3a,  "Nuclex3a", 1.);
-    ctl->AddGenerator(nu3b,  "Nuclex3b", 1.);
-    gen = ctl;
-    break;
-    
-    // Pythia6 (Perugia2011) - Nuclex002
-  case kGeneratorPythia6_Perugia2011_Nuclex002:
-    AliGenCocktail *ctl   = GeneratorCocktail("Perugia2011_Nuclex002");
-    AliGenerator   *pyt   = GeneratorPythia6(kPythia6Tune_Perugia2011);
-    ctl->AddGenerator(pyt,  "Pythia6", 1.);
-    AliGenerator   *nu1a  = Generator_Nuclex(0x1F, kFALSE, 10);
-    AliGenerator   *nu1b  = Generator_Nuclex(0x1F, kTRUE, 10);
-    ctl->AddGenerator(nu1a,  "Nuclex1a", 1.);
-    ctl->AddGenerator(nu1b,  "Nuclex1b", 1.);
-    gen = ctl;
-    break;
-
-    // Pythia6 - HF001
-  case kGeneratorPythia6_Perugia2011_HFhad001:
-  case kGeneratorPythia6_Perugia2011_HFhv0001:
-  case kGeneratorPythia6_Perugia2011_HFele001:
-    AliGenCocktail *ctl  = GeneratorCocktail("Perugia2011_HF");
-    //
-    Int_t process[2] = {kPythia6HeavyProcess_Charm, kPythia6HeavyProcess_Beauty};
-    Int_t decay[3]   = {kPythia6HeavyDecay_Hadrons, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Electron};
-    const Char_t *label[2][3] = {
-      "chadr PYTHIA", "chadr PYTHIA", "cele PYTHIA",
-      "bchadr PYTHIA", "bchadr PYTHIA", "bele PYTHIA"
-    };
-    Int_t iprocess = uidConfig % 2;
-    Int_t idecay   = tag - kGeneratorPythia6_Perugia2011_HFhad001;
-    AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], kPythia6Tune_Perugia2011, kFALSE);
-    ctl->AddGenerator(phf, label[iprocess][idecay], 1.);
-    printf(">>>>> added HF generator %s \n", label[iprocess][idecay]);
-    // add pi0 and eta enhancement
-    if (tag == kGeneratorPythia6_Perugia2011_HFele001) {
-      AliGenPHOSlib *plib = new AliGenPHOSlib();
-      AliGenParam *pi0 = new AliGenParam(2, plib, AliGenPHOSlib::kPi0Flat);
-      pi0->SetPhiRange(0., 360.) ;
-      pi0->SetYRange(-1.2, 1.2) ;
-      pi0->SetPtRange(0., 50.) ;
-      ctl->AddGenerator(pi0,  "pi0", 1.);
-      AliGenParam *eta = new AliGenParam(1, plib, AliGenPHOSlib::kEtaFlat);
-      eta->SetPhiRange(0., 360.) ;
-      eta->SetYRange(-1.2, 1.2) ;
-      eta->SetPtRange(0., 50.) ;
-      ctl->AddGenerator(eta,  "eta", 1.);
-    }
-    gen = ctl;
-    break;
-
-    // Pythia6 - Jpsiee001
-  case kGeneratorPythia6_Perugia2011_Jpsiee001:
-    AliGenCocktail *ctl   = GeneratorCocktail("Pythia6_Perugia2011_Jpsiee001");
-    AliGenerator   *pyt   = GeneratorPythia6(kPythia6Tune_Perugia2011);
-    ctl->AddGenerator(pyt,  "Pythia6", 1.);
-    if (uidConfig % 10 < 7) {
-      AliGenerator *jpsi  = Generator_Jpsiee("pp 5.03", 0.7, 0.0, 0.3, 0.0);
-      ctl->AddGenerator(jpsi, "Jpsi2ee", 1., NULL, 2);
-      TFile *file = new TFile("typeHF_4.proc", "recreate");
-      file->Close();
-    }
-    else {
-      AliGenerator *bjpsi = Generator_Jpsiee("Pythia BBar", 0.0, 0.0, 0.0, 1.0);
-      ctl->AddGenerator(bjpsi, "B2Jpsi2ee", 1.);
-      TFile *file = new TFile("typeHF_5.proc", "recreate");
-      file->Close();
-    }
-    gen = ctl;
-    break;
-    
     // Pythia8 (Monash2013)
   case kGeneratorPythia8:
   case kGeneratorPythia8_Monash2013:
     gen = GeneratorPythia8(kPythia8Tune_Monash2013);
     break;
-    
-    // Pythia8 (Monash2013) - Rsn001
-  case kGeneratorPythia8_Monash2013_Rsn001:
-    AliGenCocktail *ctl = GeneratorCocktail("Monash2013_Rsn001");
-    // pythia8
-    AliGenerator   *py8 = GeneratorPythia8(kPythia8Tune_Monash2013);
-    ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
-    // randomly injected particles
-    Int_t pdglist[] = {225, 3124, -3124, 9010221}; // f2(1270), Lambda(1520), Lambda_bar(1520), f0(980)
-    Int_t pdg = pdglist[uidConfig % (sizeof(pdglist) / 4)]; // select according to unique ID
-    AliGenerator   *inj = GeneratorInjector(1, pdg, 0., 15., -0.6, 0.6);
-    ctl->AddGenerator(inj, "Injector (Rsn001)", 1.);
-    //
-    gen = ctl;
-    break;
-    
-    // Pythia8 (Monash2013) - Str002
-  case kGeneratorPythia8_Monash2013_Str002:
-    // triggered particles
-    Int_t pdglist[] = {310, 3122, 3312, 3334, 310, -3122, -3312, -3334};
-    Int_t pdg = pdglist[uidConfig % (sizeof(pdglist) / 4)]; // select according to unique ID
-    AliGenerator   *py8 = GeneratorPythia8(kPythia8Tune_Monash2013, pdg, 1.2);
-    //
-    gen = py8;
-    break;
-    
+        
     // Pythia8Jets (Monash2013)
   case kGeneratorPythia8Jets: 
   case kGeneratorPythia8Jets_Monash2013:
@@ -334,22 +209,6 @@ GeneratorConfig(Int_t tag)
     ctl->AddGenerator(injkam, "Injector (kam)", 1.);
     ctl->AddGenerator(injprp, "Injector (prp)", 1.);
     ctl->AddGenerator(injprm, "Injector (prm)", 1.);
-    gen = ctl;
-    break;
-
-    // Hijing - Rsn002
-  case kGeneratorHijing_Rsn002a:
-  case kGeneratorHijing_Rsn002b:
-  case kGeneratorHijing_Rsn002c:
-    Int_t ninjlist[3] = {25, 7, 3};
-    Int_t ninj = ninjlist[tag - kGeneratorHijing_Rsn002a];
-    AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Rsn002");
-    AliGenerator   *hij  = GeneratorHijing();
-    AliGenerator   *inj1 = GeneratorInjector(ninj,  3124, 0., 10., -0.6, 0.6);
-    AliGenerator   *inj2 = GeneratorInjector(ninj, -3124, 0., 10., -0.6, 0.6);
-    ctl->AddGenerator(hij,  "Hijing",            1.);
-    ctl->AddGenerator(inj1, "Injector (Rsn002)", 1.);
-    ctl->AddGenerator(inj2, "Injector (Rsn002)", 1.);
     gen = ctl;
     break;
 
