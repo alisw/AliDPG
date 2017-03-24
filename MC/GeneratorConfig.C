@@ -41,6 +41,8 @@ enum EGenerator_t {
   kGeneratorAMPT,
   //
   kGeneratorCustom,
+  //
+  kGeneratorPWG,
   kNGenerators
 };
 
@@ -80,7 +82,9 @@ const Char_t *GeneratorName[kNGenerators] = {
   // AMPT
   "AMPT",
   //
-  "Custom"
+  "Custom",
+  //
+  "PWG"
 };
 
 enum ETrigger_t {
@@ -549,6 +553,29 @@ GeneratorConfig(Int_t tag)
     }
     gen = GeneratorCustom();
 
+    // PWG
+  case kGeneratorPWG:
+    TString genstr = gSystem->Getenv("CONFIG_GENERATOR");
+    TObjArray *oa = genstr.Tokenize(":");
+    TObjString *pwg = oa->At(0);
+    TObjString *pwggen = oa->At(1);
+    if (!pwg || !pwggen) {
+      printf("ERROR: problem parsing CONFIG_GENERATOR: %s \n", genstr.Data());
+      abort();
+      return;
+    }
+    // load PWG custom generator macro
+    TString pwgmacro = "$ALIDPG_ROOT/MC/CustomGenerators/";
+    pwgmacro += pwg->GetString();
+    pwgmacro += "/";
+    pwgmacro += pwggen->GetString();
+    pwgmacro += ".C";
+    if ((gROOT->LoadMacro(pwgmacro.Data())) != 0) {
+      printf("ERROR: cannot find %s \n", pwgmacro.Data());
+      abort();
+      return;
+    }
+    gen = GeneratorCustom();
   }
 
   // default diamond parameters
