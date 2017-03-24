@@ -559,6 +559,7 @@ GeneratorConfig(Int_t tag)
     TObjArray *oa = genstr.Tokenize(":");
     TObjString *pwg = oa->At(0);
     TObjString *pwggen = oa->At(1);
+    TObjString *pwgopt = oa->At(2);
     if (!pwg || !pwggen) {
       printf("ERROR: problem parsing CONFIG_GENERATOR: %s \n", genstr.Data());
       abort();
@@ -575,7 +576,10 @@ GeneratorConfig(Int_t tag)
       abort();
       return;
     }
-    gen = GeneratorCustom();
+    if (pwgopt)
+      gen = GeneratorCustom(pwgopt->String());
+    else
+      gen = GeneratorCustom();
   }
 
   // default diamond parameters
