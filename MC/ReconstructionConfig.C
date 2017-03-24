@@ -32,6 +32,23 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
 
   TString system = gSystem->Getenv("CONFIG_SYSTEM");
   
+  // subsidiary handler for mc-to-mc embedding
+  TString bgDir = gSystem->Getenv("CONFIG_BGEVDIR");
+  if (!bgDir.IsNull()) { // add extra handler for underlaying event
+    if (!bgDir.EndsWith("/")) bgDir += "/";
+    AliMCEventHandler* mcHandler = new AliMCEventHandler();
+    mcHandler->SetPreReadMode(1);
+    mcHandler->SetReadTR(kFALSE);
+    //
+    AliMCEventHandler* mcHandlerBg = new AliMCEventHandler();
+    mcHandlerBg->SetInputPath(bgDir.Data());
+    mcHandlerBg->SetPreReadMode(1);
+    mcHandlerBg->SetReadTR(kFALSE);
+    mcHandler->AddSubsidiaryHandler(mcHandlerBg);
+    //
+    rec.SetMCEventHandler(mcHandler);
+  }
+
   switch(tag) {
     
     // Default

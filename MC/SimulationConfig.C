@@ -58,7 +58,12 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     SimulationDefault(sim);
     sim.SetMakeSDigits("ALL");
     sim.SetMakeDigitsFromHits("");
-    sim.EmbedInto("BKG/galice.root");
+    TString bgstr = gSystem->Getenv("CONFIG_BGEVDIR");
+    if (!bgstr.IsNull()) { 
+      if (!bgstr.EndsWith("/")) bgstr += "/";
+      bgstr += "galice.root";
+      sim.EmbedInto(bgstr.Data());
+    }
     return;
     
     // Custom
