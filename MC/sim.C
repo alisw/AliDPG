@@ -49,19 +49,11 @@ void sim()
 
 WriteXsection()
 {
-  if (WriteXsection_Pythia6()) return;
-  if (WriteXsection_Pythia8()) return;
-}
-
-Bool_t
-WriteXsection_Pythia6()
-{
 
   TPythia6 *pythia = TPythia6::Instance();
-  if (!pythia) return kFALSE;
+  if (!pythia) return;
   pythia->Pystat(1);
   Double_t xsection = pythia->GetPARI(1);
-  if (xsection < 1.e-30) return kFALSE;
   UInt_t ntrials = pythia->GetMSTI(5);
   TFile *file = new TFile("pyxsec.root","recreate");
   TTree *tree = new TTree("Xsection","Pythia cross section");
@@ -70,29 +62,7 @@ WriteXsection_Pythia6()
   tree->Fill();
   tree->Write();
   file->Close();
-  cout << "Pythia6 cross section: " << xsection
+  cout << "Pythia cross section: " << xsection
        << ", number of trials: " << ntrials << endl;
-  return kTRUE;
-}
 
-Bool_t
-WriteXsection_Pythia8()
-{
-
-  AliPythia8 *pythia = AliPythia8::Instance();
-  if (!pythia) return kFALSE;
-  pythia->Pystat(1);
-  Double_t xsection = pythia->GetXSection();
-  if (xsection < 1.e-30) return kFALSE;
-  UInt_t ntrials = 0; // fix me please!
-  TFile *file = new TFile("pyxsec.root","recreate");
-  TTree *tree = new TTree("Xsection","Pythia cross section");
-  TBranch *branch = tree->Branch("xsection", &xsection, "X/D");
-  TBranch *branch = tree->Branch("ntrials" , &ntrials , "X/i");
-  tree->Fill();
-  tree->Write();
-  file->Close();
-  cout << "Pythia8 cross section: " << xsection
-       << ", number of trials: " << ntrials << endl;
-  return kTRUE;
 }
