@@ -147,6 +147,16 @@ ProcessEnvironment()
 	valid = kTRUE;
 	break;
       }
+    // check PWG tag
+    if (!valid) {
+      TString str = gSystem->Getenv("CONFIG_GENERATOR");
+      if (str.Contains(":")) {
+	printf(">>>>> PWG custom MC generator configuration: %s \n", gSystem->Getenv("CONFIG_GENERATOR"));
+	generatorConfig = kGeneratorPWG;	  
+	valid = kTRUE;
+      }
+    }
+    // unknown generator
     if (!valid) {
       printf(">>>>> Unknown MC generator configuration: %s \n", gSystem->Getenv("CONFIG_GENERATOR"));
       abort();
