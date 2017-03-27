@@ -116,6 +116,7 @@ void QAtrainsim(Int_t run = 0,
     doVZEROPbPb =kTRUE;
   }
 
+}
 //  gSystem->SetIncludePath("-I. -I$ROOTSYS/include -I$ALICE_ROOT/include -I$ALICE_ROOT -I$ALICE_PHYSICS -I$ALICE_PHYSICS/include -I$ALICE_PHYSICS/PWGPP/TRD/macros");
   // Set temporary merging directory to current one
   gSystem->Setenv("TMPDIR", gSystem->pwd());
