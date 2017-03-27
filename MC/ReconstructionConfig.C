@@ -92,7 +92,8 @@ ReconstructionDefault(AliReconstruction &rec)
   else {
     // set OCDB snapshot mode
     rec.SetCDBSnapshotMode("OCDBrec.root");
-    //    AliCDBManager *cdbm = AliCDBManager::Instance();
+    AliCDBManager *cdbm = AliCDBManager::Instance();
+    cdbm->SetDefaultStorage("local://");
     //    cdbm->SetSnapshotMode("OCDBrec.root");
   }
 
