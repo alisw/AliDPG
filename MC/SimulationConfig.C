@@ -93,7 +93,8 @@ SimulationDefault(AliSimulation &sim)
   else {
     // set OCDB snapshot mode
     sim.SetCDBSnapshotMode("OCDBsim.root");
-    //    AliCDBManager *cdbm = AliCDBManager::Instance();
+    AliCDBManager *cdbm = AliCDBManager::Instance();
+    cdbm->SetDefaultStorage("local://");
     //    cdbm->SetSnapshotMode("OCDBsim.root");
   }
 
