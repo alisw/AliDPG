@@ -1,11 +1,18 @@
 RUN     = 117222
 NEVENTS = 1
 MODE    = "sim,rec"
-EXTRA   = "--bmin 14.5 --bmax 15.5 --pthardbin 1" 
+EXTRA   = "--bmin 14.5 --bmax 15.5 --pthardbin 1"
+
+OBJECTS = Pythia6_Perugia2011 \
+	  Pythia8_Monash2013 \
+	  Pythia8Jets_Monash2013 \
+	  Phojet \
+	  EPOSLHC \
+	  Hijing
 
 SOURCEDIR   = $(ALIDPG_ROOT)/MC/CustomGenerators/
 SOURCES    := $(shell find $(SOURCEDIR) -name '*.C')
-OBJECTS    := $(SOURCES:$(SOURCEDIR)%.C=%)
+OBJECTS    += $(SOURCES:$(SOURCEDIR)%.C=%)
 
 all: $(OBJECTS)
 
