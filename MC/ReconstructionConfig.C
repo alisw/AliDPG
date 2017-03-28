@@ -13,6 +13,7 @@ enum EReconstruction_t {
   kReconstructionMuon,
   kReconstructionITSpureSA,  
   kReconstructionNoSDD,  
+  kReconstructionRun1TrackingPID,
   kReconstructionCustom,
   kNReconstructions
 };
@@ -22,6 +23,7 @@ const Char_t *ReconstructionName[kNReconstructions] = {
   "Muon",
   "ITSpureSA",
   "NoSDD",
+  "Run1TrackingPID",
   "Custom"
 };
 
@@ -56,6 +58,12 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
   case kReconstructionNoSDD:
     ReconstructionDefault(rec);
     rec.SetRecoParam("ITS", OverrideITSRecoParam_NoSDD_pPb2016());
+    return;
+
+    // Run1TrackingPID
+  case kReconstructionRun1TrackingPID:
+    ReconstructionDefault(rec);
+    rec.SetRun1PIDforTracking(kTRUE);
     return;
     
     // Custom
