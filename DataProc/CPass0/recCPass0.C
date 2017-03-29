@@ -140,6 +140,11 @@ void recCPass0(const char *filename="raw.root",Int_t nevents=-1, const char *ocd
   rec.SetUseTrackingErrorsForAlignment("ITS");
   rec.SetCleanESD(kFALSE);
 
+  // ITS options (see ALIROOT-7179)
+  float itsErrY2[6]={0., 0., 0.1*0.1, 0.1*.1, 0.,0.};
+  TVectorF *vecITSErrY2 = new TVectorF(6, itsErrY2);
+  AliITSReconstructor::SetExtraErrorY2(vecITSErrY2);
+  
   //Ignore SetStopOnError
   rec.SetStopOnError(kFALSE);
 
