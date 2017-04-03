@@ -94,7 +94,14 @@ void QAtrainsim(Int_t run = 0,
   TString ocdbConfig = "default,snapshot";
   if (gSystem->Getenv("CONFIG_OCDB"))
     ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
-  if (ocdbConfig.Contains("alien")) {
+  if (stage != 0) {
+    //
+    gSystem->Setenv("CONFIG_RUN", gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER"));
+    // set OCDB 
+    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+    OCDBDefault(1);
+  }
+  else if (ocdbConfig.Contains("alien")) {
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
     OCDBDefault(1);
