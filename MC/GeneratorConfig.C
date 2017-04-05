@@ -1013,7 +1013,7 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj)
     "Hyper-Helium-4", // 0x8000
     "Ps(2100)", // 0x10000
     "Ps(2500)", // 0x20000
-    "d*(2380)"  //0x4000
+    "d*(2380)"  //0x40000
   };
 
   for (Int_t ipart = 0; ipart < 19; ipart++) {
