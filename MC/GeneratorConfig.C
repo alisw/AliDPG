@@ -180,6 +180,7 @@ GeneratorConfig(Int_t tag)
       return;
     }
     gen = GeneratorCustom();
+    break;
 
     // PWG
   case kGeneratorPWG:
@@ -208,6 +209,8 @@ GeneratorConfig(Int_t tag)
       gen = GeneratorCustom(pwgopt->String());
     else
       gen = GeneratorCustom();
+    break;
+
   }
 
   // default diamond parameters
