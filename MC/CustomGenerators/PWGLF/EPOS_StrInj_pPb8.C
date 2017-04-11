@@ -8,8 +8,8 @@ AliGenerator *GeneratorCustom(){
   AliGenCocktail *ctl  = GeneratorCocktail("EPOS_StrInj_pPb8");
   AliGenerator   *epos  = GeneratorEPOSLHC();
   
-  AliGenerator   *ixi = GeneratorInjector(ninjxi, sign * 3312, 2., 20., -0.7, 0.7);
-  AliGenerator   *iom = GeneratorInjector(ninjom, (-1) * sign * 3334, 0., 10., -0.7, 0.7);
+  AliGenerator   *ixi = GeneratorInjector(ninjxi, sign * 3312, 2., 20., -1.2, 1.2);
+  AliGenerator   *iom = GeneratorInjector(ninjom, (-1) * sign * 3334, 0., 10., -1.2, 1.2);
   
   ctl->AddGenerator(epos,  "Epos", 1.);
   ctl->AddGenerator(ixi, "Injector (Xi)", 1.);
