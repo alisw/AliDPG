@@ -380,7 +380,7 @@ GeneratorPythia8(Int_t tune, Int_t pdgtrig, Float_t etatrig)
   // Tune
   if (tune > 0) {
     comment = comment.Append(Form(" | tune %d", tune));
-    (AliPythia8::Instance())->ReadString(Form("Tune:pp = %d", tune));
+    pythia->SetTune(tune);
   }
   //
   // Trigger particles
