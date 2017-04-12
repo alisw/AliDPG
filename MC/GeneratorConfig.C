@@ -231,7 +231,18 @@ GeneratorConfig(Int_t tag)
     if (periodName.EqualTo("LHC13e")) sigmaxy =  35.e-4;
     if (periodName.EqualTo("LHC15n")) sigmaxy =  90.e-4;
     if (periodName.EqualTo("LHC15o")) sigmaxy =  30.e-4;
+    //
+    if (periodName.EqualTo("LHC16f")) sigmaxy =  60.e-4; 
+    if (periodName.EqualTo("LHC16g")) sigmaxy =  60.e-4; 
+    if (periodName.EqualTo("LHC16i")) sigmaxy =  60.e-4; 
+    if (periodName.EqualTo("LHC16o")) sigmaxy =  55.e-4; 
+    if (periodName.EqualTo("LHC16p")) sigmaxy =  50.e-4; 
+    if (periodName.EqualTo("LHC16q")) sigmaxy =  35.e-4; 
+    if (periodName.EqualTo("LHC16r")) sigmaxy =  25.e-4;
+    if (periodName.EqualTo("LHC16s")) sigmaxy =  25.e-4;
+    if (periodName.EqualTo("LHC16t")) sigmaxy =  35.e-4;
   }
+  printf(">>>>> Diamond sigma-xy: %f \n", sigmaxy);
 
   gen->SetOrigin(0., 0., 0.);
   gen->SetSigma(sigmaxy, sigmaxy, 5.);
