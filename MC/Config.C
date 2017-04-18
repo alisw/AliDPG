@@ -268,10 +268,20 @@ ProcessEnvironment()
 void
 LoadLibraries()
 {
+
+  // get generator string 
+  TString genstr = gSystem->Getenv("CONFIG_GENERATOR");
+  // check if needs Phojet/Dpmjet
+  Bool_t isDpmjet = kFALSE;
+  if (genstr.Contains("dpmjet", TString::kIgnoreCase) || genstr.Contains("phojet", TString::kIgnoreCase)) {
+    isDpmjet = kTRUE;
+    printf(">>>>> Phojet/Dpmjet libraries receipt \n");
+  }
+
   gSystem->Load("liblhapdf");
   gSystem->Load("libEGPythia6");
   // Phojet/DPMjet with PYTHIA 6.2.14
-  if (generatorConfig == kGeneratorPhojet || generatorConfig == kGeneratorDpmjet) {
+  if (isDpmjet) {
     gSystem->Load("libpythia6");
   }
   else { 
@@ -279,7 +289,7 @@ LoadLibraries()
   }
   gSystem->Load("libAliPythia6");
   // hack to make Phojet/DPMjet work
-  if (generatorConfig == kGeneratorPhojet || generatorConfig == kGeneratorDpmjet) {
+  if (isDpmjet) {
     gSystem->Load("libDPMJET");
     gSystem->Load("libTDPMjet");    
   } 
