@@ -42,7 +42,7 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     // Muon
   case kSimulationMuon:
     SimulationDefault(sim);
-    sim.SetMakeSDigits("MUON VZERO");
+    sim.SetMakeSDigits("MUON VZERO T0 AD");
     sim.SetMakeDigitsFromHits("ITS");
     return;
     
