@@ -6,7 +6,7 @@ export ALIEN_JDL_LPMINTERACTIONTYPE=pp
 export ALIEN_JDL_LPMANCHORYEAR=2015
 export ALIEN_JDL_LPMPRODUCTIONTAG=LHC15n
 export ALIEN_JDL_LPMRUNNUMBER=244628
-export ALIEN_JDL_LPMRAWPASSID=2
+export ALIEN_JDL_RAWPRODTYPE=PPass
 
 then source the same file
 ******************************************/
@@ -507,6 +507,18 @@ void ProcessEnvironment()
     }
 
   //
+  // Setting the period
+  //
+  if(gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG"))
+    periodName = gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG");
+  else
+    if(!localRunning)
+    {
+      printf(">>>>> Unknown production tag configuration ALIEN_JDL_LPMPRODUCTIONTAG \n");
+      abort();
+    }
+
+  //
   // Run flag configuration
   //
   if(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"))
@@ -530,15 +542,6 @@ void ProcessEnvironment()
       printf(">>>>> Unknown anchor year system configuration ALIEN_JDL_LPMANCHORYEAR \n");
       abort();
     }
-    
-  if(gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG"))
-    periodName = gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG");
-  else
-    if(!localRunning)
-    {
-      printf(">>>>> Unknown production tag configuration ALIEN_JDL_LPMPRODUCTIONTAG \n");
-      abort();
-    }
 
   //
   // Run number
@@ -557,10 +560,10 @@ void ProcessEnvironment()
   //
   // Setting this to kTRUE will disable some not needed analysis tasks for a muon_calo pass
   //
-  if (gSystem->Getenv("ALIEN_JDL_LPMRAWPASSID"))
+  if (gSystem->Getenv("ALIEN_JDL_RAWPRODTYPE"))
   {
-    Int_t passNo = atoi(gSystem->Getenv("ALIEN_JDL_LPMRAWPASSID"));
-    if (passNo == 5 || passNo == 15) // hard-coded, check for all possible values
+    TString passType = gSystem->Getenv("ALIEN_JDL_RAWPRODTYPE");
+    if (passType.Contains("muon_calo"))
       isMuonCaloPass = kTRUE;
     else
       isMuonCaloPass = kFALSE;
@@ -568,7 +571,7 @@ void ProcessEnvironment()
   else
     if(!localRunning)
     {
-      printf(">>>>> Unknown pass id ALIEN_JDL_LPMRAWPASSID \n");
+      printf(">>>>> Unknown production type ALIEN_JDL_RAWPRODTYPE \n");
       abort();
     }
 }

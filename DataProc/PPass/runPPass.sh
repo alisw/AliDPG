@@ -58,9 +58,10 @@ export PRODUCTION_METADATA="$ALIEN_JDL_LPMMETADATA"
 echo "* PATH: $PATH"
 echo "* LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
 echo "* rec.C:"
-cat rec.C
+if [ -f rec.C ]; then
+  cat rec.C
+fi
 echo
-
 
 ls -l
 
