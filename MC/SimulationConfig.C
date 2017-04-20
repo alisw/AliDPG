@@ -44,6 +44,7 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     SimulationDefault(sim);
     sim.SetMakeSDigits("MUON VZERO T0 AD");
     sim.SetMakeDigitsFromHits("ITS");
+    sim.SetRunHLT("");
     return;
     
     // EmbedBkg
