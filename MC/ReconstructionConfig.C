@@ -44,7 +44,7 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     // Muon
   case kReconstructionMuon:
     ReconstructionDefault(rec);
-    rec.SetRunReconstruction("MUON ITS VZERO");
+    rec.SetRunReconstruction("MUON ITS VZERO T0 AD");
     return;
 
     // ITSpureSA
