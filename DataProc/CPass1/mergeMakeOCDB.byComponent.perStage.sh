@@ -425,7 +425,7 @@ parseConfig()
 
 waitIfLocked()
 {
-  while [ 1 ]; do
+  while true; do
     [[ ! -f $1 ]] && break
     sleep 1
   done

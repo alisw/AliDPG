@@ -46,7 +46,7 @@ parseConfig()
 }
 
 arguments=("$@")
-echo "The arguments are: $@"
+echo "The arguments are: $*"
 #echo "${arguments[*]}"
 endRun=-1
 targetOCDBDir="local://"`pwd`
