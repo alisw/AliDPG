@@ -141,9 +141,12 @@ else
     if [ "$pass_type" == "ppass" ]; then
 	echo "Pass type = ppass"
 	cp $ALIDPG_ROOT/DataProc/PPass/rec.C .
-    else
+    elif [ "$pass_type" == "muon_calo" ]; then
 	echo "Pass type = muon_calo"
 	cp $ALIDPG_ROOT/DataProc/muon_calo/rec.C .
+    else
+        echo "Pass type = cosmics"
+        cp $ALIDPG_ROOT/DataProc/cosmics/rec.C .
     fi
 fi
 
@@ -156,23 +159,29 @@ fi
 
 if [ -f QAtrain_duo.C ]; then
     echo "Use QAtrain_duo.C macro passed as input"
-else
+elif [ "$pass_type" != "cosmics" ]; then
     echo "Use QAtrain_duo.C macro from AliDPG"
     cp $ALIDPG_ROOT/QA/QAtrain_duo.C .
+else 
+    echo "Cosmics type, not using QAtrain_duo"
 fi
 
 if [ -f mergeQAgroups.C ]; then
     echo "Use mergeQAgroups.C macro passed as input"
-else
+elif [ "$pass_type" != "cosmics" ]; then
     echo "Use mergeQAgroups.C macro from AliDPG"
     cp $ALIDPG_ROOT/QA/mergeQAgroups.C .
+else 
+    echo "Cosmics type, not using mergeQAgroups"
 fi
 
 if [ -f AODtrain.C ]; then
     echo "Use AODtrain.C macro passed as input"
-else
+elif [ "$pass_type" != "cosmics" ]; then
     echo "Use AODtrain.C macro from AliDPG"
     cp $ALIDPG_ROOT/AOD/AODtrain.C .
+else 
+    echo "Cosmics type, not using AODtrain"
 fi
 
 
