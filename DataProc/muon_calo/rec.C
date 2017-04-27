@@ -6,7 +6,7 @@ void rec(const char *filename="raw.root")
   //
   /////////////////////////////////////////////////////////////////////////////////////////
 
-  
+  AliReconstruction rec;
 
   // Upload CDB entries from the snapshot (local root file) if snapshot exist
   if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {        
@@ -30,8 +30,6 @@ void rec(const char *filename="raw.root")
       return;
     }
   }
-
-  AliReconstruction rec;
 
   // Set reconstruction flags (skip detectors here if neded with -<detector name>
   rec.SetRunReconstruction("ALL -TPC -TRD -TOF -HLT -PMD");

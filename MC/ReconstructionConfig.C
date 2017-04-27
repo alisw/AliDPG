@@ -13,6 +13,7 @@ enum EReconstruction_t {
   kReconstructionMuon,
   kReconstructionITSpureSA,  
   kReconstructionNoSDD,  
+  kReconstructionRun1TrackingPID,
   kReconstructionCustom,
   kNReconstructions
 };
@@ -22,6 +23,7 @@ const Char_t *ReconstructionName[kNReconstructions] = {
   "Muon",
   "ITSpureSA",
   "NoSDD",
+  "Run1TrackingPID",
   "Custom"
 };
 
@@ -59,7 +61,7 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     // Muon
   case kReconstructionMuon:
     ReconstructionDefault(rec);
-    rec.SetRunReconstruction("MUON ITS VZERO");
+    rec.SetRunReconstruction("MUON ITS VZERO T0 AD");
     return;
 
     // ITSpureSA
@@ -73,6 +75,12 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
   case kReconstructionNoSDD:
     ReconstructionDefault(rec);
     rec.SetRecoParam("ITS", OverrideITSRecoParam_NoSDD_pPb2016());
+    return;
+
+    // Run1TrackingPID
+  case kReconstructionRun1TrackingPID:
+    ReconstructionDefault(rec);
+    rec.SetRun1PIDforTracking(kTRUE);
     return;
     
     // Custom
@@ -109,7 +117,8 @@ ReconstructionDefault(AliReconstruction &rec)
   else {
     // set OCDB snapshot mode
     rec.SetCDBSnapshotMode("OCDBrec.root");
-    //    AliCDBManager *cdbm = AliCDBManager::Instance();
+    AliCDBManager *cdbm = AliCDBManager::Instance();
+    cdbm->SetDefaultStorage("local://");
     //    cdbm->SetSnapshotMode("OCDBrec.root");
   }
 

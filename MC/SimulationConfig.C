@@ -42,8 +42,9 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     // Muon
   case kSimulationMuon:
     SimulationDefault(sim);
-    sim.SetMakeSDigits("MUON VZERO");
+    sim.SetMakeSDigits("MUON VZERO T0 AD");
     sim.SetMakeDigitsFromHits("ITS");
+    sim.SetRunHLT("");
     return;
     
     // EmbedBkg
@@ -98,7 +99,8 @@ SimulationDefault(AliSimulation &sim)
   else {
     // set OCDB snapshot mode
     sim.SetCDBSnapshotMode("OCDBsim.root");
-    //    AliCDBManager *cdbm = AliCDBManager::Instance();
+    AliCDBManager *cdbm = AliCDBManager::Instance();
+    cdbm->SetDefaultStorage("local://");
     //    cdbm->SetSnapshotMode("OCDBsim.root");
   }
 

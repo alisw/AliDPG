@@ -1,74 +1,36 @@
-test_pp: test_Pythia8	
-test_PbPb: test_Hijing	
-test_PbPb_central: test_Hijing_central
-test_PbPb_semicentral: test_Hijing_semicentral	
-test_PbPb_peripheral: test_Hijing_peripheral
+RUN     = 117222
+NEVENTS = 1
+MODE    = "sim,rec"
+EXTRA   = "--bmin 14.5 --bmax 15.5 --pthardbin 1"
 
-test_Pythia8: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode full --nevents 2 --uid 1 --generator Pythia8 --system p-p
+OBJECTS = Pythia6_Perugia2011 \
+	  Pythia8_Monash2013 \
+	  Pythia8Jets_Monash2013 \
+	  Phojet \
+	  EPOSLHC \
+	  Hijing
 
-test_Muon: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode full,Muon --nevents 2 --uid 1 --generator Pythia6_Perugia2011 --system p-p
+SOURCEDIR   = $(ALIDPG_ROOT)/MC/CustomGenerators/
+SOURCES    := $(shell find $(SOURCEDIR) -name '*.C')
+OBJECTS    += $(SOURCES:$(SOURCEDIR)%.C=%)
 
-test_Rsn001: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode full --nevents 2 --uid 1 --generator Pythia8_Monash2013_Rsn001 --system p-p
+all: $(OBJECTS)
 
-### [ALIROOT-6721] [ALIROOT-6722]
+$(OBJECTS): OCDBsim.root OCDBrec.root
+	$(eval GEN := $(subst /,:,$@))
+	@echo "=== Running test simulation run ${RUN} with generator ${GEN} ==="
+	@mkdir -p $@
+	@ln -s $(PWD)/OCDBsim.root $@/.
+	@ln -s $(PWD)/OCDBrec.root $@/.
+	@cd $@ && $(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run ${RUN} --generator ${GEN} --mode ${MODE} --nevents ${NEVENTS} ${EXTRA} &> dpgsim.log && echo " [SUCCESS] Running test simulation run ${RUN} with generator ${GEN}" || echo " [FAILURE] Running test simulation run ${RUN} with generator ${GEN}"
 
-Hijing_Rsn002a: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing_Rsn002a --bmin  0 --bmax  5 --system Pb-Pb
+OCDBsim.root:
+	@echo "=== Running OCDB snapshot creation for run ${RUN} ==="
+	@$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run ${RUN} --mode ocdb &> snapshot.log && echo " [SUCCESS] Running OCDB snapshot creation for run ${RUN}" || echo " [FAILURE] Running OCDB snapshot creation for run ${RUN}"
 
-Hijing_Rsn002b: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing_Rsn002b --bmin  5 --bmax 11 --system Pb-Pb
-
-Hijing_Rsn002c: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 2 --uid 1 --generator Hijing_Rsn002c --bmin 11 --bmax 15 --system Pb-Pb
-
-### [ALIROOT-6750]
-
-Hijing_Jpsiee001: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 1 --uid 1 --generator Hijing_Jpsiee001 --system Pb-Pb  --bmin 11 --bmax 15
-
-###
-
-EPOSLHC_pp: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode full --nevents 1 --uid 1 --generator EPOSLHC
-
-### [ALIROOT-XXXX] Pb-Pb preparations
-
-Hijing: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 1 --uid 1 --generator Hijing
-
-
-Hijing_central: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 1 --uid 1 --generator Hijing --bmin 0 --bmax 5
-
-
-Hijing_semicentral: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 1 --uid 1 --generator Hijing --bmin 5 --bmax 11
-
-
-Hijing_peripheral: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 245064 --mode full --nevents 1 --uid 1 --generator Hijing --bmin 11 --bmax 15
-
-
-EPOSLHC_PbPb: clean
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode ocdb
-	$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run 225106 --mode full --nevents 1 --uid 1 --generator EPOSLHC
-
-###
+OCDBrec.root:
+	@echo "=== Running OCDB snapshot creation for run ${RUN} ==="
+	@$(ALIDPG_ROOT)/bin/aliroot_dpgsim.sh --run ${RUN} --mode ocdb &> snapshot.log && echo " [SUCCESS] Running OCDB snapshot creation for run ${RUN}" || echo " [FAILURE] Running OCDB snapshot creation for run ${RUN}"
 
 clean:
-	rm -rf *~ *.root *.log *.inp *.dat stress* validation* GRP input
+	rm -rf *~ *.log validation_error.message *.xml $(OBJECTS)
