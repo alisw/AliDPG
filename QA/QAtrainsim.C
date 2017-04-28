@@ -155,6 +155,10 @@ void QAtrainsim(Int_t run = 0,
   // subsidiary handler for mc-to-mc embedding
   TString bgDir = gSystem->Getenv("CONFIG_BGEVDIR");
   if (!bgDir.IsNull()) { // add extra handler for underlaying event
+    if (bgDir.BeginsWith("alien://") && !gGrid && !TGrid::Connect("alien://")) {
+      printf("Failed to create a grid connection\n");
+      abort();
+    }
     if (!bgDir.EndsWith("/")) bgDir += "/";
     AliMCEventHandler* mcHandlerBg = new AliMCEventHandler();
     mcHandlerBg->SetInputPath(bgDir.Data());

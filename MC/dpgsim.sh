@@ -156,8 +156,6 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--background" ]; then
         CONFIG_BACKGROUND="$1"
 	export CONFIG_BACKGROUND
-	CONFIG_BGEVDIR="BKG"
-	export CONFIG_BGEVDIR
         shift
     elif [ "$option" = "--process" ]; then
         CONFIG_PROCESS="$1"
@@ -521,8 +519,20 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     if [ -f sim.C ]; then
 	SIMC=sim.C
     fi
-    
-    if [[ $CONFIG_BACKGROUND != "" ]]; then
+
+    # embedding using already generated background
+    if [[ $CONFIG_BACKGROUND == *galice.root ]]; then
+
+	echo ">>>>> EMBEDDING: request to embed $CONFIG_GENERATOR signal in $CONFIG_BACKGROUND background"
+	export CONFIG_SIMULATION="EmbedSig"	
+	export CONFIG_BGEVDIR=${CONFIG_BACKGROUND%galice.root}
+	
+    # embedding using on-the-fly generated background
+    elif [[ $CONFIG_BACKGROUND != "" ]]; then
+
+	CONFIG_BGEVDIR=$CONFIG_BACKGROUND
+	export CONFIG_BGEVDIR
+
 	echo ">>>>> EMBEDDING: request to embed $CONFIG_GENERATOR signal in $CONFIG_BACKGROUND background"
 
 	if [[ $CONFIG_NBKG == "" ]]; then
@@ -535,6 +545,7 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	export CONFIG_GENERATOR=$CONFIG_BACKGROUND
 	export CONFIG_NEVENTS=$CONFIG_NBKG
 	export CONFIG_SIMULATION="EmbedBkg"
+	export CONFIG_BGEVDIR="BKG"
 	
 	mkdir $CONFIG_BGEVDIR
 	cp OCDB*.root *.C $CONFIG_BGEVDIR/.

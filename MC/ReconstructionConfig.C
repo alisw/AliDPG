@@ -37,6 +37,10 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
   // subsidiary handler for mc-to-mc embedding
   TString bgDir = gSystem->Getenv("CONFIG_BGEVDIR");
   if (!bgDir.IsNull()) { // add extra handler for underlaying event
+    if (bgDir.BeginsWith("alien://") && !gGrid && !TGrid::Connect("alien://")) { 
+      printf("Failed to create a grid connection\n"); 
+      abort(); 
+    }
     if (!bgDir.EndsWith("/")) bgDir += "/";
     AliMCEventHandler* mcHandler = new AliMCEventHandler();
     mcHandler->SetPreReadMode(1);
