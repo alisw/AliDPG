@@ -90,6 +90,7 @@ function runBenchmark(){
 
 CONFIG_NEVENTS="200"
 CONFIG_NBKG=""
+CONFIG_BGEVDIR=""
 CONFIG_SEED="0"
 CONFIG_GENERATOR=""
 CONFIG_BACKGROUND=""
@@ -155,6 +156,8 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--background" ]; then
         CONFIG_BACKGROUND="$1"
 	export CONFIG_BACKGROUND
+	CONFIG_BGEVDIR="BKG"
+	export CONFIG_BGEVDIR
         shift
     elif [ "$option" = "--process" ]; then
         CONFIG_PROCESS="$1"
@@ -533,9 +536,9 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	export CONFIG_NEVENTS=$CONFIG_NBKG
 	export CONFIG_SIMULATION="EmbedBkg"
 	
-	mkdir BKG
-	cp OCDB*.root *.C BKG/.
-	cd BKG
+	mkdir $CONFIG_BGEVDIR
+	cp OCDB*.root *.C $CONFIG_BGEVDIR/.
+	cd $CONFIG_BGEVDIR
 
 	runcommand "BACKGROUND" $SIMC sim.log 5
 	mv -f syswatch.log simwatch.log
