@@ -12,7 +12,7 @@ OBJECTS = Pythia6_Perugia2011 \
 
 SOURCEDIR   = $(ALIDPG_ROOT)/MC/CustomGenerators/
 SOURCES    := $(shell find $(SOURCEDIR) -name '*.C')
-OBJECTS    += $(SOURCES:$(SOURCEDIR)%.C=%)
+OBJECTS    += $(SOURCES:$(SOURCEDIR)/%.C=%)
 
 all: $(OBJECTS)
 
