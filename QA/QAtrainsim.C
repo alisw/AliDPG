@@ -152,6 +152,17 @@ void QAtrainsim(Int_t run = 0,
   mcHandler->SetPreReadMode(1);
   mcHandler->SetReadTR(kTRUE); 
 
+  // subsidiary handler for mc-to-mc embedding
+  TString bgDir = gSystem->Getenv("CONFIG_BGEVDIR");
+  if (!bgDir.IsNull()) { // add extra handler for underlaying event
+    if (!bgDir.EndsWith("/")) bgDir += "/";
+    AliMCEventHandler* mcHandlerBg = new AliMCEventHandler();
+    mcHandlerBg->SetInputPath(bgDir.Data());
+    mcHandlerBg->SetPreReadMode(1);
+    mcHandlerBg->SetReadTR(kTRUE);
+    mcHandler->AddSubsidiaryHandler(mcHandlerBg);
+  }
+  
   // AnalysisTasks
 //  mgr->Lock();
   mgr->SetFileInfoLog("fileinfo.log"); 
