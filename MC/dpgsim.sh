@@ -597,7 +597,14 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	CHECKESDC=CheckESD.C
     fi    
     runcommand "CHECK ESD" $CHECKESDC check.log 60 1
-    rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
+
+    # delete files not needed anymore
+    if [[ $CONFIG_SIMULATION == "EmbedBkg" ]]; then
+	rm -f *.RecPoints.root *.Digits.root
+	ls *.Hits.root | grep -v T0.Hits.root | xargs rm
+    else
+	rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
+    fi
 
 fi
 
