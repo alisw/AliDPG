@@ -156,6 +156,8 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--background" ]; then
         CONFIG_BACKGROUND="$1"
 	export CONFIG_BACKGROUND
+	CONFIG_BGEVDIR="BKG"
+	export CONFIG_BGEVDIR
         shift
     elif [ "$option" = "--process" ]; then
         CONFIG_PROCESS="$1"
