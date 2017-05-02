@@ -61,6 +61,10 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     sim.SetMakeDigitsFromHits("");
     TString bgstr = gSystem->Getenv("CONFIG_BGEVDIR");
     if (!bgstr.IsNull()) { 
+      if (bgstr.BeginsWith("alien://") && !gGrid && !TGrid::Connect("alien://")) {
+	printf("Failed to create a grid connection\n");
+	abort();
+      }
       if (!bgstr.EndsWith("/")) bgstr += "/";
       bgstr += "galice.root";
       sim.EmbedInto(bgstr.Data());

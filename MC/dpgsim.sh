@@ -521,8 +521,20 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     if [ -f sim.C ]; then
 	SIMC=sim.C
     fi
-    
-    if [[ $CONFIG_BACKGROUND != "" ]]; then
+
+    # embedding using already generated background
+    if [[ $CONFIG_BACKGROUND == *galice.root ]]; then
+
+	echo ">>>>> EMBEDDING: request to embed $CONFIG_GENERATOR signal in $CONFIG_BACKGROUND background"
+	export CONFIG_SIMULATION="EmbedSig"	
+	export CONFIG_BGEVDIR=${CONFIG_BACKGROUND%galice.root}
+	
+    # embedding using on-the-fly generated background
+    elif [[ $CONFIG_BACKGROUND != "" ]]; then
+
+	CONFIG_BGEVDIR=$CONFIG_BACKGROUND
+	export CONFIG_BGEVDIR
+
 	echo ">>>>> EMBEDDING: request to embed $CONFIG_GENERATOR signal in $CONFIG_BACKGROUND background"
 
 	if [[ $CONFIG_NBKG == "" ]]; then
@@ -535,6 +547,7 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	export CONFIG_GENERATOR=$CONFIG_BACKGROUND
 	export CONFIG_NEVENTS=$CONFIG_NBKG
 	export CONFIG_SIMULATION="EmbedBkg"
+	export CONFIG_BGEVDIR="BKG"
 	
 	mkdir $CONFIG_BGEVDIR
 	cp OCDB*.root *.C $CONFIG_BGEVDIR/.
@@ -586,7 +599,14 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	CHECKESDC=CheckESD.C
     fi    
     runcommand "CHECK ESD" $CHECKESDC check.log 60 1
-    rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
+
+    # delete files not needed anymore
+    if [[ $CONFIG_SIMULATION == "EmbedBkg" ]]; then
+	rm -f *.RecPoints.root *.Digits.root
+	ls *.Hits.root | grep -v T0.Hits.root | xargs rm
+    else
+	rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
+    fi
 
 fi
 
