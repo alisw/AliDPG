@@ -135,6 +135,13 @@ export TPC_CPass1_GainCalibType=${ALIEN_JDL_TPC_CPASS1_GAINCALIBTYPE-$TPC_CPass1
 
 echo "TPC_CPass1_GainCalibType=${TPC_CPass1_GainCalibType}" | tee -a calib.log
 
+# CPass mode - 1 here
+export CPASSMODE=1
+
+export CPASSMODE=${ALIEN_JDL_LPMCPASSMODE-$CPASSMODE}
+
+echo "CPASSMODE = ${CPASSMODE}" | tee -a calib.log
+
 CHUNKNAME="$1"
 
 if [ "${CHUNKNAME:0:1}" = "/" ]; then
