@@ -73,6 +73,8 @@ void
 DetectorConfig(Int_t tag)
 {
 
+  printf(">>>>> DetectorConfig: %s \n", DetectorName[tag]);
+
   switch (tag) {
 
     // kDetectorDefault

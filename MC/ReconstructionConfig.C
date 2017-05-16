@@ -32,6 +32,8 @@ const Char_t *ReconstructionName[kNReconstructions] = {
 ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
 {
 
+  printf(">>>>> ReconstructionConfig: %s \n", ReconstructionName[tag]);
+
   TString system = gSystem->Getenv("CONFIG_SYSTEM");
   
   // subsidiary handler for mc-to-mc embedding
