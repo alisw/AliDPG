@@ -31,6 +31,7 @@ const Char_t *SimulationName[kNSimulations] = {
 SimulationConfig(AliSimulation &sim, ESimulation_t tag)
 {
   
+  printf(">>>>> SimulationConfig: %s \n", SimulationName[tag]);
   
   switch(tag) {
     
