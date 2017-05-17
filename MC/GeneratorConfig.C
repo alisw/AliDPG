@@ -410,7 +410,7 @@ GeneratorPythia8Jets(Int_t tune)
   pythia->SetProcess(kPyJets);
   pythia->SetJetEtaRange(-1.5, 1.5); // Final state kinematic cuts
   pythia->SetJetPhiRange(0., 360.);
-  pythia->SetJetEtRange(5., 1000.);
+  pythia->SetJetEtRange(0., 1000.);
   pythia->SetPtHard(pthardminConfig, pthardmaxConfig); // Pt transfer of the hard scattering
   pythia->SetStrucFunc(kCTEQ5L);
   // quenching
