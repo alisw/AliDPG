@@ -232,8 +232,6 @@ void makeOCDB(Int_t runNumber, TString  targetOCDBstorage="", TString sourceOCDB
     Printf("\n******* NOT Calibrating TRD: detStr = %s, TRD_qf = %d *******", detStr.Data(), (Int_t)TRD_qf);
   }
   
-  // switched OFF at CPass1 in any case
-  /*
   //Mean Vertex
   AliMeanVertexPreprocessorOffline * procesMeanVtx=0;
   if (detStr.Contains("ITSSPD") && SPD_qf) {
@@ -244,7 +242,6 @@ void makeOCDB(Int_t runNumber, TString  targetOCDBstorage="", TString sourceOCDB
   else {
     Printf("\n******* NOT Calibrating MeanVertex: detStr = %s, SPD_qf = %d *******", detStr.Data(), (Int_t)SPD_qf);
   }
-  */
 
   AliAnalysisTaskADCalib *procesAD = NULL;
   if (detStr.Contains("AD") && AD_qf) {
