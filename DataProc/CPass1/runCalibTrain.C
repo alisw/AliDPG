@@ -35,7 +35,7 @@ void runCalibTrain(Int_t runNumber, const char *inFileName = "AliESDs.root", con
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/AddTOFAnalysisTaskCalibTree.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/AddTaskT0Calib.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/AddTaskT0Analysis.C");
-  //  gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/AddTaskMeanVertexCalib.C");
+  gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/AddTaskMeanVertexCalib.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/AddTaskSDDCalib.C"); 
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/AD/AddTaskADCalib.C");
 
@@ -103,7 +103,7 @@ void runCalibTrain(Int_t runNumber, const char *inFileName = "AliESDs.root", con
   AliSysInfo::AddStamp("BeforeAD");
   if ( detStr.Contains("AD")) AddTaskADCalib();
 
-  //if ( detStr.Contains("ITSSPD")) tMeanVtx = AddTaskMeanVertexCalib();
+  if ( detStr.Contains("ITSSPD")) AddTaskMeanVertexCalib();
   //
   Bool_t okTPC = detStr.Contains("TPC");
   Bool_t useTPCcrv=kFALSE;
