@@ -31,16 +31,35 @@ function runcommand(){
     echo "$1 TIME: $((END-START))"
     
     expectedCode=${5-0}
-    
+
+    # check exit code
     if [ "$exitcode" -ne "$expectedCode" ]; then
         echo "*! $2 failed with exitcode $exitcode, expecting $expectedCode"
         echo "*! $2 failed with exitcode $exitcode, expecting $expectedCode" >&2
         echo "$2 failed with exitcode $exitcode, expecting $expectedCode" >> validation_error.message
         exit ${4-$exitcode}
-    else
-        echo "* $2 finished with the expected exit code ($expectedCode), moving on"
-        echo "* $2 finished with the expected exit code ($expectedCode), moving on" >&2
     fi
+
+    # check potential sign of errors in the log file
+    errorStrings=(
+	"*** Interpreter error recovered ***" 
+	"*** Break *** segmentation violation" 
+	"*** Break *** floating point exception" 
+	"*** Break *** bus error")
+   
+    for I in "${errorStrings[@]}"; do
+	grep -F "$I" $3 > /dev/null;
+	if [ "$?" -ne "1" ]; then
+            echo "*! $2 failed, detected error in $3: ""$I"
+            echo "*! $2 failed, detected error in $3: ""$I" >&2
+            echo "$2 failed, detected error in $3: ""$I" >> validation_error.message
+            exit ${4-$exitcode}
+	fi
+    done
+
+    # all right, success
+    echo "* $2 finished with the expected exit code ($expectedCode), moving on"
+    echo "* $2 finished with the expected exit code ($expectedCode), moving on" >&2
 
 }
 
