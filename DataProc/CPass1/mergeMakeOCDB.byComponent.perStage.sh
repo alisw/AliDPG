@@ -101,6 +101,13 @@ main()
   echo "TPC_CPass1_GainCalibType=${TPC_CPass1_GainCalibType}" | tee -a ocdb.log
   echo "targetStorageResidual=${targetStorageResidual}" | tee -a ocdb.log
 
+  # CPass mode - 1 here
+  export CPASSMODE=1
+  
+  export CPASSMODE=${ALIEN_JDL_LPMCPASSMODE-$CPASSMODE}
+  
+  echo "CPASSMODE = ${CPASSMODE}" | tee -a ocdb.log
+
   #################################################################
   echo "" | tee -a merge.log
   echo "$0 ${save_args[*]}" | tee -a merge.log

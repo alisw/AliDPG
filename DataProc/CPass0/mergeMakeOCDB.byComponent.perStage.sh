@@ -65,7 +65,6 @@ main()
   export TPC_CPass0_GainCalibType=1
   export TPC_CPass1_GainCalibType=3
 
-
   # ===| Parse config file |====================================================
   parseConfig "$@"
 
@@ -100,6 +99,13 @@ main()
   echo "TPC_CPass0_GainCalibType=${TPC_CPass0_GainCalibType}" | tee -a ocdb.log
   echo "TPC_CPass1_GainCalibType=${TPC_CPass1_GainCalibType}" | tee -a ocdb.log
   echo "targetStorageResidual=${targetStorageResidual}" | tee -a ocdb.log
+
+  # CPass mode - 0 here
+  export CPASSMODE=0
+  
+  export CPASSMODE=${ALIEN_JDL_LPMCPASSMODE-$CPASSMODE}
+  
+  echo "CPASSMODE = ${CPASSMODE}" | tee -a ocdb.log
 
   #################################################################
   echo "" | tee -a merge.log
