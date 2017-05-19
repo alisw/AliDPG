@@ -29,7 +29,7 @@ function runcommand(){
     exitcode=$?
     END=`date "+%s"`
     echo "$1 TIME: $((END-START))"
-    
+
     expectedCode=${5-0}
 
     # check exit code
@@ -94,14 +94,14 @@ function runBenchmark(){
     fi
 
     grep "model name" /proc/cpuinfo | uniq -c
-    
+
     if [ -x /cvmfs/atlas.cern.ch/repo/benchmarks/htcondor/x86_64/slc6/stripped/8.2.8/libexec/condor_kflops ]; then
         /cvmfs/atlas.cern.ch/repo/benchmarks/htcondor/x86_64/slc6/stripped/8.2.8/libexec/condor_kflops &>/dev/null
         /cvmfs/atlas.cern.ch/repo/benchmarks/htcondor/x86_64/slc6/stripped/8.2.8/libexec/condor_kflops
     else
         echo "kFlops executable is not available on `hostname -f`"
     fi
-    
+
     if [ -f lhcb.py ]; then
         python lhcb.py
     fi
@@ -151,7 +151,7 @@ RUNMODE=""
 while [ ! -z "$1" ]; do
     option="$1"
     shift
-    
+
     if [ "$option" = "--mode" ]; then
 	CONFIG_MODE="$1"
 	export CONFIG_MODE
@@ -185,7 +185,7 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--processbin" ]; then
         CONFIG_PROCESSBIN="$1"
 	export CONFIG_PROCESSBIN
-        shift  
+        shift
 #    elif [ "$option" = "--magnet" ]; then
 #        CONFIG_MAGNET="$1"
 #	export CONFIG_MAGNET	
@@ -243,47 +243,53 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--pthardbin" ]; then
         CONFIG_PTHARDBIN="$1"
 	export CONFIG_PTHARDBIN
-        shift  
+        shift
     elif [ "$option" = "--pthardmin" ]; then
         CONFIG_PTHARDMIN="$1"
 	export CONFIG_PTHARDMIN
-        shift  
+        shift
     elif [ "$option" = "--pthardmax" ]; then
         CONFIG_PTHARDMAX="$1"
 	export CONFIG_PTHARDMAX
-        shift  
+        shift
     elif [ "$option" = "--quenching" ]; then
         CONFIG_QUENCHING="$1"
 	export CONFIG_QUENCHING
-        shift 
+        shift
     elif [ "$option" = "--qhat" ]; then
         CONFIG_QHAT="$1"
 	export CONFIG_QHAT
-        shift 
+        shift
     elif [ "$option" = "--nevents" ]; then
         CONFIG_NEVENTS="$1"
 	export CONFIG_NEVENTS
-        shift 
+        shift
     elif [ "$option" = "--nbkg" ]; then
         CONFIG_NBKG="$1"
 	export CONFIG_NBKG
-        shift 
+        shift
     elif [ "$option" = "--ocdb" ]; then
         CONFIG_OCDB="$1"
-	export CONFIG_OCDB
-        shift 
+        if [[ $CONFIG_OCDB == cvmfs* ]]; then
+            OCDB_PATH=${CONFIG_OCDB#*:}
+            [[ ! $OCDB_PATH || $OCDB_PATH == $CONFIG_OCDB ]] && OCDB_PATH=/cvmfs/alice-ocdb.cern.ch
+            export OCDB_PATH
+            CONFIG_OCDB=cvmfs
+        fi
+        export CONFIG_OCDB
+        shift
     elif [ "$option" = "--hlt" ]; then
         CONFIG_HLT="$1"
 	export CONFIG_HLT
-        shift 
+        shift
     elif [ "$option" = "--material" ]; then
         CONFIG_MATERIAL="$1"
 	export CONFIG_MATERIAL
-        shift 
+        shift
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
 	export CONFIG_GEANT4
-        shift 
+        shift
 #    elif [ "$option" = "--sdd" ]; then
 #        RUNMODE="SDD"
 #	export RUNMODE
@@ -359,13 +365,13 @@ if [ -f "$G4INSTALL/bin/geant4.sh" ]; then
     source $G4INSTALL/bin/geant4.sh
 fi
 
-### check whether we are in OCDB generation job 
+### check whether we are in OCDB generation job
 
 if [[ $ALIEN_JDL_LPMOCDBJOB == "true" ]]; then
     echo ">>>>> OCDB generation: force MODE to 'ocdb'"
     export CONFIG_MODE="ocdb"
 fi
-    
+
 ### createSnapshot.C
 
 if [[ $CONFIG_MODE == *"ocdb"* ]]; then
@@ -380,7 +386,7 @@ echo
     if [ -f CreateSnapshot.C ]; then
 	SIMC=CreateSnapshot.C
     fi
-    
+
     runcommand "OCDB SIM SNAPSHOT" $OCDBC\(0\) ocdbsim.log 500
     mv -f syswatch.log ocdbsimwatch.log
     if [ ! -f OCDBsim.root ]; then
@@ -400,7 +406,7 @@ echo
 fi
 
 ### check basic requirememts
-    
+
     if [[ $CONFIG_MODE == "" ]]; then
 	echo ">>>>> ERROR: mode is required!"
 	echo $COMMAND_HELP
@@ -414,14 +420,14 @@ if [[ $CONFIG_RUN == "" ]]; then
 fi
 
 if [[ $CONFIG_OCDB == *"snapshot"* ]]; then
-    
+
     if [ ! -f OCDBsim.root ]; then
 	echo ">>>>> ERROR: Could not find OCDBsim.root"
     fi
     if [ ! -f OCDBrec.root ]; then
 	echo ">>>>> ERROR: Could not find OCDBrec.root"
 	exit 2
-    fi    
+    fi
 fi
 
 ### automatic settings from CONFIG_MODE
@@ -448,7 +454,7 @@ fi
 
 aliroot -b -q $ALIDPG_ROOT/MC/ExportGRPinfo.C\($CONFIG_RUN\) 2>/dev/null | grep export > grpdump.sh && source grpdump.sh # && rm grpdump.sh
 
-### override automatic settings from GRP info if requested 
+### override automatic settings from GRP info if requested
 
 if [[ $OVERRIDE_ENERGY != "" ]]; then
     export CONFIG_ENERGY=$OVERRIDE_ENERGY
@@ -523,7 +529,7 @@ echo
 ### sim.C
 
 if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
-    
+
     if [[ $CONFIG_GENERATOR == "" ]]; then
 	echo ">>>>> ERROR: generator is required for full production mode!"
 	echo $COMMAND_HELP
@@ -559,7 +565,7 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	if [[ $CONFIG_NBKG == "" ]]; then
 	    export CONFIG_NBKG=1
 	fi
-	    
+	
 	SAVE_CONFIG_GENERATOR=$CONFIG_GENERATOR
 	SAVE_CONFIG_NEVENTS=$CONFIG_NEVENTS
 	SAVE_CONFIG_SIMULATION=$CONFIG_SIMULATION
@@ -598,9 +604,9 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     if [ -f rec.C ]; then
 	RECC=rec.C
     fi
-    
+
     runcommand "RECONSTRUCTION" $RECC rec.log 10
-    mv -f syswatch.log recwatch.log    
+    mv -f syswatch.log recwatch.log
     if [ ! -f AliESDs.root ]; then
 	echo "*! Could not find AliESDs.root, the simulation/reconstruction chain failed!"
 	echo "Could not find AliESDs.root, the simulation/reconstruction chain failed!" >> validation_error.message
@@ -610,13 +616,13 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     TAGC=$ALIDPG_ROOT/MC/tag.C
     if [ -f tag.C ]; then
 	TAGC=tag.C
-    fi    
+    fi
     runcommand "TAG" $TAGC tag.log 50
 
     CHECKESDC=$ALIDPG_ROOT/MC/CheckESD.C
     if [ -f CheckESD.C ]; then
 	CHECKESDC=CheckESD.C
-    fi    
+    fi
     runcommand "CHECK ESD" $CHECKESDC check.log 60 1
 
     # delete files not needed anymore
@@ -632,21 +638,21 @@ fi
 ### QAtrainsim.C
 
 if [[ $CONFIG_MODE == *"qa"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
-    
+
     echo "QAresults.root" >> validation_extrafiles.list
 
     QATRAINSIMC=$ALIDPG_ROOT/QA/QAtrainsim.C\($CONFIG_RUN\)
     if [ -f QAtrainsim.C ]; then
 	QATRAINSIMC=QAtrainsim.C\($CONFIG_RUN\)
     fi
-    
+
     runcommand "QA TRAIN" $QATRAINSIMC qa.log 1000
     mv -f syswatch.log qawatch.log
 
     for file in *.stat; do
 	mv -f "$file" "$file.qa"
     done
-    
+
 fi
 
 ### AODtrainsim.C
@@ -654,7 +660,7 @@ fi
 if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
     echo "AliAOD.root" >> validation_extrafiles.list
-    
+
     AODTRAINSIMC=$ALIDPG_ROOT/AOD/AODtrainsim.C
     if [ -f AODtrainsim.C ]; then
 	AODTRAINSIMC=AODtrainsim.C
@@ -668,7 +674,7 @@ if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     for file in *.stat; do
 	mv -f $file $file.aod
     done
-    
+
 fi
 
 
