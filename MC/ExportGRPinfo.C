@@ -1,13 +1,12 @@
 AliGRPObject *
 ExportGRPinfo(Int_t run)
 {
-  
   // set OCDB source
   AliCDBManager *cdbm = AliCDBManager::Instance();
   TString ocdbConfig = "default,snapshot";
   if (gSystem->Getenv("CONFIG_OCDB"))
     ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
-  if (ocdbConfig.Contains("alien")) {
+  if (ocdbConfig.Contains("alien") || ocdbConfig.Contains("cvmfs")) {
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
     OCDBDefault(0);

@@ -108,7 +108,7 @@ void AODtrainsim(Int_t merge=0)
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
     OCDBDefault(1);    
   }
-  else if (ocdbConfig.Contains("alien")) {
+  else if (ocdbConfig.Contains("alien") || ocdbConfig.Contains("cvmfs")) {
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
     OCDBDefault(1);
@@ -124,7 +124,7 @@ void AODtrainsim(Int_t merge=0)
     
   UpdateFlags();
   
-  if (merge || doCDBconnect) {
+  if ((merge || doCDBconnect) && !gSystem->Getenv("OCDB_PATH")) {
     TGrid::Connect("alien://");
     if (!gGrid || !gGrid->IsConnected()) {
       ::Error("AODtrainsim", "No grid connection");
