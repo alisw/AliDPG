@@ -854,6 +854,11 @@ void ProcessEnvironmentVars()
     printf("Set doMUONTrig=%d according to environment variables\n",doMUONTrig);
   }
   //
+  if ( !(envS=gSystem->Getenv("MUONEff")).IsNull() && CheckEnvS("MUONEff",envS) ) {
+    doMUONEff = atoi(envS.Data());
+    printf("Set doMUONEff=%d according to environment variables\n",doMUONEff);
+  }
+  //
   if ( !(envS=gSystem->Getenv("ImpParRes")).IsNull() && CheckEnvS("ImpParRes",envS) ) {
     doImpParRes = atoi(envS.Data());
     printf("Set doImpParRes=%d according to environment variables\n",doImpParRes);
@@ -949,6 +954,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doITSalign,    0, "ITSalign");
       SetDoQA(doCALO ,       1, "CALO");
       SetDoQA(doMUONTrig,    0, "MUONTrig");
+      SetDoQA(doMUONEff,     0, "MUONEff");
       SetDoQA(doImpParRes,   1, "ImpParRes");
       SetDoQA(doMUON,        0, "MUON");
       SetDoQA(doTOF,         0, "TOF");
@@ -980,6 +986,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doITSalign,    0, "ITSalign");
       SetDoQA(doCALO ,       0, "CALO");
       SetDoQA(doMUONTrig,    0, "MUONTrig");
+      SetDoQA(doMUONEff,     0, "MUONEff");
       SetDoQA(doImpParRes,   0, "ImpParRes");
       SetDoQA(doMUON,        0, "MUON");
       SetDoQA(doTOF,         0, "TOF");
@@ -1011,6 +1018,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doITSalign,    1, "ITSalign");
       SetDoQA(doCALO ,       0, "CALO");
       SetDoQA(doMUONTrig,    0, "MUONTrig");
+      SetDoQA(doMUONEff,     0, "MUONEff");
       SetDoQA(doImpParRes,   0, "ImpParRes");
       SetDoQA(doMUON,        0, "MUON");
       SetDoQA(doTOF,         0, "TOF");
@@ -1042,6 +1050,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doITSalign,    0, "ITSalign");
       SetDoQA(doCALO ,       0, "CALO");
       SetDoQA(doMUONTrig,    0, "MUONTrig");
+      SetDoQA(doMUONEff,     0, "MUONEff");
       SetDoQA(doImpParRes,   0, "ImpParRes");
       SetDoQA(doMUON,        0, "MUON");
       SetDoQA(doTOF,         1, "TOF");
@@ -1073,6 +1082,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doITSalign,    0, "ITSalign");
       SetDoQA(doCALO ,       0, "CALO");
       SetDoQA(doMUONTrig,    1, "MUONTrig");
+      SetDoQA(doMUONEff,     1, "MUONEff");
       SetDoQA(doImpParRes,   0, "ImpParRes");
       SetDoQA(doMUON,        1, "MUON");
       SetDoQA(doTOF,         0, "TOF");
