@@ -597,7 +597,6 @@ GeneratorHijing()
 
 AliGenerator *
 GeneratorStarlight(){
-  //
   gSystem->Load("libStarLight.so");
   gSystem->Load("libAliStarLight.so");
 
@@ -605,15 +604,18 @@ GeneratorStarlight(){
   // _STARLIGHT_PROCESSES_BEGIN_ this comment is used by AliRoot/STARLIGHT/test/testsl.C
   // kTwoGammaToMuLow    - from 0.4 to 15 GeV
   // kTwoGammaToElLow    - from 0.4 to 15 GeV
-  // kTwoGammaToMuMedium - from 2.0 to 15 GeV
-  // kTwoGammaToElMedium - from 2.0 to 15 GeV
+  // kTwoGammaToMuMedium - from 1.8 to 15 GeV
+  // kTwoGammaToElMedium - from 1.8 to 15 GeV
   // kTwoGammaToMuHigh   - from 4.0 to 15 GeV
-  // kTwoGammaToElHigh   - from 4.0to 15 GeV
+  // kTwoGammaToElHigh   - from 4.0 to 15 GeV
   // kTwoGammaToRhoRho
   // kTwoGammaToF2
   // kCohRhoToPi
+  // kCohRhoToPiFlat
+  // kCohPhiToKa
   // kCohJpsiToMu
   // kCohJpsiToEl
+  // kCohJpsiToProton
   // kCohPsi2sToMu
   // kCohPsi2sToEl
   // kCohPsi2sToMuPi
@@ -621,24 +623,40 @@ GeneratorStarlight(){
   // kCohUpsilonToMu
   // kCohUpsilonToEl
   // kIncohRhoToPi
+  // kIncohRhoToPiFlat
+  // kIncohPhiToKa
   // kIncohJpsiToMu
   // kIncohJpsiToEl
+  // kIncohJpsiToProton
   // kIncohPsi2sToMu
   // kIncohPsi2sToEl
   // kIncohPsi2sToMuPi
   // kIncohPsi2sToElPi
   // kIncohUpsilonToMu
   // kIncohUpsilonToEl
+  // kCohFlat2Trk
+  // kIncohFlat2Trk
+  // kCohJPsiToProtonFlat2Trk
+  // kIncohJPsiToProtonFlat2Trk
+  // _STARLIGHT_PROCESSES_END_ this comment is used by AliRoot/STARLIGHT/test/testsl.C
+  //
+  // Not supported:
   // kCohRhoPrime
   // kIncohRhoPrime
-  // _STARLIGHT_PROCESSES_END_ this comment is used by AliRoot/STARLIGHT/test/testsl.C
 
   comment.Append(Form(" | Starlight %s (%s)", processConfig.Data(), systemConfig.Data()));
 
   // restict ymin,ymax to [-8,8] as with the default ymin,ymax set in Config.C
   // there is a floating point exception in starlight
   yminConfig = TMath::Max(yminConfig, -8.0f);
-  ymaxConfig = TMath::Min(ymaxConfig,  8.0f);
+  ymaxConfig = TMath::Min(ymaxConfig, +8.0f);
+  
+  // maximum absolute rapidity used in genuine starlight parameters
+  // rapidity bins are calculated wrt (-rapMax,rapMax) interval
+  Float_t rapMax = TMath::Max(TMath::Abs(yminConfig),TMath::Abs(ymaxConfig));
+  
+  if (processConfig.Contains("Flat2Trk"))
+    return GeneratorFlat2Trk();
 
   Int_t projA=1,targA=1,projZ=1,targZ=1;
   // pp
@@ -667,50 +685,73 @@ GeneratorStarlight(){
   Float_t gamma1  = beam1energy/0.938272;
   Float_t gamma2  = beam2energy/0.938272;
 
-  Int_t prod_mode = 4;     // default incoherent
-  if      (processConfig.Contains("TwoGamma")) prod_mode = 1;
-  else if (processConfig.Contains("CohRho"))       prod_mode = 3;
-  else if (processConfig.Contains("CohPhi"))       prod_mode = 2;
-  else if (processConfig.Contains("CohJpsi"))      prod_mode = 2;
-  else if (processConfig.Contains("CohPsi2s"))     prod_mode = 2;
-  else if (processConfig.Contains("CohUpsilon"))   prod_mode = 2;
 
-  Int_t prod_pid = 443013; // default jpsi
-  if      (processConfig.Contains("JpsiToMu"))         prod_pid = 443013;
-  else if (processConfig.Contains("JpsiToEl"))         prod_pid = 443011;
-  else if (processConfig.Contains("Psi2sToMu"))        prod_pid = 444013;
-  else if (processConfig.Contains("Psi2sToEl"))        prod_pid = 444011;
-  else if (processConfig.Contains("UpsilonToMu"))      prod_pid = 553013;
-  else if (processConfig.Contains("UpsilonToEl"))      prod_pid = 553011;
-  else if (processConfig.Contains("RhoToPi"))          prod_pid = 113;
-  else if (processConfig.Contains("PhiToKa"))          prod_pid = 333;
-  else if (processConfig.Contains("TwoGammaToMu"))     prod_pid = 13;
-  else if (processConfig.Contains("TwoGammaToEl"))     prod_pid = 11;
-  else if (processConfig.Contains("TwoGammaToF2"))     prod_pid = 225;
-  else if (processConfig.Contains("TwoGammaToRhoRho")) prod_pid = 33;
-
-  // by default use automatic wmin, wmax
-  Float_t wmin = -1;
-  Float_t wmax = -1;
-  Int_t nwbins = 20;
-  if (processConfig.Contains("TwoGammaToMu") ||
-      processConfig.Contains("TwoGammaToEl")) {
-    wmax = 15;
-    if      (processConfig.Contains("Low"))    wmin = 0.4;
-    else if (processConfig.Contains("Medium")) wmin = 2.0;
-    else if (processConfig.Contains("High"))   wmin = 4.0;
-
-    nwbins = 20*(wmax-wmin);
-  }
-
-  Bool_t cocktail = 0;
+  Bool_t cocktail = kFALSE;
   cocktail |= processConfig.Contains("Psi2sToElPi");
   cocktail |= processConfig.Contains("Psi2sToMuPi");
   cocktail |= processConfig.Contains("RhoPrime");
 
-  AliGenCocktail *genCocktail = 0;
+  AliGenCocktail *genCocktail = NULL;
   if (cocktail)  genCocktail = new AliGenCocktail(); // constructor must be called before other generators
 
+  const struct SLConfig {
+    const char* name;
+    Int_t       prod_mode;
+    Int_t       prod_pid;
+    Int_t       nwbins;
+    Float_t     wmin;
+    Float_t     wmax;
+    Float_t     dy;
+  } slConfig[] = {
+    {"kTwoGammaToMuLow",    1,      13,  292,  0.4, 15.0, 0.01 }, // from 0.4 to 15 GeV
+    {"kTwoGammaToElLow",    1,      11,  292,  0.4, 15.0, 0.01 }, // from 0.4 to 15 GeV
+    {"kTwoGammaToMuMedium", 1,      13,  264,  1.8, 15.0, 0.01 }, // from 1.8 to 15 GeV
+    {"kTwoGammaToElMedium", 1,      11,  264,  1.8, 15.0, 0.01 }, // from 1.8 to 15 GeV
+    {"kTwoGammaToMuHigh",   1,      13,  220,  4.0, 15.0, 0.01 }, // from 4.0 to 15 GeV
+    {"kTwoGammaToElHigh",   1,      11,  220,  4.0, 15.0, 0.01 }, // from 4.0 to 15 GeV
+    {"kTwoGammaToRhoRho",   1,      33,   20, -1.0, -1.0, 0.01 }, //
+    {"kTwoGammaToF2",       1,     225,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohRhoToPi",         3,     113, 1200, -1.0, -1.0, 0.02 }, //
+    {"kCohRhoToPiFlat",     3,     113,    1, -1.0,  2.5, 0.02 }, //
+    {"kCohPhiToKa",         2,     333,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToMu",        2,  443013,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToEl",        2,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToProton",    2, 4432212,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohPsi2sToMu",       2,  444013,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohPsi2sToEl",       2,  444011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohPsi2sToMuPi",     2,  444013,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohPsi2sToElPi",     2,  444011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohUpsilonToMu",     2,  553013,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohUpsilonToEl",     2,  553011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohRhoToPi",       4,     113, 1200, -1.0, -1.0, 0.02 }, //
+    {"kIncohRhoToPiFlat",   4,     113,    1, -1.0,  2.5, 0.02 }, //
+    {"kIncohPhiToKa",       4,     333,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToMu",      4,  443013,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToEl",      4,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToProton",  4, 4432212,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohPsi2sToMu",     4,  444013,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohPsi2sToEl",     4,  444011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohPsi2sToMuPi",   4,  444013,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohPsi2sToElPi",   4,  444011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohUpsilonToMu",   4,  553013,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohUpsilonToEl",   4,  553011,   20, -1.0, -1.0, 0.01 }, //
+ // {"kCohRhoPrime",        3,      0,   20,  -1.0, -1.0, 0.01 }, //
+ // {"kIncohRhoPrime",      4,      0,   20,  -1.0, -1.0, 0.01 }, //
+  };
+  const Int_t nProcess = sizeof(slConfig)/sizeof(SLConfig);
+  Int_t idx = -1;
+  for (Int_t i=0; i<nProcess; ++i) {
+    // Printf("i=%3d %s %s", i, slConfig[i].name, processConfig.Data());
+    if (processConfig == TString(slConfig[i].name)) {
+      idx = i;
+      break;
+    }
+  }
+  if (idx == -1) {
+    printf("STARLIGHT process '%s' is not supported\n", processConfig.Data());
+    abort();
+  }
+  
   AliGenStarLight* genStarLight = new AliGenStarLight(1000*1000);
   genStarLight->SetParameter(Form("BEAM_1_Z     =    %3i    #Z of target",targZ));
   genStarLight->SetParameter(Form("BEAM_1_A     =    %3i    #A of target",targA));
@@ -718,19 +759,19 @@ GeneratorStarlight(){
   genStarLight->SetParameter(Form("BEAM_2_A     =    %3i    #A of projectile",projA));
   genStarLight->SetParameter(Form("BEAM_1_GAMMA = %6.1f    #Gamma of the target",gamma1));
   genStarLight->SetParameter(Form("BEAM_2_GAMMA = %6.1f    #Gamma of the projectile",gamma2));
-  genStarLight->SetParameter(Form("W_MAX        =   %.1f    #Max value of w",wmax));
-  genStarLight->SetParameter(Form("W_MIN        =   %.1f    #Min value of w",wmin));
-  genStarLight->SetParameter(Form("W_N_BINS     =    %3i    #Bins i w",nwbins));
-  genStarLight->SetParameter(Form("RAP_MAX      =   %.2f    #max y",TMath::Max(TMath::Abs(yminConfig),TMath::Abs(ymaxConfig))));
-  genStarLight->SetParameter(Form("RAP_N_BINS   =   %.0f    #Bins i y",10*(ymaxConfig-yminConfig)));
+  genStarLight->SetParameter(Form("W_MAX        =   %.1f    #Max value of w",slConfig[idx].wmax));
+  genStarLight->SetParameter(Form("W_MIN        =   %.1f    #Min value of w",slConfig[idx].wmin));
+  genStarLight->SetParameter(Form("W_N_BINS     =    %3i    #Bins i w",slConfig[idx].nwbins));
+  genStarLight->SetParameter(Form("RAP_MAX      =   %.2f    #max y",rapMax));
+  genStarLight->SetParameter(Form("RAP_N_BINS   =   %.0f    #Bins i y",rapMax*2./slConfig[idx].dy));
   genStarLight->SetParameter("CUT_PT       =    0    #Cut in pT? 0 = (no, 1 = yes)");
   genStarLight->SetParameter("PT_MIN       =    0    #Minimum pT in GeV");
   genStarLight->SetParameter("PT_MAX       =   10    #Maximum pT in GeV");
   genStarLight->SetParameter("CUT_ETA      =    0    #Cut in pseudorapidity? (0 = no, 1 = yes)");
   genStarLight->SetParameter("ETA_MIN      =   -5    #Minimum pseudorapidity");
   genStarLight->SetParameter("ETA_MAX      =    5    #Maximum pseudorapidity");
-  genStarLight->SetParameter(Form("PROD_MODE    =    %i    #gg or gP switch (1 = 2-photon, 2 = coherent vector meson (narrow), 3 = coherent vector meson (wide), # 4 = incoherent vector meson, 5 = A+A DPMJet single, 6 = A+A DPMJet double, 7 = p+A DPMJet single, 8 = p+A Pythia single )",prod_mode));
-  genStarLight->SetParameter(Form("PROD_PID     =   %6i    #Channel of interest (not relevant for photonuclear processes)",prod_pid));
+  genStarLight->SetParameter(Form("PROD_MODE    =    %i    #gg or gP switch (1 = 2-photon, 2 = coherent vector meson (narrow), 3 = coherent vector meson (wide), # 4 = incoherent vector meson, 5 = A+A DPMJet single, 6 = A+A DPMJet double, 7 = p+A DPMJet single, 8 = p+A Pythia single )",slConfig[idx].prod_mode));
+  genStarLight->SetParameter(Form("PROD_PID     =   %6i    #Channel of interest (not relevant for photonuclear processes)",slConfig[idx].prod_pid));
   genStarLight->SetParameter(Form("RND_SEED     =    %i    #Random number seed", seedConfig));
   genStarLight->SetParameter("BREAKUP_MODE  =   5    #Controls the nuclear breakup");
   genStarLight->SetParameter("INTERFERENCE  =   0    #Interference (0 = off, 1 = on)");
@@ -761,6 +802,37 @@ GeneratorStarlight(){
   genCocktail->AddGenerator(genStarLight,"StarLight",1.);
   genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
   return genCocktail;
+}
+
+AliGenerator *
+GeneratorFlat2Trk(){
+  gSystem->Load("libAliGenFlat2Trk.so");
+  if (processConfig == "kCohFlat2Trk") {
+    //                                                       wmax,ptMin,ptMax
+    AliGenFlat2Trk* genFlat2Trk = new AliGenFlat2Trk(kPiPlus, 2.5, 0.0, 0.25, yminConfig, ymaxConfig, 1);
+    return genFlat2Trk;
+  }
+  if (processConfig == "kIncohFlat2Trk") {
+    //                                                       wmax,ptMin,ptMax
+    AliGenFlat2Trk* genFlat2Trk = new AliGenFlat2Trk(kPiPlus, 2.5, 0.0, 0.25, yminConfig, ymaxConfig, 1);
+    return genFlat2Trk;
+  }
+  if (processConfig == "kCohJPsiToProtonFlat2Trk") {
+    const Double_t massJPsi = TDatabasePDG::Instance()->GetParticle("J/psi")->Mass();
+    //                                                         ptMin,ptMax
+    AliGenFlat2Trk *gen = new AliGenFlat2Trk(kProton, massJPsi, 0.00, 0.25, yminConfig, ymaxConfig, 1, kTRUE, "sin(x)*(1+0.605*cos(x)*cos(x))");
+    gen->SetMinvMin(massJPsi);
+    return gen;
+  }
+  if (processConfig == "kIncohJPsiToProtonFlat2Trk") {
+    const Double_t massJPsi = TDatabasePDG::Instance()->GetParticle("J/psi")->Mass();
+    //                                                         ptMin,ptMax
+    AliGenFlat2Trk *gen = new AliGenFlat2Trk(kProton, massJPsi, 0.00, 1.5, yminConfig, ymaxConfig, 1, kTRUE, "sin(x)*(1+0.605*cos(x)*cos(x))");
+    gen->SetMinvMin(massJPsi);
+    return gen;
+  }
+  printf("process '%s' is not supported\n", processConfig.Data());
+  abort();
 }
 
 /*** AMPT ********************************************************/
