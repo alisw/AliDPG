@@ -634,10 +634,6 @@ GeneratorStarlight(){
   // kIncohPsi2sToElPi
   // kIncohUpsilonToMu
   // kIncohUpsilonToEl
-  // kCohFlat2Trk
-  // kIncohFlat2Trk
-  // kCohJPsiToProtonFlat2Trk
-  // kIncohJPsiToProtonFlat2Trk
   // _STARLIGHT_PROCESSES_END_ this comment is used by AliRoot/STARLIGHT/test/testsl.C
   //
   // Not supported:
@@ -655,9 +651,6 @@ GeneratorStarlight(){
   // rapidity bins are calculated wrt (-rapMax,rapMax) interval
   Float_t rapMax = TMath::Max(TMath::Abs(yminConfig),TMath::Abs(ymaxConfig));
   
-  if (processConfig.Contains("Flat2Trk"))
-    return GeneratorFlat2Trk();
-
   Int_t projA=1,targA=1,projZ=1,targZ=1;
   // pp
   if (systemConfig.EqualTo("p-p")) {
@@ -802,37 +795,6 @@ GeneratorStarlight(){
   genCocktail->AddGenerator(genStarLight,"StarLight",1.);
   genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
   return genCocktail;
-}
-
-AliGenerator *
-GeneratorFlat2Trk(){
-  gSystem->Load("libAliGenFlat2Trk.so");
-  if (processConfig == "kCohFlat2Trk") {
-    //                                                       wmax,ptMin,ptMax
-    AliGenFlat2Trk* genFlat2Trk = new AliGenFlat2Trk(kPiPlus, 2.5, 0.0, 0.25, yminConfig, ymaxConfig, 1);
-    return genFlat2Trk;
-  }
-  if (processConfig == "kIncohFlat2Trk") {
-    //                                                       wmax,ptMin,ptMax
-    AliGenFlat2Trk* genFlat2Trk = new AliGenFlat2Trk(kPiPlus, 2.5, 0.0, 0.25, yminConfig, ymaxConfig, 1);
-    return genFlat2Trk;
-  }
-  if (processConfig == "kCohJPsiToProtonFlat2Trk") {
-    const Double_t massJPsi = TDatabasePDG::Instance()->GetParticle("J/psi")->Mass();
-    //                                                         ptMin,ptMax
-    AliGenFlat2Trk *gen = new AliGenFlat2Trk(kProton, massJPsi, 0.00, 0.25, yminConfig, ymaxConfig, 1, kTRUE, "sin(x)*(1+0.605*cos(x)*cos(x))");
-    gen->SetMinvMin(massJPsi);
-    return gen;
-  }
-  if (processConfig == "kIncohJPsiToProtonFlat2Trk") {
-    const Double_t massJPsi = TDatabasePDG::Instance()->GetParticle("J/psi")->Mass();
-    //                                                         ptMin,ptMax
-    AliGenFlat2Trk *gen = new AliGenFlat2Trk(kProton, massJPsi, 0.00, 1.5, yminConfig, ymaxConfig, 1, kTRUE, "sin(x)*(1+0.605*cos(x)*cos(x))");
-    gen->SetMinvMin(massJPsi);
-    return gen;
-  }
-  printf("process '%s' is not supported\n", processConfig.Data());
-  abort();
 }
 
 /*** AMPT ********************************************************/
