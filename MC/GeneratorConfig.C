@@ -103,7 +103,7 @@ AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
-AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj);
+AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
 AliGenerator *GeneratorStarlight();
 AliGenerator *GeneratorAMPT();
 
@@ -1013,11 +1013,11 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
 /*** NUCLEI EXOTICA ****************************************************/
 
 AliGenerator *
-Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj)
+Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt, Float_t max_y)
 {
 
   comment = comment.Append(Form(" | Nuclex (0x%x) ", injbit));
-  
+
   //
   //Generating a cocktail
   AliGenCocktail *gener = new AliGenCocktail();
@@ -1041,7 +1041,7 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj)
     1010020040,
     9322134,
     9322136,
-    900010020 
+    900010020
   };
 
   const Char_t *names[19] = {
@@ -1072,9 +1072,9 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj)
       Int_t pdg = pdgcodes[ipart];
       if (antiparticle) pdg = -pdg;
       box->SetPart(pdg);
-      box->SetPtRange(0., 10.);
+      box->SetPtRange(0., max_pt);
       box->SetPhiRange(0., 360.);
-      box->SetYRange(-1,1);
+      box->SetYRange(-max_y,max_y);
       gener->AddGenerator(box, names[ipart], 1);
       printf(">>>>> adding %d %s%s (%d) to the cocktail \n", ninj, antiparticle ? "anti-" : "", names[ipart], pdg);
     }
