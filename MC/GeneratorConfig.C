@@ -279,6 +279,22 @@ GeneratorPythia6(Int_t tune, Int_t pdgtrig, Float_t etatrig)
   pythia->SetEnergyCMS(energyConfig);
   pythia->SetCrossingAngle(0,crossingConfig);
   //
+  // system-dependent settings
+  if (systemConfig.EqualTo("p-Pb")) {
+    pythia->SetProjectile("P", 1, 1);
+    pythia->SetTarget    ("A", 208, 82);
+    pythia->SetUseNuclearPDF(kTRUE);
+    pythia->SetUseLorentzBoost(kTRUE);
+    comment = comment.Append(" | p-Pb Boosted");
+  }
+  else if (systemConfig.EqualTo("Pb-p")) {
+    pythia->SetProjectile("A", 208, 82);
+    pythia->SetTarget    ("P", 1, 1);
+    pythia->SetUseNuclearPDF(kTRUE);
+    pythia->SetUseLorentzBoost(kTRUE);
+    comment = comment.Append(" | Pb-p Boosted");
+  }
+  //
   // Tune
   if (tune > 0) {
     comment = comment.Append(Form(" | tune %d", tune));
