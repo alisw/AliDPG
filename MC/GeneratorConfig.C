@@ -340,6 +340,29 @@ GeneratorPythia6Jets(Int_t tune)
   return pythia;
 }
 
+/*** PYTHIA 6 GAMMA-JET ***********************************************/
+
+AliGenerator *
+GeneratorPythia6GammaJet(Int_t tune)
+{
+  //
+  //
+  comment = comment.Append(Form(" | Pythia6 gamma-jet"));
+  //
+  // Pythia
+  AliGenPythia *pythia = GeneratorPythia6Jets(tune);
+  //
+  // gamma settings
+  pythia->SetProcess(kPyDirectGamma);
+  pythia->SetGammaEtaRange(-1.5, 1.5);
+  pythia->SetGammaPhiRange(0., 360.);
+  // reset jets settings
+  pythia->SetJetEtaRange(-20., 20.); // Final state kinematic cuts
+  pythia->SetJetPhiRange(0., 360.);
+  //
+  return pythia;
+}
+
 /*** PYTHIA 6 ****************************************************/
 
 AliGenerator *
