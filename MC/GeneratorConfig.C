@@ -311,6 +311,39 @@ GeneratorPythia6(Int_t tune, Int_t pdgtrig, Float_t etatrig)
   return pythia;
 }
 
+/*** PYTHIA 6 JETS ***********************************************/
+
+AliGenerator *
+GeneratorPythia6Jets(Int_t tune)
+{
+  //
+  //
+  comment = comment.Append(Form(" | Pythia6 jets (%.1f, %.1f, %d, %.1f)", pthardminConfig, pthardmaxConfig, quenchingConfig, qhatConfig));
+  //
+  // Pythia
+  AliGenPythia *pythia = GeneratorPythia6(tune);
+  //
+  // jets settings
+  pythia->SetProcess(kPyJets);
+  pythia->SetJetEtaRange(-1.5, 1.5); // Final state kinematic cuts
+  pythia->SetJetPhiRange(0., 360.);
+  pythia->SetPtHard(pthardminConfig, pthardmaxConfig); // Pt transfer of the hard scattering
+  pythia->SetStrucFunc(kCTEQ5L);
+  // quenching
+  pythia->SetQuench(quenchingConfig);
+  switch (quenchingConfig) {
+  case 1:
+    Float_t k = 6.e5 * (qhatConfig / 1.7);  //qhat=1.7, k=6e5, default value
+    AliPythia::Instance()->InitQuenching(0., 0.1, k, 0, 0.95, 6);		
+    break;
+  case 2:
+    pythia->SetPyquenPar(1.,0.1,0,0,1);			
+    break;
+  }
+  //
+  return pythia;
+}
+
 /*** PYTHIA 6 ****************************************************/
 
 AliGenerator *
