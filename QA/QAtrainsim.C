@@ -101,7 +101,7 @@ void QAtrainsim(Int_t run = 0,
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
     OCDBDefault(1);
   }
-  else if (ocdbConfig.Contains("alien")) {
+  else if (ocdbConfig.Contains("alien") || ocdbConfig.Contains("cvmfs")) {
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
     OCDBDefault(1);
@@ -112,29 +112,26 @@ void QAtrainsim(Int_t run = 0,
     cdbm->SetSnapshotMode("OCDBrec.root");
   }
 
-  if(iCollisionType == kPbPb)
-  {
+  if(iCollisionType == kPbPb) {
     doCentrality =kTRUE;
     doVZEROPbPb =kTRUE;
   }
 
   TString cdbString(cdb);
-  if (cdbString.Contains("raw://"))
- {
-  TGrid::Connect("alien://");
-  if (!gGrid || !gGrid->IsConnected()) {
-    ::Error("QAtrain", "No grid connection");
-    return;
+  if (cdbString.Contains("raw://") && !ocdbConfig.Contains("cvmfs")) {
+    TGrid::Connect("alien://");
+    if (!gGrid || !gGrid->IsConnected()) {
+      ::Error("QAtrain", "No grid connection");
+      return;
+    }
   }
-
-}
-//  gSystem->SetIncludePath("-I. -I$ROOTSYS/include -I$ALICE_ROOT/include -I$ALICE_ROOT -I$ALICE_PHYSICS -I$ALICE_PHYSICS/include -I$ALICE_PHYSICS/PWGPP/TRD/macros");
+  // gSystem->SetIncludePath("-I. -I$ROOTSYS/include -I$ALICE_ROOT/include -I$ALICE_ROOT -I$ALICE_PHYSICS -I$ALICE_PHYSICS/include -I$ALICE_PHYSICS/PWGPP/TRD/macros");
   // Set temporary merging directory to current one
   gSystem->Setenv("TMPDIR", gSystem->pwd());
   // Set temporary compilation directory to current one
   gSystem->SetBuildDir(gSystem->pwd(), kTRUE);
   // Load libraries
- // LoadLibraries();
+  // LoadLibraries();
   printf("Include path: %s\n", gSystem->GetIncludePath());
   // Create manager
   AliAnalysisManager *mgr  = new AliAnalysisManager("PilotAnalysis_sim", "Production train");
@@ -150,7 +147,7 @@ void QAtrainsim(Int_t run = 0,
   AliMCEventHandler* mcHandler = new AliMCEventHandler();
   mgr->SetMCtruthEventHandler(mcHandler);
   mcHandler->SetPreReadMode(1);
-  mcHandler->SetReadTR(kTRUE); 
+  mcHandler->SetReadTR(kTRUE);
 
   // subsidiary handler for mc-to-mc embedding
   TString bgDir = gSystem->Getenv("CONFIG_BGEVDIR");
@@ -168,13 +165,13 @@ void QAtrainsim(Int_t run = 0,
   }
   
   // AnalysisTasks
-//  mgr->Lock();
+  //  mgr->Lock();
   mgr->SetFileInfoLog("fileinfo.log"); 
   AddAnalysisTasks(cdb);
-//  mgr->UnLock();
-//  mcHandler = (AliMCEventHandler*)mgr->GetMCtruthEventHandler(); 
-//  mcHandler->SetReadTR(kTRUE); 
-//  mcHandler->SetPreReadMode(1);
+  //  mgr->UnLock();
+  //  mcHandler = (AliMCEventHandler*)mgr->GetMCtruthEventHandler();
+  //  mcHandler->SetReadTR(kTRUE);
+  //  mcHandler->SetPreReadMode(1);
   if (stage>0) {
     QAmerge(xmlfile, stage);
     return;
@@ -187,7 +184,7 @@ void QAtrainsim(Int_t run = 0,
   if (mgr->InitAnalysis()) {                                                                                                              
     mgr->PrintStatus(); 
     mgr->SetSkipTerminate(kTRUE);
- //   mgr->SetNSysInfo(1);
+  //   mgr->SetNSysInfo(1);
     mgr->StartAnalysis("local", chain);
   }
   timer.Print();
