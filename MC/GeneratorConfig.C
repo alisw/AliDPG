@@ -97,6 +97,45 @@ enum EPythia6HeavyDecay_t {
 };
 
 /*****************************************************************/
+
+enum ECalorimeterAcceptance_t {
+  kCalorimeterAcceptance_FullDetector,
+  kCalorimeterAcceptance_EMCRun1,
+  kCalorimeterAcceptance_PHSRun1,
+  kCalorimeterAcceptance_EMCRun2,
+  kCalorimeterAcceptance_PHSRun2,
+  kCalorimeterAcceptance_PHSDMC
+};
+
+void 
+GetCalorimeterAcceptance(Int_t acceptance, Float_t &etaMax, Float_t &phiMin, Float_t &phiMax)
+{
+  switch (acceptance) 
+    {
+    case kCalorimeterAcceptance_FullDetector:
+      etaMax = 1.5 ; phiMin =   0.; phiMax = 360.;
+      break;   
+    case kCalorimeterAcceptance_EMCRun1:
+      etaMax = 0.7 ; phiMin =  80.; phiMax = 180.;
+      break;
+    case kCalorimeterAcceptance_EMCRun2:
+      etaMax = 0.7 ; phiMin =  80.; phiMax = 187.;
+      break;    
+    case kCalorimeterAcceptance_PHSRun1:
+      etaMax = 0.13; phiMin = 260.; phiMax = 320.;
+      break;
+    case kCalorimeterAcceptance_PHSRun2:
+      etaMax = 0.13; phiMin = 250.; phiMax = 320.;
+      break;    
+    case kCalorimeterAcceptance_PHSDMC:
+      etaMax = 0.7 ; phiMin = 250.; phiMax = 327.;
+      break;
+    }
+  
+  printf("\t Calorimeter acceptance for %d: |eta|<%2.2f - %2.2f<phi<%2.2f\n",acceptance,etaMax,phiMin,phiMax);
+}
+
+/*****************************************************************/
 /*****************************************************************/
 /*****************************************************************/
 
@@ -104,8 +143,8 @@ enum EPythia6HeavyDecay_t {
 AliGenerator *GeneratorCocktail(TString name);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax, Float_t phimin = 0., Float_t phimax = 360.); 
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
-AliGenerator *GeneratorPythia6Jets(Int_t tune = 0);
-AliGenerator *GeneratorPythia6GammaJet(Int_t tune = 0);
+AliGenerator *GeneratorPythia6Jets(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
+AliGenerator *GeneratorPythia6GammaJet(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
 AliGenerator *GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune = 0, Bool_t HFonly = kTRUE);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
 AliGenerator *GeneratorPythia8Jets(Int_t tune = 0);
@@ -336,7 +375,7 @@ GeneratorPythia6(Int_t tune, Int_t pdgtrig, Float_t etatrig)
 /*** PYTHIA 6 JETS ***********************************************/
 
 AliGenerator *
-GeneratorPythia6Jets(Int_t tune)
+GeneratorPythia6Jets(Int_t tune, Int_t acceptance)
 {
   //
   //
@@ -347,8 +386,10 @@ GeneratorPythia6Jets(Int_t tune)
   //
   // jets settings
   pythia->SetProcess(kPyJets);
-  pythia->SetJetEtaRange(-1.5, 1.5); // Final state kinematic cuts
-  pythia->SetJetPhiRange(0., 360.);
+  Float_t etaMax, phiMin, phiMax;
+  GetCalorimeterAcceptance(acceptance, etaMax, phiMin, phiMax);
+  pythia->SetJetEtaRange(-etaMax, etaMax); // Final state kinematic cuts
+  pythia->SetJetPhiRange(phiMin, phiMax);
   pythia->SetPtHard(pthardminConfig, pthardmaxConfig); // Pt transfer of the hard scattering
   pythia->SetStrucFunc(kCTEQ5L);
   // quenching
@@ -369,7 +410,7 @@ GeneratorPythia6Jets(Int_t tune)
 /*** PYTHIA 6 GAMMA-JET ***********************************************/
 
 AliGenerator *
-GeneratorPythia6GammaJet(Int_t tune)
+GeneratorPythia6GammaJet(Int_t tune, Int_t acceptance)
 {
   //
   //
@@ -380,8 +421,10 @@ GeneratorPythia6GammaJet(Int_t tune)
   //
   // gamma settings
   pythia->SetProcess(kPyDirectGamma);
-  pythia->SetGammaEtaRange(-1.5, 1.5);
-  pythia->SetGammaPhiRange(0., 360.);
+  Float_t etaMax, phiMin, phiMax;
+  GetCalorimeterAcceptance(acceptance, etaMax, phiMin, phiMax);
+  pythia->SetGammaEtaRange(-etaMax, etaMax);
+  pythia->SetGammaPhiRange(phiMin, phiMax);
   // reset jets settings
   pythia->SetJetEtaRange(-20., 20.); // Final state kinematic cuts
   pythia->SetJetPhiRange(0., 360.);
