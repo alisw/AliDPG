@@ -10,6 +10,8 @@ enum EGenerator_t {
   kGeneratorPythia6, kGeneratorPythia6_Perugia2011,
   // Pythia6 jets
   kGeneratorPythia6Jets, kGeneratorPythia6Jets_Perugia2011,
+  // Pythia6 jets gamma-triggered
+  kGeneratorPythia6JetsGammaTrg, kGeneratorPythia6JetsGammaTrg_Perugia2011,
   // Pythia6 gamma-jet
   kGeneratorPythia6GammaJet, kGeneratorPythia6GammaJet_Perugia2011,
   // Pythia8
@@ -39,6 +41,8 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Pythia6", "Pythia6_Perugia2011",
   // Pythia6 jets
   "Pythia6Jets", "Pythia6Jets_Perugia2011",
+  // Pythia6 jets gamma-triggered
+  "Pythia6JetsGammaTrg", "Pythia6JetsGammaTrg_Perugia2011",
   // Pythia6 gamma-jet
   "Pythia6GammaJet", "Pythia6GammaJet_Perugia2011",
   // Pythia8
@@ -144,6 +148,7 @@ AliGenerator *GeneratorCocktail(TString name);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax, Float_t phimin = 0., Float_t phimax = 360.); 
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
 AliGenerator *GeneratorPythia6Jets(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
+AliGenerator *GeneratorPythia6JetsGammaTrg(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
 AliGenerator *GeneratorPythia6GammaJet(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
 AliGenerator *GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune = 0, Bool_t HFonly = kTRUE);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
@@ -185,6 +190,12 @@ GeneratorConfig(Int_t tag)
   case kGeneratorPythia6Jets:
   case kGeneratorPythia6Jets_Perugia2011:
     gen = GeneratorPythia6Jets(kPythia6Tune_Perugia2011);
+    break;
+
+    // Pythia6JetsGammaTrg (Perugia2011)
+  case kGeneratorPythia6JetsGammaTrg:
+  case kGeneratorPythia6JetsGammaTrg_Perugia2011:
+    gen = GeneratorPythia6JetsGammaTrg(kPythia6Tune_Perugia2011);
     break;
 
     // Pythia6GammaJet (Perugia2011)
@@ -397,6 +408,51 @@ GeneratorPythia6Jets(Int_t tune, Int_t acceptance)
     break;
   case 2:
     pythia->SetPyquenPar(1.,0.1,0,0,1);			
+    break;
+  }
+  //
+  return pythia;
+}
+
+/*** PYTHIA 6 JETS GAMMA-TRIGGERED ********************************/
+
+AliGenerator *
+GeneratorPythia6JetsGammaTrg(Int_t tune, Int_t acceptance)
+{
+  //
+  //
+  comment = comment.Append(Form(" | Pythia6 jets gamma-triggered"));
+  //
+  // Pythia
+  AliGenPythia *pythia = GeneratorPythia6Jets(tune, kCalorimeterAcceptance_FullDetector);
+  //
+  //
+  // Careful with pT hard limits if triggerParticleInCalo option is on
+  pythia->SetTriggerParticleMinPt(pttrigminConfig);
+  // acceptance
+  Float_t etaMax, phiMin, phiMax;
+  GetCalorimeterAcceptance(acceptance, etaMax, phiMin, phiMax);
+  switch (acceptance) {
+    //
+  case kCalorimeterAcceptance_FullDetector:
+    pythia->SetBarrelAcceptance(etaMax);
+    pythia->SetDecayPhotonInBarrel(kTRUE);
+    pythia->SetFragPhotonInBarrel (kTRUE); // it will be driven mostly by decays, but should not harm
+    break;
+    //
+  case kCalorimeterAcceptance_EMCRun1:
+  case kCalorimeterAcceptance_EMCRun2:
+    pythia->SetEMCALAcceptance(phiMin,phiMax,etaMax);
+    pythia->SetDecayPhotonInEMCAL(kTRUE);
+    pythia->SetFragPhotonInEMCAL (kTRUE); // it will be driven mostly by decays, but should not harm
+    break;
+    //
+  case kCalorimeterAcceptance_PHSDMC:
+  case kCalorimeterAcceptance_PHSRun1:
+  case kCalorimeterAcceptance_EMCRun2:
+    pythia->SetPHOSAcceptance(phiMin,phiMax,etaMax);
+    pythia->SetDecayPhotonInPHOS(kTRUE);
+    pythia->SetFragPhotonInPHOS(kTRUE); // it will be driven mostly by decays, but should not harm
     break;
   }
   //
