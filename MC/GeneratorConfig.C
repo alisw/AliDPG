@@ -8,6 +8,10 @@ enum EGenerator_t {
   kGeneratorDefault,
   // Pythia6
   kGeneratorPythia6, kGeneratorPythia6_Perugia2011,
+  // Pythia6 jets
+  kGeneratorPythia6Jets, kGeneratorPythia6Jets_Perugia2011,
+  // Pythia6 gamma-jet
+  kGeneratorPythia6GammaJet, kGeneratorPythia6GammaJet_Perugia2011,
   // Pythia8
   kGeneratorPythia8, kGeneratorPythia8_Monash2013,
   // Pythia8 jets
@@ -33,6 +37,10 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Default",
   // Pythia6
   "Pythia6", "Pythia6_Perugia2011",
+  // Pythia6 jets
+  "Pythia6Jets", "Pythia6Jets_Perugia2011",
+  // Pythia6 gamma-jet
+  "Pythia6GammaJet", "Pythia6GammaJet_Perugia2011",
   // Pythia8
   "Pythia8", "Pythia8_Monash2013",
   // Pythia8 jets
@@ -96,6 +104,8 @@ enum EPythia6HeavyDecay_t {
 AliGenerator *GeneratorCocktail(TString name);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax, Float_t phimin = 0., Float_t phimax = 360.); 
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
+AliGenerator *GeneratorPythia6Jets(Int_t tune = 0);
+AliGenerator *GeneratorPythia6GammaJet(Int_t tune = 0);
 AliGenerator *GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune = 0, Bool_t HFonly = kTRUE);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
 AliGenerator *GeneratorPythia8Jets(Int_t tune = 0);
@@ -130,6 +140,18 @@ GeneratorConfig(Int_t tag)
   case kGeneratorPythia6:
   case kGeneratorPythia6_Perugia2011:
     gen = GeneratorPythia6(kPythia6Tune_Perugia2011);
+    break;
+
+    // Pythia6Jets (Perugia2011)
+  case kGeneratorPythia6Jets:
+  case kGeneratorPythia6Jets_Perugia2011:
+    gen = GeneratorPythia6Jets(kPythia6Tune_Perugia2011);
+    break;
+
+    // Pythia6GammaJet (Perugia2011)
+  case kGeneratorPythia6GammaJet:
+  case kGeneratorPythia6GammaJet_Perugia2011:
+    gen = GeneratorPythia6GammaJet(kPythia6Tune_Perugia2011);
     break;
 
     // Pythia8 (Monash2013)
