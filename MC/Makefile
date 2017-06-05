@@ -1,7 +1,7 @@
 RUN     = 117222
 NEVENTS = 1
 MODE    = "sim,rec"
-EXTRA   = "--bmin 14.5 --bmax 15.5 --pthardbin 1"
+EXTRA   = "--bmin 14.5 --bmax 15.5 --pthardbin 1 --pttrigmin 3.5 --pttrigmax 5.5"
 
 OBJECTS = Pythia6_Perugia2011 \
 	  Pythia6Jets_Perugia2011 \
