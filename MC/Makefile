@@ -4,6 +4,8 @@ MODE    = "sim,rec"
 EXTRA   = "--bmin 14.5 --bmax 15.5 --pthardbin 1"
 
 OBJECTS = Pythia6_Perugia2011 \
+	  Pythia6Jets_Perugia2011 \
+	  Pythia6GammaJet_Perugia2011 \
 	  Pythia8_Monash2013 \
 	  Pythia8Jets_Monash2013 \
 	  Phojet \
