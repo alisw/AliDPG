@@ -132,6 +132,9 @@ CONFIG_YMAX=""
 CONFIG_PTHARDBIN=""
 CONFIG_PTHARDMIN=""
 CONFIG_PTHARDMAX=""
+CONFIG_PTTRIGBIN=""
+CONFIG_PTTRIGMIN=""
+CONFIG_PTTRIGMAX=""
 CONFIG_QUENCHING=""
 CONFIG_QHAT=""
 CONFIG_RUN=""
@@ -251,6 +254,18 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--pthardmax" ]; then
         CONFIG_PTHARDMAX="$1"
 	export CONFIG_PTHARDMAX
+        shift
+    elif [ "$option" = "--pttrigbin" ]; then
+        CONFIG_PTTRIGBIN="$1"
+	export CONFIG_PTTRIGBIN
+        shift
+    elif [ "$option" = "--pttrigmin" ]; then
+        CONFIG_PTTRIGMIN="$1"
+	export CONFIG_PTTRIGMIN
+        shift
+    elif [ "$option" = "--pttrigmax" ]; then
+        CONFIG_PTTRIGMAX="$1"
+	export CONFIG_PTTRIGMAX
         shift
     elif [ "$option" = "--quenching" ]; then
         CONFIG_QUENCHING="$1"
@@ -521,6 +536,9 @@ echo "============================================"
 echo "pT-hard bin...... $CONFIG_PTHARDBIN"
 echo "pT-hard min...... $CONFIG_PTHARDMIN"
 echo "pT-hard max...... $CONFIG_PTHARDMAX"
+echo "pT-trigger bin... $CONFIG_PTTRIGBIN"
+echo "pT-trigger min... $CONFIG_PTTRIGMIN"
+echo "pT-trigger max... $CONFIG_PTTRIGMAX"
 echo "quenching........ $CONFIG_QUENCHING"
 echo "q-hat............ $CONFIG_QHAT"
 echo "============================================"

@@ -28,6 +28,8 @@ static TString processConfig   = "";        // process
 static TString systemConfig    = "";        // system
 static Float_t pthardminConfig = 0.;        // pt-hard min
 static Float_t pthardmaxConfig = -1.;       // pt-hard max
+static Float_t pttrigminConfig = 0.;        // pt-trigger min
+static Float_t pttrigmaxConfig = -1.;       // pt-trigger max
 static Int_t   quenchingConfig = 0;         // quenching
 static Float_t qhatConfig      = 1.7;       // q-hat
 static Bool_t  isGeant4        = kFALSE;    // geant4 flag
@@ -60,6 +62,8 @@ Config()
   printf(">>>>>            y-max: %f \n", ymaxConfig);
   printf(">>>>>      pt-hard min: %f \n", pthardminConfig);
   printf(">>>>>      pt-hard max: %f \n", pthardmaxConfig);
+  printf(">>>>>   pt-trigger min: %f \n", pttrigminConfig);
+  printf(">>>>>   pt-trigger max: %f \n", pttrigmaxConfig);
   printf(">>>>>        quenching: %d \n", quenchingConfig);
   printf(">>>>>            q-hat: %f \n", qhatConfig);
   printf(">>>>>   crossing angle: %f \n", crossingConfig);
@@ -228,7 +232,7 @@ ProcessEnvironment()
     abort();
   }
   
-  // pt-hard and quenching configuration
+  // pt-hard, pt-trigger and quenching configuration
   pthardminConfig = 0.;
   if (gSystem->Getenv("CONFIG_PTHARDMIN"))
     pthardminConfig = atof(gSystem->Getenv("CONFIG_PTHARDMIN"));
@@ -237,6 +241,16 @@ ProcessEnvironment()
     pthardmaxConfig = atof(gSystem->Getenv("CONFIG_PTHARDMAX"));
   if (pthardmaxConfig != -1 && pthardmaxConfig <= pthardminConfig) {
     printf(">>>>> Invalid max pt-hard: %f \n", pthardmaxConfig);
+    abort();
+  }
+  pttrigminConfig = 0.;
+  if (gSystem->Getenv("CONFIG_PTTRIGMIN"))
+    pttrigminConfig = atof(gSystem->Getenv("CONFIG_PTTRIGMIN"));
+  pttrigmaxConfig = -1.;
+  if (gSystem->Getenv("CONFIG_PTTRIGMAX"))
+    pttrigmaxConfig = atof(gSystem->Getenv("CONFIG_PTTRIGMAX"));
+  if (pttrigmaxConfig != -1 && pttrigmaxConfig <= pttrigminConfig) {
+    printf(">>>>> Invalid max pt-trigger: %f \n", pttrigmaxConfig);
     abort();
   }
   quenchingConfig = 0;
