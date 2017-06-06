@@ -13,6 +13,7 @@ enum ESimulation_t {
   kSimulationMuon,
   kSimulationEmbedBkg,
   kSimulationEmbedSig,
+  kSimulationGeneratorOnly,
   kSimulationCustom,
   kNSimulations
 };
@@ -22,6 +23,7 @@ const Char_t *SimulationName[kNSimulations] = {
   "Muon",
   "EmbedBkg",
   "EmbedSig",
+  "GeneratorOnly",
   "Custom"
 };
 
@@ -72,6 +74,12 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     }
     return;
     
+    // GeneratorOnly
+  case kSimulationGeneratorOnly:
+    SimulationDefault(sim);
+    sim.SetRunGeneratorOnly(kTRUE);
+    return;
+
     // Custom
   case kSimulationCustom:
     if ((gROOT->LoadMacro("SimulationCustom.C")) != 0) {
