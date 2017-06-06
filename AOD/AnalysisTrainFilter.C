@@ -37,9 +37,9 @@ Bool_t      isMuonCaloPass     = kTRUE;    // setting this to kTRUE will disable
 
 //TString     root_version       = "v5-34-30-alice5-1";  // *CHANGE ME IF MORE RECENT IN GRID*
 //TString     aliroot_version    = "v5-08-13e-1";        // *CHANGE ME IF MORE RECENT IN GRID*
-TString     aliphysics_version = "v5-09-08-01-1";     // *CHANGE ME IF MORE RECENT IN GRID*
+TString     aliphysics_version = "v5-09-09-01-1";     // *CHANGE ME IF MORE RECENT IN GRID*
 
-TString     train_name;
+TString     train_name = "FILTERpass2"; // local folder name;
 TString     visible_name;
 // Add train composition and other comments
 TString     job_comment;
@@ -239,7 +239,6 @@ void AnalysisTrainFilter(const char *analysis_mode="grid",
   PrintSettings();
 
   //==================   TRAIN NAME   ============================================
-  train_name         = "FILTERpass2"; // local folder name
   // Name in train page (DON'T CHANGE)
   visible_name       = Form("FILTER%s$2_$3", train_tag.Data()); //# FIXED #
   // Add train composition and other comments
@@ -266,14 +265,16 @@ void AnalysisTrainFilter(const char *analysis_mode="grid",
    else              printf("=  ESD analysis                                                  =\n");
    if (usePhysicsSelection)   printf("=  Physics selection                                                =\n");
    if (useTender)    printf("=  TENDER                                                        =\n");
-   if (iESDfilter)   {
+   if (iESDfilter)
+   {
      printf("=  ESD filter                                                    =\n");
      if (iESDfilterReVtx>=0)  printf("=  ESD event revertexed before filterering, algo %2d              =\n",iESDfilterReVtx);
    }
    if (iMUONcopyAOD) printf("=  MUON copy AOD                                                 =\n");
    if (iJETAN)       printf("=  Jet analysis                                                  =\n");
    if (iJETANdelta)  printf("=     Jet delta AODs                                             =\n");
-   if (iPWG2spectra) {
+   if (iPWG2spectra)
+   {
       printf("=  PWG2 SPECTRA tasks :                                          =\n");
       if (iPWG2protons)      printf("=     PWG2 proton-antiproton                                     =\n");
       if (iPWG2checkcascade) printf("=     PWG2 check cascades                                        =\n");
@@ -282,14 +283,16 @@ void AnalysisTrainFilter(const char *analysis_mode="grid",
       if (iPWG2strange)      printf("=     PWG2 strangeness                                           =\n");
       if (iPWG2central)      printf("=     PWG2 central                                               =\n");
    }   
-   if (iPWG2femto) {
+   if (iPWG2femto)
+   {
       printf("=  PWG2 femtoscopy                                               =\n");
       printf("   +++ configured by: %s\n", configPWG2femto.Data());
    }   
    if (iPWG2flow)    printf("=  PWG2 flow                                                     =\n");
    if (iPWG2res)     printf("=  PWG2 resonances                                               =\n");
       if (iPWG2rsneff)    printf("=     PWG2 resonances efficiency                                    =\n");
-   if (iPWG2kink) {
+   if (iPWG2kink)
+   {
       printf("=  PWG2 kink analysis tasks:                                     =\n");
       if (iPWG2kinkESDMC)    printf("=     PWG2 ESD-MC kinks                                          =\n");
       if (iPWG2kinkLSKstar)  printf("=     PWG2 kink like-sign analysis K*                            =\n");
@@ -339,7 +342,8 @@ void AnalysisTrainFilter(const char *analysis_mode="grid",
 //   }   
 
    // Load common libraries and set include path
-   if (!LoadCommonLibraries(smode)) {
+   if (!LoadCommonLibraries(smode))
+   {
       ::Error("AnalysisTrain", "Could not load common libraries");
       return;
    }
@@ -349,36 +353,43 @@ void AnalysisTrainFilter(const char *analysis_mode="grid",
    if (saveProofToAlien) mgr->SetSpecialOutputLocation(proof_outdir);
    if (!strcmp(plugin_mode, "test")) mgr->SetNSysInfo(100);
    // Load analysis specific libraries
-   if (!LoadAnalysisLibraries(smode)) {
+   if (!LoadAnalysisLibraries(smode))
+   {
       ::Error("AnalysisTrain", "Could not load analysis libraries");
       return;
    }   
 
    // Create input handler (input container created automatically)
-   if (iAODanalysis) {
+   if (iAODanalysis)
+   {
    // AOD input handler
       AliAODInputHandler *aodH = new AliAODInputHandler();
       if (iPWGHFd2h) aodH->AddFriend("AliAOD.VertexingHF.root");
       mgr->SetInputEventHandler(aodH);
-   } else {   
+   } 
+   else
+   {
    // ESD input handler
       AliESDInputHandler *esdHandler = new AliESDInputHandler();
       if (useTAGS) esdHandler->SetReadTags();
       mgr->SetInputEventHandler(esdHandler);       
    }
    // Monte Carlo handler
-   if (useMC && !iAODanalysis) {
+   if (useMC && !iAODanalysis)
+   {
       AliMCEventHandler* mcHandler = new AliMCEventHandler();
       mgr->SetMCtruthEventHandler(mcHandler);
       mcHandler->SetReadTR(useTR); 
    }   
    // AOD output container, created automatically when setting an AOD handler
-   if (iAODhandler) {
+   if (iAODhandler)
+   {
       // AOD output handler
       AliAODHandler* aodHandler   = new AliAODHandler();
       aodHandler->SetOutputFileName("AliAOD.root");
       mgr->SetOutputEventHandler(aodHandler);
-      if (iAODanalysis) {
+      if (iAODanalysis)
+      {
          aodHandler->SetFillAOD(kFALSE);
          aodHandler->SetCreateNonStandardAOD();
          if (iJETAN)         aodHandler->SetOutputFileName("AliAOD.Jets.root");
@@ -406,12 +417,14 @@ void AnalysisTrainFilter(const char *analysis_mode="grid",
    AddAnalysisTasks(cdbPath);                                                                                                                     
    // Run the analysis                                                                                                                     
    //                                                                                                                                      
-   if (usePLUGIN) {                                                                                                                        
+   if (usePLUGIN)
+   {
       AliAnalysisGrid *alienHandler = CreateAlienHandler(plugin_mode);                                                                     
       AliAnalysisManager::GetAnalysisManager()->SetGridHandler(alienHandler);                                                              
    }                                                                                                                                       
                                                                                                                                            
-   if (mgr->InitAnalysis()) {                                                                                                              
+   if (mgr->InitAnalysis())
+   {
       mgr->PrintStatus();                                                                                                                  
       if (saveTrain || strlen(config_file)) gSystem->ChangeDirectory(train_name);                                                          
       StartAnalysis(smode, chain);                                                                                                         
@@ -419,14 +432,16 @@ void AnalysisTrainFilter(const char *analysis_mode="grid",
 }                                                                                                                                          
 
 //______________________________________________________________________________                                                           
-void AddAnalysisTasks(const char *cdb_location){                                                                                                                                          
+void AddAnalysisTasks(const char *cdb_location)
+{                                                                                                                                          
   // Add all analysis task wagons to the train                                                                                               
    AliAnalysisManager *mgr = AliAnalysisManager::GetAnalysisManager();                                                                     
 
   //
   // PIDResponse(JENS)
   //
-  if (doPIDResponse) {
+  if (doPIDResponse)
+  {
     gROOT->LoadMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C"); 
     AliAnalysisTaskPIDResponse *PIDResponse = AddTaskPIDResponse();
     // PIDResponse->SelectCollisionCandidates(AliVEvent::kAny);
@@ -435,7 +450,8 @@ void AddAnalysisTasks(const char *cdb_location){
   //
   // Tender and supplies. Needs to be called for every event.
   //
-  if (useTender) {
+  if (useTender)
+  {
     gROOT->LoadMacro("$ALICE_PHYSICS/TENDER/TenderSupplies/AddTaskTender.C");
     // IF V0 tender needed, put kTRUE below
     AliAnalysisTaskSE *tender = AddTaskTender(kFALSE,kFALSE,kFALSE,kTRUE,kFALSE,kFALSE,kFALSE);
@@ -444,7 +460,8 @@ void AddAnalysisTasks(const char *cdb_location){
 
   // CDB connection
   //
-  if (doCDBconnect /*&& !useTender*/) {
+  if (doCDBconnect /*&& !useTender*/)
+  {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/PilotTrain/AddTaskCDBconnect.C");
     AliTaskCDBconnect *taskCDB = AddTaskCDBconnect(cdb_location, run_number);
     if (!taskCDB) return;
@@ -453,7 +470,8 @@ void AddAnalysisTasks(const char *cdb_location){
 //    taskCDB->SetRunNumber(run_numbers[0]);
   }    
 
-   if (usePhysicsSelection) {
+   if (usePhysicsSelection)
+   {
    // Physics selection task
       gROOT->LoadMacro("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C");
       mgr->RegisterExtraFile("event_stat.root");
@@ -472,7 +490,8 @@ void AddAnalysisTasks(const char *cdb_location){
    //
   // PIDqa(JENS)
   //
-  if (doPIDqa) {
+  if (doPIDqa)
+  {
     gROOT->LoadMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDqa.C");
     AliAnalysisTaskPIDqa *PIDQA = AddTaskPIDqa();
     PIDQA->SelectCollisionCandidates(AliVEvent::kAny);
@@ -480,13 +499,15 @@ void AddAnalysisTasks(const char *cdb_location){
 
 
 //Jacek
-   if (iPWGPP) {
+   if (iPWGPP)
+   {
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskFilteredTree.C");
       AddTaskFilteredTree("FilterEvents_Trees.root");
    }   
 
 // Muon refit
-  if (iMUONRefit) {
+  if (iMUONRefit)
+  {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWG/muondep/AddTaskMuonRefit.C");
     AliAnalysisTaskMuonRefit* refit = AddTaskMuonRefit(-1., -1., kTRUE, -1., -1.);
     
@@ -497,7 +518,8 @@ void AddAnalysisTasks(const char *cdb_location){
   }
       
 // --- PWGLF - Forward (cholm@nbi.dk) -----------------------------
-   if (iPWGLFForward && usePhysicsSelection) { 
+   if (iPWGLFForward && usePhysicsSelection)
+   {
         gROOT->LoadMacro("$ALICE_PHYSICS/PWGLF/FORWARD/analysis2/AddTaskForwardMult.C");
      UShort_t pwglfForwardSys = 0; // iCollision+1; // pp:1, PbPb:2, pPb:3
      UShort_t pwglfSNN        = 0;            // GeV, 0==unknown
@@ -510,7 +532,12 @@ void AddAnalysisTasks(const char *cdb_location){
         AddTaskCentralMult(useMC, pwglfForwardSys, pwglfSNN, pwglfField);
    }
  
-    
+   if (iPWGGAgammaconv)
+   {
+      gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/GammaConv/macros/AddTask_ConversionAODProduction.C");
+      AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(iCollision, kFALSE, periodName);
+      mgr->RegisterExtraFile("AliAODGammaConversion.root");
+   }
 
    if (iESDfilter && !iAODanalysis) 
    {
@@ -536,12 +563,15 @@ void AddAnalysisTasks(const char *cdb_location){
                                   3,                     // muonMCMode
                                   kTRUE,                 // useV0Filter 
                                   muonWithSPDTracklets,
-                                  isMuonCaloPass);
+                                  isMuonCaloPass,        //
+                                  kTRUE);                // addPCMV0s (new starting with v5-09-09, default is true)
+
          AliEMCALGeometry::GetInstance("","");
    }   
 
    // AOD tags
-   if (useAODTAGS) {
+   if (useAODTAGS)
+   {
       AliAnalysisTaskTagCreator* tagTask = new AliAnalysisTaskTagCreator("AOD Tag Creator");
       mgr->AddTask(tagTask);
       AliAnalysisDataContainer *coutTags = mgr->CreateContainer("cTag",  TTree::Class(), 
@@ -554,7 +584,8 @@ void AddAnalysisTasks(const char *cdb_location){
    AliAnalysisManager::SetCommonFileName("PWG2histograms.root");
 
    // Proton analysis
-   if (iPWG2spectra) {
+   if (iPWG2spectra)
+   {
       // protons
       if (iPWG2protons) {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/SPECTRA/macros/AddTaskProtons.C");
@@ -562,31 +593,36 @@ void AddAnalysisTasks(const char *cdb_location){
         if (!taskprotons) ::Warning("AnalysisTrainNew", "AliAnalysisTaskProtons cannot run for this train conditions - EXCLUDED");
       }  
       // cascades
-      if (iPWG2checkcascade) {
+      if (iPWG2checkcascade)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/SPECTRA/macros/AddTaskCheckCascade.C");
         AliAnalysisTaskCheckCascade *taskcheckcascade = AddTaskCheckCascade(iCollision,runOnData);
         if (!taskcheckcascade) ::Warning("AnalysisTrainNew", "AliAnalysisTaskCheckCascade cannot run for this train conditions - EXCLUDED");
       }  
       // v0's
-      if (iPWG2checkv0) {
+      if (iPWG2checkv0)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/SPECTRA/macros/AddTaskCheckV0.C");
         AliAnalysisTaskCheckV0 *taskcheckV0 = AddTaskCheckV0();
         if (!taskcheckV0) ::Warning("AnalysisTrainNew", "AliAnalysisTaskCheckV0 cannot run for this train conditions - EXCLUDED");
       }  
       // strangeness
-      if (iPWG2strange) {
+      if (iPWG2strange)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/SPECTRA/macros/AddTaskStrange.C");
         AliAnalysisTaskStrange *taskstrange = AddTaskStrange();
         if (!taskstrange) ::Warning("AnalysisTrainNew", "AliAnalysisTaskStrange cannot run for this train conditions - EXCLUDED");
       }  
       // performance cascades
-      if (iPWG2perfcascade) {
+      if (iPWG2perfcascade)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/SPECTRA/macros/AddTaskCheckPerformanceCascade.C");
         AliAnalysisTaskCheckPerformanceCascade *taskperfcascade = AddTaskCheckPerformanceCascade();
         if (!taskperfcascade) ::Warning("AnalysisTrainNew", "AliAnalysisTaskCheckPerformanceCascade cannot run for this train conditions - EXCLUDED");
       }  
        // central
-      if (iPWG2central) {
+      if (iPWG2central)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/SPECTRA/macros/AddTaskCentral.C");
         AliAnalysisTaskCentral *taskcentral = AddTaskCentral();
         if (!taskcentral) ::Warning("AnalysisTrainNew", "AliAnalysisTaskCentral cannot run for this train conditions - EXCLUDED");
@@ -594,60 +630,72 @@ void AddAnalysisTasks(const char *cdb_location){
   }   
    
    // Femtoscopy analysis modules
-   if (iPWG2femto) {
+   if (iPWG2femto)
+   {
       gROOT->LoadMacro("$ALICE_ROOT/PWG2/FEMTOSCOPY/macros/AddTaskFemto.C");
       AliAnalysisTaskFemto *taskfemto = AddTaskFemto(configPWG2femto);
       if (!taskfemto) ::Warning("AnalysisTrainNew", "AliAnalysisTaskFemto cannot run for this train conditions - EXCLUDED");
    }   
 
    // Kink analysis
-   if (iPWG2kink) {
-      if (iPWG2kinkESDMC) {
+   if (iPWG2kink)
+   {
+      if (iPWG2kinkESDMC)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/KINK/macros/AddTaskKink.C");
         AliAnalysisKinkESDMC *taskkink1 = AddTaskKink();
         if (!taskkink1) ::Warning("AnalysisTrainNew", "AliAnalysisKinkESDMC cannot run for this train conditions - EXCLUDED");
       }   
-      if (iPWG2kinkLSKstar) {
+      if (iPWG2kinkLSKstar)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/KINK/macros/AddTaskKinkResLikeSignKstar.C");
         AliResonanceKinkLikeSign *taskkink2 = AddTaskKinkResLikeSignKstar();
         if (!taskkink2) ::Warning("AnalysisTrainNew", "AliResonanceKinkLikeSign cannot run for this train conditions - EXCLUDED");
       }  
-      if (iPWG2kinkLSL1520) {
+      if (iPWG2kinkLSL1520)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/KINK/macros/AddTaskKinkResLikeSignL1520.C");
         AliResonanceKinkLikeSign *taskkink3 = AddTaskKinkResLikeSignL1520();
         if (!taskkink3) ::Warning("AnalysisTrainNew", "AliResonanceKinkLikeSign cannot run for this train conditions - EXCLUDED");
       }  
-      if (iPWG2kinkLSPhi) {
+      if (iPWG2kinkLSPhi)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/KINK/macros/AddTaskKinkResLikeSignPhi.C");
         AliResonanceKinkLikeSign *taskkink4 = AddTaskKinkResLikeSignPhi();
         if (!taskkink4) ::Warning("AnalysisTrainNew", "AliResonanceKinkLikeSign cannot run for this train conditions - EXCLUDED");
       }  
-      if (iPWG2kinkKstarESD) {
+      if (iPWG2kinkKstarESD)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/KINK/macros/AddTaskKinkResonanceKstarESD.C");
         AliAnalysisTaskKinkResonance *taskkink5 = AddTaskKinkResonanceKstarESD();
         if (!taskkink5) ::Warning("AnalysisTrainNew", "AliAnalysisKinkResonanceKstarESD cannot run for this train conditions - EXCLUDED");
       }   
-      if (iPWG2kinkKstarMC) {
+      if (iPWG2kinkKstarMC)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/KINK/macros/AddTaskKinkResonanceKstarMC.C");
         AliAnalysisTaskKinkResonance *taskkink6 = AddTaskKinkResonanceKstarMC();
         if (!taskkink6) ::Warning("AnalysisTrainNew", "AliAnalysisKinkResonanceKstarMC cannot run for this train conditions - EXCLUDED");
       }   
-      if (iPWG2kinkL1520ESD) {
+      if (iPWG2kinkL1520ESD)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/KINK/macros/AddTaskKinkResonanceL1520ESD.C");
         AliAnalysisTaskKinkResonance *taskkink7 = AddTaskKinkResonanceL1520ESD();
         if (!taskkink7) ::Warning("AnalysisTrainNew", "AliAnalysisKinkResonanceL1520ESD cannot run for this train conditions - EXCLUDED");
       }   
-      if (iPWG2kinkL1520MC) {
+      if (iPWG2kinkL1520MC)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/KINK/macros/AddTaskKinkResonanceL1520MC.C");
         AliAnalysisTaskKinkResonance *taskkink8 = AddTaskKinkResonanceL1520MC();
         if (!taskkink8) ::Warning("AnalysisTrainNew", "AliAnalysisKinkResonanceL1520MC cannot run for this train conditions - EXCLUDED");
       }   
-      if (iPWG2kinkPhiESD) {
+      if (iPWG2kinkPhiESD)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/KINK/macros/AddTaskKinkResonancePhiESD.C");
         AliAnalysisTaskKinkResonance *taskkink9 = AddTaskKinkResonancePhiESD();
         if (!taskkink9) ::Warning("AnalysisTrainNew", "AliAnalysisKinkResonancePhiESD cannot run for this train conditions - EXCLUDED");
       }   
-      if (iPWG2kinkPhiMC) {
+      if (iPWG2kinkPhiMC)
+      {
         gROOT->LoadMacro("$ALICE_ROOT/PWG2/KINK/macros/AddTaskKinkResonancePhiMC.C");
         AliAnalysisTaskKinkResonance *taskkink10 = AddTaskKinkResonancePhiMC();
         if (!taskkink10) ::Warning("AnalysisTrainNew", "AliAnalysisKinkResonancePhiMC cannot run for this train conditions - EXCLUDED");
@@ -655,7 +703,8 @@ void AddAnalysisTasks(const char *cdb_location){
    }   
 
    // Event characterization
-   if (iPWG2evchar) {
+   if (iPWG2evchar)
+   {
       gROOT->LoadMacro("$ALICE_ROOT/PWG2/EVCHAR/macros/AddTaskSPDdNdEta.C");
       AliAnalysisTaskSPDdNdEta *taskspddndeta = AddTaskSPDdNdEta();
       if (!taskspddndeta) ::Warning("AnalysisTrainNew", "AliAnalysisTaskSPDdNdEta cannot run for this train conditions - EXCLUDED");
@@ -663,7 +712,8 @@ void AddAnalysisTasks(const char *cdb_location){
    }   
 
    // Unicor
-   if (iPWG2unicor) {
+   if (iPWG2unicor)
+   {
       gROOT->LoadMacro("$ALICE_ROOT/PWG2/UNICOR/AddTaskUnicor.C");
       AliAnalysisTaskUnicor *taskunicor = AddTaskUnicor();
       if (!taskunicor) ::Warning("AnalysisTrainNew", "AliAnalysisTaskUnicor cannot run for this train conditions - EXCLUDED");
@@ -672,7 +722,8 @@ void AddAnalysisTasks(const char *cdb_location){
    AliAnalysisManager::SetCommonFileName("PWG2histograms.root");
 
    // Flow analysis
-   if (iPWG2flow) {
+   if (iPWG2flow)
+   {
       gROOT->LoadMacro("$ALICE_ROOT/PWG2/FLOW/macros/AddTaskFlow.C");
       Bool_t SP       = kTRUE;
       Bool_t LYZ1SUM  = kTRUE;
@@ -699,7 +750,8 @@ void AddAnalysisTasks(const char *cdb_location){
 
    // PWG2 resonances
    AliAnalysisManager::SetCommonFileName("resonances.root");
-   if (iPWG2res) {
+   if (iPWG2res)
+   {
       gROOT->LoadMacro("$ALICE_ROOT/PWG2/RESONANCES/macros/train/AddAnalysisTaskRsnNew.C");
       gROOT->LoadMacro("$ALICE_ROOT/PWG2/RESONANCES/macros/train/AddAnalysisTaskRsnEffNew.C");
       TString path = gROOT->GetMacroPath();
@@ -726,14 +778,16 @@ void AddAnalysisTasks(const char *cdb_location){
   }
       
    // PWG3 electrons
-   if (iPWG3hfe) {
+   if (iPWG3hfe)
+   {
       gROOT->LoadMacro("$ALICE_ROOT/PWG3/hfe/AddTaskHFE.C");
       AliAnalysisTaskHFE *taskHFE = AddTaskHFE();
       if (!taskHFE) ::Warning("AnalysisTrainNew", "AliAnalysisTaskHFE cannot run for this train conditions - EXCLUDED");
    }   
 
    // PWG3 JPSI filtering
-   if (iPWGDQJPSIfilter) {
+   if (iPWGDQJPSIfilter)
+   {
       gROOT->LoadMacro("$ALICE_ROOT/PWGDQ/dielectron/macros/AddTaskJPSIFilter.C");
       AliAnalysisTaskSE *taskJPSIfilter = AddTaskJPSIFilter();
       if (!taskJPSIfilter) ::Warning("AnalysisTrainNew", "AliAnalysisTaskDielectronFilter cannot run for this train conditions - EXCLUDED");
@@ -742,14 +796,16 @@ void AddAnalysisTasks(const char *cdb_location){
    }   
 
    // PWG3 JPSI
-   if (iPWGDQJPSI) {
+   if (iPWGDQJPSI) 
+   {
       gROOT->LoadMacro("$ALICE_ROOT/PWGDQ/dielectron/macros/AddTaskJPSI.C");
       AliAnalysisTask *taskJPSI = AddTaskJPSI();
       if (!taskJPSI) ::Warning("AnalysisTrainNew", "AliAnalysisTaskMultiDielectron cannot run for this train conditions - EXCLUDED");
    }   
 
    // PWG3 D2h
-   if (iPWGHFd2h) {   
+   if (iPWGHFd2h) 
+   {   
      gROOT->LoadMacro("$ALICE_PHYSICS/PWGHF/vertexingHF/AddD2HTrain.C");
      //TFile::Cp(gSystem->ExpandPathName(configPWG3d2h.Data()), 
      //          Form("%s/ConfigVertexingHF.C", train_name.Data()));
@@ -758,7 +814,8 @@ void AddAnalysisTasks(const char *cdb_location){
    }
 
    // PWG3 muon
-   if (iPWGMuonTrain) {
+   if (iPWGMuonTrain)
+   {
       gROOT->LoadMacro("$ALICE_ROOT/PWG/muon/AddPWG3MuonTrain.C");
       // iESDAnalysis, iAODAnalysis -> flags to select if the train is AOD or ESD based
       // iMuonDistributions, iSingleMuonANAlysis -> flags to switch on/off analysis wagons
@@ -784,18 +841,22 @@ void AddAnalysisTasks(const char *cdb_location){
    UInt_t kHighPtFilterMask = 768;// from esd filter
    if(run_flag==1000)kHighPtFilterMask = 272;// from esd filter for 2010
    UInt_t iPhysicsSelectionFlag = 0;
-   if (iJETAN) {
+   if (iJETAN)
+   {
      gROOT->LoadMacro("$ALICE_PHYSICS/PWGJE/macros/AddTaskJets.C");
-     if (!iAODanalysis) {
+     if (!iAODanalysis) 
+     {
        // Default jet reconstructor running on ESD's
        AliAnalysisTaskJets *taskjets = AddTaskJets("AOD","UA1",0.4,kHighPtFilterMask,1.,0); // no background subtraction     
        if(kDeltaAODJetName.Length()>0)taskjets->SetNonStdOutputFile(kDeltaAODJetName.Data());
        if (!taskjets) ::Warning("AnalysisTrainNew", "AliAnalysisTaskJets cannot run for this train conditions - EXCLUDED");
-       if (iJETANdelta) {
+       if (iJETANdelta)
+       {
 	 //            AddTaskJetsDelta("AliAOD.Jets.root"); // need to modify this accordingly in the add task jets
 	 mgr->RegisterExtraFile(kDeltaAODJetName.Data());
 	 TString cTmp("");
-	 if(kIsPbPb){
+	 if(kIsPbPb)
+         {
 	   // UA1 intrinsic background subtraction
 	   taskjets = AddTaskJets("AOD","UA1",0.4,kHighPtFilterMask,1.,2); // background subtraction
  	   if(kDeltaAODJetName.Length()>0)taskjets->SetNonStdOutputFile(kDeltaAODJetName.Data());
@@ -833,9 +894,12 @@ void AddAnalysisTasks(const char *cdb_location){
 	   if(kDeltaAODJetName.Length()>0)taskSubtract->SetNonStdOutputFile(kDeltaAODJetName.Data());
 	 }
        } 
-     } else {
+     } 
+     else 
+     {
        // AOD-based analysis. Add all reconstructors to write into delta AOD's
-       if (iJETANdelta) {
+       if (iJETANdelta) 
+       {
 	 Int_t ntasksjets = AddTaskJetsDelta("AliAOD.Jets.root",0,kFALSE);
 	 if (ntasksjets) printf("Added %d jet reconstructors\n", ntasksjets);
        }
@@ -843,7 +907,8 @@ void AddAnalysisTasks(const char *cdb_location){
    }
      
    // PWG4 hadron correlations
-   if (iPWG4partcorr) {
+   if (iPWG4partcorr) 
+   {
       Bool_t isSimulation = (runOnData)?kFALSE:kTRUE;
       gROOT->LoadMacro("$ALICE_ROOT/PWGJE/macros/AddTaskPartCorr.C");
       AliAnalysisTaskParticleCorrelation *taskpartcorrPHOS = AddTaskPartCorr("AOD", "PHOS", kFALSE, isSimulation);
@@ -854,16 +919,12 @@ void AddAnalysisTasks(const char *cdb_location){
    }   
 
    // PWG4 omega to 3 pions analysis
-   if (iPWG4omega3pi) {
+   if (iPWG4omega3pi) 
+   {
       gROOT->LoadMacro("$ALICE_ROOT/PWG4/macros/AddTaskomega3pi.C");
       AliAnalysisTaskOmegaPi0PiPi *taskomega3pi = AddTaskomega3pi();
       if (!taskomega3pi) ::Warning("AnalysisTrainNew", "AliAnalysisTaskomega3pi cannot run for these train conditions - EXCLUDED");
-   } 
-   if (iPWGGAgammaconv) {
-      gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/GammaConv/macros/AddTask_ConversionAODProduction.C");
-      AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(iCollision, kFALSE, periodName);
-      mgr->RegisterExtraFile("AliAODGammaConversion.root");
-   }   
+   }
 }
 
 //______________________________________________________________________________
