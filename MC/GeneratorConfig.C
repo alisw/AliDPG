@@ -566,6 +566,28 @@ GeneratorPythia8(Int_t tune, Int_t pdgtrig, Float_t etatrig)
   pythia->SetEnergyCMS(energyConfig);
   pythia->SetCrossingAngle(0, crossingConfig);
   //
+  // system-dependent settings
+  if (systemConfig.EqualTo("p-Pb")) {
+    pythia->SetProjectile("P", 1, 1);
+    pythia->SetTarget    ("n", 208, 82);
+    //    (AliPythia8::Instance())->SetMSTP(52, 2);
+    //    (AliPythia8::Instance())->SetMSTP(192, 1);
+    //    (AliPythia8::Instance())->SetMSTP(193, 208);
+    //    pythia->SetUseNuclearPDF(kTRUE); // does not exist for AliGenPythiaPlus
+    //    pythia->SetUseLorentzBoost(kTRUE); // does not exist for AliGenPythiaPlus, boost is always performed
+    comment = comment.Append(" | p-Pb Boosted");
+  }
+  else if (systemConfig.EqualTo("Pb-p")) {
+    pythia->SetProjectile("n", 208, 82);
+    pythia->SetTarget    ("P", 1, 1);
+    //    (AliPythia8::Instance())->SetMSTP(52, 2);
+    //    (AliPythia8::Instance())->SetMSTP(192, 208);
+    //    (AliPythia8::Instance())->SetMSTP(193, 1);
+    //    pythia->SetUseNuclearPDF(kTRUE); // does not exist for AliGenPythiaPlus
+    //    pythia->SetUseLorentzBoost(kTRUE); // does not exist for AliGenPythiaPlus, boost is always performed
+    comment = comment.Append(" | Pb-p Boosted");
+  }
+  //
   // Initialize
   pythia->SetEventListRange(-1, 2); 
   (AliPythia8::Instance())->ReadString("Random:setSeed = on");
