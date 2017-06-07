@@ -232,9 +232,13 @@ GeneratorConfig(Int_t tag)
     if (periodName.EqualTo("LHC15n")) sigmaxy =  90.e-4;
     if (periodName.EqualTo("LHC15o")) sigmaxy =  30.e-4;
     //
+    if (periodName.EqualTo("LHC16d")) sigmaxy =  50.e-4; 
+    if (periodName.EqualTo("LHC16e")) sigmaxy =  55.e-4; 
     if (periodName.EqualTo("LHC16f")) sigmaxy =  60.e-4; 
     if (periodName.EqualTo("LHC16g")) sigmaxy =  60.e-4; 
+    if (periodName.EqualTo("LHC16h")) sigmaxy =  55.e-4; 
     if (periodName.EqualTo("LHC16i")) sigmaxy =  60.e-4; 
+    if (periodName.EqualTo("LHC16j")) sigmaxy =  55.e-4; 
     if (periodName.EqualTo("LHC16k")) sigmaxy =  45.e-4; 
     if (periodName.EqualTo("LHC16l")) sigmaxy =  45.e-4; 
     if (periodName.EqualTo("LHC16o")) sigmaxy =  55.e-4; 
