@@ -449,19 +449,40 @@ fi
 
 if [[ $CONFIG_MODE == *"Muon"* ]]; then
     if [[ $CONFIG_DETECTOR == "" ]]; then
-	export CONFIG_DETECTOR="Muon"
+        CONFIG_DETECTOR="Muon"
+        export CONFIG_DETECTOR
     fi
     if [[ $CONFIG_SIMULATION == "" ]]; then
-	export CONFIG_SIMULATION="Muon"
-    fi
+        if [[ $CONFIG_MODE == *"MuonOnly"* ]]; then
+            CONFIG_SIMULATION="MuonOnly"
+        else
+            CONFIG_SIMULATION="Muon"
+        fi
+        export CONFIG_SIMULATION
+   fi
     if [[ $CONFIG_RECONSTRUCTION == "" ]]; then
-	export CONFIG_RECONSTRUCTION="Muon"
+        if [[ $CONFIG_MODE == *"MuonOnly"* ]]; then
+            CONFIG_RECONSTRUCTION="MuonOnly"
+        else
+            CONFIG_RECONSTRUCTION="Muon"
+        fi
+        export CONFIG_RECONSTRUCTION
     fi
     if [[ $CONFIG_QA == "" ]]; then
-	export CONFIG_QA="Muon"
+        if [[ $CONFIG_MODE == *"MuonOnly"* ]]; then
+            CONFIG_QA="MuonOnly"
+        else
+            CONFIG_QA="Muon"
+        fi
+        export CONFIG_QA
     fi
     if [[ $CONFIG_AOD == "" ]]; then
-	export CONFIG_AOD="Muon"
+        if [[ $CONFIG_MODE == *"MuonOnly"* ]]; then
+            CONFIG_AOD="MuonOnly"
+        else
+            CONFIG_AOD="Muon"
+        fi
+        export CONFIG_AOD
     fi
 fi
 

@@ -189,7 +189,7 @@ ProcessEnvironment()
   }
 
   // trigger configuration
-  triggerConfig = kGeneratorDefault;
+  triggerConfig = kTriggerDefault;
   if (gSystem->Getenv("CONFIG_TRIGGER")) {
     Bool_t valid = kFALSE;
     for (Int_t itrg = 0; itrg < kNTriggers; itrg++)
