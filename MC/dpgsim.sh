@@ -447,43 +447,60 @@ fi
 
 ### automatic settings from CONFIG_MODE
 
-if [[ $CONFIG_MODE == *"Muon"* ]]; then
+if [[ $CONFIG_MODE == *"MuonOnly"* ]]; then
+
     if [[ $CONFIG_DETECTOR == "" ]]; then
         CONFIG_DETECTOR="Muon"
         export CONFIG_DETECTOR
     fi
+
     if [[ $CONFIG_SIMULATION == "" ]]; then
-        if [[ $CONFIG_MODE == *"MuonOnly"* ]]; then
-            CONFIG_SIMULATION="MuonOnly"
-        else
-            CONFIG_SIMULATION="Muon"
-        fi
+        CONFIG_SIMULATION="MuonOnly"
         export CONFIG_SIMULATION
-   fi
+    fi
+
     if [[ $CONFIG_RECONSTRUCTION == "" ]]; then
-        if [[ $CONFIG_MODE == *"MuonOnly"* ]]; then
-            CONFIG_RECONSTRUCTION="MuonOnly"
-        else
-            CONFIG_RECONSTRUCTION="Muon"
-        fi
+        CONFIG_RECONSTRUCTION="MuonOnly"
         export CONFIG_RECONSTRUCTION
     fi
+
     if [[ $CONFIG_QA == "" ]]; then
-        if [[ $CONFIG_MODE == *"MuonOnly"* ]]; then
-            CONFIG_QA="MuonOnly"
-        else
-            CONFIG_QA="Muon"
-        fi
+        CONFIG_QA="MuonOnly"
         export CONFIG_QA
     fi
+
     if [[ $CONFIG_AOD == "" ]]; then
-        if [[ $CONFIG_MODE == *"MuonOnly"* ]]; then
-            CONFIG_AOD="MuonOnly"
-        else
-            CONFIG_AOD="Muon"
-        fi
+        CONFIG_AOD="MuonOnly"
         export CONFIG_AOD
     fi
+
+elif [[ $CONFIG_MODE == *"Muon"* ]]; then
+
+    if [[ $CONFIG_DETECTOR == "" ]]; then
+        CONFIG_DETECTOR="Muon"
+        export CONFIG_DETECTOR
+    fi
+
+    if [[ $CONFIG_SIMULATION == "" ]]; then
+        CONFIG_SIMULATION="Muon"
+        export CONFIG_SIMULATION
+    fi
+
+    if [[ $CONFIG_RECONSTRUCTION == "" ]]; then
+        CONFIG_RECONSTRUCTION="Muon"
+        export CONFIG_RECONSTRUCTION
+    fi
+
+    if [[ $CONFIG_QA == "" ]]; then
+        CONFIG_QA="Muon"
+        export CONFIG_QA
+    fi
+
+    if [[ $CONFIG_AOD == "" ]]; then
+        CONFIG_AOD="Muon"
+        export CONFIG_AOD
+    fi
+
 fi
 
 ### automatic settings from GRP info
