@@ -866,10 +866,6 @@ GeneratorStarlight(){
   yminConfig = TMath::Max(yminConfig, -8.0f);
   ymaxConfig = TMath::Min(ymaxConfig, +8.0f);
   
-  // maximum absolute rapidity used in genuine starlight parameters
-  // rapidity bins are calculated wrt (-rapMax,rapMax) interval
-  Float_t rapMax = TMath::Max(TMath::Abs(yminConfig),TMath::Abs(ymaxConfig));
-  
   Int_t projA=1,targA=1,projZ=1,targZ=1;
   // pp
   if (systemConfig.EqualTo("p-p")) {
@@ -896,7 +892,11 @@ GeneratorStarlight(){
   Float_t beam2energy = TMath::Sqrt(Double_t(projA)/projZ*targZ/targA)*energyConfig/2;
   Float_t gamma1  = beam1energy/0.938272;
   Float_t gamma2  = beam2energy/0.938272;
-
+  Float_t rapBoost = 0.5*(TMath::ACosH(gamma2)-TMath::ACosH(gamma1));
+  
+  // maximum absolute rapidity in CMS used in genuine starlight parameters 
+  // rapidity bins are calculated wrt (-rapMax,rapMax) interval
+  Float_t rapMax = TMath::Max(TMath::Abs(yminConfig+rapBoost),TMath::Abs(ymaxConfig+rapBoost));
 
   Bool_t cocktail = kFALSE;
   cocktail |= processConfig.Contains("Psi2sToElPi");
