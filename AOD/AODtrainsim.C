@@ -356,7 +356,8 @@ void AddAnalysisTasks(const char *cdb_location)
                                   3,                     // muonMCMode
                                   kFALSE,                // useV0Filter 
                                   muonWithSPDTracklets,
-                                  (isMuonCaloPass || isMuonOnly));
+                                  (isMuonCaloPass || isMuonOnly),
+                                  iPWGGAgammaconv);      // Add PCMV0
      if (isMuonOnly) {
        taskesdfilter->DisableCaloClusters();
        taskesdfilter->DisableCells();

@@ -564,7 +564,7 @@ void AddAnalysisTasks(const char *cdb_location)
                                   kTRUE,                 // useV0Filter 
                                   muonWithSPDTracklets,
                                   isMuonCaloPass,        //
-                                  kTRUE);                // addPCMV0s (new starting with v5-09-09, default is true)
+                                  iPWGGAgammaconv);      // addPCMV0s (new starting with v5-09-09, default is true)
 
          AliEMCALGeometry::GetInstance("","");
    }   
