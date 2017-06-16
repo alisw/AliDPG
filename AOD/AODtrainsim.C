@@ -343,7 +343,8 @@ void AddAnalysisTasks(const char *cdb_location)
                                   3,                     // muonMCMode
                                   kFALSE,                // useV0Filter 
                                   muonWithSPDTracklets,
-                                  isMuonCaloPass);
+                                  isMuonCaloPass,
+                                  iPWGGAgammaconv);      // Add PCMV0
          AliEMCALGeometry::GetInstance("","");
    }   
 

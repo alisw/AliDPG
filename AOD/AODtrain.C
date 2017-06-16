@@ -325,7 +325,8 @@ void AddAnalysisTasks(const char *cdb_location)
                                   //kTRUE,               // useV0Filter
                                   kFALSE,                // useV0Filter - turned off for PCM to make sense
                                   muonWithSPDTracklets,
-                                  isMuonCaloPass);
+                                  isMuonCaloPass,
+                                  iPWGGAgammaconv);      // Add PCMV0
          AliEMCALGeometry::GetInstance("","");
    }   
 
