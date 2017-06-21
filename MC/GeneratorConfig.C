@@ -17,7 +17,11 @@ enum EGenerator_t {
   // Pythia8
   kGeneratorPythia8, kGeneratorPythia8_Monash2013,
   // Pythia8 jets
-  kGeneratorPythia8Jets, kGeneratorPythia8Jets_Monash2013, 
+  kGeneratorPythia8Jets, kGeneratorPythia8Jets_Monash2013,
+  // Pythia8 jets gamma-triggered
+  kGeneratorPythia8JetsGammaTrg, kGeneratorPythia8JetsGammaTrg_Monash2013,
+  // Pythia8 gamma-jet
+  kGeneratorPythia8GammaJet, kGeneratorPythia8GammaJet_Monash2013,
   // Phojet
   kGeneratorPhojet, kGeneratorDpmjet,
   // EPOS-LHC
@@ -49,7 +53,11 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Pythia8", "Pythia8_Monash2013",
   // Pythia8 jets
   "Pythia8Jets", "Pythia8Jets_Monash2013",
-  // Phijet / DPMjet
+  // Pythia8 jets gamma-triggered
+  "Pythia8JetsGammaTrg", "Pythia8JetsGammaTrg_Monash2013",
+  // Pythia8 gamma-jet
+  "Pythia8GammaJet", "Pythia8GammaJet_Monash2013",
+  // Phojet / DPMjet
   "Phojet", "Dpmjet",
   // EPOS-LHC
   "EPOSLHC", "EPOSLHC_pp", "EPOSLHC_PbPb",
@@ -154,7 +162,9 @@ AliGenerator *GeneratorPythia6JetsGammaTrg(Int_t tune = 0, Int_t acceptance = kC
 AliGenerator *GeneratorPythia6GammaJet(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
 AliGenerator *GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune = 0, Bool_t HFonly = kTRUE);
 AliGenerator *GeneratorPythia8(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
-AliGenerator *GeneratorPythia8Jets(Int_t tune = 0);
+AliGenerator *GeneratorPythia8Jets(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
+AliGenerator *GeneratorPythia8JetsGammaTrg(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
+AliGenerator *GeneratorPythia8GammaJet(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
@@ -216,6 +226,18 @@ GeneratorConfig(Int_t tag)
   case kGeneratorPythia8Jets: 
   case kGeneratorPythia8Jets_Monash2013:
     gen = GeneratorPythia8Jets(kPythia8Tune_Monash2013);
+    break;
+
+    // Pythia8JetsGammaTrg (Monash2013)
+  case kGeneratorPythia8JetsGammaTrg:
+  case kGeneratorPythia8JetsGammaTrg_Monash2013:
+    gen = GeneratorPythia8JetsGammaTrg(kPythia8Tune_Monash2013);
+    break;
+    
+    // Pythia8GammaJet (Monash2013)
+  case kGeneratorPythia8GammaJet:
+  case kGeneratorPythia8GammaJet_Monash2013:
+    gen = GeneratorPythia8GammaJet(kPythia8Tune_Monash2013);
     break;
     
     // Phojet / DPMjet
@@ -618,7 +640,7 @@ GeneratorPythia8(Int_t tune, Int_t pdgtrig, Float_t etatrig)
 /*** PYTHIA 8 JETS ***********************************************/
 
 AliGenerator *
-GeneratorPythia8Jets(Int_t tune)
+GeneratorPythia8Jets(Int_t tune, Int_t acceptance)
 {
   //
   //
@@ -629,8 +651,10 @@ GeneratorPythia8Jets(Int_t tune)
   //
   // jets settings
   pythia->SetProcess(kPyJets);
-  pythia->SetJetEtaRange(-1.5, 1.5); // Final state kinematic cuts
-  pythia->SetJetPhiRange(0., 360.);
+  Float_t etaMax, phiMin, phiMax;
+  GetCalorimeterAcceptance(acceptance, etaMax, phiMin, phiMax);
+  pythia->SetJetEtaRange(-etaMax, etaMax); // Final state kinematic cuts
+  pythia->SetJetPhiRange(phiMin, phiMax);
   pythia->SetJetEtRange(0., 1000.);
   pythia->SetPtHard(pthardminConfig, pthardmaxConfig); // Pt transfer of the hard scattering
   pythia->SetStrucFunc(kCTEQ5L);
@@ -645,6 +669,76 @@ GeneratorPythia8Jets(Int_t tune)
     pythia->SetPyquenPar(1.,0.1,0,0,1);			
     break;
   }
+  //
+  return pythia;
+}
+
+/*** PYTHIA 8 JETS GAMMA-TRIGGERED ********************************/
+
+AliGenerator *
+GeneratorPythia8JetsGammaTrg(Int_t tune, Int_t acceptance)
+{
+  //
+  //
+  comment = comment.Append(Form(" | Pythia8 jets gamma-triggered"));
+  //
+  // Pythia
+  AliGenPythiaPlus *pythia = GeneratorPythia8Jets(tune, kCalorimeterAcceptance_FullDetector);
+  //
+  //
+  // Careful with pT hard limits if triggerParticleInCalo option is on
+  pythia->SetTriggerParticleMinPt(pttrigminConfig); 
+  // acceptance
+  Float_t etaMax, phiMin, phiMax;
+  GetCalorimeterAcceptance(acceptance, etaMax, phiMin, phiMax);
+  switch (acceptance) {
+    //
+  case kCalorimeterAcceptance_FullDetector:
+    pythia->SetBarrelAcceptance(etaMax);
+    pythia->SetDecayPhotonInBarrel(kTRUE);
+    pythia->SetFragPhotonInBarrel (kTRUE); // it will be driven mostly by decays, but should not harm
+    break;
+    //
+  case kCalorimeterAcceptance_EMCRun1:
+  case kCalorimeterAcceptance_EMCRun2:
+    pythia->SetEMCALAcceptance(phiMin,phiMax,etaMax);
+    pythia->SetDecayPhotonInEMCAL(kTRUE);
+    pythia->SetFragPhotonInEMCAL (kTRUE); // it will be driven mostly by decays, but should not harm
+    break;
+    //
+  case kCalorimeterAcceptance_PHSDMC:
+  case kCalorimeterAcceptance_PHSRun1:
+  case kCalorimeterAcceptance_EMCRun2:
+    pythia->SetPHOSAcceptance(phiMin,phiMax,etaMax);
+    pythia->SetDecayPhotonInPHOS(kTRUE);
+    pythia->SetFragPhotonInPHOS(kTRUE); // it will be driven mostly by decays, but should not harm
+    break;
+  }
+  //
+  return pythia;
+}
+
+/*** PYTHIA 8 GAMMA-JET ***********************************************/
+
+AliGenerator *
+GeneratorPythia8GammaJet(Int_t tune, Int_t acceptance)
+{
+  //
+  //
+  comment = comment.Append(Form(" | Pythia8 gamma-jet"));
+  //
+  // Pythia
+  AliGenPythiaPlus *pythia = GeneratorPythia8Jets(tune);
+  //
+  // gamma settings
+  pythia->SetProcess(kPyDirectGamma);
+  Float_t etaMax, phiMin, phiMax;
+  GetCalorimeterAcceptance(acceptance, etaMax, phiMin, phiMax);
+  pythia->SetGammaEtaRange(-etaMax, etaMax);
+  pythia->SetGammaPhiRange(phiMin, phiMax);
+  // reset jets settings
+  pythia->SetJetEtaRange(-20., 20.); // Final state kinematic cuts
+  pythia->SetJetPhiRange(0., 360.);
   //
   return pythia;
 }
