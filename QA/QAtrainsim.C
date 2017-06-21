@@ -76,10 +76,61 @@ Bool_t doV0           = 0;    // NEEDS MCtruth
 Bool_t doAD           = 1;    //decetrot AD
 Bool_t doEvTrk        = 1;    // analysis task uses the CF framework 
 
+Bool_t isMuonOnly     = kFALSE; // setting this to kTRUE will disable some not needed tasks for a muon-only MC
+
 Int_t debug_level     = 1;    // Debugging
 Int_t run_number      = 0;
 Int_t run_flag        = 1500;
 
+//______________________________________________________________________________
+void UpdateFlags()
+{
+  // Update flags according to type of MC
+  if ( isMuonOnly )
+  {
+    // disable the analysis we know for sure can not work or are meaningless for a muon-only MC
+    doCDBconnect   = 0;
+    doEventStat    = 0;
+    doCentrality   = 0;
+    doQAsym        = 0;
+    doVZERO        = 0;
+    doVZEROPbPb    = 0;
+    doVertex       = 0;
+    doSPD          = 0;
+    doTPC          = 0;
+    doHLT          = 0;
+    doSDD          = 0;
+    doSSDdEdx      = 0;
+    
+    doTRD          = 0;
+    doITS          = 0;
+    doITSsaTracks  = 0;
+    doITSalign     = 0;
+    doCALO         = 0;
+    doMUONTrig     = 1;
+    doImpParRes    = 0;
+    doMUON         = 1;
+    doTOF          = 0;
+    doHMPID        = 0;
+    doT0           = 0;
+    doZDC          = 0;
+    doPIDResponse  = 0;
+    doPIDqa        = 0;
+    doFMD          = 0;
+    doPHOS         = 0;
+    doPHOSTrig     = 0;
+    doEMCAL        = 0;
+    doFBFqa        = 0;
+    
+    doMUONPerf     = 1;
+    doMUONEff      = 1;
+    doV0           = 0;
+    doAD           = 0;
+    doEvTrk        = 0;
+  }
+}
+
+//______________________________________________________________________________
 void QAtrainsim(Int_t run = 0,
              const char *xmlfile   = "wn.xml",
              Int_t  stage          = 0, /*0 = QA train, 1...n - merging stage*/
@@ -117,6 +168,8 @@ void QAtrainsim(Int_t run = 0,
     doVZEROPbPb =kTRUE;
   }
 
+  UpdateFlags();
+  
   TString cdbString(cdb);
   if (cdbString.Contains("raw://") && !ocdbConfig.Contains("cvmfs")) {
     TGrid::Connect("alien://");
@@ -458,7 +511,7 @@ void AddAnalysisTasks(const char *cdb_location)
   if(doMUONTrig) {
   // no offline trigger selection
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskMTRchamberEfficiency.C");
-      AliAnalysisTaskTrigChEff *taskMuonTrig = AddTaskMTRchamberEfficiency();
+      AliAnalysisTaskTrigChEff *taskMuonTrig = AddTaskMTRchamberEfficiency(isMuonOnly);
   }
 
   //
@@ -468,8 +521,8 @@ void AddAnalysisTasks(const char *cdb_location)
   if(doMUONEff) 
   {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/MUON/dep/AddTaskMUONTrackingEfficiency.C");
-    AliAnalysisTaskMuonTrackingEff *muonEfficiency = AddTaskMUONTrackingEfficiency(kTRUE,kFALSE,"");
-    muonEfficiency->SelectCollisionCandidates(kTriggerMask);
+    AliAnalysisTaskMuonTrackingEff *muonEfficiency = AddTaskMUONTrackingEfficiency(kTRUE,isMuonOnly,"");
+    if (!isMuonOnly) muonEfficiency->SelectCollisionCandidates(kTriggerMask);
     muonEfficiency->UseMCLabel(kTRUE);
   }
 
@@ -481,7 +534,7 @@ void AddAnalysisTasks(const char *cdb_location)
   {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/MUON/dep/AddTaskMuonPerformance.C");
     AliAnalysisTaskMuonPerformance* muonPerformance = AddTaskMuonPerformance();
-    muonPerformance->SelectCollisionCandidates(kTriggerMask);
+    if (!isMuonOnly) muonPerformance->SelectCollisionCandidates(kTriggerMask);
     muonPerformance->UseMCKinematics(kTRUE);
     muonPerformance->SetMCTrigLevelFromMatchTrk(kTRUE);
  }
@@ -514,7 +567,8 @@ void AddAnalysisTasks(const char *cdb_location)
   if (doMUON) {
   // trigger analysis internal
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/PilotTrain/AddTaskMuonQA.C");
-    AliAnalysisTaskSE* taskmuonqa= AddTaskMuonQA(kFALSE);
+    AliAnalysisTaskMuonQA* taskmuonqa = AddTaskMuonQA(kFALSE);
+    if (isMuonOnly) taskmuonqa->GetTrackCuts()->SetIsMC(kTRUE);
   }  
   //
   // TOF (Francesca Bellini)
@@ -700,6 +754,16 @@ void ProcessEnvironment()
 //     abort();
 //   }
 
+  //
+  // Setting this to kTRUE will disable some not needed analysis tasks for a muon_calo pass
+  //
+  isMuonOnly = kFALSE;
+  if (gSystem->Getenv("CONFIG_QA"))
+  {
+    TString configstr = gSystem->Getenv("CONFIG_QA");
+    if (configstr.Contains("MuonOnly")) isMuonOnly = kTRUE;
+  }
+  
   //
   // Figure out the run_flag
   //

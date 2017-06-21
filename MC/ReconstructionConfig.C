@@ -11,7 +11,8 @@
 enum EReconstruction_t {
   kReconstructionDefault,
   kReconstructionMuon,
-  kReconstructionITSpureSA,  
+  kReconstructionMuonOnly,
+  kReconstructionITSpureSA,
   kReconstructionNoSDD,  
   kReconstructionRun1TrackingPID,
   kReconstructionCustom,
@@ -21,6 +22,7 @@ enum EReconstruction_t {
 const Char_t *ReconstructionName[kNReconstructions] = {
   "Default",
   "Muon",
+  "MuonOnly",
   "ITSpureSA",
   "NoSDD",
   "Run1TrackingPID",
@@ -70,6 +72,16 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     rec.SetRunReconstruction("MUON ITS VZERO T0 AD");
     return;
 
+    // Muon only
+  case kReconstructionMuonOnly:
+    ReconstructionDefault(rec);
+    rec.SetRunReconstruction("MUON ITS");
+    rec.SetRunQA("MUON:ALL");
+    rec.SetWriteESDfriend(kFALSE);
+    rec.SetRunPlaneEff(kFALSE);
+    rec.SetRecoParam("ITS",OverrideITSRecoParam_VertexerSmearMC());
+    return;
+    
     // ITSpureSA
   case kReconstructionITSpureSA:
     ReconstructionDefault(rec);
@@ -266,6 +278,21 @@ OverrideITSRecoParam_NoSDD_pPb2016()
   itsRecoParam->SetLayerToSkip(2);
   itsRecoParam->SetLayerToSkip(3);
 
+  //
+  return itsRecoParam;
+}
+
+/*****************************************************************/
+
+AliITSRecoParam *
+OverrideITSRecoParam_VertexerSmearMC()
+{
+  AliITSRecoParam *itsRecoParam = AliITSRecoParam::GetLowFluxParam();
+  
+  // use MC vertex with smearing
+  itsRecoParam->SetVertexerSmearMC();
+  itsRecoParam->ReconstructOnlySPD();
+  
   //
   return itsRecoParam;
 }

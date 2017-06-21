@@ -77,6 +77,7 @@ enum ETrigger_t {
   kTriggerDefault,
   kTriggerPP,
   kTriggerPbPb,
+  kTriggerMuon,
   kTriggerCustom,
   kNTriggers
 };
@@ -85,6 +86,7 @@ const Char_t *TriggerName[kNTriggers] = {
   "ocdb",
   "p-p",
   "Pb-Pb",
+  "MUON",
   "Custom.cfg"
 };
 
