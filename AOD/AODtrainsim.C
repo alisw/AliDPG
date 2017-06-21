@@ -22,6 +22,7 @@ Bool_t      useCORRFW           = kFALSE;  // do not change
 Bool_t      useAODTAGS          = kFALSE;  // use AOD tags
 Bool_t      useSysInfo          = kFALSE;  // use sys info
 Bool_t      isMuonCaloPass      = kFALSE;  // setting this to kTRUE will disable some not needed analysis tasks for a muon_calo pass
+Bool_t      isMuonOnly          = kFALSE;  // setting this to kTRUE will disable same tasks as isMuonCaloPass and some more
 
 // ### Analysis modules to be included. Some may not be yet fully implemented.
 //==============================================================================
@@ -76,18 +77,30 @@ Int_t run_number = 0;
 void UpdateFlags()
 {
   // Update flags according to type of pass
-  if ( isMuonCaloPass )
+  if ( isMuonCaloPass || isMuonOnly )
   {
     // disable the analysis we know for sure can not work or are meaningless
     // for a muon_calo pass
     doCDBconnect       = kFALSE;
-    iPWGHFvertexing    = 0; 
-    iPWGHFd2h          = 0; 
-    iPWGPP             = 0; 
-    iPWGLFForward      = 0; 
-    iPWGGAgammaconv    = 0; 
-    doPIDResponse      = 0; 
-    doPIDqa            = 0; 
+    useTender          = kFALSE;
+    useV0tender        = kFALSE;
+    iJETAN             = 0;
+    iJETANdelta        = 0;
+    iPWGHFvertexing    = 0;
+    iPWGDQJPSIfilter   = 0;
+    iPWGHFd2h          = 0;
+    iPWGPP             = 0;
+    iPWGLFForward      = 0;
+    iPWGGAgammaconv    = 0;
+    doPIDResponse      = kFALSE;
+    doPIDqa            = kFALSE;
+  }
+  
+  if ( isMuonOnly )
+  {
+    // disable more unnecessary tasks for muon only MC
+    usePhysicsSelection = kFALSE;
+    useCentrality       = kFALSE;
   }
 }
 
@@ -328,7 +341,7 @@ void AddAnalysisTasks(const char *cdb_location)
          mgr->RegisterExtraFile("AliAOD.Muons.root");
       }
 
-      Bool_t muonWithSPDTracklets = (iCollision==kPbPb) ? kFALSE : kTRUE; // add SPD information to muon AOD only for pp
+      Bool_t muonWithSPDTracklets = (iCollision==kPbPb || isMuonOnly) ? kFALSE : kTRUE; // add SPD information to muon AOD only for pp
 
       AliAnalysisTaskESDfilter *taskesdfilter = 
                  AddTaskESDFilter(useKFILTER, 
@@ -343,9 +356,14 @@ void AddAnalysisTasks(const char *cdb_location)
                                   3,                     // muonMCMode
                                   kFALSE,                // useV0Filter 
                                   muonWithSPDTracklets,
-                                  isMuonCaloPass,
+                                  (isMuonCaloPass || isMuonOnly),
                                   iPWGGAgammaconv);      // Add PCMV0
-         AliEMCALGeometry::GetInstance("","");
+     if (isMuonOnly) {
+       taskesdfilter->DisableCaloClusters();
+       taskesdfilter->DisableCells();
+       taskesdfilter->DisableCaloTrigger("PHOS");
+       taskesdfilter->DisableCaloTrigger("EMCAL");
+     } else AliEMCALGeometry::GetInstance("","");
    }   
 
 // ********** PWG3 wagons ******************************************************           
@@ -548,11 +566,12 @@ void ProcessEnvironment()
   // Setting this to kTRUE will disable some not needed analysis tasks for a muon_calo pass
   //
   isMuonCaloPass = kFALSE;
+  isMuonOnly = kFALSE;
   if (gSystem->Getenv("CONFIG_AOD"))
   {
     TString configstr = gSystem->Getenv("CONFIG_AOD");
-    if (configstr.Contains("Muon"))
-      isMuonCaloPass = kTRUE;
+    if (configstr.Contains("MuonOnly")) isMuonOnly = kTRUE;
+    else if (configstr.Contains("Muon")) isMuonCaloPass = kTRUE;
   }
 
   //
