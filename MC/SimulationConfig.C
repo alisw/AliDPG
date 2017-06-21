@@ -11,6 +11,7 @@
 enum ESimulation_t {
   kSimulationDefault,
   kSimulationMuon,
+  kSimulationMuonOnly,
   kSimulationEmbedBkg,
   kSimulationEmbedSig,
   kSimulationGeneratorOnly,
@@ -21,6 +22,7 @@ enum ESimulation_t {
 const Char_t *SimulationName[kNSimulations] = {
   "Default",
   "Muon",
+  "MuonOnly",
   "EmbedBkg",
   "EmbedSig",
   "GeneratorOnly",
@@ -50,7 +52,17 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     sim.SetRunHLT("");
     return;
     
-    // EmbedBkg
+    // Muon only
+  case kSimulationMuonOnly:
+    SimulationDefault(sim);
+    sim.SetMakeSDigits("MUON");
+    sim.SetMakeDigits("MUON");
+    sim.SetMakeDigitsFromHits("");
+    sim.SetRunHLT("");
+    sim.SetRunQA("MUON:ALL");
+    return;
+    
+  // EmbedBkg
   case kSimulationEmbedBkg:
     SimulationDefault(sim);
     sim.SetMakeSDigits("ALL");
