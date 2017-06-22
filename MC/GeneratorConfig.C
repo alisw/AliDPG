@@ -463,14 +463,12 @@ GeneratorPythia6JetsGammaTrg(Int_t tune, Int_t acceptance)
   case kCalorimeterAcceptance_FullDetector:
     pythia->SetBarrelAcceptance(etaMax);
     pythia->SetDecayPhotonInBarrel(kTRUE);
-    pythia->SetFragPhotonInBarrel (kTRUE); // it will be driven mostly by decays, but should not harm
     break;
     //
   case kCalorimeterAcceptance_EMCRun1:
   case kCalorimeterAcceptance_EMCRun2:
     pythia->SetEMCALAcceptance(phiMin,phiMax,etaMax);
     pythia->SetDecayPhotonInEMCAL(kTRUE);
-    pythia->SetFragPhotonInEMCAL (kTRUE); // it will be driven mostly by decays, but should not harm
     break;
     //
   case kCalorimeterAcceptance_PHSDMC:
@@ -478,7 +476,6 @@ GeneratorPythia6JetsGammaTrg(Int_t tune, Int_t acceptance)
   case kCalorimeterAcceptance_EMCRun2:
     pythia->SetPHOSAcceptance(phiMin,phiMax,etaMax);
     pythia->SetDecayPhotonInPHOS(kTRUE);
-    pythia->SetFragPhotonInPHOS(kTRUE); // it will be driven mostly by decays, but should not harm
     break;
   }
   //
@@ -694,14 +691,12 @@ GeneratorPythia8JetsGammaTrg(Int_t tune, Int_t acceptance)
   case kCalorimeterAcceptance_FullDetector:
     pythia->SetBarrelAcceptance(etaMax);
     pythia->SetDecayPhotonInBarrel(kTRUE);
-    pythia->SetFragPhotonInBarrel (kTRUE); // it will be driven mostly by decays, but should not harm
     break;
     //
   case kCalorimeterAcceptance_EMCRun1:
   case kCalorimeterAcceptance_EMCRun2:
     pythia->SetEMCALAcceptance(phiMin,phiMax,etaMax);
     pythia->SetDecayPhotonInEMCAL(kTRUE);
-    pythia->SetFragPhotonInEMCAL (kTRUE); // it will be driven mostly by decays, but should not harm
     break;
     //
   case kCalorimeterAcceptance_PHSDMC:
@@ -709,7 +704,6 @@ GeneratorPythia8JetsGammaTrg(Int_t tune, Int_t acceptance)
   case kCalorimeterAcceptance_EMCRun2:
     pythia->SetPHOSAcceptance(phiMin,phiMax,etaMax);
     pythia->SetDecayPhotonInPHOS(kTRUE);
-    pythia->SetFragPhotonInPHOS(kTRUE); // it will be driven mostly by decays, but should not harm
     break;
   }
   //
