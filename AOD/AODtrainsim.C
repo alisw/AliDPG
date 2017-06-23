@@ -343,21 +343,70 @@ void AddAnalysisTasks(const char *cdb_location)
 
       Bool_t muonWithSPDTracklets = (iCollision==kPbPb || isMuonOnly) ? kFALSE : kTRUE; // add SPD information to muon AOD only for pp
 
-      AliAnalysisTaskESDfilter *taskesdfilter = 
-                 AddTaskESDFilter(useKFILTER, 
-                                  iMUONcopyAOD,          // write Muon AOD
-                                  kFALSE,                // write dimuon AOD 
-                                  kFALSE,                // usePhysicsSelection 
-                                  kFALSE,                // centrality OBSOLETE
-                                  kTRUE,                 // enable TPS only tracks
-                                  kFALSE,                // disable cascades
-                                  kFALSE,                // disable kinks
-                                  run_flag,              // run flag (YY00)
-                                  3,                     // muonMCMode
-                                  kFALSE,                // useV0Filter 
-                                  muonWithSPDTracklets,
-                                  (isMuonCaloPass || isMuonOnly),
-                                  iPWGGAgammaconv);      // Add PCMV0
+      /*
+       * switch number of arguments in AddTaskESDFilter 
+       * (R+compatibility)
+       */
+      switch (gROOT->GetGlobalFunction("AddTaskESDFilter")->GetNargs()) {
+	
+      case 12:
+	AliAnalysisTaskESDfilter *taskesdfilter = 
+	  AddTaskESDFilter(useKFILTER, 
+			   iMUONcopyAOD,          // write Muon AOD
+			   kFALSE,                // write dimuon AOD 
+			   kFALSE,                // usePhysicsSelection 
+			   kFALSE,                // centrality OBSOLETE
+			   kTRUE,                 // enable TPS only tracks
+			   kFALSE,                // disable cascades
+			   kFALSE,                // disable kinks
+			   run_flag,              // run flag (YY00)
+			   3,                     // muonMCMode
+			   kFALSE,                // useV0Filter 
+			   muonWithSPDTracklets);
+	break;
+	
+      case 13:
+	AliAnalysisTaskESDfilter *taskesdfilter = 
+	  AddTaskESDFilter(useKFILTER, 
+			   iMUONcopyAOD,          // write Muon AOD
+			   kFALSE,                // write dimuon AOD 
+			   kFALSE,                // usePhysicsSelection 
+			   kFALSE,                // centrality OBSOLETE
+			   kTRUE,                 // enable TPS only tracks
+			   kFALSE,                // disable cascades
+			   kFALSE,                // disable kinks
+			   run_flag,              // run flag (YY00)
+			   3,                     // muonMCMode
+			   kFALSE,                // useV0Filter 
+			   muonWithSPDTracklets,
+			   (isMuonCaloPass || isMuonOnly));
+	break;
+	
+      case 14:
+
+	AliAnalysisTaskESDfilter *taskesdfilter = 
+	  AddTaskESDFilter(useKFILTER, 
+			   iMUONcopyAOD,          // write Muon AOD
+			   kFALSE,                // write dimuon AOD 
+			   kFALSE,                // usePhysicsSelection 
+			   kFALSE,                // centrality OBSOLETE
+			   kTRUE,                 // enable TPS only tracks
+			   kFALSE,                // disable cascades
+			   kFALSE,                // disable kinks
+			   run_flag,              // run flag (YY00)
+			   3,                     // muonMCMode
+			   kFALSE,                // useV0Filter 
+			   muonWithSPDTracklets,
+			   (isMuonCaloPass || isMuonOnly),
+			   iPWGGAgammaconv);      // Add PCMV0
+	break;
+      }
+      /*
+       * end of
+       * switch number of arguments in AddTaskESDFilter 
+       * (R+compatibility)
+       */
+
      if (isMuonOnly) {
        taskesdfilter->DisableCaloClusters();
        taskesdfilter->DisableCells();
