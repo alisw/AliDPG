@@ -475,7 +475,7 @@ GeneratorPythia6JetsGammaTrg(Int_t tune, Int_t acceptance)
     //
   case kCalorimeterAcceptance_PHSDMC:
   case kCalorimeterAcceptance_PHSRun1:
-  case kCalorimeterAcceptance_EMCRun2:
+  case kCalorimeterAcceptance_PHSRun2:
     pythia->SetPHOSAcceptance(phiMin,phiMax,etaMax);
     pythia->SetDecayPhotonInPHOS(kTRUE);
     break;
@@ -703,7 +703,7 @@ GeneratorPythia8JetsGammaTrg(Int_t tune, Int_t acceptance)
     //
   case kCalorimeterAcceptance_PHSDMC:
   case kCalorimeterAcceptance_PHSRun1:
-  case kCalorimeterAcceptance_EMCRun2:
+  case kCalorimeterAcceptance_PHSRun2:
     pythia->SetPHOSAcceptance(phiMin,phiMax,etaMax);
     pythia->SetDecayPhotonInPHOS(kTRUE);
     break;
