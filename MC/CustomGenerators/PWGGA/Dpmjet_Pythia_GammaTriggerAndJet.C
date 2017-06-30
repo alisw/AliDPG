@@ -1,9 +1,9 @@
 ///
-/// \file Pythia_GammaTriggerAndJet.C
-/// \brief Configuration of gamma-jet and jet-jet with/out decay gamma trigger
+/// \file Dpmjet_Pythia_GammaTriggerAndJet.C
+/// \brief Configuration DPMjet plu a gamma-jet or jet-jet with/out decay gamma trigger
 ///
 /// Generate PYTHIA8 or PYTHIA6 gamma-jet (kPyDirectGamma) or jet-jet (kPyJets), with or without 
-/// triggering the gamma in one of the calorimeter possible acceptances.
+/// triggering the gamma in one of the calorimeter possible acceptances on top of a DPMjet event
 /// Options are:
 /// * process and trigger :
 ///   * Pythia6Jets/Pythia8Jets: jet-jet events, kPyJets (optionally with jet axis restricted to some zone or not, preferred open)
@@ -25,6 +25,18 @@ AliGenerator *
 GeneratorCustom
 (TString opt = "kFullDetector")
 {
+  // Init cocktail
+  AliGenCocktail *ctl   = GeneratorCocktail(Form("Dpmjet_%s",processConfig.Data()));
+  
+  //
+  // DPMjet
+  //
+  AliGenerator   *dpm   = GeneratorPhojet();
+  ctl->AddGenerator(dpm,  "Dpmjet", 1.);
+
+  //
+  // PYTHIA
+  //
   // acceptance
   Int_t acceptance = kCalorimeterAcceptance_FullDetector;
   if (opt.EqualTo("FullDetector"))
@@ -39,21 +51,27 @@ GeneratorCustom
     acceptance = kCalorimeterAcceptance_PHSRun2;
   if (opt.EqualTo("PHSDMC"))
     acceptance = kCalorimeterAcceptance_PHSDMC;
-  
+    
   // process
+  AliGenerator   *gammajet   = 0;
+
   // PYTHIA6
   if (processConfig.EqualTo("Pythia6Jets"))
-    return GeneratorPythia6Jets         (kPythia6Tune_Perugia2011, acceptance); 
+    gammajet = GeneratorPythia6Jets         (kPythia6Tune_Perugia2011, acceptance); 
   if (processConfig.EqualTo("Pythia6GammaJet"))
-    return GeneratorPythia6GammaJet     (kPythia6Tune_Perugia2011, acceptance); 
+    gammajet = GeneratorPythia6GammaJet     (kPythia6Tune_Perugia2011, acceptance); 
   if (processConfig.EqualTo("Pythia6JetsGammaTrg"))
-    return GeneratorPythia6JetsGammaTrg (kPythia6Tune_Perugia2011, acceptance); 
+    gammajet = GeneratorPythia6JetsGammaTrg (kPythia6Tune_Perugia2011, acceptance); 
   
   // PYTHIA8
   if (processConfig.EqualTo("Pythia8Jets"))
-    return GeneratorPythia8Jets         (kPythia8Tune_Monash2013 , acceptance); 
+    gammajet = GeneratorPythia8Jets         (kPythia8Tune_Monash2013 , acceptance); 
   if (processConfig.EqualTo("Pythia8GammaJet"))
-    return GeneratorPythia8GammaJet     (kPythia8Tune_Monash2013 , acceptance); 
+    gammajet =  GeneratorPythia8GammaJet     (kPythia8Tune_Monash2013 , acceptance); 
   if (processConfig.EqualTo("Pythia8JetsGammaTrg"))
-    return GeneratorPythia8JetsGammaTrg (kPythia8Tune_Monash2013 , acceptance); 
+    gammajet = GeneratorPythia8JetsGammaTrg (kPythia8Tune_Monash2013 , acceptance); 
+  
+  ctl->AddGenerator(gammajet, processConfig, 1.);  
+  
+  return ctl;
 }
