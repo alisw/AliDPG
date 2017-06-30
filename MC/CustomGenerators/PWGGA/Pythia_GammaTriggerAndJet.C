@@ -1,5 +1,5 @@
 ///
-/// \file GeneratorGammaTriggerAndJet
+/// \file Pythia_GammaTriggerAndJet.C
 /// \brief Configuration of gamma-jet and jet-jet with/out decay gamma trigger
 ///
 /// Generate PYTHIA8 or PYTHIA6 gamma-jet (kPyDirectGamma) or jet-jet (kPyJets), with or without 
