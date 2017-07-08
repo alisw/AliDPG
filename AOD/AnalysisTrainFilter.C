@@ -37,7 +37,7 @@ Bool_t      isMuonCaloPass     = kTRUE;    // setting this to kTRUE will disable
 
 //TString     root_version       = "v5-34-30-alice5-1";  // *CHANGE ME IF MORE RECENT IN GRID*
 //TString     aliroot_version    = "v5-08-13e-1";        // *CHANGE ME IF MORE RECENT IN GRID*
-TString     aliphysics_version = "v5-09-09-01-1";     // *CHANGE ME IF MORE RECENT IN GRID*
+TString     aliphysics_version = "v5-09-10-01-1";     // *CHANGE ME IF MORE RECENT IN GRID*
 
 TString     train_name = "FILTERpass2"; // local folder name;
 TString     visible_name;
@@ -1803,7 +1803,13 @@ void ProcessEnvironment()
         iCollision = icoll;
 
         if(icoll == kpA)
+        {
             iCollision =kpp;
+            train_tag = "_p-Pb_";
+        }
+
+        if(icoll == kpp)
+          train_tag = "_p-p_";
       }
 
       if(iCollision == kPbPb)
@@ -1811,8 +1817,6 @@ void ProcessEnvironment()
         useCentrality =kTRUE;
         train_tag = "_Pb-Pb_";
       }
-      else
-        train_tag = "_p-p_";
   }
   else
     if(!localRunning)
