@@ -950,7 +950,13 @@ void ProcessEnvironment()
         iCollision = icoll;
 
         if(icoll == kpA)
+        {
             iCollision =kpp;
+            train_tag = "_p-Pb_";
+        }
+
+        if(icoll == kpp)
+          train_tag = "_p-p_";
       }
 
       if(iCollision == kPbPb)
@@ -958,8 +964,6 @@ void ProcessEnvironment()
         useCentrality =kTRUE;
         train_tag = "_Pb-Pb_";
       }
-      else
-        train_tag = "_p-p_";
   }
   else
     if(!localRunning)
