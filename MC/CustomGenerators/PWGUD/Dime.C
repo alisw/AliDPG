@@ -1,20 +1,26 @@
 AliGenerator* GeneratorCustom() {
   printf("Starting DIME generator\n");
+  gSystem->Load("libEVGEN");
+  gSystem->Load("libTDime");
+  gSystem->Load("libdime");
 
   TString proc;
   if      (processConfig.Contains("Pipm")) proc = "pipm";
   else if (processConfig.Contains("Kpkm")) proc = "kpkm";
-  else printf("ERROR: uknown process\n");
+  else {
+    printf("ERROR: unknown process\n");
+    return 0;
+  }
 
   TString ff;
   if      (processConfig.Contains("Orexp")) ff = "orexp";
   else if (processConfig.Contains("Exp"))   ff = "exp";
   else if (processConfig.Contains("Power")) ff = "power";
-  else printf("ERROR: uknown process\n");
+  else {
+    printf("ERROR: unknown process\n");
+    return 0;
+  }
   
-  gSystem->Load("libEVGEN");
-  gSystem->Load("libTDime");
-  gSystem->Load("libdime");
   AliGenDime* dime = new AliGenDime(1000);
   AliDimeRndm::GetDimeRandom()->SetSeed(seedConfig);
   printf("Setting new random seed: %i\n",AliDimeRndm::GetDimeRandom()->GetSeed());
