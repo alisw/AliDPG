@@ -1,6 +1,6 @@
 ///
 /// \file Dpmjet_Pythia_GammaTriggerAndJet.C
-/// \brief Configuration DPMjet plu a gamma-jet or jet-jet with/out decay gamma trigger
+/// \brief Configuration DPMjet plus a gamma-jet or jet-jet with/out decay gamma trigger
 ///
 /// Generate PYTHIA8 or PYTHIA6 gamma-jet (kPyDirectGamma) or jet-jet (kPyJets), with or without 
 /// triggering the gamma in one of the calorimeter possible acceptances on top of a DPMjet event
