@@ -1,9 +1,9 @@
 ///
-/// \file Dpmjet_Pythia_GammaTriggerAndJet.C
-/// \brief Configuration DPMjet plus a gamma-jet or jet-jet with/out decay gamma trigger
+/// \file EPOSLHC_Pythia_GammaTriggerAndJet.C
+/// \brief Configuration EPOSLHC plus a gamma-jet or jet-jet with/out decay gamma trigger
 ///
 /// Generate PYTHIA8 or PYTHIA6 gamma-jet (kPyDirectGamma) or jet-jet (kPyJets), with or without 
-/// triggering the gamma in one of the calorimeter possible acceptances on top of a DPMjet event
+/// triggering the gamma in one of the calorimeter possible acceptances on top of a EPOSLHC event
 /// Options are:
 /// * process and trigger :
 ///   * Pythia6Jets/Pythia8Jets: jet-jet events, kPyJets (optionally with jet axis restricted to some zone or not, preferred open)
@@ -26,13 +26,13 @@ GeneratorCustom
 (TString opt = "kFullDetector")
 {
   // Init cocktail
-  AliGenCocktail *ctl   = GeneratorCocktail(Form("Dpmjet_%s",processConfig.Data()));
+  AliGenCocktail *ctl   = GeneratorCocktail(Form("EPOSLHC_%s",processConfig.Data()));
   
   //
-  // DPMjet
+  // EPOSLHC
   //
-  AliGenerator   *dpm   = GeneratorPhojet();
-  ctl->AddGenerator(dpm,  "Dpmjet", 1.);
+  AliGenerator   *epos   = GeneratorEPOSLHC();
+  ctl->AddGenerator(epos,  "EPOSLHC", 1.);
 
   //
   // PYTHIA
