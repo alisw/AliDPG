@@ -1270,7 +1270,7 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
   //
   // J/psi
   AliGenParam *jpsi = new AliGenParam(1, AliGenMUONlib::kJpsi, params, "Jpsi");
-  jpsi->SetPtRange(0., 6.);
+  jpsi->SetPtRange(0., 1000.);
   jpsi->SetYRange(-1.0, 1.0);
   jpsi->SetPhiRange(0., 360.);
   jpsi->SetForceDecay(kNoDecay);
@@ -1284,7 +1284,7 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
   //
   // flat high pT
   AliGenParam *jpsiHighPtFlat = new AliGenParam(1, AliGenMUONlib::kJpsi, "Flat", "Jpsi");  // 7 TeV
-  jpsiHighPtFlat->SetPtRange(6., 25.);
+  jpsiHighPtFlat->SetPtRange(6., 50.);
   jpsiHighPtFlat->SetYRange(-1.0, 1.0);
   jpsiHighPtFlat->SetPhiRange(0., 360.);
   jpsiHighPtFlat->SetForceDecay(kNoDecay);
