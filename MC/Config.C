@@ -85,7 +85,13 @@ Config()
 
   /* configure Geant4 if requested */
   if (isGeant4) {
-    gROOT->LoadMacro("$ALIDPG_ROOT/MC/Geant4Config.C");
+    Int_t error;
+    TString geant4config_macro = "$ALIDPG_ROOT/MC/Geant4Config.C";
+    if (gROOT->LoadMacro("Geant4Config.C", &error, kTRUE) == 0) {
+      printf(">>>>> Genat4Config.C macro detected in CWD, using that one \n");
+      geant4config_macro = "Geant4Config.C";
+    }
+    gROOT->LoadMacro(geant4config_macro.Data());
     Geant4Config();
   }
 
