@@ -34,7 +34,13 @@ void sim()
   }
 
   /* initialisation */
-  AliSimulation sim("$ALIDPG_ROOT/MC/Config.C");
+  Int_t error;
+  TString config_macro = "$ALIDPG_ROOT/MC/Config.C";
+  if (gROOT->LoadMacro("Config.C", &error, kTRUE) == 0) {
+    printf(">>>>> Config.C macro detected in CWD, using that one \n");
+    config_macro = "Config.C";
+  }
+  AliSimulation sim(config_macro.Data());
 
   /* configuration */
   SimulationConfig(sim, simulationConfig);
