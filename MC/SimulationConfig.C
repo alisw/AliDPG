@@ -15,6 +15,7 @@ enum ESimulation_t {
   kSimulationEmbedBkg,
   kSimulationEmbedSig,
   kSimulationGeneratorOnly,
+  kSimulationNoDigitization,
   kSimulationCustom,
   kNSimulations
 };
@@ -26,6 +27,7 @@ const Char_t *SimulationName[kNSimulations] = {
   "EmbedBkg",
   "EmbedSig",
   "GeneratorOnly",
+  "NoDigitization",
   "Custom"
 };
 
@@ -90,6 +92,15 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag)
   case kSimulationGeneratorOnly:
     SimulationDefault(sim);
     sim.SetRunGeneratorOnly(kTRUE);
+    return;
+
+    // NoDigitization
+  case kSimulationNoDigitization:
+    SimulationDefault(sim);
+    sim.SetMakeSDigits("");
+    sim.SetMakeDigits("");
+    sim.SetMakeDigitsFromHits("");
+    sim.SetRunHLT("");
     return;
 
     // Custom
