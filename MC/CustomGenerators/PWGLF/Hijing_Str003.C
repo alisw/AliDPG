@@ -1,5 +1,5 @@
 AliGenerator *
-GeneratorCustom(TString opt)
+GeneratorCustom(TString opt = "d")
 {
     //Generator meant to create events destined for material budget variations: special variant
     //in the future: pass more as command line arguments and write less custom generators...
