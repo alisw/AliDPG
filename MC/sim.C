@@ -36,9 +36,9 @@ void sim()
   /* initialisation */
   Int_t error;
   TString config_macro = "$ALIDPG_ROOT/MC/Config.C";
-  if (gROOT->LoadMacro("Config.C", &error, kTRUE) == 0) {
+  if (gROOT->LoadMacro(Form("%s/Config.C", gSystem->pwd()), &error, kTRUE) == 0) {
     printf(">>>>> Config.C macro detected in CWD, using that one \n");
-    config_macro = "Config.C";
+    config_macro = Form("%s/Config.C", gSystem->pwd());
   }
   AliSimulation sim(config_macro.Data());
 
