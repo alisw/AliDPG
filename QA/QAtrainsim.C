@@ -54,6 +54,7 @@ Bool_t doTRD          = 1;
 Bool_t doITS          = 1;
 Bool_t doITSsaTracks  = 1;
 Bool_t doITSalign     = 1;
+Bool_t doESDTracks    = 1;
 Bool_t doCALO         = 1;
 Bool_t doMUONTrig     = 1;
 Bool_t doImpParRes    = 1;
@@ -106,6 +107,7 @@ void UpdateFlags()
     doITS          = 0;
     doITSsaTracks  = 0;
     doITSalign     = 0;
+    doESDTracks    = 0;
     doCALO         = 0;
     doMUONTrig     = 1;
     doImpParRes    = 0;
@@ -418,6 +420,15 @@ void AddAnalysisTasks(const char *cdb_location)
      gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskITSAlign.C");
      AliAnalysisTaskITSAlignQA *itsAlign = AddTaskITSAlign(0,2011);
   }   
+  //
+  // Global tracks + V0s QA
+  //
+  if(doESDTracks) {
+    gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskCheckESDTracks.C");
+    AliAnalysisTaskCheckESDTracks* taskestr=AddTaskCheckESDTracks("QA",kFALSE,kTRUE,kTRUE);
+    taskestr->SetPtBinning(160,0.,40.);
+    taskestr->SelectCollisionCandidates(kTriggerMask);
+  }
   //
   // TRD (Alex Bercuci, M. Fasel) 
   //
