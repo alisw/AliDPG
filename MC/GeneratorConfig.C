@@ -107,7 +107,8 @@ enum EPythia6HeavyProcess_t {
 enum EPythia6HeavyDecay_t {
   kPythia6HeavyDecay_Hadrons,
   kPythia6HeavyDecay_HadronsWithV0,
-  kPythia6HeavyDecay_Electron
+  kPythia6HeavyDecay_Electron,
+  kPythia6HeavyDecay_All
 };
 
 /*****************************************************************/
@@ -554,6 +555,10 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune, Bool_t HFonly)
     pythia->SetPdgCodeParticleforAcceptanceCut(11);
     pythia->SetChildYRange(-1.2, 1.2);
     pythia->SetChildPtRange(0, 10000.);
+    break;
+  case kPythia6HeavyDecay_All:
+    pythia->SetHeavyQuarkYRange(-1.5, 1.5);
+    pythia->SetPtHard(pthardminConfig, pthardmaxConfig); // Pt transfer of the hard scattering
     break;
   }
   //  
