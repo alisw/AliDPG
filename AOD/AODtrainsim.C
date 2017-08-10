@@ -176,17 +176,6 @@ void AODtrainsim(Int_t merge=0)
       mgr->SetMCtruthEventHandler(mcHandler);
       mcHandler->SetPreReadMode(1);
       mcHandler->SetReadTR(useTR);
-
-      // subsidiary handler for mc-to-mc embedding
-      TString bgDir = gSystem->Getenv("CONFIG_BGEVDIR");
-      if (!bgDir.IsNull()) { // add extra handler for underlaying event
-	if (!bgDir.EndsWith("/")) bgDir += "/";
-	AliMCEventHandler* mcHandlerBg = new AliMCEventHandler();
-	mcHandlerBg->SetInputPath(bgDir.Data());
-	mcHandlerBg->SetPreReadMode(1);
-	mcHandlerBg->SetReadTR(kTRUE);
-	mcHandler->AddSubsidiaryHandler(mcHandlerBg);
-      } 
    }   
    // AOD output container, created automatically when setting an AOD handler
    if (iAODhandler) {
