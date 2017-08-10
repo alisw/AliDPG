@@ -54,7 +54,7 @@ Geant4Config()
   geant4->ProcessGeantCommand("/process/optical/processActivation OpWLS 0");
   geant4->ProcessGeantCommand("/process/optical/processActivation OpMieHG 0");
   geant4->ProcessGeantCommand("/process/optical/setTrackSecondariesFirst Cerenkov 0");
-  geant4->ProcessGeantCommand("/mcMagField/stepperType NystromRK4");
+  // [use default stepper until issue with Nystrom fixed]  geant4->ProcessGeantCommand("/mcMagField/stepperType NystromRK4");
   
   //
   // PAI for TRD
