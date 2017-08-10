@@ -13,6 +13,7 @@ enum EDetector_t {
   kDetectorMuon,
   kDetectorNoZDC,
   kDetectorCustom,
+  kDetectorBeamBkg,
   kNDetectors
 };
 
@@ -20,7 +21,8 @@ const Char_t *DetectorName[kNDetectors] = {
   "Default",
   "Muon",
   "NoZDC",
-  "Custom"
+  "Custom",
+  "BeamBkg"
 };
 
 /*****************************************************************/
@@ -43,6 +45,7 @@ const Char_t *MagnetName[kNMagnets] = {
 /*****************************************************************/
 /*****************************************************************/
 /*****************************************************************/
+Bool_t bBeamBkg = kFALSE;
 
 Int_t iABSO   = 1;
 Int_t iACORDE = 1;
@@ -76,7 +79,12 @@ DetectorConfig(Int_t tag)
   printf(">>>>> DetectorConfig: %s \n", DetectorName[tag]);
 
   switch (tag) {
-
+	  // kDetectorBeamBkg
+  case kDetectorBeamBkg:
+    DetectorDefault();
+    bBeamBkg=kTRUE;
+    break;
+    
     // kDetectorDefault
   case kDetectorDefault:
     DetectorDefault();
@@ -264,6 +272,8 @@ DetectorInit()
       //=================== PIPE parameters ============================
 
       AliPIPE *PIPE = new AliPIPEv3("PIPE", "Beam Pipe");
+      if (bBeamBkg) ((AliPIPEv3*)PIPE)->SetBeamBackgroundSimulation();
+	  
     }
  
   if (iITS)
