@@ -97,6 +97,7 @@ Bool_t doTRD          = 1;
 Bool_t doITS          = 1;
 Bool_t doITSsaTracks  = 1; 
 Bool_t doITSalign     = 1;  
+Bool_t doESDTracks    = 1;
 Bool_t doCALO         = 1;
 Bool_t doMUONTrig     = 1;
 Bool_t doMUONEff      = 1;
@@ -385,6 +386,15 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
      gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskITSAlign.C");
      AliAnalysisTaskITSAlignQA *itsAlign = AddTaskITSAlign(0,2012);
   }   
+  //
+  // Global tracks + V0s QA
+  //
+  if(doESDTracks && (ibarrel || iall)) {
+    gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskCheckESDTracks.C");
+    AliAnalysisTaskCheckESDTracks* taskestr=AddTaskCheckESDTracks("QA",kTRUE,kFALSE,kFALSE);
+    taskestr->SetPtBinning(160,0.,40.);
+    taskestr->SelectCollisionCandidates(kTriggerMask);
+  }
   //
   // TRD (Alex Bercuci, M. Fasel) 
   // 
@@ -843,6 +853,11 @@ void ProcessEnvironmentVars()
     doITSalign = atoi(envS.Data());
     printf("Set doITSalign=%d according to environment variables\n",doITSalign);
   }
+  // 
+  if ( !(envS=gSystem->Getenv("ESDTracks")).IsNull() && CheckEnvS("ESDTracks",envS) ) {
+    doESDtracks = atoi(envS.Data());
+    printf("Set doESDtracks=%d according to environment variables\n",doESDtracks);
+  }
   //
   if ( !(envS=gSystem->Getenv("CALO")).IsNull() && CheckEnvS("CALO",envS) ) {
     doCALO = atoi(envS.Data());
@@ -943,6 +958,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doVZERO,       1, "VZERO");
       SetDoQA(doVZEROPbPb,   1, "VZEROPbPb");
       SetDoQA(doVertex,      1, "Vertex");
+      SetDoQA(doPileup,      1, "Pileup");
       SetDoQA(doSPD,         1, "SPD");
       SetDoQA(doTPC,         0, "TPC");
       SetDoQA(doHLT,         0, "HLT");
@@ -952,6 +968,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doITS,         0, "ITS");
       SetDoQA(doITSsaTracks, 0, "ITSsaTracks");
       SetDoQA(doITSalign,    0, "ITSalign");
+      SetDoQA(doESDTracks,   0, "ESDTracks");
       SetDoQA(doCALO ,       1, "CALO");
       SetDoQA(doMUONTrig,    0, "MUONTrig");
       SetDoQA(doMUONEff,     0, "MUONEff");
@@ -975,6 +992,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doVZERO,       0, "VZERO");
       SetDoQA(doVZEROPbPb,   0, "VZEROPbPb");
       SetDoQA(doVertex,      0, "Vertex");
+      SetDoQA(doPileup,      0, "Pileup");
       SetDoQA(doSPD,         0, "SPD");
       SetDoQA(doTPC,         1, "TPC");
       SetDoQA(doHLT,         1, "HLT");
@@ -984,6 +1002,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doITS,         0, "ITS");
       SetDoQA(doITSsaTracks, 0, "ITSsaTracks");
       SetDoQA(doITSalign,    0, "ITSalign");
+      SetDoQA(doESDTracks,   0, "ESDTracks");
       SetDoQA(doCALO ,       0, "CALO");
       SetDoQA(doMUONTrig,    0, "MUONTrig");
       SetDoQA(doMUONEff,     0, "MUONEff");
@@ -1007,6 +1026,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doVZERO,       0, "VZERO");
       SetDoQA(doVZEROPbPb,   0, "VZEROPbPb");
       SetDoQA(doVertex,      0, "Vertex");
+      SetDoQA(doPileup,      0, "Pileup");
       SetDoQA(doSPD,         0, "SPD");
       SetDoQA(doTPC,         0, "TPC");
       SetDoQA(doHLT,         0, "HLT");
@@ -1016,6 +1036,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doITS,         0, "ITS");
       SetDoQA(doITSsaTracks, 1, "ITSsaTracks");
       SetDoQA(doITSalign,    1, "ITSalign");
+      SetDoQA(doESDTracks,   1, "ESDTracks");
       SetDoQA(doCALO ,       0, "CALO");
       SetDoQA(doMUONTrig,    0, "MUONTrig");
       SetDoQA(doMUONEff,     0, "MUONEff");
@@ -1039,6 +1060,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doVZERO,       0, "VZERO");
       SetDoQA(doVZEROPbPb,   0, "VZEROPbPb");
       SetDoQA(doVertex,      0, "Vertex");
+      SetDoQA(doPileup,      0, "Pileup");
       SetDoQA(doSPD,         0, "SPD");
       SetDoQA(doTPC,         0, "TPC");
       SetDoQA(doHLT,         0, "HLT");
@@ -1048,6 +1070,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doITS,         1, "ITS");
       SetDoQA(doITSsaTracks, 0, "ITSsaTracks");
       SetDoQA(doITSalign,    0, "ITSalign");
+      SetDoQA(doESDTracks,   0, "ESDTracks");
       SetDoQA(doCALO ,       0, "CALO");
       SetDoQA(doMUONTrig,    0, "MUONTrig");
       SetDoQA(doMUONEff,     0, "MUONEff");
@@ -1071,6 +1094,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doVZERO,       0, "VZERO");
       SetDoQA(doVZEROPbPb,   0, "VZEROPbPb");
       SetDoQA(doVertex,      0, "Vertex");
+      SetDoQA(doPileup,      0, "Pileup");
       SetDoQA(doSPD,         0, "SPD");
       SetDoQA(doTPC,         0, "TPC");
       SetDoQA(doHLT,         0, "HLT");
@@ -1080,6 +1104,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doITS,         0, "ITS");
       SetDoQA(doITSsaTracks, 0, "ITSsaTracks");
       SetDoQA(doITSalign,    0, "ITSalign");
+      SetDoQA(doESDTracks,   0, "ESDTracks");
       SetDoQA(doCALO ,       0, "CALO");
       SetDoQA(doMUONTrig,    1, "MUONTrig");
       SetDoQA(doMUONEff,     1, "MUONEff");
