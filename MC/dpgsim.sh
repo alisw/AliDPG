@@ -304,7 +304,6 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
 	export CONFIG_GEANT4
-        shift
 #    elif [ "$option" = "--sdd" ]; then
 #        RUNMODE="SDD"
 #	export RUNMODE
