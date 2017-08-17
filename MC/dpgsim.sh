@@ -147,6 +147,7 @@ CONFIG_MODE="ocdb,full"
 CONFIG_OCDB="snapshot"
 CONFIG_HLT=""
 CONFIG_GEANT4=""
+CONFIG_FASTB=""
 CONFIG_MATERIAL=""
 
 RUNMODE=""
@@ -304,6 +305,9 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
 	export CONFIG_GEANT4
+    elif [ "$option" = "--fastB" ]; then
+        CONFIG_FASTB="on"
+	export CONFIG_FASTB
 #    elif [ "$option" = "--sdd" ]; then
 #        RUNMODE="SDD"
 #	export RUNMODE
@@ -555,6 +559,7 @@ echo "No. Events....... $CONFIG_NBKG"
 echo "============================================"
 echo "Detector......... $CONFIG_DETECTOR"
 echo "GEANT4........... $CONFIG_GEANT4"
+echo "Fast-B........... $CONFIG_FASTB"
 echo "Material Budget.. $CONFIG_MATERIAL"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
