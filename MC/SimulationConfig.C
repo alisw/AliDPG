@@ -39,6 +39,16 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag)
   
   printf(">>>>> SimulationConfig: %s \n", SimulationName[tag]);
   
+  /** fast magnetic field **/
+  if (gSystem->Getenv("CONFIG_FASTB")) {  
+    if (!AliMagF::Class()->GetMethodAny("SetFastFieldDefault")) {
+      printf("ERROR: fast magnetic field is requested, but AliRoot version is not compatible\n");
+      abort();
+    }
+    printf(">>>>> Using fast magnetic field \n");
+    AliMagF::SetFastFieldDefault(kTRUE);
+ }
+
   switch(tag) {
     
     // Default
