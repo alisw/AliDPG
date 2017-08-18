@@ -315,7 +315,7 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--fastB" ]; then
         CONFIG_FASTB="on"
 	export CONFIG_FASTB
-    elif [ "$option" = "--vdt" ] && [[ $CONFIG_VDT == "" ]]; then
+    elif [ "$option" = "--vdt" ] && [[ $CONFIG_VDT == "" ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
         CONFIG_VDT="on"
 	export CONFIG_VDT
 	export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
