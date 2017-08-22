@@ -87,8 +87,9 @@ void rec(const char *filename="raw.root")
   rec.SetDeleteRecPoints(delRecPoints.Data()); 
   //
 
-  // Set 100% of friends
-  // rec.SetFractionFriends(2.0);
+  // Set 0.7% as fraction of friends (Ruben, 2017-08-22)
+  rec.SetFractionFriends(0.007);
+
   AliLog::Flush();
   rec.Run();
 
