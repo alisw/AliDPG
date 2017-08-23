@@ -336,6 +336,11 @@ fi
 
 if [ ! -z "$CONFIG_PTHARDBIN" ]; then
 
+    if [ ! -z "$CONFIG_PTHARDMIN" ] || [ ! -z "$CONFIG_PTHARDMAX" ]; then
+	echo "Simultaneous setting of pthardbin ($CONFIG_PTHARDBIN) and pthardmin/max ($CONFIG_PTHARDMIN / $CONFIG_PTHARDMAX) not allowed"
+	exit 1;
+    fi
+
     # Define the pt hard bin arrays
     pthardbin_loweredges=(0 5 7 9 12 16 21 28 36 45 57 70 85 99 115 132 150 169 190 212 235)
     pthardbin_higheredges=( 5 7 9 12 16 21 28 36 45 57 70 85 99 115 132 150 169 190 212 235 -1)
