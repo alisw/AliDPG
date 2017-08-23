@@ -134,7 +134,7 @@ ReconstructionDefault(AliReconstruction &rec)
     rec.SetStopOnError(kFALSE);
     rec.SetWriteESDfriend();
     rec.SetWriteAlignmentData();
-    rec.SetFractionFriends(.1);
+    rec.SetFractionFriends(0.01);
     rec.SetRunPlaneEff(kTRUE);
     rec.SetUseTrackingErrorsForAlignment("ITS");
     //
