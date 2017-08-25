@@ -102,11 +102,15 @@ Bool_t UpdateTag(TString faliroot, TString froot, TString fgeant,
       TTree *fTree = (TTree *)f->Get("T");
       if (!fTree) { f->Close(); continue; }
       fTree->SetBranchAddress("AliTAG",&tag);
-   
       //Defining new tag objects
       AliRunTag *newTag = 0x0;
-      TTree ttag("T","A Tree with event tags");
-      TBranch * btag = ttag.Branch("AliTAG", &newTag);
+      TString nameTmp = name;
+      TTimeStamp stp;
+      printf("%s %d\n",stp.AsString(),stp.GetNanoSec());
+      nameTmp.ReplaceAll(".root",Form("_%d.root",stp.GetNanoSec()));
+      TFile* flTmp = TFile::Open(nameTmp.Data(),"recreate");
+      TTree* ttag = new TTree("T","A Tree with event tags");
+      TBranch * btag = ttag->Branch("AliTAG", &newTag);
       btag->SetCompressionLevel(9);
       
       cout<<">>>>> Found " << fTree->GetEntries() << " entries...." << endl;
@@ -125,16 +129,21 @@ Bool_t UpdateTag(TString faliroot, TString froot, TString fgeant,
  	  flTag->SetTURL(turl);
  	  flTag->SetGUID(guid);
  	}
-	ttag.Fill();
-
-	delete tag;
-	delete newTag;
-      }//tag file loop 
-
-      TFile* ftag = TFile::Open(name, "recreate");
-      ftag->cd();
-      ttag.Write();
-      ftag->Close();
+	ttag->Fill();
+	break;
+      }
+      delete fTree;
+      f->Close();
+      delete f;
+      //
+      flTmp->cd();
+      ttag->Write();
+      delete ttag;
+      flTmp->Close();
+      delete flTmp;
+      delete tag;
+      delete newTag;
+      gSystem->Rename(nameTmp,name);
 
     }//pattern check
   }//directory loop
