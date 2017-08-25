@@ -558,9 +558,11 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune, Bool_t HFonly)
     break;
   case kPythia6HeavyDecay_All:
     pythia->SetHeavyQuarkYRange(-1.5, 1.5);
-    pythia->SetPtHard(pthardminConfig, pthardmaxConfig); // Pt transfer of the hard scattering
     break;
   }
+  //
+  // Pt transfer of the hard scattering (set for all cases)
+  pythia->SetPtHard(pthardminConfig, pthardmaxConfig); 
   //  
   if (HFonly)
     pythia->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
