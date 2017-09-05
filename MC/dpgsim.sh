@@ -148,9 +148,16 @@ CONFIG_OCDB="snapshot"
 CONFIG_HLT=""
 CONFIG_GEANT4=""
 CONFIG_FASTB=""
+CONFIG_VDT=""
 CONFIG_MATERIAL=""
 
 RUNMODE=""
+
+# detect VDT math library
+if [[ $LD_PRELOAD == *"libalivdtwrapper.so"* ]]; then
+    CONFIG_VDT="on"
+    export CONFIG_VDT
+fi
 
 while [ ! -z "$1" ]; do
     option="$1"
@@ -308,6 +315,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--fastB" ]; then
         CONFIG_FASTB="on"
 	export CONFIG_FASTB
+    elif [ "$option" = "--vdt" ] && [[ $CONFIG_VDT == "" ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+        CONFIG_VDT="on"
+	export CONFIG_VDT
+	export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
 #    elif [ "$option" = "--sdd" ]; then
 #        RUNMODE="SDD"
 #	export RUNMODE
@@ -565,6 +576,7 @@ echo "============================================"
 echo "Detector......... $CONFIG_DETECTOR"
 echo "GEANT4........... $CONFIG_GEANT4"
 echo "Fast-B........... $CONFIG_FASTB"
+echo "VDT math......... $CONFIG_VDT"
 echo "Material Budget.. $CONFIG_MATERIAL"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
