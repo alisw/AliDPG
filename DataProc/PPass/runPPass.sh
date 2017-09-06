@@ -150,12 +150,7 @@ else
     fi
 fi
 
-if [ -f tag.C ]; then
-    echo "Use tag.C macro passed as input"
-else
-    echo "Use tag.C macro from AliDPG"
-    cp $ALIDPG_ROOT/DataProc/PPass/tag.C .
-fi
+# ESD tag creation removed on September 2017 after CB and PB discussions
 
 if [ -f QAtrain_duo.C ]; then
     echo "Use QAtrain_duo.C macro passed as input"
@@ -260,29 +255,6 @@ if [ "$pass_type" == "ppass" ] && [ -n "$preclusterizeTPC" ] && [ -f TPC.RecPoin
 fi
 
 
-echo "* Running AliRoot to generate Tags..."
-echo ""
-echo "running the following tag.C macro:"
-cat tag.C
-echo ""
-echo "" >&2
-echo "tag.C" >&2
-echo executing aliroot -l -b -q -x tag.C\(\)
-timeStart=`date +%s`
-time aliroot -l -b -q -x tag.C\(\) &> tag.log
-
-exitcode=$?
-timeEnd=`date +%s`
-timeUsed=$(( $timeUsed+$timeEnd-$timeStart ))
-delta=$(( $timeEnd-$timeStart ))
-echo "tag:  delta = $delta, timeUsed so far = $timeUsed"
-echo "tag:  delta = $delta, timeUsed so far = $timeUsed" >&2
-echo "Exit code: $exitcode"
-
-if [ $exitcode -ne 0 ]; then
-    echo "tag.C exited with code $exitcode" > validation_error.message
-    exit 50
-fi
 
 for file in *.stat; do
     mv $file $file.rec
