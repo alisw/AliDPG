@@ -690,11 +690,9 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	exit 2
     fi
 
-    TAGC=$ALIDPG_ROOT/MC/tag.C
-    if [ -f tag.C ]; then
-	TAGC=tag.C
-    fi
-    runcommand "TAG" $TAGC tag.log 50
+
+# ESD tag creation removed on September 2017 after CB and PB discussions
+
 
     CHECKESDC=$ALIDPG_ROOT/MC/CheckESD.C
     if [ -f CheckESD.C ]; then
