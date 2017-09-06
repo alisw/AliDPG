@@ -1195,14 +1195,11 @@ GeneratorAMPT_v226t7()
 {
 
   // run AMPT_v226t7
-  TString fifoname = "crmceventfifo";
+  TString fifoname = "ampteventfifo";
   gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
   gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
-  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_ampt.sh %s %d %d %f %d %f &> gen_ampt.log &",
-			  fifoname.Data(), neventsConfig,
-			  projectileId, projectileEnergy,
-			  targetId, targetEnergy));
-  //
+  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_ampt.sh %s &> gen_ampt.log &",
+			  fifoname.Data()));
   // connect HepMC reader
   AliGenReaderHepMC *reader = new AliGenReaderHepMC();
   reader->SetFileName("ampteventfifo");
