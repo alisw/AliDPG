@@ -31,7 +31,7 @@ enum EGenerator_t {
   // Starlight
   kGeneratorStarlight,
   // AMPT
-  kGeneratorAMPT,
+  kGeneratorAMPT, kGeneratorAMPT_v226t7,
   //
   kGeneratorCustom,
   //
@@ -66,7 +66,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   // Starlight
   "Starlight",
   // AMPT
-  "AMPT",
+  "AMPT", "AMPT_v226t7",
   //
   "Custom",
   //
@@ -173,6 +173,7 @@ AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t l
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
 AliGenerator *GeneratorStarlight();
 AliGenerator *GeneratorAMPT();
+AliGenerator *GeneratorAMPT_v226t7();
 
 /*****************************************************************/
 
@@ -267,6 +268,10 @@ GeneratorConfig(Int_t tag)
     // AMPT
   case kGeneratorAMPT:
     gen = GeneratorAMPT();
+    break;
+
+ case kGeneratorAMPT_v226t7:
+    gen = GeneratorAMPT_v226t7();
     break;
 
     // Custom
@@ -1180,6 +1185,29 @@ GeneratorAMPT() {
   return genHi;
 
   
+}
+
+
+/*** AMPT_v226t7 ****************************************************/
+
+AliGenerator *
+GeneratorAMPT_v226t7()
+{
+
+  // run AMPT_v226t7
+  TString fifoname = "ampteventfifo";
+  gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
+  gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
+  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_ampt.sh %s &> gen_ampt.log &",
+			  fifoname.Data()));
+  // connect HepMC reader
+  AliGenReaderHepMC *reader = new AliGenReaderHepMC();
+  reader->SetFileName("ampteventfifo");
+  AliGenExtFile *gener = new AliGenExtFile(-1);
+  gener->SetName(Form("AMPT_%s", systemConfig.Data()));
+  gener->SetReader(reader);
+  
+  return gener;
 }
 
 /*** COCKTAIL ****************************************************/
