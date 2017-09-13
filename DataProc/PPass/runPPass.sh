@@ -179,6 +179,13 @@ else
     echo "Cosmics type, not using AODtrain"
 fi
 
+if [ -f QAtrainAOD.C ]; then
+    echo "Use QAtrainAOD.C macro passed as input"
+elif [ "$pass_type" != "cosmics" ]; then
+    echo "QAtrainAOD.C macro from AliDPG"
+    cp $ALIDPG_ROOT/QA/QAtrainAOD.C .
+fi
+
 
 # Extraction of TPC clusters
 if [ "$pass_type" == "ppass" ] && [ "$preclusterizeTPC" = "1" ] && [ "$OCDB_SNAPSHOT_CREATE" != "kTRUE" ] && [ -f raw2clust.C ]; then
@@ -378,6 +385,31 @@ if [ -f AODtrain.C ]; then
     for file in *.stat; do
         mv $file $file.aod
     done
-fi
 
+    if [ -f QAtrainAOD.C ]; then
+
+	echo "* Running the AOD QA train..."
+	echo ""
+	echo executing aliroot -b -q  -x QAtrainAOD.C\(kFALSE\)
+	echo "" >&2
+	echo "QAtrainAOD.C" >&2
+	timeStart=`date +%s`
+	time aliroot -b -q  -x QAtrainAOD.C\(kFALSE\) &> aodqa.log
+	
+	exitcode=$?
+	timeEnd=`date +%s`
+	timeUsed=$(( $timeUsed+$timeEnd-$timeStart ))
+	delta=$(( $timeEnd-$timeStart ))
+	echo "AOD-QA: delta = $delta, timeUsed so far = $timeUsed"
+	echo "AOD-QA: delta = $delta, timeUsed so far = $timeUsed" >&2
+	echo "Exit code: $exitcode"
+	
+	if [ $exitcode -ne 0 ]; then
+	    echo "QAtrainAOD.C exited with code $exitcode" > validation_error.message
+	    exit 200
+	fi
+
+    fi
+
+fi
 exit 0

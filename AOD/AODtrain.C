@@ -119,7 +119,7 @@ void AODtrain(Int_t merge=0)
   if (merge || doCDBconnect) {
     TGrid::Connect("alien://");
     if (!gGrid || !gGrid->IsConnected()) {
-      ::Error("QAtrain", "No grid connection");
+      ::Error("AODtrain", "No grid connection");
       return;
     }
   }
