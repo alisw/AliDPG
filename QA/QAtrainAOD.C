@@ -55,7 +55,7 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
   mgr->SetInputEventHandler(aodHandler);
   if(isMC){
     AliMCEventHandler* MChandler = new AliMCEventHandler;
-    handler->SetReadTR(kFALSE);
+    MChandler->SetReadTR(kFALSE);
     mgr->SetMCtruthEventHandler(MChandler);      
   }
   TString macroName="";
