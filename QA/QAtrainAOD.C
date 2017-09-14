@@ -10,6 +10,7 @@ export ALIEN_JDL_LPMINTERACTIONTYPE=pp
 and source it
 ******************************************/
 
+
 enum ECOLLISIONSYSTEM_t
 {
     kpp,
@@ -63,7 +64,7 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
   gROOT->LoadMacro("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C");
   AliPhysicsSelectionTask* physSelTask = AddTaskPhysicsSelection(isMC);
   AliAnalysisDataContainer *cstatsout = (AliAnalysisDataContainer*)mgr->GetOutputs()->FindObject("cstatsout");
-  cstatsout->SetFileName("EventStatAOD_temp.root");
+  cstatsout->SetFileName("EventStat_temp_AOD.root");
 
   // PID response
   gROOT->LoadMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C");
@@ -95,7 +96,7 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
     gROOT->LoadMacro(macroName.Data());
     Bool_t usMCtruthForPID=isMC;
     AliAnalysisTaskCheckAODTracks* taskAODtr = AddTaskCheckAODTracks("QA",isMC,usMCtruthForPID);
-    if(iCollisionType==kPbPb) taskAODtr->SetUpperMultiplicity(10000.)
+    if(iCollisionType==kPbPb) taskAODtr->SetUpperMultiplicity(10000.);
   }else{
     printf("Macro %s not found -> task will not be executed\n",macroName.Data());
   }
