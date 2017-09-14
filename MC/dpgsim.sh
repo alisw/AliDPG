@@ -750,6 +750,18 @@ if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	mv -f $file $file.aod
     done
 
+    if [ -f $ALIDPG_ROOT/QA/QAtrainAOD.C ]; then
+
+	echo "QAresults_AOD.root" >> validation_extrafiles.list
+
+	QATRAINAOD=$ALIDPG_ROOT/QA/QAtrainAOD.C\(kTRUE\)
+	if [ -f QAtrainAOD.C ]; then
+	    QATRAINAOD=QAtrainAOD.C\(kTRUE\)
+	fi
+
+	runcommand "QAtrain AOD" $QATRAINAOD aodqa.log 2000
+    fi
+
 fi
 
 
