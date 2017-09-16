@@ -126,10 +126,12 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     return;
 
    // Default simulation enabling IonTail/Crosstalk for TPC
-  case kSimulationDefaultIonTail:
-     SimulationDefault(sim);
-     sim.SetMakeSDigits("TPC");
-     return;
+    case kSimulationDefaultIonTail:
+      SimulationDefault(sim);
+      if (year < 2015) sim.SetMakeSDigits("TPC TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD");
+      else             sim.SetMakeSDigits("TPC TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD AD");
+      sim.SetMakeDigitsFromHits("ITS");
+      return;
   }
 
 }
