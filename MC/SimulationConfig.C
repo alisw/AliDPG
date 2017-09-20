@@ -85,7 +85,7 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     sim.SetMakeDigits("PHOS");
     sim.SetMakeDigitsFromHits("");
     sim.SetRunHLT("");
-    sim.SetRunQA("PHOS:ALL");
+    sim.SetRunQA(":");
     return;
     
   // EmbedBkg
