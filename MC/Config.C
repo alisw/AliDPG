@@ -17,10 +17,15 @@ static Int_t   detectorConfig  = 0;         // detector
 static Int_t   generatorConfig = 0;         // MC generator
 static Float_t energyConfig    = 0.;        // CMS energy
 static Float_t triggerConfig   = 0.;        // trigger
+static Int_t   pdgConfig       = 0;         // PDG value 
 static Float_t bminConfig      = 0.;        // impact parameter min
 static Float_t bmaxConfig      = 20.;       // impact parameter max
 static Float_t yminConfig      = -1.e6;     // rapidity min
 static Float_t ymaxConfig      =  1.e6;     // rapidity max
+static Float_t phiminConfig    = 0.;        // phi min
+static Float_t phimaxConfig    = 360.;      // phi max
+static Float_t ptminConfig     = 0.;        // pt min
+static Float_t ptmaxConfig     = -1.;       // pt max
 static Float_t crossingConfig  = 0.;        // 2.8e-4 // crossing angle
 static Int_t   seedConfig      = 123456789; // random seed
 static Int_t   uidConfig       = 1;         // unique ID
@@ -56,10 +61,15 @@ Config()
   printf(">>>>>           system: %s \n", systemConfig.Data());
   printf(">>>>>       CMS energy: %f \n", energyConfig);
   printf(">>>>>          trigger: %s \n", TriggerName[triggerConfig]);
+  printf(">>>>>              PDG: %d \n", pdgConfig);
   printf(">>>>>            b-min: %f \n", bminConfig);
   printf(">>>>>            b-max: %f \n", bmaxConfig);
   printf(">>>>>            y-min: %f \n", yminConfig);
   printf(">>>>>            y-max: %f \n", ymaxConfig);
+  printf(">>>>>          phi-min: %f \n", phiminConfig);
+  printf(">>>>>          phi-max: %f \n", phimaxConfig);
+  printf(">>>>>           pt-min: %f \n", ptminConfig);
+  printf(">>>>>           pt-max: %f \n", ptmaxConfig);
   printf(">>>>>      pt-hard min: %f \n", pthardminConfig);
   printf(">>>>>      pt-hard max: %f \n", pthardmaxConfig);
   printf(">>>>>   pt-trigger min: %f \n", pttrigminConfig);
@@ -209,7 +219,11 @@ ProcessEnvironment()
       abort();
     }
   }
-  
+
+  // PDG value for single particles
+  if (gSystem->Getenv("CONFIG_PDG"))
+    pdgConfig = atoi(gSystem->Getenv("CONFIG_PDG"));
+
   // impact parameter configuration
   bminConfig = 0.;
   if (gSystem->Getenv("CONFIG_BMIN"))
@@ -226,7 +240,7 @@ ProcessEnvironment()
     abort();
   }
 
-  // rapidity configuration
+  // rapidity, phi, pT configuration
   yminConfig = -1.e6;
   if (gSystem->Getenv("CONFIG_YMIN"))
     yminConfig = atof(gSystem->Getenv("CONFIG_YMIN"));
@@ -235,6 +249,26 @@ ProcessEnvironment()
     ymaxConfig = atof(gSystem->Getenv("CONFIG_YMAX"));
   if (ymaxConfig <= yminConfig) {
     printf(">>>>> Invalid max rapidity: %f \n", ymaxConfig);
+    abort();
+  }
+  phiminConfig = 0.;
+  if (gSystem->Getenv("CONFIG_PHIMIN"))
+    phiminConfig = atof(gSystem->Getenv("CONFIG_PHIMIN"));
+  phimaxConfig = 360.;
+  if (gSystem->Getenv("CONFIG_PHIMAX"))
+    phimaxConfig = atof(gSystem->Getenv("CONFIG_PHIMAX"));
+  if (phimaxConfig <= phiminConfig) {
+    printf(">>>>> Invalid max phi: %f \n", ymaxConfig);
+    abort();
+  }
+  ptminConfig = 0.;
+  if (gSystem->Getenv("CONFIG_PTMIN"))
+    ptminConfig = atof(gSystem->Getenv("CONFIG_PTMIN"));
+  ptmaxConfig = -1.;
+  if (gSystem->Getenv("CONFIG_PTMAX"))
+    ptmaxConfig = atof(gSystem->Getenv("CONFIG_PTMAX"));
+  if (ptmaxConfig != -1 && ptmaxConfig <= ptminConfig) {
+    printf(">>>>> Invalid max pt: %f \n", ptmaxConfig);
     abort();
   }
   

@@ -12,6 +12,7 @@ enum EReconstruction_t {
   kReconstructionDefault,
   kReconstructionMuon,
   kReconstructionMuonOnly,
+  kReconstructionPhosOnly,
   kReconstructionITSpureSA,
   kReconstructionNoSDD,  
   kReconstructionRun1TrackingPID,
@@ -23,6 +24,7 @@ const Char_t *ReconstructionName[kNReconstructions] = {
   "Default",
   "Muon",
   "MuonOnly",
+  "PhosOnly",
   "ITSpureSA",
   "NoSDD",
   "Run1TrackingPID",
@@ -69,6 +71,17 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     rec.SetWriteESDfriend(kFALSE);
     rec.SetRunPlaneEff(kFALSE);
     rec.SetRecoParam("ITS",OverrideITSRecoParam_VertexerSmearMC());
+    return;
+
+    // Phos only
+  case kReconstructionPhosOnly:
+    ReconstructionDefault(rec);
+    rec.SetRunReconstruction("PHOS");
+    rec.SetRunTracking("PHOS");
+    rec.SetFillESD("PHOS");
+    rec.SetRunQA("PHOS:ALL");
+    rec.SetWriteESDfriend(kFALSE);
+    rec.SetRunPlaneEff(kFALSE);
     return;
     
     // ITSpureSA

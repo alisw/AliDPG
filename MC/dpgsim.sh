@@ -125,10 +125,15 @@ OVERRIDE_TRIGGER=""
 CONFIG_DETECTOR=""
 CONFIG_DETECTORMASK="0x0"
 CONFIG_PHYSICSLIST=""
+CONFIG_PDG=""
 CONFIG_BMIN=""
 CONFIG_BMAX=""
 CONFIG_YMIN=""
 CONFIG_YMAX=""
+CONFIG_PHIMIN=""
+CONFIG_PHIMAX=""
+CONFIG_PTMIN=""
+CONFIG_PTMAX=""
 CONFIG_PTHARDBIN=""
 CONFIG_PTHARDMIN=""
 CONFIG_PTHARDMAX=""
@@ -235,6 +240,10 @@ while [ ! -z "$1" ]; do
 #        CONFIG_PHYSICSLIST="$1"
 #	export CONFIG_PHYSICSLIST
 #        shift
+    elif [ "$option" = "--pdg" ]; then
+        CONFIG_PDG="$1"
+	export CONFIG_PDG
+        shift
     elif [ "$option" = "--bmin" ]; then
         CONFIG_BMIN="$1"
 	export CONFIG_BMIN
@@ -250,6 +259,22 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--ymax" ]; then
         CONFIG_YMAX="$1"
 	export CONFIG_YMAX
+        shift
+    elif [ "$option" = "--phimin" ]; then
+        CONFIG_PHIMIN="$1"
+	export CONFIG_PHIMIN
+        shift
+    elif [ "$option" = "--phimax" ]; then
+        CONFIG_PHIMAX="$1"
+	export CONFIG_PHIMAX
+        shift
+    elif [ "$option" = "--ptmin" ]; then
+        CONFIG_PTMIN="$1"
+	export CONFIG_PTMIN
+        shift
+    elif [ "$option" = "--ptmax" ]; then
+        CONFIG_PTMAX="$1"
+	export CONFIG_PTMAX
         shift
     elif [ "$option" = "--pthardbin" ]; then
         CONFIG_PTHARDBIN="$1"
@@ -587,10 +612,15 @@ echo "HLT.............. $CONFIG_HLT"
 echo "============================================"
 #echo "B-field.......... $CONFIG_MAGNET"
 #echo "Physicslist...... $CONFIG_PHYSICSLIST"
+echo "PDG code......... $CONFIG_PDG"
 echo "b-min............ $CONFIG_BMIN"
 echo "b-max............ $CONFIG_BMAX"
 echo "y-min............ $CONFIG_YMIN"
 echo "y-max............ $CONFIG_YMAX"
+echo "phi-min.......... $CONFIG_PHIMIN"
+echo "phi-max.......... $CONFIG_PHIMAX"
+echo "pT-min........... $CONFIG_PTMIN"
+echo "pT-max........... $CONFIG_PTMAX"
 echo "============================================"
 echo "pT-hard bin...... $CONFIG_PTHARDBIN"
 echo "pT-hard min...... $CONFIG_PTHARDMIN"

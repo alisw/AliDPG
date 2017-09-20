@@ -11,6 +11,7 @@
 enum EDetector_t {
   kDetectorDefault,
   kDetectorMuon,
+  kDetectorPhosOnly,
   kDetectorNoZDC,
   kDetectorCustom,
   kNDetectors
@@ -19,6 +20,7 @@ enum EDetector_t {
 const Char_t *DetectorName[kNDetectors] = {
   "Default",
   "Muon",
+  "PhosOnly",
   "NoZDC",
   "Custom"
 };
@@ -79,6 +81,7 @@ DetectorConfig(Int_t tag)
 
     // kDetectorDefault
   case kDetectorDefault:
+  case kDetectorPhosOnly:
     DetectorDefault();
     break;
     
@@ -105,7 +108,7 @@ DetectorConfig(Int_t tag)
     
   }
 
-  DetectorInit();
+  DetectorInit(tag);
   
 }
 
@@ -191,7 +194,7 @@ DetectorMuon()
 /*****************************************************************/
 
 void
-DetectorInit()
+DetectorInit(Int_t tag)
 {
   /*
    * DetectorInit
@@ -271,6 +274,8 @@ DetectorInit()
       //=================== ITS parameters ============================
       
       AliITS *ITS  = new AliITSv11("ITS","ITS v11");
+      if( tag == kDetectorPhosOnly)
+	ITS->DisableStepManager();
     }
 
   if (iTPC)
@@ -280,6 +285,8 @@ DetectorInit()
       AliTPC *TPC = new AliTPCv2("TPC", "Default");
       if (isGeant4) 
 	TPC->SetPrimaryIonisation(1);
+      if( tag == kDetectorPhosOnly)
+	TPC->DisableStepManager();
     }
 
 
@@ -287,6 +294,8 @@ DetectorInit()
     //=================== TOF parameters ============================
 
     AliTOF *TOF = new AliTOFv6T0("TOF", "normal TOF");
+    if( tag == kDetectorPhosOnly)
+      TOF->DisableStepManager();
   }
 
 
@@ -295,6 +304,8 @@ DetectorInit()
       //=================== HMPID parameters ===========================
 
       AliHMPID *HMPID = new AliHMPIDv3("HMPID", "normal HMPID");
+      if( tag == kDetectorPhosOnly)
+	HMPID->DisableStepManager();
     }
 
 
@@ -326,6 +337,8 @@ DetectorInit()
 	ZDC->SetVCollSideCAperture(2.8);
 	ZDC->SetVCollSideCApertureNeg(2.8);
       }
+      if( tag == kDetectorPhosOnly)
+	ZDC->DisableStepManager();
     }
 
   if (iTRD)
@@ -336,7 +349,7 @@ DetectorInit()
 	AliTRDtestG4 *TRD = new AliTRDtestG4("TRD", "TRD slow simulator");
 	TRD->SetScaleG4(1.11);
       }
-      else
+      else 
 	AliTRD *TRD = new AliTRDv1("TRD", "TRD slow simulator");
       AliTRDgeometry *geoTRD = TRD->GetGeometry();
       // Partial geometry: modules at 0,1,7,8,9,16,17
@@ -365,6 +378,8 @@ DetectorInit()
 	geoTRD->SetSMstatus(13,0);
 	geoTRD->SetSMstatus(14,0);
       }
+      if( tag == kDetectorPhosOnly)
+	TRD->DisableStepManager();
     }
   
   if (iFMD)
@@ -372,6 +387,8 @@ DetectorInit()
       //=================== FMD parameters ============================
       
       AliFMD *FMD = new AliFMDv1("FMD", "normal FMD");
+      if( tag == kDetectorPhosOnly)
+	FMD->DisableStepManager();
     }
 
   if (iMUON)
@@ -382,6 +399,8 @@ DetectorInit()
       // activate trigger efficiency by cells
       MUON->SetTriggerEffCells(1); // backward compatibility
       MUON->SetTriggerResponseV1(2); // backward compatibility
+      if( tag == kDetectorPhosOnly)
+	MUON->DisableStepManager();
     }
 
   if (iPHOS)
@@ -403,12 +422,16 @@ DetectorInit()
       //=================== PMD parameters ============================
 
       AliPMD *PMD = new AliPMDv1("PMD", "normal PMD");
+      if( tag == kDetectorPhosOnly)
+	PMD->DisableStepManager();
     }
 
   if (iT0)
     {
       //=================== T0 parameters ============================
       AliT0 *T0 = new AliT0v1("T0", "T0 Detector");
+      if( tag == kDetectorPhosOnly)
+	  T0->DisableStepManager();
     }
 
   if (iEMCAL)
@@ -421,7 +444,9 @@ DetectorInit()
       else {
 	AliEMCAL *EMCAL = new AliEMCALv2("EMCAL", "EMCAL_COMPLETE12SMV1_DCAL_8SM", kFALSE);
       }
-	
+      if( tag == kDetectorPhosOnly)
+	EMCAL->DisableStepManager();
+      
     }
 
   if (iACORDE)
@@ -429,6 +454,8 @@ DetectorInit()
       //=================== ACORDE parameters ============================
 
       AliACORDE *ACORDE = new AliACORDEv1("ACORDE", "normal ACORDE");
+      if( tag == kDetectorPhosOnly)
+	ACORDE->DisableStepManager();
     }
 
   if (iVZERO)
@@ -436,13 +463,17 @@ DetectorInit()
       //=================== ACORDE parameters ============================
       
       AliVZERO *VZERO = new AliVZEROv7("VZERO", "normal VZERO");
+      if( tag == kDetectorPhosOnly)
+	VZERO->DisableStepManager();
     }  
 
   if (iAD){
     //=================== AD parameters ============================
 
     AliAD *AD = new AliADv1("AD", "normal AD");
-  }         
-  
+    if( tag == kDetectorPhosOnly)
+      AD->DisableStepManager();
+  }
+
 }
 
