@@ -79,9 +79,11 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     rec.SetRunReconstruction("PHOS");
     rec.SetRunTracking("PHOS");
     rec.SetFillESD("PHOS");
-    rec.SetRunQA("PHOS:ALL");
+    rec.SetRunQA(":");
     rec.SetWriteESDfriend(kFALSE);
     rec.SetRunPlaneEff(kFALSE);
+    rec.SetRunMultFinder(kFALSE);
+    rec.SetRunVertexFinder(kFALSE);
     return;
     
     // ITSpureSA
