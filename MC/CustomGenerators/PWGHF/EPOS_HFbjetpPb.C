@@ -20,7 +20,7 @@ GeneratorCustom(TString opt = "")
   
   if(opt.Contains("cc")) {iprocess = 0; printf("-- HF process = %s -- \n",opt.Data());}
   else if(opt.Contains("bb")) {iprocess = 1; printf("-- HF process = %s -- \n",opt.Data());}
-  else {printf("-- no HF process set = %s -- \n",opt.Data()); return NULL;};
+  else {printf("-- no HF process set = %s -- \n",opt.Data());}
   
   TString optList[5] = {"had", "hv0", "ele", "all", "jetjet"};
   Int_t idecay = 0;
@@ -45,7 +45,7 @@ GeneratorCustom(TString opt = "")
     }
   }
   else if(idecay == 4) {
-    phf  = GeneratorPythia8Jets(kPythia8Tune_Monash2013);
+    phf  = GeneratorPythia6Jets(kPythia6Tune_Perugia2011);
     ctl->AddGenerator(phf, "jetjet", 1.);
     printf(">>>>> added generator for HF production:  %s \n", "jetjet");
   }   
