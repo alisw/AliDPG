@@ -17,6 +17,7 @@ enum ESimulation_t {
   kSimulationGeneratorOnly,
   kSimulationNoDigitization,
   kSimulationCustom,
+  kSimulationDefaultIonTail,
   kNSimulations
 };
 
@@ -28,13 +29,14 @@ const Char_t *SimulationName[kNSimulations] = {
   "EmbedSig",
   "GeneratorOnly",
   "NoDigitization",
-  "Custom"
+  "Custom",
+  "SimulationDefaultIonTail"
 };
 
 
 /*****************************************************************/
 
-SimulationConfig(AliSimulation &sim, ESimulation_t tag)
+void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
 {
   
   printf(">>>>> SimulationConfig: %s \n", SimulationName[tag]);
@@ -123,11 +125,18 @@ SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     SimulationCustom(sim);
     return;
 
+   // Default simulation enabling IonTail/Crosstalk for TPC
+    case kSimulationDefaultIonTail:
+      SimulationDefault(sim);
+      if (year < 2015) sim.SetMakeSDigits("TPC TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD");
+      else             sim.SetMakeSDigits("TPC TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD AD");
+      sim.SetMakeDigitsFromHits("ITS");
+      return;
   }
-  
+
 }
 
-SimulationDefault(AliSimulation &sim)
+void SimulationDefault(AliSimulation &sim)
 {
 
   Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
@@ -187,7 +196,7 @@ SimulationDefault(AliSimulation &sim)
 
 /*** PHOS ****************************************************/
 
-SimulationConfigPHOS(AliSimulation &sim)
+void SimulationConfigPHOS(AliSimulation &sim)
 {
   Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
   AliPHOSSimParam *simParam = AliPHOSSimParam::GetInstance();
