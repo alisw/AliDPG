@@ -438,12 +438,11 @@ DetectorInit(Int_t tag)
     {
       //=================== EMCAL parameters ============================
 
-      if (year < 2015) {
-	AliEMCAL *EMCAL = new AliEMCALv2("EMCAL", "EMCAL_FIRSTYEARV1");
-      }
-      else {
-	AliEMCAL *EMCAL = new AliEMCALv2("EMCAL", "EMCAL_COMPLETE12SMV1_DCAL_8SM", kFALSE);
-      }
+      AliEMCAL *EMCAL = new AliEMCALv2("EMCAL", "EMCAL_COMPLETE12SMV1_DCAL_8SM");
+      // by default Run2 configuration name but the proper geometry name is taken 
+      // automatically depending on the anchor run 
+      // 2010 - 4 SM, 2011 - 10 SM, 2012 - 12 SM, >2014 - 20 SM
+      
       if( tag == kDetectorPhosOnly)
 	EMCAL->DisableStepManager();
       
