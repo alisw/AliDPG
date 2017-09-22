@@ -66,8 +66,8 @@ Config()
   printf(">>>>>            b-max: %f \n", bmaxConfig);
   printf(">>>>>            y-min: %f \n", yminConfig);
   printf(">>>>>            y-max: %f \n", ymaxConfig);
-  printf(">>>>>          phi-min: %f \n", phiminConfig);
-  printf(">>>>>          phi-max: %f \n", phimaxConfig);
+  printf(">>>>>   phi-min (deg.): %f \n", phiminConfig);
+  printf(">>>>>   phi-max (deg.): %f \n", phimaxConfig);
   printf(">>>>>           pt-min: %f \n", ptminConfig);
   printf(">>>>>           pt-max: %f \n", ptmaxConfig);
   printf(">>>>>      pt-hard min: %f \n", pthardminConfig);
@@ -258,8 +258,12 @@ ProcessEnvironment()
   if (gSystem->Getenv("CONFIG_PHIMAX"))
     phimaxConfig = atof(gSystem->Getenv("CONFIG_PHIMAX"));
   if (phimaxConfig <= phiminConfig) {
-    printf(">>>>> Invalid max phi: %f \n", ymaxConfig);
+    printf(">>>>> Invalid max phi: %f \n", phimaxConfig);
     abort();
+  }
+  if (phimaxConfig <= 2.*TMath::Pi()) {
+    printf(">>>>> WARNING: phi is expected to be in degree\n");
+    printf(">>>>> WARNING: max phi = %f suspected to be in rad. \n", phimaxConfig);
   }
   ptminConfig = 0.;
   if (gSystem->Getenv("CONFIG_PTMIN"))
