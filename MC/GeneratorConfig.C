@@ -777,6 +777,11 @@ GeneratorPhojet()
     dpmjet->SetTarget    ("A", 208, 82);
     dpmjet->SetImpactParameterRange(bminConfig, bmaxConfig);
   }
+  else if (systemConfig.EqualTo("Xe-Xe")) {
+    dpmjet->SetProjectile("A", 132, 54);
+    dpmjet->SetTarget    ("A", 132, 54);
+    dpmjet->SetImpactParameterRange(bminConfig, bmaxConfig);
+  }
   else if (systemConfig.EqualTo("p-Pb")) {
     dpmjet->SetProjectile("P", 1, 1);
     dpmjet->SetTarget    ("A", 208, 82);
