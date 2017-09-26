@@ -355,7 +355,7 @@ DetectorInit(Int_t tag)
       // Partial geometry: modules at 0,1,7,8,9,16,17
       // starting at 3h in positive direction
 
-      if (year == 2010) {
+      if ((year == 2010) || (year == 2009)) {
 	geoTRD->SetSMstatus(2,0);
 	geoTRD->SetSMstatus(3,0);
 	geoTRD->SetSMstatus(4,0);
@@ -374,6 +374,13 @@ DetectorInit(Int_t tag)
 	geoTRD->SetSMstatus(4,0);
 	geoTRD->SetSMstatus(5,0);
 	geoTRD->SetSMstatus(6,0);
+	geoTRD->SetSMstatus(12,0);
+	geoTRD->SetSMstatus(13,0);
+	geoTRD->SetSMstatus(14,0);
+      }
+      else if ((year == 2012) || (year ==2013)) {
+	geoTRD->SetSMstatus(4,0);
+	geoTRD->SetSMstatus(5,0);
 	geoTRD->SetSMstatus(12,0);
 	geoTRD->SetSMstatus(13,0);
 	geoTRD->SetSMstatus(14,0);
