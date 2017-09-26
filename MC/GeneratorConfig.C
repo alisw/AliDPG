@@ -826,6 +826,13 @@ GeneratorEPOSLHC()
     projectileEnergy = energyConfig / 2.;
     targetEnergy = energyConfig / 2.;
   }
+  // XeXe
+  else if (systemConfig.EqualTo("Xe-Xe")) {
+    projectileId = 54*10000 + 132*10;
+    targetId = projectileId;
+    projectileEnergy = energyConfig / 2.;
+    targetEnergy = energyConfig / 2.;
+  }
   // pPb
   else if (systemConfig.EqualTo("p-Pb")) {
     projectileId = 2212;
@@ -886,6 +893,11 @@ GeneratorHijing()
   if (systemConfig.EqualTo("Pb-Pb")) {
     gener->SetProjectile("A", 208, 82);
     gener->SetTarget    ("A", 208, 82);
+    gener->SetSpectators(0);
+  }
+  else if (systemConfig.EqualTo("Xe-Xe")) {
+    gener->SetProjectile("A", 132, 54);
+    gener->SetTarget    ("A", 132, 54);
     gener->SetSpectators(0);
   }
   else if (systemConfig.EqualTo("p-Pb")) {
@@ -1228,6 +1240,11 @@ GeneratorCocktail(TString name)
   else if (systemConfig.EqualTo("Pb-Pb")) {
     projN = "A"; projA = 208; projZ = 82;
     targN = "A"; targA = 208; targZ = 82;
+  }
+  // XeXe
+  else if (systemConfig.EqualTo("Xe-Xe")) {
+    projN = "A"; projA = 132; projZ = 54;
+    targN = "A"; targA = 132; targZ = 54;
   }
   else if (systemConfig.EqualTo("Pb-p")) {
     projN = "A"; projA = 208; projZ = 82;
