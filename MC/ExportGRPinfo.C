@@ -38,7 +38,11 @@ ExportGRPinfo(Int_t run)
   // BEAMTYPE, SYSTEM, TRIGGER, ENERGY
   printf("export CONFIG_BEAMTYPE=%s\n", grp->GetBeamType().Data());
   if (grp->GetBeamType().EqualTo("A-A")) {
-    printf("export CONFIG_SYSTEM=Pb-Pb\n");
+    // special case Xe-Xe
+    if(grp->GetBeamTypeFromLHC().EqualTo("XE54-XE54")) 
+      printf("export CONFIG_SYSTEM=Xe-Xe\n");
+    else
+      printf("export CONFIG_SYSTEM=Pb-Pb\n");
     printf("export CONFIG_TRIGGER=Pb-Pb\n");
     printf("export CONFIG_ENERGY=%.0f\n", grp->GetBeamEnergy() * 2.);
   }

@@ -777,6 +777,11 @@ GeneratorPhojet()
     dpmjet->SetTarget    ("A", 208, 82);
     dpmjet->SetImpactParameterRange(bminConfig, bmaxConfig);
   }
+  else if (systemConfig.EqualTo("Xe-Xe")) {
+    dpmjet->SetProjectile("A", 129, 54);
+    dpmjet->SetTarget    ("A", 129, 54);
+    dpmjet->SetImpactParameterRange(bminConfig, bmaxConfig);
+  }
   else if (systemConfig.EqualTo("p-Pb")) {
     dpmjet->SetProjectile("P", 1, 1);
     dpmjet->SetTarget    ("A", 208, 82);
@@ -822,6 +827,13 @@ GeneratorEPOSLHC()
   // PbPb
   else if (systemConfig.EqualTo("Pb-Pb")) {
     projectileId = 82*10000 + 208*10;
+    targetId = projectileId;
+    projectileEnergy = energyConfig / 2.;
+    targetEnergy = energyConfig / 2.;
+  }
+  // XeXe
+  else if (systemConfig.EqualTo("Xe-Xe")) {
+    projectileId = 54*10000 + 129*10;
     targetId = projectileId;
     projectileEnergy = energyConfig / 2.;
     targetEnergy = energyConfig / 2.;
@@ -886,6 +898,11 @@ GeneratorHijing()
   if (systemConfig.EqualTo("Pb-Pb")) {
     gener->SetProjectile("A", 208, 82);
     gener->SetTarget    ("A", 208, 82);
+    gener->SetSpectators(0);
+  }
+  else if (systemConfig.EqualTo("Xe-Xe")) {
+    gener->SetProjectile("A", 129, 54);
+    gener->SetTarget    ("A", 129, 54);
     gener->SetSpectators(0);
   }
   else if (systemConfig.EqualTo("p-Pb")) {
@@ -1228,6 +1245,11 @@ GeneratorCocktail(TString name)
   else if (systemConfig.EqualTo("Pb-Pb")) {
     projN = "A"; projA = 208; projZ = 82;
     targN = "A"; targA = 208; targZ = 82;
+  }
+  // XeXe
+  else if (systemConfig.EqualTo("Xe-Xe")) {
+    projN = "A"; projA = 129; projZ = 54;
+    targN = "A"; targA = 129; targZ = 54;
   }
   else if (systemConfig.EqualTo("Pb-p")) {
     projN = "A"; projA = 208; projZ = 82;
