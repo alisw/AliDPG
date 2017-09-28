@@ -61,8 +61,9 @@ enum ECOLLISIONSYSTEM_t
 {
     kpp,
     kPbPb,
-    kpA,
-    kAp,
+    kpPb,
+    kPbp,
+    kXeXe,
     kNSystem
 };
 
@@ -71,7 +72,8 @@ const Char_t* CollisionSystem[kNSystem] =
     "pp",
     "PbPb",
     "pA",
-    "Ap"
+    "Ap",
+    "XeXe"
 };
 
 // Temporaries.
@@ -91,6 +93,9 @@ TString train_name = ".";
 void UpdateFlags()
 {
   // Update flags according to type of pass
+  if(iCollision == kPbPb || iCollision == kXeXe)
+    useCentrality =kTRUE;
+
   if ( isMuonCaloPass )
   {
     // disable the analysis we know for sure can not work or are meaningless
@@ -129,6 +134,7 @@ void AODtrain(Int_t merge=0)
   gSystem->SetBuildDir(gSystem->pwd(), kTRUE);
    printf("==================================================================\n");
    printf("===========    RUNNING FILTERING TRAIN   ==========\n");
+   printf("===========    Collision System is %s    ==========\n",CollisionSystem[iCollision]);
    printf("==================================================================\n");
    printf("=  Configuring analysis train for:                               =\n");
    if (usePhysicsSelection)   printf("=  Physics selection                                                =\n");
@@ -270,7 +276,7 @@ void AddAnalysisTasks(const char *cdb_location)
       else
       {
         // old scheme is only valid for PbPb
-        if ( iCollision == 1 )
+        if ( iCollision == kPbPb )
         {
           gROOT->LoadMacro("$ALICE_PHYSICS/OADB/macros/AddTaskCentrality.C");
           AliCentralitySelectionTask *taskCentrality = AddTaskCentrality();
@@ -296,7 +302,10 @@ void AddAnalysisTasks(const char *cdb_location)
     //PWGAgammaconv
     if (iPWGGAgammaconv) {
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/GammaConv/macros/AddTask_ConversionAODProduction.C");
-      AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(iCollision, kFALSE, periodName);
+      Int_t dataset=iCollision;
+      if( iCollision == kXeXe) dataset=kPbPb;
+      if( iCollision == kPbp || iCollision == kpPb ) dataset=2;
+      AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(dataset, kFALSE, periodName);
       mgr->RegisterExtraFile("AliAODGammaConversion.root");
    }   
  
@@ -309,7 +318,7 @@ void AddAnalysisTasks(const char *cdb_location)
          mgr->RegisterExtraFile("AliAOD.Muons.root");
       }
 
-      Bool_t muonWithSPDTracklets = (iCollision==1) ? kFALSE : kTRUE; // add SPD information to muon AOD only for pp
+      Bool_t muonWithSPDTracklets = (iCollision==kPbPb || iCollision==kXeXe || isMuonOnly) ? kFALSE : kTRUE; // add SPD information to muon AOD only for pp
 
       AliAnalysisTaskESDfilter *taskesdfilter = 
                  AddTaskESDFilter(useKFILTER, 
@@ -336,7 +345,9 @@ void AddAnalysisTasks(const char *cdb_location)
   {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGHF/vertexingHF/macros/AddTaskVertexingHF.C");
 
-    AliAnalysisTaskSEVertexingHF *taskvertexingHF = AddTaskVertexingHF(iCollision,train_name,"",run_number,periodName);
+    Int_t configHF=0;
+    if(iCollision == kPbPb || iCollision == kXeXe) configHF=1;
+    AliAnalysisTaskSEVertexingHF *taskvertexingHF = AddTaskVertexingHF(configHF,train_name,"",run_number,periodName);
     // Now we need to keep in sync with the ESD filter
     if (!taskvertexingHF) ::Warning("AnalysisTrainNew", "AliAnalysisTaskSEVertexingHF cannot run for this train conditions - EXCLUDED");
     else mgr->RegisterExtraFile("AliAOD.VertexingHF.root");
@@ -344,7 +355,7 @@ void AddAnalysisTasks(const char *cdb_location)
   }
 
    // PWGDQ JPSI filtering (only pp)
-   if (iPWGDQJPSIfilter && (iCollision==0)) {
+   if (iPWGDQJPSIfilter && (iCollision==kpp)) {
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGDQ/dielectron/macros/AddTaskJPSIFilter.C");
       AliAnalysisTaskSE *taskJPSIfilter = AddTaskJPSIFilter();
       if (!taskJPSIfilter) ::Warning("AnalysisTrainNew", "AliAnalysisTaskDielectronFilter cannot run for this train conditions - EXCLUDED");
@@ -367,7 +378,7 @@ void AddAnalysisTasks(const char *cdb_location)
 
    // Configurations flags, move up?
    TString kDeltaAODJetName = "AliAOD.Jets.root"; //
-   Bool_t  kIsPbPb = (iCollision==0)?false:true; // can be more intlligent checking the name of the data set
+   Bool_t  kIsPbPb = (iCollision==kPbPb || iCollision==kXeXe);
    TString kDefaultJetBackgroundBranch = "";
    TString kJetSubtractBranches = "";
    UInt_t kHighPtFilterMask = 272;// from esd filter
@@ -487,19 +498,21 @@ void ProcessEnvironment()
   //
   // Collision system configuration
   //
+  iCollision = kpp;
   if(gSystem->Getenv("ALIEN_JDL_LPMINTERACTIONTYPE"))
   {
+    Bool_t valid = kFALSE;
     for (Int_t icoll = 0; icoll < kNSystem; icoll++)
       if (strcmp(gSystem->Getenv("ALIEN_JDL_LPMINTERACTIONTYPE"), CollisionSystem[icoll]) == 0) 
       {
         iCollision = icoll;
-
-        if(icoll == kpA || icoll == kAp)
-            iCollision =kpp;
+        valid = kTRUE;
+        break;
       }
-
-      if(iCollision == kPbPb)
-        useCentrality =kTRUE;
+    if (!valid) {
+      printf(">>>>> Unknown collision system configuration: %s \n", gSystem->Getenv("ALIEN_JDL_LPMINTERACTIONTYPE"));
+      abort();
+    }
   }
   else
     if(!localRunning)
