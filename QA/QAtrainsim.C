@@ -10,6 +10,7 @@ enum ECOLLISIONSYSTEM_t
     kPbPb,
     kpPb,
     kPbp,
+    kXeXe,
     kNSystem
 };
 
@@ -18,10 +19,11 @@ const Char_t* CollisionSystem[kNSystem] =
     "p-p",
     "Pb-Pb",
     "p-Pb",
-    "Pb-p"
+    "Pb-p",
+    "Xe-Xe"
 };
 
-Int_t iCollisionType = 0; // 0=pp, 1=PbPb
+Int_t iCollisionType = 0; // 0=pp, 1=PbPb, 2=pPb, 3=Pb-p, 4=Xe-Xe
 // Trigger mask.
 
 UInt_t kTriggerInt = AliVEvent::kAnyINT;
@@ -87,6 +89,10 @@ Int_t run_flag        = 1500;
 void UpdateFlags()
 {
   // Update flags according to type of MC
+  if(iCollisionType == kPbPb || iCollisionType == kXeXe) {
+    doCentrality =kTRUE;
+    doVZEROPbPb =kTRUE;
+  }
   if ( isMuonOnly )
   {
     // disable the analysis we know for sure can not work or are meaningless for a muon-only MC
@@ -164,11 +170,8 @@ void QAtrainsim(Int_t run = 0,
     AliCDBManager *cdbm = AliCDBManager::Instance();
     cdbm->SetSnapshotMode("OCDBrec.root");
   }
+  printf("------ Run QAtrainsim.C for collision type %s ------\n",CollisionSystem[iCollisionType]);
 
-  if(iCollisionType == kPbPb) {
-    doCentrality =kTRUE;
-    doVZEROPbPb =kTRUE;
-  }
 
   UpdateFlags();
   
@@ -327,7 +330,7 @@ void AddAnalysisTasks(const char *cdb_location)
   if (doTPC) {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/TPC/macros/AddTaskPerformanceTPCdEdxQA.C");
     AliPerformanceTask *tpcQA = 0;
-    if (iCollisionType==kPbPb) {
+    if (iCollisionType==kPbPb  || iCollisionType == kXeXe) {
        // High multiplicity Pb-Pb
        tpcQA = AddTaskPerformanceTPCdEdxQA(kTRUE, kTRUE, kTRUE);
     } else {
@@ -351,7 +354,7 @@ void AddAnalysisTasks(const char *cdb_location)
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/PilotTrain/AddTaskSPDQA.C");
     AliAnalysisTaskSPD* taskspdqa = (AliAnalysisTaskSPD*)AddTaskSPDQA();
     // Request from Annalisa
-    if (iCollisionType==kPbPb) taskspdqa->SetHeavyIonMode();
+    if (iCollisionType==kPbPb  || iCollisionType == kXeXe) taskspdqa->SetHeavyIonMode();
     taskspdqa->SelectCollisionCandidates(kTriggerMask);
     taskspdqa->SetOCDBInfo(run_number, "raw://");
   }  
@@ -382,13 +385,16 @@ void AddAnalysisTasks(const char *cdb_location)
       AliAnalysisTaskITSTrackingCheck *itsQACent0010 = 0;
       AliAnalysisTaskITSTrackingCheck *itsQACent3050 = 0;
       AliAnalysisTaskITSTrackingCheck *itsQACent6080 = 0;
-      if(iCollisionType==kpp) {
-        itsQA = AddTaskPerformanceITS(kTRUE);
-      } else {
-        itsQA = AddTaskPerformanceITS(kTRUE);
+      itsQA = AddTaskPerformanceITS(kTRUE);
+      if(iCollisionType==kPbPb) {
         itsQACent0010 = AddTaskPerformanceITS(kTRUE,kFALSE,kFALSE,3500,10000);
         itsQACent3050 = AddTaskPerformanceITS(kTRUE,kFALSE,kFALSE,590,1570);
         itsQACent6080 = AddTaskPerformanceITS(kTRUE,kFALSE,kFALSE,70,310);
+      }
+      else if(iCollisionType==kXeXe) {
+        itsQACent0010 = AddTaskPerformanceITS(kTRUE,kFALSE,kFALSE,2000,6000);
+        itsQACent3050 = AddTaskPerformanceITS(kTRUE,kFALSE,kFALSE,350,1000);
+        itsQACent6080 = AddTaskPerformanceITS(kTRUE,kFALSE,kFALSE,40,200);
       }
   }
   //
@@ -550,7 +556,7 @@ void AddAnalysisTasks(const char *cdb_location)
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskImpParRes.C");
     AliAnalysisTaskSE* taskimpparres=0;
     // Specific setting for MC
-    if(iCollisionType==kpp) {
+    if(iCollisionType==kpp || iCollisionType==kpPb || iCollisionType==kPbp) {
        taskimpparres= AddTaskImpParRes(kTRUE);
     } else {
        taskimpparres= AddTaskImpParRes(kTRUE,-1,kTRUE,kFALSE);
@@ -623,7 +629,7 @@ void AddAnalysisTasks(const char *cdb_location)
     taskPHOSCellQA2->SelectCollisionCandidates(AliVEvent::kPHI7);
     taskPHOSCellQA2->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
     // Pi0 QA fo PbPb
-    if (iCollisionType == kPbPb) {
+    if (iCollisionType == kPbPb || iCollisionType == kXeXe) {
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/PHOSTasks/PHOS_PbPbQA/macros/AddTaskPHOSPbPb.C");
       AliAnalysisTaskPHOSPbPbQA* phosPbPb = AddTaskPHOSPbPbQA(0);
     }
