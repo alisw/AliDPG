@@ -15,8 +15,9 @@ enum ECOLLISIONSYSTEM_t
 {
     kpp,
     kPbPb,
-    kpA,
-    kAp,
+    kpPb,
+    kPbp,
+    kXeXe,
     kNSystem
 };
 
@@ -25,7 +26,8 @@ const Char_t* CollisionSystem[kNSystem] =
     "pp",
     "PbPb",
     "pA",
-    "Ap"
+    "Ap",
+    "XeXe"
 };
 
 void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
@@ -42,7 +44,7 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
   printf("--------------------------------------\n");
   if(isMC) printf("Run the AOD QA train for Monte Carlo\n");
   else printf("Run the AOD QA train for data\n");
-  printf("Collision System is %s\n",CollisionSystem[icoll]);
+  printf("Collision System is %s\n",CollisionSystem[iCollisionType]);
   printf("--------------------------------------\n");
  
   // Create manager
@@ -84,7 +86,7 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
   if(gSystem->Exec(Form("ls %s > /dev/null 2>&1",macroName.Data()))==0){
     gROOT->LoadMacro(macroName.Data());
     Double_t maxMult=500.;
-    if(iCollisionType==kPbPb) maxMult=10000.;
+    if(iCollisionType==kPbPb || iCollisionType==kXeXe) maxMult=10000.;
     AliAnalysisTaskCheckVertexAOD *taskVert =  AddTaskCheckVertexAOD("QA",maxMult,AliVEvent::kAnyINT,isMC);
   }else{
     printf("Macro %s not found -> task will not be executed\n",macroName.Data());
@@ -96,7 +98,7 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
     gROOT->LoadMacro(macroName.Data());
     Bool_t usMCtruthForPID=isMC;
     AliAnalysisTaskCheckAODTracks* taskAODtr = AddTaskCheckAODTracks("QA",isMC,usMCtruthForPID);
-    if(iCollisionType==kPbPb) taskAODtr->SetUpperMultiplicity(10000.);
+    if(iCollisionType==kPbPb || iCollisionType==kXeXe) taskAODtr->SetUpperMultiplicity(10000.);
   }else{
     printf("Macro %s not found -> task will not be executed\n",macroName.Data());
   }
