@@ -44,8 +44,9 @@ enum ECOLLISIONSYSTEM_t
 {
     kpp,
     kPbPb,
-    kpA,
-    kAp,
+    kpPb,
+    kPbp,
+    kXeXe,
     kNSystem
 };
 
@@ -54,7 +55,8 @@ const Char_t* CollisionSystem[kNSystem] =
     "pp",
     "PbPb",
     "pA",
-    "Ap"
+    "Ap",
+    "XeXe"
 };
 
 void AddAnalysisTasks(const char *, const char *); 
@@ -138,6 +140,8 @@ void QAtrain_duo(const char *suffix="", Int_t run = 0,
   
   kTriggerMask = kTriggerInt;
   
+  printf("------ Run QAtrain_duo.C for collision type %s ------\n",CollisionSystem[iCollisionType]);
+
   PrintSettings();
 
   TString cdbString(cdb);
@@ -303,7 +307,7 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   if (doTPC && (ibarrel || iall)) {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/TPC/macros/AddTaskPerformanceTPCdEdxQA.C");
     AliPerformanceTask *tpcQA = 0;
-    if (iCollisionType) {
+    if (iCollisionType==kPbPb  || iCollisionType == kXeXe) {
        // High multiplicity Pb-Pb
        tpcQA = AddTaskPerformanceTPCdEdxQA(kFALSE, kTRUE, kTRUE);
     } else {
@@ -326,7 +330,7 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/PilotTrain/AddTaskSPDQA.C");
     AliAnalysisTaskSPD* taskspdqa = (AliAnalysisTaskSPD*)AddTaskSPDQA();
     // Request from Annalisa
-    if (iCollisionType) taskspdqa->SetHeavyIonMode();
+    if (iCollisionType==kPbPb  || iCollisionType == kXeXe) taskspdqa->SetHeavyIonMode();
     taskspdqa->SelectCollisionCandidates(kTriggerMask);
     taskspdqa->SetOCDBInfo(run_number, cdb_location);
   }  
@@ -363,14 +367,17 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
       AliAnalysisTaskITSTrackingCheck *itsQACent0010 = 0;
       AliAnalysisTaskITSTrackingCheck *itsQACent3050 = 0;
       AliAnalysisTaskITSTrackingCheck *itsQACent6080 = 0;
-      if(iCollisionType==0) {
-        itsQA = AddTaskPerformanceITS(kFALSE);
-      } else {
-        itsQA = AddTaskPerformanceITS(kFALSE);
+      itsQA = AddTaskPerformanceITS(kFALSE);
+      if(iCollisionType==kPbPb) {
         itsQACent0010 = AddTaskPerformanceITS(kFALSE,kFALSE,kFALSE,3500,10000);
         itsQACent3050 = AddTaskPerformanceITS(kFALSE,kFALSE,kFALSE,590,1570);
         itsQACent6080 = AddTaskPerformanceITS(kFALSE,kFALSE,kFALSE,70,310);
+      }else if(iCollisionType==kXeXe) {
+        itsQACent0010 = AddTaskPerformanceITS(kFALSE,kFALSE,kFALSE,2000,6000);
+        itsQACent3050 = AddTaskPerformanceITS(kFALSE,kFALSE,kFALSE,350,1000);
+        itsQACent6080 = AddTaskPerformanceITS(kFALSE,kFALSE,kFALSE,40,200);
       }
+
   }
   //
   // ITS saTracks, align (F.Prino)
@@ -493,7 +500,7 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   if (doImpParRes && (ibarrel || iall)) {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskImpParRes.C");
     AliAnalysisTaskSE* taskimpparres=0;
-    if(iCollisionType==0) {
+    if(iCollisionType==kpp || iCollisionType==kpPb || iCollisionType==kPbp) {
        taskimpparres= AddTaskImpParRes();
     } else {
        taskimpparres= AddTaskImpParRes(kFALSE,-1,kFALSE,kFALSE);
@@ -502,7 +509,7 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
 
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskImpParResSparse.C");
     AliAnalysisTaskSEImpParResSparse* taskimpparressp=0;
-    if(iCollisionType==0) {
+    if(iCollisionType==kpp || iCollisionType==kpPb || iCollisionType==kPbp) {
       taskimpparressp = AddTaskImpParResSparse(kFALSE,-1,kTRUE,kTRUE,0,1000000,1,"withSparse");
       taskimpparressp->SetUsePtWeights(1,1.);
     } else {
@@ -585,7 +592,7 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     taskPHOSCellQA2->SelectCollisionCandidates(AliVEvent::kPHI7);
     taskPHOSCellQA2->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
     // Pi0 QA fo PbPb
-    if (iCollisionType == 1) {
+    if (iCollisionType == kPbPb || iCollisionType == kXeXe) {
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/PHOSTasks/PHOS_PbPbQA/macros/AddTaskPHOSPbPb.C");
       AliAnalysisTaskPHOSPbPbQA* phosPbPb = AddTaskPHOSPbPbQA(0);
     }
@@ -710,13 +717,9 @@ void ProcessEnvironmentVars()
       if (strcmp(gSystem->Getenv("ALIEN_JDL_LPMINTERACTIONTYPE"), CollisionSystem[icoll]) == 0) 
       {
         iCollisionType = icoll;
-
-        if(icoll == kpA || icoll == kAp)
-            iCollisionType =kpp;
-
         break;
       }
-      if(iCollisionType == kPbPb)
+      if(iCollisionType == kPbPb || iCollisionType == kXeXe)
       {
         doCentrality =kTRUE;
         doVZEROPbPb =kTRUE;
