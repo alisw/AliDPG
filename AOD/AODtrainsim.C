@@ -51,6 +51,7 @@ enum ECOLLISIONSYSTEM_t
     kPbPb,
     kpPb,
     kPbp,
+    kXeXe,
     kNSystem
 };
 
@@ -59,7 +60,8 @@ const Char_t* CollisionSystem[kNSystem] =
     "p-p",
     "Pb-Pb",
     "p-Pb",
-    "Pb-p"
+    "Pb-p",
+    "Xe-Xe"
 };
 
 // Temporaries.
@@ -77,6 +79,9 @@ Int_t run_number = 0;
 void UpdateFlags()
 {
   // Update flags according to type of pass
+  if(iCollision == kPbPb || iCollision == kXeXe)
+    useCentrality =kTRUE;
+
   if ( isMuonCaloPass || isMuonOnly )
   {
     // disable the analysis we know for sure can not work or are meaningless
@@ -132,8 +137,6 @@ void AODtrainsim(Int_t merge=0)
     cdbm->SetSnapshotMode("OCDBrec.root");
   }
 
-  if(iCollision == kPbPb)
-    useCentrality =kTRUE;
     
   UpdateFlags();
   
@@ -150,6 +153,7 @@ void AODtrainsim(Int_t merge=0)
   gSystem->SetBuildDir(gSystem->pwd(), kTRUE);
    printf("==================================================================\n");
    printf("===========    RUNNING FILTERING TRAIN   ==========\n");
+   printf("===========    Collision System is %s    ==========\n",CollisionSystem[iCollision]);
    printf("==================================================================\n");
    printf("=  Configuring analysis train for:                               =\n");
    if (usePhysicsSelection)   printf("=  Physics selection                                                =\n");
@@ -317,7 +321,10 @@ void AddAnalysisTasks(const char *cdb_location)
     //PWGAgammaconv
     if (iPWGGAgammaconv) {
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/GammaConv/macros/AddTask_ConversionAODProduction.C");
-      AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(iCollision, kFALSE, periodName);
+      Int_t dataset=iCollision;
+      if( iCollision == kXeXe) dataset=kPbPb;
+      if( iCollision == kPbp || iCollision == kpPb ) dataset=2;
+      AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(dataset, kFALSE, periodName);
       mgr->RegisterExtraFile("AliAODGammaConversion.root");
    }   
  
@@ -330,7 +337,7 @@ void AddAnalysisTasks(const char *cdb_location)
          mgr->RegisterExtraFile("AliAOD.Muons.root");
       }
 
-      Bool_t muonWithSPDTracklets = (iCollision==kPbPb || isMuonOnly) ? kFALSE : kTRUE; // add SPD information to muon AOD only for pp
+      Bool_t muonWithSPDTracklets = (iCollision==kPbPb || iCollision==kXeXe || isMuonOnly) ? kFALSE : kTRUE; // add SPD information to muon AOD only for pp
 
       /*
        * switch number of arguments in AddTaskESDFilter 
@@ -409,8 +416,9 @@ void AddAnalysisTasks(const char *cdb_location)
   if (iPWGHFvertexing) 
   {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGHF/vertexingHF/macros/AddTaskVertexingHF.C");
-
-    AliAnalysisTaskSEVertexingHF *taskvertexingHF = AddTaskVertexingHF(iCollision,train_name,"",run_numbers[0],periodName);
+    Int_t configHF=0;
+    if(iCollision == kPbPb || iCollision == kXeXe) configHF=1;
+    AliAnalysisTaskSEVertexingHF *taskvertexingHF = AddTaskVertexingHF(configHF,train_name,"",run_numbers[0],periodName);
     // Now we need to keep in sync with the ESD filter
     if (!taskvertexingHF) ::Warning("AnalysisTrainNew", "AliAnalysisTaskSEVertexingHF cannot run for this train conditions - EXCLUDED");
     else mgr->RegisterExtraFile("AliAOD.VertexingHF.root");
@@ -441,7 +449,7 @@ void AddAnalysisTasks(const char *cdb_location)
 
    // Configurations flags, move up?
    TString kDeltaAODJetName = "AliAOD.Jets.root"; //
-   Bool_t  kIsPbPb = (iCollision==kpp)?false:true; // can be more intlligent checking the name of the data set
+   Bool_t  kIsPbPb = (iCollision==kPbPb || iCollision==kXeXe);
    TString kDefaultJetBackgroundBranch = "";
    TString kJetSubtractBranches = "";
    UInt_t kHighPtFilterMask = 768;// from esd filter
