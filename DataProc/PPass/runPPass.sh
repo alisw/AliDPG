@@ -83,9 +83,22 @@ echo runstripped is $runstripped
 
 # run TPC clusterization in separate process before reconstruction
 export preclusterizeTPC='0'
-if [ "$pass_type" == "ppass" ] && [ "$runstripped" -ge 244917 ] && [ "$runstripped" -le 246994 ]; then
- preclusterizeTPC='1'
+if [ "$pass_type" == "ppass" ]; then
+# enabling it for PbPb and XeXe based on environment variable
+    if [ -z "$ALIEN_JDL_LPMINTERACTIONTYPE" ]; then
+	echo "ALIEN_JDL_LPMINTERACTIONTYPE not defined"
+    else
+	if [ "$ALIEN_JDL_LPMINTERACTIONTYPE" == "PbPb" ] || [ "$ALIEN_JDL_LPMINTERACTIONTYPE" == "XeXe" ]; then
+	    preclusterizeTPC='1'
+	fi
+    fi
+# enabling it for 2015 PbPb based on run numbers 
+    if [ "$pass_type" == "ppass" ] && [ "$runstripped" -ge 244917 ] && [ "$runstripped" -le 246994 ]; then
+	preclusterizeTPC='1'
+    fi
 fi
+
+
 
 
 if [ "$1" == "OCDB" ]; then
