@@ -76,7 +76,15 @@ ulimit -S -v 3500000
 
 # run TPC clusterization in separate process before reconstruction
 export preclusterizeTPC='0'
-# enabling it for 2015 PbPb
+# enabling it for PbPb and XeXe based on environment variable
+if [ -z "$ALIEN_JDL_LPMINTERACTIONTYPE" ]; then
+    echo "ALIEN_JDL_LPMINTERACTIONTYPE not defined"
+else
+    if [ "$ALIEN_JDL_LPMINTERACTIONTYPE" == "PbPb" ] || [ "$ALIEN_JDL_LPMINTERACTIONTYPE" == "XeXe" ]; then
+	preclusterizeTPC='1'
+    fi
+fi
+# enabling it for 2015 PbPb based on run numbers 
 if [ "$runNum" -ge 244917 ] && [ "$runNum" -le 246994 ]; then
  preclusterizeTPC='1'
 fi
