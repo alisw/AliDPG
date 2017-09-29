@@ -70,12 +70,13 @@ CHUNKNAME="$1"
 shift
 
 runstripped=0
-if [ -z "$LPMRunNumber" ]; then
+if [ -z "$ALIEN_JDL_LPMRUNNUMBER" ]; then
+  echo "ALIEN_JDL_LPMRUNNUMBER not defined, run number taken from chunk name"
   tmpName=$(basename "$CHUNKNAME")
   runnum="${tmpName:2:9}"
   runstripped=`echo $runnum | sed 's/^0*//'`
 else
-  runstripped=$LPMRunNumber
+  runstripped=$ALIEN_JDL_LPMRUNNUMBER
 fi
 
 echo runstripped is $runstripped
