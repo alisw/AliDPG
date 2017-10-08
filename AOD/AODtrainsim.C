@@ -240,7 +240,7 @@ void AddAnalysisTasks(const char *cdb_location)
   //
   if (doPIDResponse) {
     gROOT->LoadMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C"); 
-    AliAnalysisTaskPIDResponse *PIDResponse = AddTaskPIDResponse();
+    AliAnalysisTaskPIDResponse *PIDResponse = AddTaskPIDResponse(kTRUE);
  //    PIDResponse->SetUserDataRecoPass(1);
 //    PIDResponse->SelectCollisionCandidates(AliVEvent::kAny);
   }  
