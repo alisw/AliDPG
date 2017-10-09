@@ -1,6 +1,7 @@
 AliGenerator * GeneratorCustom()
 {
   Int_t decay[2] = {AliDecayer::kLcpKpi,AliDecayer::kLcpK0S};
+  Int_t idecay=0;
   const Char_t *label[2] = { "LcpKpi PYTHIA", "LcpK0S PYTHIA" } ;
   
   TString optList[2] = {"LcpKpi","LcpK0S"};
