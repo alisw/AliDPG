@@ -317,7 +317,9 @@ void AddAnalysisTasks(const char *cdb_location)
     //PWGAgammaconv
     if (iPWGGAgammaconv) {
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/GammaConv/macros/AddTask_ConversionAODProduction.C");
-      AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(iCollision, kFALSE, periodName);
+      Int_t dataset=iCollision;
+      if( iCollision == kPbp || iCollision == kpPb ) dataset=2;
+      AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(dataset, kFALSE, periodName);
       mgr->RegisterExtraFile("AliAODGammaConversion.root");
    }   
  
