@@ -2,7 +2,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
 
 {
 
-  Int_t decay[2] = {AliDecayer::kLcpKpi, AliDecayer::kLcpK0S};
+  Decay_t decay[2] = {AliDecayer::kLcpKpi, AliDecayer::kLcpK0S};
   TString optList[2] = {"LcpKpi","LcpK0S"};
   TString label[2] = {"LcpKpi PYTHIA","LcpK0S PYTHIA"};
 
