@@ -21,9 +21,9 @@ AliGenerator * GeneratorCustom(TString opt = "")
   hij->SetDecaysOff(0);
   hij->SetSelectAll(1);
 
- hij->Init();
- //force decays
-  THijing *th = hij->GetTHijing();
+ //force hijing decays
+//  hij->Init();
+//  THijing *th = hij->GetTHijing();
   
 //  if (idecay == 0){ // pKpi 
 //    
