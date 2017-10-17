@@ -80,6 +80,7 @@ Bool_t doAD           = 1;    //decetrot AD
 Bool_t doEvTrk        = 1;    // analysis task uses the CF framework 
 
 Bool_t isMuonOnly     = kFALSE; // setting this to kTRUE will disable some not needed tasks for a muon-only MC
+Bool_t isMuonCalo     = kFALSE; // setting this to kTRUE will disable some not needed tasks for a muon-calo MC (V0,MUON,SPD)
 
 Int_t debug_level     = 1;    // Debugging
 Int_t run_number      = 0;
@@ -135,6 +136,11 @@ void UpdateFlags()
     doV0           = 0;
     doAD           = 0;
     doEvTrk        = 0;
+  }
+  if(isMuonCalo){
+    doV0           = 1;
+    doCDBconnect   = 1;
+    doSPD          = 1;
   }
 }
 
@@ -513,7 +519,7 @@ void AddAnalysisTasks(const char *cdb_location)
   if(doMUONTrig) {
   // no offline trigger selection
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskMTRchamberEfficiency.C");
-      AliAnalysisTaskTrigChEff *taskMuonTrig = AddTaskMTRchamberEfficiency(isMuonOnly);
+      AliAnalysisTaskTrigChEff *taskMuonTrig = AddTaskMTRchamberEfficiency(kTRUE);
   }
 
   //
@@ -523,7 +529,7 @@ void AddAnalysisTasks(const char *cdb_location)
   if(doMUONEff) 
   {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/MUON/dep/AddTaskMUONTrackingEfficiency.C");
-    AliAnalysisTaskMuonTrackingEff *muonEfficiency = AddTaskMUONTrackingEfficiency(kTRUE,isMuonOnly,"");
+    AliAnalysisTaskMuonTrackingEff *muonEfficiency = AddTaskMUONTrackingEfficiency(kTRUE,kTRUE,"");
     if (!isMuonOnly) muonEfficiency->SelectCollisionCandidates(kTriggerMask);
     muonEfficiency->UseMCLabel(kTRUE);
   }
@@ -760,10 +766,15 @@ void ProcessEnvironment()
   // Setting this to kTRUE will disable some not needed analysis tasks for a muon_calo pass
   //
   isMuonOnly = kFALSE;
+  isMuonCalo = kFALSE;
   if (gSystem->Getenv("CONFIG_QA"))
   {
     TString configstr = gSystem->Getenv("CONFIG_QA");
     if (configstr.Contains("MuonOnly")) isMuonOnly = kTRUE;
+    if (configstr.Contains("Muon") && !configstr.Contains("Only")){
+      isMuonCalo = kTRUE;
+      isMuonOnly = kTRUE;
+    }
   }
   
   //
