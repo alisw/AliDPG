@@ -80,7 +80,7 @@ Bool_t doAD           = 1;    //decetrot AD
 Bool_t doEvTrk        = 1;    // analysis task uses the CF framework 
 
 Bool_t isMuonOnly     = kFALSE; // setting this to kTRUE will disable some not needed tasks for a muon-only MC
-Bool_t isMuonCalo     = kFALSE; // setting this to kTRUE will disable some not needed tasks for a muon-calo MC (V0,MUON,SPD)
+Bool_t isMuonCalo     = kFALSE; // setting this to kTRUE will disable some not needed tasks for a muon-calo MC (MUON ITS VZERO T0 AD)
 
 Int_t debug_level     = 1;    // Debugging
 Int_t run_number      = 0;
@@ -137,10 +137,29 @@ void UpdateFlags()
     doAD           = 0;
     doEvTrk        = 0;
   }
-  if(isMuonCalo){
-    doV0           = 1;
-    doCDBconnect   = 1;
-    doSPD          = 1;
+  if(isMuonCalo)
+  {
+    // disable the analysis we know for sure can not work or are meaningless for a muon-calo MC
+    doTPC          = 0;
+    doHLT          = 0;
+
+    doTRD          = 0;
+    doCALO         = 0;
+    doESDTracks    = 0;
+    doImpParRes    = 0;
+    doTOF          = 0;
+    doHMPID        = 0;
+    doZDC          = 0;
+    doPIDResponse  = 0;
+    doPIDqa        = 0;
+    doFMD          = 0;
+    doPHOS         = 0;
+    doPHOSTrig     = 0;
+    doEMCAL        = 0;
+    doFBFqa        = 0;
+
+    doV0           = 0;
+    doEvTrk        = 0;
   }
 }
 
@@ -576,7 +595,7 @@ void AddAnalysisTasks(const char *cdb_location)
   // trigger analysis internal
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/PilotTrain/AddTaskMuonQA.C");
     AliAnalysisTaskMuonQA* taskmuonqa = AddTaskMuonQA(kFALSE);
-    if (isMuonOnly) taskmuonqa->GetTrackCuts()->SetIsMC(kTRUE);
+    taskmuonqa->GetTrackCuts()->SetIsMC(kTRUE);
   }  
   //
   // TOF (Francesca Bellini)
@@ -771,10 +790,7 @@ void ProcessEnvironment()
   {
     TString configstr = gSystem->Getenv("CONFIG_QA");
     if (configstr.Contains("MuonOnly")) isMuonOnly = kTRUE;
-    if (configstr.Contains("Muon") && !configstr.Contains("Only")){
-      isMuonCalo = kTRUE;
-      isMuonOnly = kTRUE;
-    }
+    else if (configstr.Contains("Muon")) isMuonCalo = kTRUE;
   }
   
   //
