@@ -89,7 +89,7 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     // ITSpureSA
   case kReconstructionITSpureSA:
     ReconstructionDefault(rec);
-    if (system.EqualTo("Pb-Pb"))
+    if (system.EqualTo("Pb-Pb") || system.EqualTo("Xe-Xe"))
       rec.SetRecoParam("ITS", OverrideITSRecoParam_ITSpureSA_PbPb2015());
     return;
     
