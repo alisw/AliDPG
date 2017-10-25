@@ -318,7 +318,7 @@ void AddAnalysisTasks(const char *cdb_location)
          mgr->RegisterExtraFile("AliAOD.Muons.root");
       }
 
-      Bool_t muonWithSPDTracklets = (iCollision==kPbPb || iCollision==kXeXe || isMuonCaloPass) ? kFALSE : kTRUE; // add SPD information to muon AOD only for pp
+      Bool_t muonWithSPDTracklets = (iCollision==kPbPb || iCollision==kXeXe) ? kFALSE : kTRUE; // add SPD information to muon AOD only for pp
 
       AliAnalysisTaskESDfilter *taskesdfilter = 
                  AddTaskESDFilter(useKFILTER, 
