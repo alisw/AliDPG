@@ -996,6 +996,11 @@ GeneratorStarlight(){
     projA = 208; projZ = 82;
     targA = 208; targZ = 82;
   }
+  // XeXe
+  else if (systemConfig.EqualTo("Xe-Xe")) {
+    projA = 129; projZ = 54;
+    targA = 129; targZ = 54;
+  }
   // p-Pb
   else if (systemConfig.EqualTo("p-Pb")) {
     projA =   1; projZ =  1;
