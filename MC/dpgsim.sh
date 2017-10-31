@@ -443,7 +443,7 @@ echo
 
     OCDBC=$ALIDPG_ROOT/MC/CreateSnapshot.C
     if [ -f CreateSnapshot.C ]; then
-	SIMC=CreateSnapshot.C
+	OCDBC=CreateSnapshot.C
     fi
 
     runcommand "OCDB SIM SNAPSHOT" $OCDBC\(0\) ocdbsim.log 500
