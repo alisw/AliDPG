@@ -440,10 +440,36 @@ void AddAnalysisTasks(const char *cdb_location)
   // Global tracks + V0s QA
   //
   if(doESDTracks) {
-    gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskCheckESDTracks.C");
-    AliAnalysisTaskCheckESDTracks* taskestr=AddTaskCheckESDTracks("QA",kFALSE,kTRUE,kTRUE);
-    taskestr->SetPtBinning(160,0.,40.);
-    taskestr->SelectCollisionCandidates(kTriggerMask);
+    // protection for bug fixed in v5-09-14
+    Bool_t disable=kTRUE;
+    if(gSystem->Getenv("ALIEN_JDL_PACKAGES")){
+      TString packg=gSystem->Getenv("ALIEN_JDL_PACKAGES");
+      TObjArray* pkgs=packg.Tokenize("##");
+      Int_t np=pkgs->GetEntries();
+      Int_t ver,n1,n2;
+      Char_t str2[20];
+      for(Int_t i=0; i<np; i++){
+	TObjString* str=(TObjString*)pkgs->At(i);
+	TString s=str->GetString();
+	if(s.Contains("AliPhysics")){
+	  s.ReplaceAll("VO_ALICE@","");
+	  sscanf(s.Data(),"AliPhysics::v%d-%d-%d-%s",&ver,&n1,&n2,str2);
+	  if(ver>=5 && n1>=9 && n2>=14){
+	    printf("%s -> enable ESD track QA\n",s.Data());
+	    disable=kFALSE;
+	  }else{
+	    disable=kTRUE;
+	    printf("%s -> disable ESD track QA\n",s.Data());
+	  }
+	}
+      }
+    }
+    if(!disable){
+      gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskCheckESDTracks.C");
+      AliAnalysisTaskCheckESDTracks* taskestr=AddTaskCheckESDTracks("QA",kFALSE,kTRUE,kTRUE);
+      taskestr->SetPtBinning(160,0.,40.);
+      taskestr->SelectCollisionCandidates(kTriggerMask);
+    }
   }
   //
   // TRD (Alex Bercuci, M. Fasel) 
