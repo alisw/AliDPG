@@ -82,7 +82,12 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
   // MultSelection
   gROOT->LoadMacro("$ALICE_PHYSICS/OADB/COMMON/MULTIPLICITY/macros/AddTaskMultSelection.C");
   AliMultSelectionTask *taskMult = AddTaskMultSelection();
-
+  if(isMC){
+    if (gSystem->Getenv("CONFIG_PERIOD")){
+      TString periodName = gSystem->Getenv("CONFIG_PERIOD");
+      taskMult->SetAlternateOADBforEstimators(periodName);
+    }
+  }
   // Vertex QA
   macroName="$ALICE_PHYSICS/PWGPP/macros/AddTaskCheckVertexAOD.C";
   if(gSystem->Exec(Form("ls %s > /dev/null 2>&1",macroName.Data()))==0){
