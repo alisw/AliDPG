@@ -790,6 +790,11 @@ if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	fi
 
 	runcommand "QAtrain AOD" $QATRAINAOD aodqa.log 2000
+
+	for file in *.stat; do
+	    mv -f $file $file.qa_aod
+	done
+
     fi
 
 fi
