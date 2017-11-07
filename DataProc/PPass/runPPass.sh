@@ -423,6 +423,10 @@ if [ -f AODtrain.C ]; then
 	    exit 200
 	fi
 
+	for file in *.stat; do
+            mv $file $file.qa_aod
+	done
+
     fi
 
 fi
