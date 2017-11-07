@@ -51,6 +51,7 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
   AliAnalysisManager *mgr  = new AliAnalysisManager("QAtrainAOD", "AOD QA train");
   mgr->SetCacheSize(0);
   mgr->SetCommonFileName("QAresults_AOD.root");
+
   // Input handler
   AliESDInputHandlerRP *esdHandler = new AliESDInputHandlerRP();
   AliAODInputHandler* aodHandler = new AliAODInputHandler();
@@ -65,6 +66,7 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
   // Physics selection
   gROOT->LoadMacro("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C");
   AliPhysicsSelectionTask* physSelTask = AddTaskPhysicsSelection(isMC);
+  mgr->AddStatisticsTask(AliVEvent::kAny);
   AliAnalysisDataContainer *cstatsout = (AliAnalysisDataContainer*)mgr->GetOutputs()->FindObject("cstatsout");
   cstatsout->SetFileName("EventStat_temp_AOD.root");
 
