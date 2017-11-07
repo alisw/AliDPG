@@ -3,7 +3,7 @@
 Usage() {
     echo "Usage: ${0##*/} <xml collection of residual trees> <runNum1> [runNum2] ..."
     echo "where runNum's are the runs to be processed; at least one MUST be provided"
-    exit
+    exit 1
 }
 
 ##############################################################################
@@ -59,7 +59,7 @@ extractEnvVars()
 }
 
 ##############################################################################
-[[ $# -ne 2 ]] &&  Usage && exit
+[[ $# -ne 2 ]] &&  Usage && exit 1
 
 echo Starting...
 residualFileList=residualFilesList.log
@@ -109,7 +109,7 @@ curdir=`pwd`
 # we need macro locally to compile it
 locMacro=$(basename "$macroName")
 [[ ! -f "$locMacro" ]] && cp $macroName ./ 
-[[ ! -f "$locMacro" ]] && echo "did not find $locMacro" && exit 1
+[[ ! -f "$locMacro" ]] && echo "did not find $locMacro" && exit -1
 
 residFilesRun="residual.list"
 
@@ -186,3 +186,5 @@ for arun in `cat $runList`; do
 done
 
 alilog_info "END: VDrift and time bins definition"
+
+exit 0
