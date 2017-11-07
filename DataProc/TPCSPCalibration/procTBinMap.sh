@@ -12,7 +12,7 @@
 ##############################################################################
 Usage() {
     echo "Usage: ${0##*/} <minTime> <maxTime> <runNumber> [ntracks_closure_test]"
-    exit
+    exit 1
 }
 
 ##############################################################################
@@ -66,7 +66,7 @@ extractEnvVars()
 ##############################################################################
 
 
-[[ $# -lt 3 ]] &&  Usage && exit
+[[ $# -lt 3 ]] &&  Usage && exit 1
 echo "Arguments: 1 = $1, 2 = $2, 3 = $3"
 
 source $ALICE_PHYSICS/PWGPP/scripts/alilog4bash.sh  
@@ -76,7 +76,7 @@ prepobj="alitpcdcalibres.root"
 # check if the preprocessed object exists
 if [[ ! -e $prepobj ]] ; then
     alilog_info "Error: preprocessed object $prepobj is not in working directory"
-    exit
+    exit -1
 fi
 
 export mapStartTime=$1
@@ -90,7 +90,7 @@ inclMacro="$ALIDPG_ROOT/DataProc/TPCSPCalibration/includeMacro.C"
 macroName="$ALIDPG_ROOT/DataProc/TPCSPCalibration/procResidData.C"
 locMacro=$(basename "$macroName")
 [[ ! -f "$locMacro" ]] && cp $macroName ./
-[[ ! -f "$locMacro" ]] && echo "did not find $locMacro" && exit 1
+[[ ! -f "$locMacro" ]] && echo "did not find $locMacro" && exit -1
 
 extractEnvVars
 
@@ -108,3 +108,5 @@ if [ -n "$ntcloseTest" ] ; then
     time aliroot -b -q  $inclMacro $loadLibMacro ${locMacro}+g\($mode,$run,$mapStartTime,$mapStopTime,\"\"\) >& closure_${mapStartTime}_${mapStopTime}.log
     alilog_info "END: Processing"
 fi
+
+exit 0
