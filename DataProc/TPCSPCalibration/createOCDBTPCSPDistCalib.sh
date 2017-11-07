@@ -54,7 +54,7 @@ parseConfig "$@"
 echo ""
 if [[ -z $inputFileList || -z $startRun ]]; then 
     Usage
-    exit 0
+    exit 1
 fi
 
 # allowing JDL to overwrite the default folder where to store the calibration 
@@ -98,4 +98,5 @@ time aliroot -b -q "${locMacro}(\"$inputFileList\", $startRun, $endRun, \"$targe
 #fi
 
 
-												      
+
+exit 0
