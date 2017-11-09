@@ -47,6 +47,13 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
   printf("Collision System is %s\n",CollisionSystem[iCollisionType]);
   printf("--------------------------------------\n");
  
+  UInt_t kTriggerMask =  AliVEvent::kINT7 | AliVEvent::kINT8;
+  if(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"))
+  {
+    Int_t year = atoi(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"));
+    if(year <= 2015) 
+      kTriggerMask = AliVEvent::kAnyINT;
+  }
   // Create manager
   AliAnalysisManager *mgr  = new AliAnalysisManager("QAtrainAOD", "AOD QA train");
   mgr->SetCacheSize(0);
@@ -66,7 +73,7 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
   // Physics selection
   gROOT->LoadMacro("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C");
   AliPhysicsSelectionTask* physSelTask = AddTaskPhysicsSelection(isMC);
-  mgr->AddStatisticsTask(AliVEvent::kAny);
+  mgr->AddStatisticsTask(kTriggerMask);
   AliAnalysisDataContainer *cstatsout = (AliAnalysisDataContainer*)mgr->GetOutputs()->FindObject("cstatsout");
   cstatsout->SetFileName("EventStat_temp_AOD.root");
 
