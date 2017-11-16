@@ -1026,7 +1026,9 @@ GeneratorStarlight(){
   cocktail |= processConfig.Contains("Psi2sToElPi");
   cocktail |= processConfig.Contains("Psi2sToMuPi");
   cocktail |= processConfig.Contains("RhoPrime");
-
+  cocktail |= processConfig.Contains("JpsiToEl");
+  cocktail |= processConfig.Contains("TwoGamma");
+  
   AliGenCocktail *genCocktail = NULL;
   if (cocktail)  genCocktail = new AliGenCocktail(); // constructor must be called before other generators
 
@@ -1127,16 +1129,18 @@ GeneratorStarlight(){
   if      (processConfig.Contains("Psi2sToMuPi")) decayTable="PSI2S.MUMUPIPI.DEC";
   else if (processConfig.Contains("Psi2sToElPi")) decayTable="PSI2S.EEPIPI.DEC";
   else if (processConfig.Contains("RhoPrime"))    decayTable="RHOPRIME.RHOPIPI.DEC";
+  else if (processConfig.Contains("JpsiToEl")) decayTable="JPSI.EE.DEC";
   genEvtGen->SetUserDecayTable(gSystem->ExpandPathName(Form("$ALICE_ROOT/STARLIGHT/AliStarLight/DecayTables/%s",decayTable.Data())));
 
   if      (processConfig.Contains("Psi2s"))    genEvtGen->SetEvtGenPartNumber(100443);
   else if (processConfig.Contains("RhoPrime")) genEvtGen->SetEvtGenPartNumber(30113);
+  else if (processConfig.Contains("JpsiToEl")) genEvtGen->SetEvtGenPartNumber(443);
 
   genEvtGen->SetPolarization(1);           // Set polarization: transversal(1),longitudinal(-1),unpolarized(0)
   gSystem->Setenv("PYTHIA8DATA", gSystem->ExpandPathName("$ALICE_ROOT/PYTHIA8/pythia8/xmldoc"));
 
   genCocktail->AddGenerator(genStarLight,"StarLight",1.);
-  genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
+  if(!processConfig.Contains("TwoGamma")) genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
   return genCocktail;
 }
 
