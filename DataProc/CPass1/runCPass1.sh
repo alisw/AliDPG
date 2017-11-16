@@ -77,8 +77,9 @@ export PRODUCTION_METADATA="$ALIEN_JDL_LPMMETADATA"
 # Set memory limits to a value lower than the hard site limits to at least get the logs of failing jobs
 ulimit -S -v 3500000
 
-
-#optionallly skip Outer pass (set to true for PbPb and XeXe)
+# skip Outer pass by default
+export skipOuter='1'
+#option for outerPass
 export outerUsesFullITS=1
 # run TPC clusterization in separate process before reconstruction
 export preclusterizeTPC='0'
@@ -88,14 +89,12 @@ if [ -z "$ALIEN_JDL_LPMINTERACTIONTYPE" ]; then
 else
     if [ "$ALIEN_JDL_LPMINTERACTIONTYPE" == "PbPb" ] || [ "$ALIEN_JDL_LPMINTERACTIONTYPE" == "XeXe" ]; then
 	preclusterizeTPC='1'
-	export skipOuter='1'
 	outerUsesFullITS=0
     fi
 fi
 # enabling preclusterization, disabling outer for 2015 PbPb based on run numbers 
 if [ "$runNum" -ge 244917 ] && [ "$runNum" -le 246994 ]; then
  preclusterizeTPC='1'
- export skipOuter='1'
  outerUsesFullITS=0
 #default alias for CPass1 2015 PbPb is kCalibBarrelMB
  defAlias="kCalibBarrelMB"
