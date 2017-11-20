@@ -1245,12 +1245,12 @@ GeneratorAMPT_v226t7()
   gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
   gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
   gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_ampt.sh %s %i %i %i %i %s %s %.2f %.2f %.2f %i %i %i &> gen_ampt.log &", fifoname.Data(),
-              targetA,
-              targetZ,
               projectileA,
               projectileZ,
-              targetString.Data(),
+              targetA,
+              targetZ,
               projectileString.Data(),
+              targetString.Data(),
               bminConfig,
               bmaxConfig,
               energyConfig,
