@@ -1216,12 +1216,69 @@ AliGenerator *
 GeneratorAMPT_v226t7()
 {
 
+
   // run AMPT_v226t7
+  Int_t projectileA = 0;
+  Int_t projectileZ = 0;
+  Int_t targetA = 0;
+  Int_t targetZ = 0;
+  TString targetString = "";
+  TString projectileString = "";
+  
+  // projectile-target
+  if (systemConfig.EqualTo("Pb-Pb")) {
+    projectileA = 208;
+    projectileZ = 82;
+    targetA = 208;
+    targetZ = 82;
+    targetString += "A";
+    projectileString += "A";
+  } else if (systemConfig.EqualTo("p-Pb")) {
+    projectileA = 1;
+    projectileZ = 1;
+    targetA = 208;
+    targetZ = 82;
+    targetString += "A";
+    projectileString += "P";
+  } else if (systemConfig.EqualTo("Pb-p")) {
+    projectileA = 208;
+    projectileZ = 82;
+    targetA = 1;
+    targetZ = 1;
+    targetString += "P";
+    projectileString += "A";
+  } else if (systemConfig.EqualTo("p-p")) {
+    projectileA = 1;
+    projectileZ = 1;
+    targetA = 1;
+    targetZ = 1;
+    targetString += "P";
+    projectileString += "P";
+  } else return 0x0;
+
+  // configure AMPT processes
+  Int_t isoft = 1;  //1: defaul - 4: string melting
+  Int_t ntmax = 150;        // NTMAX: number of timesteps (D=150)
+  if (processConfig.Contains("StringMelting")) isoft = 4;
+  if (processConfig.Contains("NoART")) ntmax = 3;
+
+
   TString fifoname = "ampteventfifo";
   gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
   gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
-  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_ampt.sh %s &> gen_ampt.log &",
-			  fifoname.Data()));
+  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_ampt.sh %s %i %i %i %i %s %s %.2f %.2f %.2f %i %i %i &> gen_ampt.log &", fifoname.Data(),
+              targetA,
+              targetZ,
+              projectileA,
+              projectileZ,
+              targetString.Data(),
+              projectileString.Data(),
+              bminConfig,
+              bmaxConfig,
+              energyConfig,
+              neventsConfig,
+              isoft,
+              ntmax));
   // connect HepMC reader
   AliGenReaderHepMC *reader = new AliGenReaderHepMC();
   reader->SetFileName("ampteventfifo");
