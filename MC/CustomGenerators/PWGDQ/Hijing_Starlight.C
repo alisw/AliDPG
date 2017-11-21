@@ -8,5 +8,5 @@ GeneratorCustom()
   AliGenerator* starlight = GeneratorStarlight();
   cocktail->AddGenerator(starlight, "Starlight", 1.);
   
-  return ctl;
+  return cocktail;
 }
