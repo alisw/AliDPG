@@ -30,6 +30,8 @@ enum EGenerator_t {
   kGeneratorHijing,
   // Starlight
   kGeneratorStarlight,
+  // DRgen
+  kGeneratorDRgen,
   // AMPT
   kGeneratorAMPT, kGeneratorAMPT_v226t7,
   //
@@ -172,6 +174,7 @@ AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
 AliGenerator *GeneratorStarlight();
+AliGenerator *GeneratorDRgen();
 AliGenerator *GeneratorAMPT();
 AliGenerator *GeneratorAMPT_v226t7();
 
@@ -263,6 +266,11 @@ GeneratorConfig(Int_t tag)
     // Starlight
   case kGeneratorStarlight:
     gen = GeneratorStarlight();
+    break;
+
+    // Starlight
+  case kGeneratorDRgen:
+    gen = GeneratorDRgen();
     break;
 
     // AMPT
@@ -1121,6 +1129,41 @@ GeneratorStarlight(){
   if(!processConfig.Contains("TwoGamma")) genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
   return genCocktail;
 }
+
+
+/*** DRgen ****************************************************/
+
+AliGenerator *
+GeneratorDRgen(){
+  // see details in AliRoot/DRGEN/README
+  TString supportedProcesses[9] = {
+      "kDRgen_continuum2PiPi",
+      "kDRgen_sigma2PiPi",
+      "kDRgen_rho2PiPi",
+      "kDRgen_f02PiPi",
+      "kDRgen_f22PiPi",
+      "kDRgen_f2DzeroPom2PiPi",
+      "kDRgen_f2DplusminusPom2PiPi",
+      "kDRgen_f2DzeroProt2PiPi",
+      "kDRgen_f2DplusminusProt2PiPi"
+  };
+  comment.Append(Form(" | DRgen generator %s",processConfig.Data()));
+  gSystem->Load("libDRGEN.so");
+  
+  gRandom->SetSeed(seedConfig);
+  
+  AliGenDRgen* gener = new AliGenDRgen();
+  gener->SetBeamEnergy(energyConfig/2.);
+  
+  for (Int_t i=0;i<9;i++){
+    if (processConfig!=supportedProcesses[i]) continue;
+    gener->SetProcess(i+1,i+1);
+    break;
+  }
+  
+  return (AliGenerator*) gener;
+}
+
 
 /*** AMPT ********************************************************/
 
