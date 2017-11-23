@@ -30,6 +30,8 @@ enum EGenerator_t {
   kGeneratorHijing,
   // Starlight
   kGeneratorStarlight,
+  // DRgen
+  kGeneratorDRgen,
   // AMPT
   kGeneratorAMPT, kGeneratorAMPT_v226t7,
   //
@@ -65,6 +67,8 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Hijing",
   // Starlight
   "Starlight",
+  // DRgen
+  "DRgen",
   // AMPT
   "AMPT", "AMPT_v226t7",
   //
@@ -172,6 +176,7 @@ AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
 AliGenerator *GeneratorStarlight();
+AliGenerator *GeneratorDRgen();
 AliGenerator *GeneratorAMPT();
 AliGenerator *GeneratorAMPT_v226t7();
 
@@ -263,6 +268,11 @@ GeneratorConfig(Int_t tag)
     // Starlight
   case kGeneratorStarlight:
     gen = GeneratorStarlight();
+    break;
+
+    // Starlight
+  case kGeneratorDRgen:
+    gen = GeneratorDRgen();
     break;
 
     // AMPT
@@ -953,6 +963,7 @@ GeneratorStarlight(){
   // kCohPhiToKa
   // kCohJpsiToMu
   // kCohJpsiToEl
+  // kCohJpsiToElRad
   // kCohJpsiToProton
   // kCohPsi2sToMu
   // kCohPsi2sToEl
@@ -965,6 +976,7 @@ GeneratorStarlight(){
   // kIncohPhiToKa
   // kIncohJpsiToMu
   // kIncohJpsiToEl
+  // kIncohJpsiToElRad
   // kIncohJpsiToProton
   // kIncohPsi2sToMu
   // kIncohPsi2sToEl
@@ -1026,8 +1038,7 @@ GeneratorStarlight(){
   cocktail |= processConfig.Contains("Psi2sToElPi");
   cocktail |= processConfig.Contains("Psi2sToMuPi");
   cocktail |= processConfig.Contains("RhoPrime");
-  cocktail |= processConfig.Contains("JpsiToEl");
-  cocktail |= processConfig.Contains("TwoGamma");
+  cocktail |= processConfig.Contains("JpsiToElRad");
   
   AliGenCocktail *genCocktail = NULL;
   if (cocktail)  genCocktail = new AliGenCocktail(); // constructor must be called before other generators
@@ -1054,6 +1065,7 @@ GeneratorStarlight(){
     {"kCohPhiToKa",         2,     333,   20, -1.0, -1.0, 0.01 }, //
     {"kCohJpsiToMu",        2,  443013,   20, -1.0, -1.0, 0.01 }, //
     {"kCohJpsiToEl",        2,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToElRad",     2,  443011,   20, -1.0, -1.0, 0.01 }, //
     {"kCohJpsiToProton",    2, 4432212,   20, -1.0, -1.0, 0.01 }, //
     {"kCohPsi2sToMu",       2,  444013,   20, -1.0, -1.0, 0.01 }, //
     {"kCohPsi2sToEl",       2,  444011,   20, -1.0, -1.0, 0.01 }, //
@@ -1066,6 +1078,7 @@ GeneratorStarlight(){
     {"kIncohPhiToKa",       4,     333,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohJpsiToMu",      4,  443013,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohJpsiToEl",      4,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToElRad",   4,  443011,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohJpsiToProton",  4, 4432212,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohPsi2sToMu",     4,  444013,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohPsi2sToEl",     4,  444011,   20, -1.0, -1.0, 0.01 }, //
@@ -1129,20 +1142,55 @@ GeneratorStarlight(){
   if      (processConfig.Contains("Psi2sToMuPi")) decayTable="PSI2S.MUMUPIPI.DEC";
   else if (processConfig.Contains("Psi2sToElPi")) decayTable="PSI2S.EEPIPI.DEC";
   else if (processConfig.Contains("RhoPrime"))    decayTable="RHOPRIME.RHOPIPI.DEC";
-  else if (processConfig.Contains("JpsiToEl")) decayTable="JPSI.EE.DEC";
+  else if (processConfig.Contains("JpsiToElRad")) decayTable="JPSI.EE.DEC";
   genEvtGen->SetUserDecayTable(gSystem->ExpandPathName(Form("$ALICE_ROOT/STARLIGHT/AliStarLight/DecayTables/%s",decayTable.Data())));
 
-  if      (processConfig.Contains("Psi2s"))    genEvtGen->SetEvtGenPartNumber(100443);
-  else if (processConfig.Contains("RhoPrime")) genEvtGen->SetEvtGenPartNumber(30113);
-  else if (processConfig.Contains("JpsiToEl")) genEvtGen->SetEvtGenPartNumber(443);
+  if      (processConfig.Contains("Psi2s"))       genEvtGen->SetEvtGenPartNumber(100443);
+  else if (processConfig.Contains("RhoPrime"))    genEvtGen->SetEvtGenPartNumber(30113);
+  else if (processConfig.Contains("JpsiToElRad")) genEvtGen->SetEvtGenPartNumber(443);
 
   genEvtGen->SetPolarization(1);           // Set polarization: transversal(1),longitudinal(-1),unpolarized(0)
   gSystem->Setenv("PYTHIA8DATA", gSystem->ExpandPathName("$ALICE_ROOT/PYTHIA8/pythia8/xmldoc"));
 
   genCocktail->AddGenerator(genStarLight,"StarLight",1.);
-  if(!processConfig.Contains("TwoGamma")) genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
+  genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
   return genCocktail;
 }
+
+
+/*** DRgen ****************************************************/
+
+AliGenerator *
+GeneratorDRgen(){
+  // see details in AliRoot/DRGEN/README
+  TString supportedProcesses[9] = {
+      "kDRgen_continuum2PiPi",
+      "kDRgen_sigma2PiPi",
+      "kDRgen_rho2PiPi",
+      "kDRgen_f02PiPi",
+      "kDRgen_f22PiPi",
+      "kDRgen_f2DzeroPom2PiPi",
+      "kDRgen_f2DplusminusPom2PiPi",
+      "kDRgen_f2DzeroProt2PiPi",
+      "kDRgen_f2DplusminusProt2PiPi"
+  };
+  comment.Append(Form(" | DRgen generator %s",processConfig.Data()));
+  gSystem->Load("libDRGEN.so");
+  
+  gRandom->SetSeed(seedConfig);
+  
+  AliGenDRgen* gener = new AliGenDRgen();
+  gener->SetBeamEnergy(energyConfig/2.);
+  
+  for (Int_t i=0;i<9;i++){
+    if (processConfig!=supportedProcesses[i]) continue;
+    gener->SetProcess(i+1,i+1);
+    break;
+  }
+  
+  return (AliGenerator*) gener;
+}
+
 
 /*** AMPT ********************************************************/
 
