@@ -67,6 +67,8 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Hijing",
   // Starlight
   "Starlight",
+  // DRgen
+  "DRgen",
   // AMPT
   "AMPT", "AMPT_v226t7",
   //
