@@ -155,6 +155,7 @@ CONFIG_GEANT4=""
 CONFIG_FASTB=""
 CONFIG_VDT=""
 CONFIG_MATERIAL=""
+CONFIG_REMOVETRACKREFS=""
 
 RUNMODE=""
 
@@ -344,6 +345,9 @@ while [ ! -z "$1" ]; do
         CONFIG_VDT="on"
 	export CONFIG_VDT
 	export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
+    elif [ "$option" = "--removeTrackRefs" ]; then
+        CONFIG_REMOVETRACKREFS="on"
+	export CONFIG_REMOVETRACKREFS
 #    elif [ "$option" = "--sdd" ]; then
 #        RUNMODE="SDD"
 #	export RUNMODE
@@ -603,6 +607,7 @@ echo "GEANT4........... $CONFIG_GEANT4"
 echo "Fast-B........... $CONFIG_FASTB"
 echo "VDT math......... $CONFIG_VDT"
 echo "Material Budget.. $CONFIG_MATERIAL"
+echo "Remove TrackRefs. $CONFIG_REMOVETRACKREFS"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
 echo "System........... $CONFIG_SYSTEM"
@@ -734,6 +739,8 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     if [[ $CONFIG_SIMULATION == "EmbedBkg" ]]; then
 	rm -f *.RecPoints.root *.Digits.root
 	ls *.Hits.root | grep -v T0.Hits.root | xargs rm
+    elif [[ $CONFIG_REMOVETRACKREFS == "on" ]]; then
+	 rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root TrackRefs.root
     else
 	rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
     fi
