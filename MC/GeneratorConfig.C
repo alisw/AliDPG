@@ -946,6 +946,7 @@ GeneratorStarlight(){
   // kCohPhiToKa
   // kCohJpsiToMu
   // kCohJpsiToEl
+  // kCohJpsiToElRad
   // kCohJpsiToProton
   // kCohPsi2sToMu
   // kCohPsi2sToEl
@@ -958,6 +959,7 @@ GeneratorStarlight(){
   // kIncohPhiToKa
   // kIncohJpsiToMu
   // kIncohJpsiToEl
+  // kIncohJpsiToElRad
   // kIncohJpsiToProton
   // kIncohPsi2sToMu
   // kIncohPsi2sToEl
@@ -1014,8 +1016,7 @@ GeneratorStarlight(){
   cocktail |= processConfig.Contains("Psi2sToElPi");
   cocktail |= processConfig.Contains("Psi2sToMuPi");
   cocktail |= processConfig.Contains("RhoPrime");
-  cocktail |= processConfig.Contains("JpsiToEl");
-  cocktail |= processConfig.Contains("TwoGamma");
+  cocktail |= processConfig.Contains("JpsiToElRad");
   
   AliGenCocktail *genCocktail = NULL;
   if (cocktail)  genCocktail = new AliGenCocktail(); // constructor must be called before other generators
@@ -1042,6 +1043,7 @@ GeneratorStarlight(){
     {"kCohPhiToKa",         2,     333,   20, -1.0, -1.0, 0.01 }, //
     {"kCohJpsiToMu",        2,  443013,   20, -1.0, -1.0, 0.01 }, //
     {"kCohJpsiToEl",        2,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToElRad",     2,  443011,   20, -1.0, -1.0, 0.01 }, //
     {"kCohJpsiToProton",    2, 4432212,   20, -1.0, -1.0, 0.01 }, //
     {"kCohPsi2sToMu",       2,  444013,   20, -1.0, -1.0, 0.01 }, //
     {"kCohPsi2sToEl",       2,  444011,   20, -1.0, -1.0, 0.01 }, //
@@ -1054,6 +1056,7 @@ GeneratorStarlight(){
     {"kIncohPhiToKa",       4,     333,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohJpsiToMu",      4,  443013,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohJpsiToEl",      4,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToElRad",   4,  443011,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohJpsiToProton",  4, 4432212,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohPsi2sToMu",     4,  444013,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohPsi2sToEl",     4,  444011,   20, -1.0, -1.0, 0.01 }, //
@@ -1117,18 +1120,18 @@ GeneratorStarlight(){
   if      (processConfig.Contains("Psi2sToMuPi")) decayTable="PSI2S.MUMUPIPI.DEC";
   else if (processConfig.Contains("Psi2sToElPi")) decayTable="PSI2S.EEPIPI.DEC";
   else if (processConfig.Contains("RhoPrime"))    decayTable="RHOPRIME.RHOPIPI.DEC";
-  else if (processConfig.Contains("JpsiToEl")) decayTable="JPSI.EE.DEC";
+  else if (processConfig.Contains("JpsiToElRad")) decayTable="JPSI.EE.DEC";
   genEvtGen->SetUserDecayTable(gSystem->ExpandPathName(Form("$ALICE_ROOT/STARLIGHT/AliStarLight/DecayTables/%s",decayTable.Data())));
 
-  if      (processConfig.Contains("Psi2s"))    genEvtGen->SetEvtGenPartNumber(100443);
-  else if (processConfig.Contains("RhoPrime")) genEvtGen->SetEvtGenPartNumber(30113);
-  else if (processConfig.Contains("JpsiToEl")) genEvtGen->SetEvtGenPartNumber(443);
+  if      (processConfig.Contains("Psi2s"))       genEvtGen->SetEvtGenPartNumber(100443);
+  else if (processConfig.Contains("RhoPrime"))    genEvtGen->SetEvtGenPartNumber(30113);
+  else if (processConfig.Contains("JpsiToElRad")) genEvtGen->SetEvtGenPartNumber(443);
 
   genEvtGen->SetPolarization(1);           // Set polarization: transversal(1),longitudinal(-1),unpolarized(0)
   gSystem->Setenv("PYTHIA8DATA", gSystem->ExpandPathName("$ALICE_ROOT/PYTHIA8/pythia8/xmldoc"));
 
   genCocktail->AddGenerator(genStarLight,"StarLight",1.);
-  if(!processConfig.Contains("TwoGamma")) genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
+  genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
   return genCocktail;
 }
 
