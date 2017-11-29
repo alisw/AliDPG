@@ -26,7 +26,8 @@ AliGenerator * GeneratorCustom(TString opt = "")
 
   AliGenPythia* pyth = GeneratorPythia6(kPythia6Tune_Perugia2011);
   pyth->SetProcess(kPyCharmppMNRwmi);
-  pyth->SetTriggerParticle(4122,1.2); // Lc in |eta| < 1.2
+  pyth->SetTriggerParticle(4122,999,999,-1,1000); //Lc, etamin, etamax, ptmin, ptmax
+  pyth->SetTriggerY(1.0);
   pyth->SetHeavyQuarkYRange(-1.5,1.5);
   pyth->SetForceDecay(decay[idecay]);  //Force Lc decay mode in PYTHIA
   pyth->SetPtHard(pthardminConfig,pthardmaxConfig);
