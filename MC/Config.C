@@ -424,9 +424,15 @@ GeneratorOptions()
   //======================//
   // Set External decayer //
   //======================//
-  TVirtualMCDecayer* decayer = new AliDecayerPythia();
-  decayer->SetForceDecay(kAll);
-  decayer->Init();
-  gMC->SetExternalDecayer(decayer);
+  if(!gMC->GetDecayer()){
+    cout<<"Create and set external decayer..."<<endl;
+    TVirtualMCDecayer* decayer = new AliDecayerPythia();
+    decayer->SetForceDecay(kAll);
+    decayer->Init();
+    gMC->SetExternalDecayer(decayer);
+  }
+  else{
+    cout<<"External decayer was set already ... nothing to do."<<endl;
+  }
   //
 }
