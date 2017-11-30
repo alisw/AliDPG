@@ -14,11 +14,11 @@ AliGenerator *GeneratorCustom(TString opt = "")
 //  AliGenCocktail *ctl = GeneratorCocktail("Perugia2011_HF");
   AliGenPythia* pyth = GeneratorPythia6(kPythia6Tune_Perugia2011);
   pyth->SetProcess(kPyCharmppMNRwmi);
-  pyth->SetTriggerParticle(4122);
+  pyth->SetTriggerParticle(4122,999,999,-1,1000); //Lc, etamin, etamax, ptmin, ptmax
+  pyth->SetTriggerY(1.0);
   pyth->SetHeavyQuarkYRange(-1.5,1.5);
   pyth->SetForceDecay(decay[idecay]);
   pyth->SetPtHard(pthardminConfig,pthardmaxConfig);
-  pyth->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
   return pyth;
 
 }
