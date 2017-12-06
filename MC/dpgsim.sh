@@ -559,6 +559,11 @@ fi
 
 aliroot -b -q $ALIDPG_ROOT/MC/ExportGRPinfo.C\($CONFIG_RUN\) 2>/dev/null | grep export > grpdump.sh && source grpdump.sh # && rm grpdump.sh
 
+### background from .xml collection
+if [[ $CONFIG_BACKGROUND == *.xml ]]; then
+    aliroot -b -q $ALIDPG_ROOT/MC/ExportXMLbackground.C\(\"$CONFIG_BACKGROUND\"\) 2>/dev/null | grep export > xmldump.sh && source xmldump.sh # && rm xmldump.sh    
+fi
+
 ### override automatic settings from GRP info if requested
 
 if [[ $OVERRIDE_ENERGY != "" ]]; then
