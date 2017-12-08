@@ -156,7 +156,6 @@ CONFIG_FASTB=""
 CONFIG_VDT=""
 CONFIG_MATERIAL=""
 CONFIG_REMOVETRACKREFS=""
-CONFIG_OCDBTIMESTAMP=""
 
 RUNMODE=""
 
@@ -349,9 +348,6 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--removeTrackRefs" ]; then
         CONFIG_REMOVETRACKREFS="on"
 	export CONFIG_REMOVETRACKREFS
-    elif [ "$option" = "--OCDBTimeStamp" ]; then
-        CONFIG_OCDBTIMESTAMP="$1"
-        export CONFIG_OCDBTIMESTAMP
 #    elif [ "$option" = "--sdd" ]; then
 #        RUNMODE="SDD"
 #	export RUNMODE
