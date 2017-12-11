@@ -909,11 +909,13 @@ GeneratorHijing()
     gener->SetProjectile("A", 208, 82);
     gener->SetTarget    ("A", 208, 82);
     gener->SetSpectators(0);
+    gener->SetDataDrivenSpectators();
   }
   else if (systemConfig.EqualTo("Xe-Xe")) {
     gener->SetProjectile("A", 129, 54);
     gener->SetTarget    ("A", 129, 54);
     gener->SetSpectators(0);
+    gener->SetDataDrivenSpectators();
   }
   else if (systemConfig.EqualTo("p-Pb")) {
     gener->SetProjectile("P", 1, 1);
