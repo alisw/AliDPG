@@ -104,7 +104,8 @@ DefaultSpecificStorage(AliCDBManager *man, Int_t mode)
     // MUON
     "MUON/Align/Data",         Full,     NULL,     // ok!
     // ZDC
-    "ZDC/Align/Data",          Ideal,    Ideal     // ok
+    "ZDC/Align/Data",          Ideal,    Ideal,    // ok
+    "ZDC/Calib/Pedestals/"     Ideal,    Ideal     // added (11.12.2017)
   };
   const Int_t nSpecificStorages = sizeof(SpecificStorageList) / (3 * sizeof(Char_t *));
 
