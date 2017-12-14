@@ -1,5 +1,5 @@
 AliGenerator *
-GeneratorCustom()
+GeneratorCustom(TString opt = "")
 {
 
   AliGenCocktail *ctl   = GeneratorCocktail("Hijing_LMee001");
@@ -9,8 +9,6 @@ GeneratorCustom()
   ctl->AddGenerator(hij,  "Hijing", 1.);
 
   // LMee cocktail settings:
-  // number of particles per event is calculated from formula
-  TFormula* formula = new TFormula("formula", "20.+ 80.*exp(- 0.5 * x * x / 5.12 / 5.12)");
   TFormula* one     = new TFormula("one", "1");
   Int_t   nPart  = 1;
   Float_t minPt  = 0;
@@ -26,11 +24,18 @@ GeneratorCustom()
 
   // set external decayer
   AliDecayerPythia* decayer = new AliDecayerPythia();
-  decayer->SetDecayerExodus();
   decayer->SetForceDecay(kDiElectronEM);
   decayer->Init();
   gMC->SetExternalDecayer(decayer);
-  cout<<"MW: "<<gMC->GetDecayer()->GetName()<<endl;
+
+  // set internal decayer
+  AliDecayerPythia* decayerInt = new AliDecayerPythia();
+  if(opt.Contains("Exodus")){
+    Printf("Use Exodus decayer for cocktail");
+    decayerInt->SetDecayerExodus();
+  }
+  decayerInt->SetForceDecay(kDiElectronEM);
+  decayerInt->Init();
   
   // Pi0
   AliGenParam *pizero = new AliGenParam(nPart, emlib, AliGenEMlib::kPizero,"pizero");
@@ -40,6 +45,7 @@ GeneratorCustom()
   pizero->SetPhiRange(phiMin, phiMax);
   pizero->SetWeighting(weightMode);  // flat pt 
   pizero->SetForceDecay(kDiElectronEM);
+  pizero->SetDecayer(decayerInt);
   pizero->Init();
     
   // Eta
@@ -49,6 +55,7 @@ GeneratorCustom()
   eta->SetPhiRange(phiMin, phiMax);
   eta->SetWeighting(weightMode);  // flat pt 
   eta->SetForceDecay(kDiElectronEM);
+  eta->SetDecayer(decayerInt);
   eta->Init();
 
   // Etaprime
@@ -58,6 +65,7 @@ GeneratorCustom()
   etaprime->SetPhiRange(phiMin, phiMax);
   etaprime->SetWeighting(weightMode);  // flat pt 
   etaprime->SetForceDecay(kDiElectronEM);
+  etaprime->SetDecayer(decayerInt);
   etaprime->Init();
 
   // Rho 
@@ -67,6 +75,7 @@ GeneratorCustom()
   rho->SetPhiRange(phiMin, phiMax);
   rho->SetWeighting(weightMode);  // flat pt 
   rho->SetForceDecay(kDiElectronEM);
+  rho->SetDecayer(decayerInt);
   rho->Init();
   
   // Omega
@@ -76,6 +85,7 @@ GeneratorCustom()
   omega->SetPhiRange(phiMin, phiMax);
   omega->SetWeighting(weightMode);  // flat pt 
   omega->SetForceDecay(kDiElectronEM);
+  omega->SetDecayer(decayerInt);
   omega->Init();
 
   //Phi
@@ -85,6 +95,7 @@ GeneratorCustom()
   phi->SetPhiRange(phiMin, phiMax);
   phi->SetWeighting(weightMode);  // flat pt 
   phi->SetForceDecay(kDiElectronEM);
+  phi->SetDecayer(decayerInt);
   phi->Init();
 
   // J/psi 
@@ -94,6 +105,7 @@ GeneratorCustom()
   jpsi->SetPhiRange(phiMin, phiMax);
   jpsi->SetWeighting(weightMode);  // flat pt 
   jpsi->SetForceDecay(kDiElectron);
+  jpsi->SetDecayer(decayerInt);
   jpsi->Init();
 
   // gamma
@@ -103,13 +115,13 @@ GeneratorCustom()
   gamma->SetThetaRange(thmin, thmax);
 
   // add LMee cocktail
-  ctl->AddGenerator(pizero,"pizero", nPart, formula);
-  ctl->AddGenerator(eta,"eta", nPart, formula);
-  ctl->AddGenerator(etaprime,"etaprime", nPart, formula);
-  ctl->AddGenerator(rho,"rho", nPart, formula);
-  ctl->AddGenerator(omega,"omega", nPart, formula);
-  ctl->AddGenerator(phi,"phi", nPart, formula);
-  ctl->AddGenerator(jpsi,"jpsi", nPart, formula);
-  ctl->AddGenerator(gamma, "gamma",  nPart, formula);
+  ctl->AddGenerator(pizero,"pizero", nPart, one);
+  ctl->AddGenerator(eta,"eta", nPart, one);
+  ctl->AddGenerator(etaprime,"etaprime", nPart, one);
+  ctl->AddGenerator(rho,"rho", nPart, one);
+  ctl->AddGenerator(omega,"omega", nPart, one);
+  ctl->AddGenerator(phi,"phi", nPart, one);
+  ctl->AddGenerator(jpsi,"jpsi", nPart, one);
+  ctl->AddGenerator(gamma, "gamma",  nPart, one);
   return ctl;
 }
