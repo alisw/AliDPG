@@ -3,7 +3,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
 {
   // Custom generator to inject phi,K*0,A-K*0, K*+-, Lambda*, A-Lambda*, f0, f2 resonances 
   // Options:
-  // pPb:  injection landau in pT up to  21 GeV/c; 3 particles per event, but one species per event;
+  // pPb:  injection landau in pT up to  21 GeV/c; 3 different species per event;
   // rapidity range: -0.6 < y < 0.1 : Anchored to period LHC16r
 
   // Pbp: injection same as pPb, but rapidity range -0.1 < y < 0.6 : Anchored to period LHC16s
