@@ -15,8 +15,8 @@ GeneratorCustom()
   ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
 
   // randomly injected particles
-  const int nParticles = 16;
-  particle_inj particleList[16] = { // {name,pdgcode,maxpt,maxy},
+  const int nParticles = 18;
+  particle_inj particleList[18] = { // {name,pdgcode,maxpt,maxy},
     {1,"deuteron",1000010020,6.,0.82},
     {1,"anti-deuteron",-1000010020,6.,0.82},
     {1,"triton",1000010030,6.,0.82},
