@@ -113,6 +113,7 @@ CONFIG_BGEVDIR=""
 CONFIG_SEED="0"
 CONFIG_GENERATOR=""
 CONFIG_BACKGROUND=""
+OVERRIDE_BKG_PATH_RECORD=""
 CONFIG_PROCESS=""
 CONFIG_PROCESSBIN=""
 CONFIG_MAGNET=""
@@ -560,6 +561,21 @@ if [[ $CONFIG_BACKGROUND == *.xml ]]; then
     aliroot -b -q $ALIDPG_ROOT/MC/ExportXMLbackground.C\(\"$CONFIG_BACKGROUND\"\) 2>/dev/null | grep export > xmldump.sh && source xmldump.sh # && rm xmldump.sh    
 fi
 
+### background from AliEn file, copy files locally
+if [[ $CONFIG_BACKGROUND == alien://* ]]; then
+    echo "Copying background files from AliEn to local cache..."
+    mkdir -p BKG
+    alien_cp ${CONFIG_BACKGROUND%galice.root}/*.zip BKG/.
+    for I in BKG/*.zip; do
+	unzip $I -d BKG && rm $I
+    done
+    export OVERRIDE_BKG_PATH_RECORD=$CONFIG_BACKGROUND
+    export CONFIG_BACKGROUND="BKG/galice.root"
+    echo "Content of background local cache:"
+    ls BKG/*
+    echo "================================="
+fi
+
 ### override automatic settings from GRP info if requested
 
 if [[ $OVERRIDE_ENERGY != "" ]]; then
@@ -604,6 +620,7 @@ echo "Unique-ID........ $CONFIG_UID"
 echo "MC seed.......... $CONFIG_SEED"
 echo "============================================"
 echo "Background....... $CONFIG_BACKGROUND"
+echo "Override record.. $OVERRIDE_BKG_PATH_RECORD"
 echo "No. Events....... $CONFIG_NBKG"
 #echo "MC seed.......... $CONFIG_SEED (based on $CONFIG_SEED_BASED)"
 echo "============================================"
