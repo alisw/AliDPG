@@ -21,15 +21,24 @@ GeneratorCustom(TString opt = "")
   Weighting_t weightMode = kNonAnalog;
   AliGenEMlib *emlib = new AliGenEMlib();
 
-  // set internal decayer (for AliGenParam only)
-  AliDecayerPythia* decayerInt = new AliDecayerPythia();
+  AliDecayerPythia* decayerInt = NULL; 
+  AliDecayerPythia* decayerExt = NULL;
+    
+  // set internal decayer (for AliGenParam with Exodus only)
   if(opt.Contains("Exodus")){
+    decayerInt = new AliDecayerPythia();
     Printf("Use Exodus decayer for cocktail");
     decayerInt->SetDecayerExodus();
+    decayerInt->SetForceDecay(kDiElectronEM);
+    decayerInt->Init();
   }
-  decayerInt->SetForceDecay(kDiElectronEM);
-  decayerInt->Init();
   
+  // set external decayer (if Exodus not used, to initialize AliGen Param properly)
+  decayerExt = new AliDecayerPythia();
+  decayerExt->SetForceDecay(kDiElectronEM);
+  decayerExt->Init();
+  gMC->SetExternalDecayer(decayerExt);
+    
   // Pi0
   AliGenParam *pizero = new AliGenParam(nPart, emlib, AliGenEMlib::kPizero,"pizero");
 
@@ -38,7 +47,8 @@ GeneratorCustom(TString opt = "")
   pizero->SetPhiRange(phiMin, phiMax);
   pizero->SetWeighting(weightMode);  // flat pt 
   pizero->SetForceDecay(kDiElectronEM);
-  pizero->SetDecayer(decayerInt);
+  if(decayerInt)
+    pizero->SetDecayer(decayerInt);
   pizero->Init();
     
   // Eta
@@ -48,7 +58,8 @@ GeneratorCustom(TString opt = "")
   eta->SetPhiRange(phiMin, phiMax);
   eta->SetWeighting(weightMode);  // flat pt 
   eta->SetForceDecay(kDiElectronEM);
-  eta->SetDecayer(decayerInt);
+  if(decayerInt)
+    eta->SetDecayer(decayerInt);
   eta->Init();
 
   // Etaprime
@@ -58,7 +69,8 @@ GeneratorCustom(TString opt = "")
   etaprime->SetPhiRange(phiMin, phiMax);
   etaprime->SetWeighting(weightMode);  // flat pt 
   etaprime->SetForceDecay(kDiElectronEM);
-  etaprime->SetDecayer(decayerInt);
+  if(decayerInt)
+    etaprime->SetDecayer(decayerInt);
   etaprime->Init();
 
   // Rho 
@@ -68,7 +80,8 @@ GeneratorCustom(TString opt = "")
   rho->SetPhiRange(phiMin, phiMax);
   rho->SetWeighting(weightMode);  // flat pt 
   rho->SetForceDecay(kDiElectronEM);
-  rho->SetDecayer(decayerInt);
+  if(decayerInt)
+    rho->SetDecayer(decayerInt);
   rho->Init();
   
   // Omega
@@ -78,7 +91,8 @@ GeneratorCustom(TString opt = "")
   omega->SetPhiRange(phiMin, phiMax);
   omega->SetWeighting(weightMode);  // flat pt 
   omega->SetForceDecay(kDiElectronEM);
-  omega->SetDecayer(decayerInt);
+  if(decayerInt)
+    omega->SetDecayer(decayerInt);
   omega->Init();
 
   //Phi
@@ -88,7 +102,8 @@ GeneratorCustom(TString opt = "")
   phi->SetPhiRange(phiMin, phiMax);
   phi->SetWeighting(weightMode);  // flat pt 
   phi->SetForceDecay(kDiElectronEM);
-  phi->SetDecayer(decayerInt);
+  if(decayerInt)
+    phi->SetDecayer(decayerInt);
   phi->Init();
 
   // J/psi 
@@ -98,7 +113,8 @@ GeneratorCustom(TString opt = "")
   jpsi->SetPhiRange(phiMin, phiMax);
   jpsi->SetWeighting(weightMode);  // flat pt 
   jpsi->SetForceDecay(kDiElectron);
-  jpsi->SetDecayer(decayerInt);
+  // if(decayerInt) // not working in current implementation ((TDatabasePDG::Instance()->GetParticle(443))->Width() = 0) 
+  //   jpsi->SetDecayer(decayerInt); 
   jpsi->Init();
 
 
