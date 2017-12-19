@@ -49,6 +49,21 @@ OCDBDefault(Int_t mode)
   Int_t run  = atoi(gSystem->Getenv("CONFIG_RUN"));  
   AliCDBManager* man = AliCDBManager::Instance();
   man->SetDefaultStorage("raw://");
+  
+  if(gSystem->Getenv("CONFIG_OCDBTIMESTAMP"))
+  {
+    TString t = gSystem->Getenv("CONFIG_OCDBTIMESTAMP");
+    TObjArray* list =t.Tokenize("_");
+    UInt_t tU[6];
+    for(Int_t i=0; i<list->GetEntries(); i++)
+    {
+      TString st = ((TObjString)list->At(i)).GetString();
+      tU[i] =(UInt_t)atoi(st.Data());
+    }
+    man->SetMaxDate(TTimeStamp(tU[0], tU[1], tU[2], tU[3], tU[4], tU[5]));
+    printf("*** Setting custom OCDB time stamp %s ***\n", t.Data());
+  }
+  
   man->SetRun(run);
   
   // set detector specific paths
@@ -89,7 +104,8 @@ DefaultSpecificStorage(AliCDBManager *man, Int_t mode)
     // MUON
     "MUON/Align/Data",         Full,     NULL,     // ok!
     // ZDC
-    "ZDC/Align/Data",          Ideal,    Ideal     // ok
+    "ZDC/Align/Data",          Ideal,    Ideal,    // ok
+    "ZDC/Calib/Pedestals",     Ideal,    Ideal     // added (11.12.2017)
   };
   const Int_t nSpecificStorages = sizeof(SpecificStorageList) / (3 * sizeof(Char_t *));
 

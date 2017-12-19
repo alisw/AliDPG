@@ -1,4 +1,4 @@
-void rec(const char *filename="raw.root")
+void rec(const char *filename="raw.root", const char* options="")
 {
   /////////////////////////////////////////////////////////////////////////////////////////
   //
@@ -68,7 +68,9 @@ void rec(const char *filename="raw.root")
   // AliReconstruction settings
   rec.SetWriteESDfriend(kTRUE);
   rec.SetWriteAlignmentData();
-  rec.SetInput(filename);
+  TString filenamewithopt = filename;
+  filenamewithopt += options;
+  rec.SetInput(filenamewithopt.Data());
   rec.SetUseTrackingErrorsForAlignment("ITS");
 
   // Specific AD storage, see https://alice.its.cern.ch/jira/browse/ALIROOT-6056

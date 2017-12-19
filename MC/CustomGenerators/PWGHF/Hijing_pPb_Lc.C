@@ -21,51 +21,16 @@ AliGenerator * GeneratorCustom(TString opt = "")
   hij->SetDecaysOff(0);
   hij->SetSelectAll(1);
 
- //force hijing decays
-//  hij->Init();
-//  THijing *th = hij->GetTHijing();
-  
-//  if (idecay == 0){ // pKpi 
-//    
-//     // Forbid all Lc decays that do not result in pKpi
-//     for (Int_t d=927; d<=940; d++){ 
-//      th->SetMDME(d,1,0);
-//    }
-//    //decay 941 - Delta++ + K-
-//    for(Int_t d=942; d<=943; d++){ 
-//      th->SetMDME(d,1,0);
-//    }
-//    //decay 944 - K* + p 
-//     //decay 945 - p + K + pi
-//    for(Int_t d=946; d<=949; d++){ 
-//      th->SetMDME(d,1,0);
-//    }
-//    //decay 950 - Lambda1520 + pi+
-//    for(Int_t d=951; d<=1004; d++){ 
-//      th->SetMDME(d,1,0);
-//    }
-// }  else if (idecay == 1) { // pK0S
-// 
-//    // Forbid all Lc decays except Lc->Kbar0 + p ====>>> HIJING
-//
-//    for(Int_t d=927; d<=942; d++){ 
-//      th->SetMDME(d,1,0);
-//    }
-//    // decay 943 is Lc->Kbar0 + p
-//    for(Int_t d=944; d<=1004; d++){ 
-//      th->SetMDME(d,1,0);
-//    }
-// } 
  ctl->AddGenerator(hij, "Hijing",1.);
 }
 
   AliGenPythia* pyth = GeneratorPythia6(kPythia6Tune_Perugia2011);
   pyth->SetProcess(kPyCharmppMNRwmi);
-  pyth->SetTriggerParticle(4122);
+  pyth->SetTriggerParticle(4122,999,999,-1,1000); //Lc, etamin, etamax, ptmin, ptmax
+  pyth->SetTriggerY(1.0);
   pyth->SetHeavyQuarkYRange(-1.5,1.5);
   pyth->SetForceDecay(decay[idecay]);  //Force Lc decay mode in PYTHIA
   pyth->SetPtHard(pthardminConfig,pthardmaxConfig);
-  pyth->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
   ctl->AddGenerator(pyth, "Lc PYTHIA", 1.);  
   return ctl;
 }

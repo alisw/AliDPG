@@ -156,6 +156,7 @@ CONFIG_FASTB=""
 CONFIG_VDT=""
 CONFIG_MATERIAL=""
 CONFIG_REMOVETRACKREFS=""
+CONFIG_OCDBTIMESTAMP=""
 
 RUNMODE=""
 
@@ -348,6 +349,9 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--removeTrackRefs" ]; then
         CONFIG_REMOVETRACKREFS="on"
 	export CONFIG_REMOVETRACKREFS
+    elif [ "$option" = "--OCDBTimeStamp" ]; then
+        CONFIG_OCDBTIMESTAMP="$1"
+        export CONFIG_OCDBTIMESTAMP
 #    elif [ "$option" = "--sdd" ]; then
 #        RUNMODE="SDD"
 #	export RUNMODE
@@ -555,6 +559,11 @@ fi
 
 aliroot -b -q $ALIDPG_ROOT/MC/ExportGRPinfo.C\($CONFIG_RUN\) 2>/dev/null | grep export > grpdump.sh && source grpdump.sh # && rm grpdump.sh
 
+### background from .xml collection
+if [[ $CONFIG_BACKGROUND == *.xml ]]; then
+    aliroot -b -q $ALIDPG_ROOT/MC/ExportXMLbackground.C\(\"$CONFIG_BACKGROUND\"\) 2>/dev/null | grep export > xmldump.sh && source xmldump.sh # && rm xmldump.sh    
+fi
+
 ### override automatic settings from GRP info if requested
 
 if [[ $OVERRIDE_ENERGY != "" ]]; then
@@ -739,8 +748,6 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     if [[ $CONFIG_SIMULATION == "EmbedBkg" ]]; then
 	rm -f *.RecPoints.root *.Digits.root
 	ls *.Hits.root | grep -v T0.Hits.root | xargs rm
-    elif [[ $CONFIG_REMOVETRACKREFS == "on" ]]; then
-	 rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root TrackRefs.root
     else
 	rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
     fi
@@ -802,6 +809,10 @@ if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	    mv -f $file $file.qa_aod
 	done
 
+    fi
+
+    if [[ $CONFIG_REMOVETRACKREFS == "on" ]]; then
+	rm -f TrackRefs.root
     fi
 
 fi
