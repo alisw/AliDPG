@@ -2,11 +2,9 @@ AliGenerator *
 GeneratorCustom(TString opt = "")
 {
     AliGenCocktail *ctl  = GeneratorCocktail("Hijing_HF");
-    Float_t randHF = gRandom->Rndm();
-    if(randHF>0.176797){ //Is this needed?
+  
         AliGenerator   *hij  = GeneratorHijing();
         ctl->AddGenerator(hij, "Hijing", 1.);
-    }
     //
     const Char_t *label[2][3] = {
         "chadr PYTHIA", "chadr PYTHIA", "cele PYTHIA",
