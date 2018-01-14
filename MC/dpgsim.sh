@@ -761,8 +761,6 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     if [[ $CONFIG_SIMULATION == "EmbedBkg" ]]; then
 	rm -f *.RecPoints.root *.Digits.root
 	ls *.Hits.root | grep -v T0.Hits.root | xargs rm
-    elif [[ $CONFIG_REMOVETRACKREFS == "on" ]]; then
-	 rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root TrackRefs.root
     else
 	rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
     fi
@@ -808,6 +806,10 @@ if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     for file in *.stat; do
 	mv -f $file $file.aod
     done
+
+    if [[ $CONFIG_REMOVETRACKREFS == "on" ]]; then
+	rm -f TrackRefs.root
+    fi
 
 fi
 
