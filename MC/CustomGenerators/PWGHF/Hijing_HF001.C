@@ -1,6 +1,10 @@
 AliGenerator *
 GeneratorCustom(TString opt = "")
 {
+  AliGenCocktail *ctl  = GeneratorCocktail("Hijing_HF");
+  AliGenerator   *hij  = GeneratorHijing();
+  ctl->AddGenerator(hij, "Hijing", 1.);
+
   const Char_t *label[2][3] = {
     "chadr PYTHIA", "chadr PYTHIA", "cele PYTHIA",
     "bchadr PYTHIA", "bchadr PYTHIA", "bele PYTHIA"
