@@ -350,6 +350,7 @@ while [ ! -z "$1" ]; do
     fi
 done
 
+# export settings (needed, since some arte set to on by default)
 if [ "$CONFIG_FASTB" = "on" ]; then
     export CONFIG_FASTB
 fi
@@ -363,11 +364,15 @@ if [[ $CONFIG_VDT == "on" ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
 fi
 
 # detect VDT math library (if set elsewhere)
-if [[ $LD_PRELOAD == *"libalivdtwrapper.so"* ]]; then
+if [[ $LD_PRELOAD == *"libalivdtwrapper.so"* ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
     CONFIG_VDT="on"
     export CONFIG_VDT
 fi
 
+# if VDT library not available, VDT cannot be used
+if [ ! -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+    CONFIG_VDT=""
+fi
 
 DC_RUN=$CONFIG_RUN
 DC_EVENT=$CONFIG_UID
