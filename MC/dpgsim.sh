@@ -13,7 +13,7 @@ if [ -z "$ALICE_ROOT" ]; then
 fi
 
 # set job and simulation variables as :
-COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig>"
+COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig> --keepTrackRefsFraction <percentage>"
 
 function runcommand(){
     echo -e "\n"
@@ -156,7 +156,9 @@ CONFIG_GEANT4=""
 CONFIG_FASTB="on"
 CONFIG_VDT="on"
 CONFIG_MATERIAL=""
-CONFIG_REMOVETRACKREFS="on"
+CONFIG_KEEPTRACKREFSFRACTION="0"
+CONFIG_REMOVETRACKREFS="off"
+CONFIG_OCDBTIMESTAMP=""
 
 RUNMODE=""
 
@@ -337,8 +339,13 @@ while [ ! -z "$1" ]; do
         CONFIG_FASTB=""
     elif [ "$option" = "--novdt" ]; then
         CONFIG_VDT=""
-    elif [ "$option" = "--keepTrackRefs" ]; then
-        CONFIG_REMOVETRACKREFS=""
+#    elif [ "$option" = "--removeTrackRefs" ]; then
+#        CONFIG_REMOVETRACKREFS="on"
+#	export CONFIG_REMOVETRACKREFS
+    elif [ "$option" = "--keepTrackRefsFraction" ]; then
+	CONFIG_KEEPTRACKREFSFRACTION="$1"
+	export CONFIG_KEEPTRACKREFSFRACTION
+        shift
 #    elif [ "$option" = "--sdd" ]; then
 #        RUNMODE="SDD"
 #	export RUNMODE
@@ -423,6 +430,25 @@ if [ ! -z "$CONFIG_PROCESSBIN" ]; then
     export CONFIG_PROCESS
 
 fi
+
+# >>>------------------ decide if TrackRefs.root should be removed ----------------->>>
+
+if [[ -z $ALIEN_PROC_ID ]] ; then
+    export CONFIG_PROCID=$RANDOM
+    echo "*!  WARNING! ALIEN_PROC_ID is not set, will use random number"
+else
+    export CONFIG_PROCID=$ALIEN_PROC_ID
+fi
+# check consistency of provided (if any) TrackRefs fraction to keep
+if [[ ! $CONFIG_KEEPTRACKREFSFRACTION =~ ^[0-9]+$ ]] ; then
+    echo "Invalid value $CONFIG_KEEPTRACKREFSFRACTION provided for keepTrackRefsFraction"
+    exit 1
+fi
+[[ $CONFIG_KEEPTRACKREFSFRACTION -gt 100 ]] && CONFIG_KEEPTRACKREFSFRACTION="100"
+[[ $((CONFIG_PROCID%100)) -ge $CONFIG_KEEPTRACKREFSFRACTION ]] && CONFIG_REMOVETRACKREFS="on" || CONFIG_REMOVETRACKREFS="off"
+export CONFIG_REMOVETRACKREFS
+
+# <<<------------------ decide if TrackRefs.root should be removed -----------------<<<
 
 # mkdir input
 # mv galice.root ./input/galice.root
@@ -632,6 +658,7 @@ echo "Process.......... $CONFIG_PROCESS"
 echo "No. Events....... $CONFIG_NEVENTS"
 echo "Unique-ID........ $CONFIG_UID"
 echo "MC seed.......... $CONFIG_SEED"
+echo "PROCID........... $CONFIG_PROCID"
 echo "============================================"
 echo "Background....... $CONFIG_BACKGROUND"
 echo "Override record.. $OVERRIDE_BKG_PATH_RECORD"
@@ -643,7 +670,8 @@ echo "GEANT4........... $CONFIG_GEANT4"
 echo "Fast-B........... $CONFIG_FASTB"
 echo "VDT math......... $CONFIG_VDT"
 echo "Material Budget.. $CONFIG_MATERIAL"
-echo "Remove TrackRefs. $CONFIG_REMOVETRACKREFS"
+echo "TrackRefs to keep ${CONFIG_KEEPTRACKREFSFRACTION}%"
+echo "Remove TrackRefs. ${CONFIG_REMOVETRACKREFS} (in this job)"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
 echo "System........... $CONFIG_SYSTEM"
@@ -821,10 +849,11 @@ if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	mv -f $file $file.aod
     done
 
-    if [[ $CONFIG_REMOVETRACKREFS == "on" ]]; then
-	rm -f TrackRefs.root
-    fi
+fi
 
+if [ $CONFIG_REMOVETRACKREFS == "on" ] && [ -f TrackRefs.root ] ; then
+    echo "Removing TrackRefs.root"
+    rm -f TrackRefs.root
 fi
 
 
