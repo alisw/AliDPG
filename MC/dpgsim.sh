@@ -153,19 +153,13 @@ CONFIG_MODE="ocdb,full"
 CONFIG_OCDB="snapshot"
 CONFIG_HLT=""
 CONFIG_GEANT4=""
-CONFIG_FASTB=""
-CONFIG_VDT=""
+CONFIG_FASTB="on"
+CONFIG_VDT="on"
 CONFIG_MATERIAL=""
-CONFIG_REMOVETRACKREFS=""
+CONFIG_REMOVETRACKREFS="on"
 CONFIG_OCDBTIMESTAMP=""
 
 RUNMODE=""
-
-# detect VDT math library
-if [[ $LD_PRELOAD == *"libalivdtwrapper.so"* ]]; then
-    CONFIG_VDT="on"
-    export CONFIG_VDT
-fi
 
 while [ ! -z "$1" ]; do
     option="$1"
@@ -340,16 +334,12 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
 	export CONFIG_GEANT4
-    elif [ "$option" = "--fastB" ]; then
-        CONFIG_FASTB="on"
-	export CONFIG_FASTB
-    elif [ "$option" = "--vdt" ] && [[ $CONFIG_VDT == "" ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
-        CONFIG_VDT="on"
-	export CONFIG_VDT
-	export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
-    elif [ "$option" = "--removeTrackRefs" ]; then
-        CONFIG_REMOVETRACKREFS="on"
-	export CONFIG_REMOVETRACKREFS
+    elif [ "$option" = "--nofastB" ]; then
+        CONFIG_FASTB=""
+    elif [ "$option" = "--novdt" ]; then
+        CONFIG_VDT=""
+    elif [ "$option" = "--keepTrackRefs" ]; then
+        CONFIG_REMOVETRACKREFS=""
     elif [ "$option" = "--OCDBTimeStamp" ]; then
         CONFIG_OCDBTIMESTAMP="$1"
         export CONFIG_OCDBTIMESTAMP
@@ -359,6 +349,30 @@ while [ ! -z "$1" ]; do
 #	shift
     fi
 done
+
+# export settings (needed, since some arte set to on by default)
+if [ "$CONFIG_FASTB" = "on" ]; then
+    export CONFIG_FASTB
+fi
+
+if [ "$CONFIG_REMOVETRACKREFS" = "on" ]; then
+    export CONFIG_REMOVETRACKREFS
+fi
+
+if [[ $CONFIG_VDT == "on" ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+    export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
+fi
+
+# detect VDT math library (if set elsewhere)
+if [[ $LD_PRELOAD == *"libalivdtwrapper.so"* ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+    CONFIG_VDT="on"
+    export CONFIG_VDT
+fi
+
+# if VDT library not available, VDT cannot be used
+if [ ! -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+    CONFIG_VDT=""
+fi
 
 DC_RUN=$CONFIG_RUN
 DC_EVENT=$CONFIG_UID
