@@ -34,6 +34,8 @@ enum EGenerator_t {
   kGeneratorDRgen,
   // AMPT
   kGeneratorAMPT, kGeneratorAMPT_v226t7,
+  // Therminator2
+  kGeneratorTherminator2,
   //
   kGeneratorCustom,
   //
@@ -71,6 +73,8 @@ const Char_t *GeneratorName[kNGenerators] = {
   "DRgen",
   // AMPT
   "AMPT", "AMPT_v226t7",
+  // Therminator2
+  "Therminator2",
   //
   "Custom",
   //
@@ -282,6 +286,10 @@ GeneratorConfig(Int_t tag)
 
  case kGeneratorAMPT_v226t7:
     gen = GeneratorAMPT_v226t7();
+    break;
+
+ case kGeneratorTherminator2:
+    gen = GeneratorTherminator2();
     break;
 
     // Custom
@@ -1317,6 +1325,32 @@ GeneratorAMPT_v226t7()
   gener->SetReader(reader);
   
   return gener;
+}
+
+
+/*** Therminator2 *************************************************/
+
+AliGenerator *
+GeneratorTherminator2()
+{
+    // All the default model parameters in the Therminator2 .ini files can be changed 
+    // using the THERM2_PARAMS_<param_name> variables
+    // One exception is the XML_PATH variable which is part of the configurator
+    // The .ini files are in the Therminator2 distribution (events.ini and fomodel/ contents)
+    // https://github.com/alisw/therminator/tree/alice/v2.0.3
+
+    // Example of setting a custom model
+    //gSystem->Setenv("THERM2_PARAMS_FreezeOutModel", "BWAVT");
+
+    // Example of setting a local xml path for the hydro model
+    //gSystem->Setenv("THERM2_PARAMS_XML_PATH", "lhyquid2dbi/LHCPbPb5500c0005Ti500ti100Tf145.xml");
+
+    // Example of setting a GRID xml path for the hydro model
+    //gSystem->Setenv("THERM2_PARAMS_XML_PATH", "alien:/alice/<rest_of_GRID_PATH>");
+
+    AliGenExtExec* gener = new AliGenExtExec();
+    gener->SetPathScript(gSystem->ExpandPathName("$ALIDPG_ROOT/MC/EXTRA/gen_therm2.sh"));
+    return gener;
 }
 
 /*** COCKTAIL ****************************************************/
