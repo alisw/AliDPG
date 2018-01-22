@@ -3,6 +3,10 @@
  * Generator configuration script
  *
  */
+ 
+#if !defined(__CLING__) || defined(__ROOTCLING__)
+#include "AliGenPythia.h"
+#endif
 
 enum EGenerator_t {
   kGeneratorDefault,
@@ -191,7 +195,9 @@ static TString comment;
 
 /*****************************************************************/
 
-GeneratorConfig(Int_t tag)
+AliGenerator* gg_tmp_gen;
+TString gg_tmp_str;
+void GeneratorConfig(Int_t tag)
 {
 
   AliGenerator *gen = NULL;
@@ -299,16 +305,17 @@ GeneratorConfig(Int_t tag)
       abort();
       return;
     }
-    gen = GeneratorCustom();
+    gROOT->ProcessLine("gg_tmp_gen = GeneratorCustom();");
+    gen = gg_tmp_gen;
     break;
 
     // PWG
   case kGeneratorPWG:
     TString genstr = gSystem->Getenv("CONFIG_GENERATOR");
     TObjArray *oa = genstr.Tokenize(":");
-    TObjString *pwg = oa->At(0);
-    TObjString *pwggen = oa->At(1);
-    TObjString *pwgopt = oa->At(2);
+    TObjString *pwg = (TObjString*) oa->At(0);
+    TObjString *pwggen = (TObjString*) oa->At(1);
+    TObjString *pwgopt = (TObjString*) oa->At(2);
     if (!pwg || !pwggen) {
       printf("ERROR: problem parsing CONFIG_GENERATOR: %s \n", genstr.Data());
       abort();
@@ -326,9 +333,16 @@ GeneratorConfig(Int_t tag)
       return;
     }
     if (pwgopt)
-      gen = GeneratorCustom(pwgopt->String());
+    {
+      gg_tmp_str = pwgopt->String();
+      gROOT->ProcessLine("gg_tmp_gen = GeneratorCustom(gg_tmp_str);");
+      gen = gg_tmp_gen;
+    }
     else
-      gen = GeneratorCustom();
+    {
+      gROOT->ProcessLine("gg_tmp_gen = GeneratorCustom();");
+      gen = gg_tmp_gen;
+    }
     break;
 
   }
@@ -424,7 +438,7 @@ GeneratorPythia6(Int_t tune, Int_t pdgtrig, Float_t etatrig)
   //
   // Trigger particles
   if (pdgtrig != 0) {
-    comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdgtrig)->GetName()));
+//    comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdgtrig)->GetName()));
     pythia->SetTriggerParticle(pdgtrig, etatrig);
   }
   //
@@ -441,7 +455,7 @@ GeneratorPythia6Jets(Int_t tune, Int_t acceptance)
   comment = comment.Append(Form(" | Pythia6 jets (%.1f, %.1f, %d, %.1f)", pthardminConfig, pthardmaxConfig, quenchingConfig, qhatConfig));
   //
   // Pythia
-  AliGenPythia *pythia = GeneratorPythia6(tune);
+  AliGenPythia *pythia = (AliGenPythia*) GeneratorPythia6(tune);
   //
   // jets settings
   pythia->SetProcess(kPyJets);
@@ -455,8 +469,10 @@ GeneratorPythia6Jets(Int_t tune, Int_t acceptance)
   pythia->SetQuench(quenchingConfig);
   switch (quenchingConfig) {
   case 1:
-    Float_t k = 6.e5 * (qhatConfig / 1.7);  //qhat=1.7, k=6e5, default value
-    AliPythia::Instance()->InitQuenching(0., 0.1, k, 0, 0.95, 6);		
+    {
+      Float_t k = 6.e5 * (qhatConfig / 1.7);  //qhat=1.7, k=6e5, default value
+      AliPythia::Instance()->InitQuenching(0., 0.1, k, 0, 0.95, 6);		
+    }
     break;
   case 2:
     pythia->SetPyquenPar(1.,0.1,0,0,1);			
@@ -476,7 +492,7 @@ GeneratorPythia6JetsGammaTrg(Int_t tune, Int_t acceptance)
   comment = comment.Append(Form(" | Pythia6 jets gamma-triggered"));
   //
   // Pythia
-  AliGenPythia *pythia = GeneratorPythia6Jets(tune, kCalorimeterAcceptance_FullDetector);
+  AliGenPythia *pythia = (AliGenPythia*) GeneratorPythia6Jets(tune, kCalorimeterAcceptance_FullDetector);
   //
   //
   // Careful with pT hard limits if triggerParticleInCalo option is on
@@ -518,7 +534,7 @@ GeneratorPythia6GammaJet(Int_t tune, Int_t acceptance)
   comment = comment.Append(Form(" | Pythia6 gamma-jet"));
   //
   // Pythia
-  AliGenPythia *pythia = GeneratorPythia6Jets(tune);
+  AliGenPythia *pythia = (AliGenPythia*) GeneratorPythia6Jets(tune);
   //
   // gamma settings
   pythia->SetProcess(kPyDirectGamma);
@@ -551,7 +567,7 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune, Bool_t HFonly)
   }
   //
   // Pythia
-  AliGenPythia *pythia = GeneratorPythia6(tune);
+  AliGenPythia *pythia = (AliGenPythia*) GeneratorPythia6(tune);
   //
   // heavy process
   switch (process) {
@@ -646,7 +662,7 @@ GeneratorPythia8(Int_t tune, Int_t pdgtrig, Float_t etatrig)
   // Initialize
   pythia->SetEventListRange(-1, 2); 
   (AliPythia8::Instance())->ReadString("Random:setSeed = on");
-  (AliPythia8::Instance())->ReadString(Form("Random:seed = %ld", seedConfig % 900000000)); 
+  (AliPythia8::Instance())->ReadString(Form("Random:seed = %ld", (long) seedConfig % 900000000)); 
   (AliPythia8::Instance())->ReadString("111:mayDecay = on");
   //
   // Tune
@@ -657,7 +673,7 @@ GeneratorPythia8(Int_t tune, Int_t pdgtrig, Float_t etatrig)
   //
   // Trigger particles
   if (pdgtrig != 0) {
-    comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdgtrig)->GetName()));
+//    comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdgtrig)->GetName()));
     pythia->SetTriggerParticle(pdgtrig, etatrig);
   }
   //
@@ -674,7 +690,7 @@ GeneratorPythia8Jets(Int_t tune, Int_t acceptance)
   comment = comment.Append(Form(" | Pythia8 jets (%.1f, %.1f, %d, %.1f)", pthardminConfig, pthardmaxConfig, quenchingConfig, qhatConfig));
   //
   // Pythia
-  AliGenPythiaPlus *pythia = GeneratorPythia8(tune);
+  AliGenPythiaPlus *pythia = (AliGenPythiaPlus*) GeneratorPythia8(tune);
   //
   // jets settings
   pythia->SetProcess(kPyJets);
@@ -689,11 +705,13 @@ GeneratorPythia8Jets(Int_t tune, Int_t acceptance)
   pythia->SetQuench(quenchingConfig);
   switch (quenchingConfig) {
   case 1:
-    Float_t k = 6.e5 * (qhatConfig / 1.7);  //qhat=1.7, k=6e5, default value
-    AliPythia8::Instance()->InitQuenching(0., 0.1, k, 0, 0.95, 6);		
+    {
+      Float_t k = 6.e5 * (qhatConfig / 1.7);  //qhat=1.7, k=6e5, default value
+      AliPythia8::Instance()->InitQuenching(0., 0.1, k, 0, 0.95, 6);		
+    }
     break;
   case 2:
-    pythia->SetPyquenPar(1.,0.1,0,0,1);			
+    //pythia->SetPyquenPar(1.,0.1,0,0,1); //TODO: FixMe - This doesn't exist in AliGenPythiaPlus
     break;
   }
   //
@@ -710,7 +728,7 @@ GeneratorPythia8JetsGammaTrg(Int_t tune, Int_t acceptance)
   comment = comment.Append(Form(" | Pythia8 jets gamma-triggered"));
   //
   // Pythia
-  AliGenPythiaPlus *pythia = GeneratorPythia8Jets(tune, kCalorimeterAcceptance_FullDetector);
+  AliGenPythiaPlus *pythia = (AliGenPythiaPlus*) GeneratorPythia8Jets(tune, kCalorimeterAcceptance_FullDetector);
   //
   //
   // Careful with pT hard limits if triggerParticleInCalo option is on
@@ -752,7 +770,7 @@ GeneratorPythia8GammaJet(Int_t tune, Int_t acceptance)
   comment = comment.Append(Form(" | Pythia8 gamma-jet"));
   //
   // Pythia
-  AliGenPythiaPlus *pythia = GeneratorPythia8Jets(tune);
+  AliGenPythiaPlus *pythia = (AliGenPythiaPlus*) GeneratorPythia8Jets(tune);
   //
   // gamma settings
   pythia->SetProcess(kPyDirectGamma);
@@ -772,7 +790,7 @@ GeneratorPythia8GammaJet(Int_t tune, Int_t acceptance)
 AliGenerator *
 GeneratorPhojet()
 {
-  //
+/*  //
   // Libraries
   //  gSystem->Load("libDPMJET");
   //  gSystem->Load("libTDPMjet");
@@ -819,7 +837,8 @@ GeneratorPhojet()
       dpmjet->SetFragmentProd(kTRUE);
   }
 
-  return dpmjet;
+  return dpmjet;*/
+  return NULL;
 }
 
 /*** EPOSLHC ****************************************************/
@@ -955,7 +974,7 @@ GeneratorHijing()
 
 AliGenerator *
 GeneratorStarlight(){
-  gSystem->Load("libStarLight.so");
+/*  gSystem->Load("libStarLight.so");
   gSystem->Load("libAliStarLight.so");
 
   // Supported processes:
@@ -1164,7 +1183,8 @@ GeneratorStarlight(){
 
   genCocktail->AddGenerator(genStarLight,"StarLight",1.);
   genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
-  return genCocktail;
+  return genCocktail;*/
+  return NULL;
 }
 
 
