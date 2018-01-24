@@ -13,7 +13,7 @@ if [ -z "$ALICE_ROOT" ]; then
 fi
 
 # set job and simulation variables as :
-COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig>"
+COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig> --keepTrackRefsFraction <percentage>"
 
 function runcommand(){
     echo -e "\n"
@@ -153,19 +153,14 @@ CONFIG_MODE="ocdb,full"
 CONFIG_OCDB="snapshot"
 CONFIG_HLT=""
 CONFIG_GEANT4=""
-CONFIG_FASTB=""
-CONFIG_VDT=""
+CONFIG_FASTB="on"
+CONFIG_VDT="on"
 CONFIG_MATERIAL=""
-CONFIG_REMOVETRACKREFS=""
+CONFIG_KEEPTRACKREFSFRACTION="0"
+CONFIG_REMOVETRACKREFS="off"
 CONFIG_OCDBTIMESTAMP=""
 
 RUNMODE=""
-
-# detect VDT math library
-if [[ $LD_PRELOAD == *"libalivdtwrapper.so"* ]]; then
-    CONFIG_VDT="on"
-    export CONFIG_VDT
-fi
 
 while [ ! -z "$1" ]; do
     option="$1"
@@ -340,16 +335,17 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
 	export CONFIG_GEANT4
-    elif [ "$option" = "--fastB" ]; then
-        CONFIG_FASTB="on"
-	export CONFIG_FASTB
-    elif [ "$option" = "--vdt" ] && [[ $CONFIG_VDT == "" ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
-        CONFIG_VDT="on"
-	export CONFIG_VDT
-	export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
-    elif [ "$option" = "--removeTrackRefs" ]; then
-        CONFIG_REMOVETRACKREFS="on"
-	export CONFIG_REMOVETRACKREFS
+    elif [ "$option" = "--nofastB" ]; then
+        CONFIG_FASTB=""
+    elif [ "$option" = "--novdt" ]; then
+        CONFIG_VDT=""
+#    elif [ "$option" = "--removeTrackRefs" ]; then
+#        CONFIG_REMOVETRACKREFS="on"
+#	export CONFIG_REMOVETRACKREFS
+    elif [ "$option" = "--keepTrackRefsFraction" ]; then
+	CONFIG_KEEPTRACKREFSFRACTION="$1"
+	export CONFIG_KEEPTRACKREFSFRACTION
+        shift
     elif [ "$option" = "--OCDBTimeStamp" ]; then
         CONFIG_OCDBTIMESTAMP="$1"
         export CONFIG_OCDBTIMESTAMP
@@ -359,6 +355,30 @@ while [ ! -z "$1" ]; do
 #	shift
     fi
 done
+
+# export settings (needed, since some arte set to on by default)
+if [ "$CONFIG_FASTB" = "on" ]; then
+    export CONFIG_FASTB
+fi
+
+if [ "$CONFIG_REMOVETRACKREFS" = "on" ]; then
+    export CONFIG_REMOVETRACKREFS
+fi
+
+if [[ $CONFIG_VDT == "on" ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+    export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
+fi
+
+# detect VDT math library (if set elsewhere)
+if [[ $LD_PRELOAD == *"libalivdtwrapper.so"* ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+    CONFIG_VDT="on"
+    export CONFIG_VDT
+fi
+
+# if VDT library not available, VDT cannot be used
+if [ ! -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+    CONFIG_VDT=""
+fi
 
 DC_RUN=$CONFIG_RUN
 DC_EVENT=$CONFIG_UID
@@ -413,6 +433,25 @@ if [ ! -z "$CONFIG_PROCESSBIN" ]; then
     export CONFIG_PROCESS
 
 fi
+
+# >>>------------------ decide if TrackRefs.root should be removed ----------------->>>
+
+if [[ -z $ALIEN_PROC_ID ]] ; then
+    export CONFIG_PROCID=$RANDOM
+    echo "*!  WARNING! ALIEN_PROC_ID is not set, will use random number"
+else
+    export CONFIG_PROCID=$ALIEN_PROC_ID
+fi
+# check consistency of provided (if any) TrackRefs fraction to keep
+if [[ ! $CONFIG_KEEPTRACKREFSFRACTION =~ ^[0-9]+$ ]] ; then
+    echo "Invalid value $CONFIG_KEEPTRACKREFSFRACTION provided for keepTrackRefsFraction"
+    exit 1
+fi
+[[ $CONFIG_KEEPTRACKREFSFRACTION -gt 100 ]] && CONFIG_KEEPTRACKREFSFRACTION="100"
+[[ $((CONFIG_PROCID%100)) -ge $CONFIG_KEEPTRACKREFSFRACTION ]] && CONFIG_REMOVETRACKREFS="on" || CONFIG_REMOVETRACKREFS="off"
+export CONFIG_REMOVETRACKREFS
+
+# <<<------------------ decide if TrackRefs.root should be removed -----------------<<<
 
 # mkdir input
 # mv galice.root ./input/galice.root
@@ -622,6 +661,7 @@ echo "Process.......... $CONFIG_PROCESS"
 echo "No. Events....... $CONFIG_NEVENTS"
 echo "Unique-ID........ $CONFIG_UID"
 echo "MC seed.......... $CONFIG_SEED"
+echo "PROCID........... $CONFIG_PROCID"
 echo "============================================"
 echo "Background....... $CONFIG_BACKGROUND"
 echo "Override record.. $OVERRIDE_BKG_PATH_RECORD"
@@ -633,7 +673,8 @@ echo "GEANT4........... $CONFIG_GEANT4"
 echo "Fast-B........... $CONFIG_FASTB"
 echo "VDT math......... $CONFIG_VDT"
 echo "Material Budget.. $CONFIG_MATERIAL"
-echo "Remove TrackRefs. $CONFIG_REMOVETRACKREFS"
+echo "TrackRefs to keep ${CONFIG_KEEPTRACKREFSFRACTION}%"
+echo "Remove TrackRefs. ${CONFIG_REMOVETRACKREFS} (in this job)"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
 echo "System........... $CONFIG_SYSTEM"
@@ -828,10 +869,11 @@ if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
     fi
 
-    if [[ $CONFIG_REMOVETRACKREFS == "on" ]]; then
-	rm -f TrackRefs.root
-    fi
+fi
 
+if [ $CONFIG_REMOVETRACKREFS == "on" ] && [ -f TrackRefs.root ] ; then
+    echo "Removing TrackRefs.root"
+    rm -f TrackRefs.root
 fi
 
 
