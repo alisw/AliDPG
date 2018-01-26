@@ -200,6 +200,18 @@ elif [ "$pass_type" != "cosmics" ]; then
     cp $ALIDPG_ROOT/QA/QAtrainAOD.C .
 fi
 
+# enable vdt library
+if [ -z "$ALIEN_JDL_DISABLEVDTANDFASTB" ]; then
+    if [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+	echo "Use VDT math library"
+	export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
+    else
+	echo "VDT math library requested but not found"
+    fi
+else
+    echo "VDT math library disabled via ALIEN_JDL_DISABLEVDTANDFASTB"
+fi
+
 
 # Extraction of TPC clusters
 if [ "$pass_type" == "ppass" ] && [ "$preclusterizeTPC" = "1" ] && [ "$OCDB_SNAPSHOT_CREATE" != "kTRUE" ] && [ -f raw2clust.C ]; then
