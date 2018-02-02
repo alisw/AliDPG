@@ -24,6 +24,24 @@ void rec(const char *filename="raw.root", const char* options="")
     rec.SetRunLocalReconstruction("ALL");
   } 
 
+  /** fast magnetic field **/
+  Bool_t useFast=kTRUE;
+  if(gSystem->Getenv("ALIEN_JDL_DISABLEVDTANDFASTB")){
+    TString optionFast=gSystem->Getenv("ALIEN_JDL_DISABLEVDTANDFASTB");
+    if(optionFast!=""){
+      printf("Fast magnetic field is disabled via ALIEN_JDL_DISABLEVDTANDFASTB\n");
+      useFast=kFALSE;
+    }
+  }
+  if (useFast && !AliMagF::Class()->GetMethodAny("SetFastFieldDefault")) {
+    printf("ERROR: fast magnetic field is requested, but AliRoot version is not compatible\n");
+    useFast=kFALSE;
+  }
+  if(useFast){
+      printf(">>>>> Using fast magnetic field \n");
+      AliMagF::SetFastFieldDefault(kTRUE);
+  }
+
   // Upload CDB entries from the snapshot (local root file) if snapshot exist
   if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {        
     rec.SetDefaultStorage("local://");
