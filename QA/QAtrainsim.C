@@ -747,7 +747,7 @@ void QAmerge(const char *dir, Int_t stage)
   TStopwatch timer;
   timer.Start();
   TString outputDir = dir;
-  TString outputFiles = "QAresults.root,EventStat_temp.root";
+  TString outputFiles = "QAresults.root,QAresults_AOD.root,EventStat_temp.root,EventStat_temp_AOD.root";
   TString mergeExcludes = "";
   TObjArray *list = outputFiles.Tokenize(",");
   TIter *iter = new TIter(list);
