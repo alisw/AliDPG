@@ -79,7 +79,7 @@ const Char_t *snapshotName[2] = {
   "OCDBrec.root"
 };
 
-CreateSnapshot(Int_t mode)
+void CreateSnapshot(Int_t mode)
 {
 
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
@@ -122,7 +122,7 @@ void CreateSnapshot(const char* snapshotName, const char* rawdata)
 	exit(1);
       }
       reader->NextEvent();
-      int run = reader->GetRunNumber();   
+      run = reader->GetRunNumber();   
       delete reader;
       printf("I-CreateSnapshot: Extracted run number %d from %s\n",run,rawdataS.Data());
     }
