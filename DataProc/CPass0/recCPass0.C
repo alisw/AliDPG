@@ -38,7 +38,7 @@ void recCPass0(const char *filename="raw.root",Int_t nevents=-1, const char *ocd
   AliTPCReconstructor::SetPrimaryZ2XCut(kPrimaryZ2XCut);
   //
   if (gSystem->Getenv("streamLevel")){
-    SetStreamLevel( AliTPCtracker::kStreamErrParam| AliTPCtracker::kStreamTransform);
+    AliTPCReconstructor::SetStreamLevel( AliTPCtracker::kStreamErrParam| AliTPCtracker::kStreamTransform);
   }
   // 2) For ITS
   AliITSReconstructor::SetCheckInvariant(kFALSE); // no invariant check with extended TPC errors
