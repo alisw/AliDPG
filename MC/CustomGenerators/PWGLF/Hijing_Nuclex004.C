@@ -1,9 +1,16 @@
 AliGenerator *
 GeneratorCustom()
 {
-  AliGenCocktail *ctl   = GeneratorCocktail("Hijing_Nuclex004");
-  AliGenerator   *hij   = GeneratorHijing();
-  ctl->AddGenerator(hij,  "Hijing", 1.);
+
+  TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
+
+  AliGenCocktail *ctl = GeneratorCocktail("Hijing_Nuclex004");
+
+  if(!simulation.Contains("Embed")){
+    AliGenerator *hij = GeneratorHijing();
+    ctl->AddGenerator(hij, "Hijing", 1.);
+  }
+  
   AliGenerator   *nu1a  = Generator_Nuclex(0xF, kFALSE, 10);
   AliGenerator   *nu1b  = Generator_Nuclex(0xF, kTRUE, 10);
   AliGenerator   *nu2a  = Generator_Nuclex(0x10, kFALSE, 40);
