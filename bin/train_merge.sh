@@ -95,9 +95,22 @@ if [ -f "QAtrain_duo.C" ]; then
         
         if [ $exitcode -ne 0 ]; then
              echo "QAtrain_duo.C / empty exited with code $exitcode" > validation_error.message
+             exit $exitcode
         fi
 
-        exit $exitcode
+        echo "* Running QA duo on _AOD" >&2
+        time aliroot -b -q -x QAtrain_duo.C\(\"_AOD\",$runNum,\"$1\",$2\) >stdout.AOD.log 2>stderr.AOD.log
+
+        exitcode=$?
+
+        echo "* QAtrain_duo.C(_AOD) finished with exit code: $exitcode"
+
+        if [ $exitcode -ne 0 ]; then
+            echo "QAtrain_duo.C / AOD exited with code $exitcode" > validation_error.message
+            exit $exitcode
+        fi
+
+        exit 0
     fi
 else 
     echo "No QAtrain_duo.C macro found"
