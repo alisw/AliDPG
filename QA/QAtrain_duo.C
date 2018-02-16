@@ -722,10 +722,12 @@ void QAmerge(const char *suffix, const char *dir, Int_t stage)
   gROOT->cd();
   mgr->StartAnalysis("gridterminate", tree);
   if (strlen(suffix)) {
-     if (gSystem->Exec(Form("mv trending.root trending%s.root", suffix)))
+    if(!strstr(suffix,"AOD") && !strstr(suffix,"aod")){ // when merging the AOD QA output we should not rename trending.root
+      if (gSystem->Exec(Form("mv trending.root trending%s.root", suffix)))
         ::Error("QAmerge", "File trending.root was not produced");
-     if (gSystem->Exec(Form("mv event_stat.root event_stat%s.root", suffix)))
-        ::Error("QAmerge", "File trending.root was not produced");
+    }
+    if (gSystem->Exec(Form("mv event_stat.root event_stat%s.root", suffix)))
+      ::Error("QAmerge", "File event_stat.root was not produced");
   }   
   ofstream out;
   out.open("outputs_valid", ios::out);
