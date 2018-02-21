@@ -114,7 +114,7 @@ Bool_t doPIDqa        = 1; //new
 Bool_t doFMD          = 1; // new
 Bool_t doPHOS         = 1; // new
 Bool_t doPHOSTrig     = 1; // new
-Bool_t doEMCAL        = 0;
+Bool_t doEMCAL        = 1;
 Bool_t doFBFqa        = 1; // new - not ported yet to revision
 Bool_t doAD           = 1; // new AD detector
 
@@ -645,8 +645,12 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   // EMCAL QA (Gustavo Conesa)
   // 
   if (doEMCAL) {
-     gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/EMCALTasks/macros/AddTaskEMCALTriggerQA.C");
-     AliAnalysisTaskEMCALTriggerQA *emctrig = AddTaskEMCALTriggerQA();
+     // gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/EMCALTasks/macros/AddTaskEMCALTriggerQA.C");
+     // AliAnalysisTaskEMCALTriggerQA *emctrig = AddTaskEMCALTriggerQA();
+     gROOT->LoadMacro("$ALICE_PHYSICS/PWG/EMCAL/macros/AddTaskEmcalTriggerMakerNew.C");
+     AliEmcalTriggerMakerTask *emctrigmaker = AddTaskEmcalTriggerMakerNew("EmcalTriggers");
+     gROOT->LoadMacro("$ALICE_PHYSICS/PWG/EMCAL/macros/AddTaskEmcalTriggerQA_QAtrain.C");
+     AliEmcalTriggerQATask *emctrig = AddTaskEmcalTriggerQA_QAtrain(run_number);
 //     emctrig->GetRecoUtils()->SwitchOffBadChannelsRemoval();
   }   
   //     
