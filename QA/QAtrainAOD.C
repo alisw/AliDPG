@@ -123,6 +123,7 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
   if(gSystem->Exec(Form("ls %s > /dev/null 2>&1",macroName.Data()))==0){
     gROOT->LoadMacro(macroName.Data());
     AliAnalysisTaskSEHFQA* dqaHF = AddTaskBasicHFQA(AliAnalysisTaskSEHFQA::kD0toKpi,isMC,"QA");
+    dqaHF->GetCutObject()->SetUseCentrality(AliRDHFCuts::kCentOff);
   }else{
     printf("Macro %s not found -> task will not be executed\n",macroName.Data());
   }
