@@ -1,4 +1,8 @@
 
+void CopyCPass(const char* alienFileList="alien.list", const char* outputFileList="local.list", Int_t timeOut=10);
+void MergeCPass(const Char_t *list, TString component, TString outputFileName="CalibObjects.root");
+void MakeFileList(const char *searchdir, const char *pattern, const char* outputFileName="calib.list", Int_t timeOut=10);
+
 void mergeByComponent(TString       component,
                       const Char_t* fileList="calib.list",
                       const Char_t* apath=0, 
@@ -21,8 +25,6 @@ void mergeByComponent(TString       component,
   printf("Executing mergeByComponent.C\n");
   gROOT->Macro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass0/LoadLibraries.C");
   TH1::AddDirectory(0);
-
-  Int_t fileDownloadTimeOut=10;
 
   /* copy only */ 
   if (component == "COPY") {
@@ -84,14 +86,14 @@ void MergeCPass(const Char_t *list, TString component, TString outputFileName="C
   /* merge */
   merger.IterTXT(list, outputFileName.Data(), kFALSE);
   /* notify */
-  gSystem->Exec(Form("touch %s_merge_done", component.Data()));
+  gSystem->Exec(TString::Format("touch %s_merge_done", component.Data()));
   return;
 }
 
 //___________________________________________________________________
 void MakeFileList(const char *searchdir, const char *pattern, const char* outputFileName="calib.list", Int_t timeOut=10)
 {
-  gSystem->Setenv("XRDCLIENTMAXWAIT",Form("%d",timeOut));
+  gSystem->Setenv("XRDCLIENTMAXWAIT",TString::Format("%d",timeOut));
   gEnv->SetValue("XNet.RequestTimeout", timeOut);
   gEnv->SetValue("XNet.ConnectTimeout", timeOut);
   gEnv->SetValue("XNet.TransactionTimeout", timeOut);
@@ -100,7 +102,7 @@ void MakeFileList(const char *searchdir, const char *pattern, const char* output
   TGrid::Connect("alien");
 
   TString command;
-  command = Form("find %s %s", searchdir, pattern);
+  command = TString::Format("find %s %s", searchdir, pattern);
   cerr<<"command: "<<command<<endl;
   TGridResult *res = gGrid->Command(command);
   if (!res) return;
@@ -108,7 +110,7 @@ void MakeFileList(const char *searchdir, const char *pattern, const char* output
   TMap *map = 0;
 
   ofstream outputFile;
-  outputFile.open(Form(outputFileName));
+  outputFile.open(outputFileName);
 
   //first identify the largest file and put it at the beginning
   Int_t largestFileSize=0;
@@ -143,7 +145,7 @@ void MakeFileList(const char *searchdir, const char *pattern, const char* output
       break;
     }
 
-    TString src=Form("%s",objs->GetString().Data());
+    TString src=TString::Format("%s",objs->GetString().Data());
     outputFile << src.Data()<< endl;
   }
   outputFile.close();
@@ -154,7 +156,7 @@ void MakeFileList(const char *searchdir, const char *pattern, const char* output
 void CopyCPass(const char* alienFileList="alien.list", const char* outputFileList="local.list", Int_t timeOut=10)
 {
   //copy all the alien files to local
-  gSystem->Setenv("XRDCLIENTMAXWAIT",Form("%d",timeOut));
+  gSystem->Setenv("XRDCLIENTMAXWAIT",TString::Format("%d",timeOut));
   gEnv->SetValue("XNet.RequestTimeout", timeOut);
   gEnv->SetValue("XNet.ConnectTimeout", timeOut);
   gEnv->SetValue("XNet.TransactionTimeout", timeOut);
@@ -165,7 +167,7 @@ void CopyCPass(const char* alienFileList="alien.list", const char* outputFileLis
   ifstream inputFile;
   inputFile.open(alienFileList);
   ofstream outputFile;
-  outputFile.open(Form(outputFileList));
+  outputFile.open(outputFileList);
 
   if (!inputFile.is_open())
   {
