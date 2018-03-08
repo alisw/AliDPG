@@ -34,12 +34,15 @@ for el in "${array[@]}"; do
 	    else
 		tagNumber=$(echo $mainTag | sed 's/^0*//')
 		echo tagNumber=$tagNumber
-		if [ $tagNumber -lt 23 ]; then echo "we cannot enable VDT, main revision is too low ($tagNumber, it should be at least 23)";
+		if [ $tagNumber -lt 23 ]; then
+		    echo "we cannot enable VDT, main revision is too low ($tagNumber, it should be at least 23)";
+		    exit 1
 		else
 		    echo "Enabling VDT"
 		    #
 		    # Here we should enable VDT
 		    #
+		    exit 0
 		fi
 	    fi
 	fi
@@ -51,5 +54,6 @@ for el in "${array[@]}"; do
 done
 if [ "$found" != true ]; then
     echo "We have found no AliPhysics package, we cannot enable VDT"
+    exit 1
 fi
 
