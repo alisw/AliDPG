@@ -48,6 +48,54 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     AliMagF::SetFastFieldDefault(kTRUE);
  }
 
+  /** Flag to impose or revert at run-time the bugfix in AliITStrackerMI **/
+  Bool_t doWithBug=kFALSE;
+  if(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR")){
+    Int_t year = atoi(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"));
+    if(year<2018){
+      if(gSystem->Getenv("ALIEN_JDL_LPMANCHORPASSNAME")){
+	TString passname=gSystem->Getenv("ALIEN_JDL_LPMANCHORPASSNAME");
+	// the bug should be imposed for reconstructions done with AliRoot<v5-09-21
+	// pass1 of data colelcted before 2017
+	// pass4 of pp 2010
+	// pass2_UD of Pb-Pb MC
+	if(passname.Contains("pass1")) doWithBug=kTRUE;
+	if(year==2010 && passname.Contains("pass4")) doWithBug=kTRUE;
+	if(year==2015 && passname.Contains("pass2_UD")) doWithBug=kTRUE;
+      }
+    }
+  }
+  Bool_t hasBugFixed=kFALSE;
+  if(gSystem->Getenv("ALIEN_JDL_PACKAGES")){
+    // Bug fix introfuced in v5-09-21
+    // No need to re-impose it for AliRoot<v5-09-21
+    TString packg=gSystem->Getenv("ALIEN_JDL_PACKAGES");
+    Int_t pos1=packg.Index("AliPhysics");
+    TString subs=packg(pos1,packg.Length()-pos1);
+    Int_t pos2=subs.Index("VO_ALICE");
+    if(pos2<=0) pos2=subs.Length();
+    TString aliph=subs(0,pos2);
+    Int_t ver,n1,n2;
+    Char_t str2[20];
+    sscanf(aliph.Data(),"AliPhysics::v%d-%d-%02d%s",&ver,&n1,&n2,str2);
+    if(ver>5)  hasBugFixed=kTRUE;
+    else if(ver==5){
+      if(n1>9 || (n1==9 && n2>=21)) hasBugFixed=kTRUE;
+    }
+  }
+  if(!hasBugFixed){
+    printf("AliRoot version <v5-09-21 no need to impose the fAfterV0 bug\n");
+  }
+  if(hasBugFixed && doWithBug){
+    if (AliITStrackerMI::Class()->GetMethod("SetFixBugAfterV0","false")) {
+      printf("Call SetFixBugAfterV0(kFALSE) to impose the fAfterV0 bug to match the corresponding raw data pass\n");
+      gROOT->ProcessLine("AliITStrackerMI::SetFixBugAfterV0(kFALSE)");
+    }else{
+      printf("ERROR: imposing of V0 bug in AliITStrackerMI is requested, but AliRoot version is not compatible\n");
+      abort();
+    }
+  }
+
   TString system = gSystem->Getenv("CONFIG_SYSTEM");
   
   // subsidiary handler for mc-to-mc embedding
