@@ -187,6 +187,7 @@ AliGenerator *GeneratorStarlight();
 AliGenerator *GeneratorDRgen();
 AliGenerator *GeneratorAMPT();
 AliGenerator *GeneratorAMPT_v226t7();
+AliGenerator *GeneratorTherminator2();
 
 /*****************************************************************/
 
@@ -790,7 +791,11 @@ GeneratorPythia8GammaJet(Int_t tune, Int_t acceptance)
 AliGenerator *
 GeneratorPhojet()
 {
-/*  //
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+  printf("ERROR: DPMJET not yet compatible with ROOT 6\n");
+  return NULL;
+#else
+  //
   // Libraries
   //  gSystem->Load("libDPMJET");
   //  gSystem->Load("libTDPMjet");
@@ -837,8 +842,8 @@ GeneratorPhojet()
       dpmjet->SetFragmentProd(kTRUE);
   }
 
-  return dpmjet;*/
-  return NULL;
+  return dpmjet;
+#endif
 }
 
 /*** EPOSLHC ****************************************************/
@@ -974,7 +979,11 @@ GeneratorHijing()
 
 AliGenerator *
 GeneratorStarlight(){
-/*  gSystem->Load("libStarLight.so");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+  printf("ERROR: Starlight not yet compatible with ROOT 6!\n");
+  return NULL;
+#else
+  gSystem->Load("libStarLight.so");
   gSystem->Load("libAliStarLight.so");
 
   // Supported processes:
@@ -1183,8 +1192,8 @@ GeneratorStarlight(){
 
   genCocktail->AddGenerator(genStarLight,"StarLight",1.);
   genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
-  return genCocktail;*/
-  return NULL;
+  return genCocktail;
+#endif
 }
 
 
