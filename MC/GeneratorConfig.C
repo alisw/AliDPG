@@ -165,6 +165,7 @@ GetCalorimeterAcceptance(Int_t acceptance, Float_t &etaMax, Float_t &phiMin, Flo
 // functions
 AliGenerator *GeneratorCocktail(TString name);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax, Float_t phimin = 0., Float_t phimax = 360.); 
+AliGenParam* GeneratorParam(int n, int pdg, double ptmin, double ptmax, double ymin, double ymax, AliDecayer* dec = 0x0, double phimin = 0., double phimax = 360.);
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
 AliGenerator *GeneratorPythia6Jets(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
 AliGenerator *GeneratorPythia6JetsGammaTrg(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
@@ -1412,6 +1413,19 @@ GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t y
   box->SetPhiRange(phimin, phimax);
   return box;
 }
+
+/*** PARAMETRIC INJECTOR ****************************************/
+AliGenParam* GeneratorParam(int n, int pdg, double ptmin, double ptmax, double ymin, double ymax, AliDecayer* dec, double phimin, double phimax) {
+  comment = comment.Append(Form(" | injected (pdg=%d, %d particles)", pdg, n));
+  AliGenParam* gen = new AliGenParam(Form("%i",pdg), n, pdg);
+  gen->SetYRange(ymin,ymax);
+  gen->SetPtRange(ptmin,ptmax);
+  gen->SetPhiRange(phimin,phimax);
+  if (dec) gen->SetDecayer(dec);
+  return gen;
+}
+
+
 
 /*** JPSI -> EE ****************************************************/
 

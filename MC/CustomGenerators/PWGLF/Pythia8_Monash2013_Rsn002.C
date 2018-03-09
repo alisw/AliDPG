@@ -6,16 +6,7 @@ struct particle_inj {
   double maxy;
 };
 
-AliGenParam* GeneratorParam(int n, int pdg, double ptmin, double ptmax, double ymin, double ymax, AliDecayer* dec = 0x0) {
-  AliGenParam* gen = new AliGenParam(Form("%i",pdg), n, pdg);
-  gen->SetYRange(ymin,ymax);
-  gen->SetPtRange(ptmin,ptmax);
-  if (dec) gen->SetDecayer(dec);
-  return gen;
-}
-
-AliGenerator *
-GeneratorCustom()
+AliGenerator* GeneratorCustom()
 {
   AliGenCocktail *ctl = GeneratorCocktail("Monash2013_RsnNcl002");
   // pythia8
