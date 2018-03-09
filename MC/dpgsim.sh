@@ -634,6 +634,14 @@ fi
 if [ $CONFIG_TRIGGER = "Custom.cfg" ] && [ ! -f Custom.cfg ]; then
     echo "Custom.cfg trigger configuration requested, file not present"
     exit 1
+elif
+    aliroot -b -q "$ALIDPG_ROOT/MC/CheckTOF.C($CONFIG_RUN)"
+    checkTOF=$?
+    if [ $checkTOF == 1 ]; then
+	#echo "TOF was triggering but not in data acquisition --> Using custom trigger from AliDPG"
+	echo "TOF was not in data acquisition --> Using custom trigger from AliDPG"
+	$CONFIG_TRIGGER="$ALIDPG_ROOT/Utils/Custom.cfg"
+    fi
 fi
 
 ##########################################
