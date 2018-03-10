@@ -631,10 +631,10 @@ if [[ $OVERRIDE_TRIGGER != "" ]]; then
 fi
 
 ### check if custom trigger configuration file Custom.cfg is present
-if [ $CONFIG_TRIGGER = "Custom.cfg" ] && [ ! -f Custom.cfg ]; then
+if [ "$CONFIG_TRIGGER" == "Custom.cfg" ] && [ ! -f Custom.cfg ]; then
     echo "Custom.cfg trigger configuration requested, file not present"
     exit 1
-elif
+else
     aliroot -b -q "$ALIDPG_ROOT/MC/CheckTOF.C($CONFIG_RUN)"
     checkTOF=$?
     if [ $checkTOF == 1 ]; then
