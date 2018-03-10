@@ -83,7 +83,11 @@ void CreateSnapshot(Int_t mode)
 {
 
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+  #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
   gInterpreter->ProcessLine(TString::Format("OCDBConfig(kOCDBDefault, %d);", mode));
+  #else
+  gInterpreter->ProcessLine(TString::Format("OCDBConfig(%d, %d);", kOCDBDefault, mode));
+  #endif
   CreateSnapshot(snapshotName[mode]);
   
 }
