@@ -23,14 +23,11 @@ void recCPass0(const char *filename="raw.root",Int_t nevents=-1, const char *ocd
 
   TString cdbMode = gSystem->Getenv("OCDB_SNAPSHOT_CREATE");
   if (cdbMode == "kTRUE") {
-    // macro to configure the snapshot
-    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
     // macro to create the snapshot
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/CreateSnapshot.C");
   }
   
   // main macro
-  Printf("\n\n running reco");
   gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/CPass0/main_recCPass0.C(\"%s\", %d, \"%s\", \"%s\")", filename, nevents, ocdb, options));
   
 }

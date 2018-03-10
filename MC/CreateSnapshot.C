@@ -82,14 +82,14 @@ const Char_t *snapshotName[2] = {
 void CreateSnapshot(Int_t mode)
 {
 
-  OCDBConfig(kOCDBDefault, mode);
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+  gInterpreter->ProcessLine(TString::Format("OCDBConfig(kOCDBDefault, %d);", mode));
   CreateSnapshot(snapshotName[mode]);
   
 }
 
 void CreateSnapshot(const char* snapshotName, const char* rawdata)
 {
-  OCDBConfig(kOCDBDefault, 0);
   TStopwatch sw;
   sw.Start();
   AliCDBManager* man = AliCDBManager::Instance();

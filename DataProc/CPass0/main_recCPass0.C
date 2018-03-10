@@ -12,8 +12,6 @@
 void main_recCPass0(const char *filename="raw.root",Int_t nevents=-1, const char *ocdb="raw://", const char* options="?Trigger=kCalibBarrel")
 {
 
-  Printf("\n\n in main_recCPass0");
-
   if (gSystem->Getenv("ALIROOT_FORCE_COREDUMP"))
   {
     printf("ALIROOT_FORCE_COREDUMP set\n");
