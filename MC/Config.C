@@ -215,6 +215,13 @@ ProcessEnvironment()
 	break;
       }
     if (!valid) {
+      TString triggerConfigString(gSystem->Getenv("CONFIG_TRIGGER"));
+      if(triggerConfigString.Contains("Custom.cfg")){
+	triggerConfig = kTriggerCustom;
+	valid = kTRUE;
+      }
+    }
+    if (!valid) {
       printf(">>>>> Unknown trigger configuration: %s \n", gSystem->Getenv("CONFIG_TRIGGER"));
       abort();
     }
