@@ -640,7 +640,8 @@ elif [[ $OVERRIDE_TRIGGER == "" ]]; then
     if [ $checkTOF == 1 ]; then
 	#echo "TOF was triggering but not in data acquisition --> Using custom trigger from AliDPG"
 	echo "TOF was not in data acquisition --> Using custom trigger from AliDPG"
-	CONFIG_TRIGGER="$ALIDPG_ROOT/Utils/Custom.cfg"
+	cp $ALIDPG_ROOT/Utils/Custom.cfg .
+	CONFIG_TRIGGER="Custom.cfg"
     fi
 fi
 
