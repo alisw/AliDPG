@@ -22,12 +22,12 @@ function setFreezeoutXml
     then
         # Downloading the GRID file to fomodel/
         alien_cp $1 fomodel/
-
-        BASENAME=$(basename $1)
-        export THERM2_PARAMS_FreezeFile="$BASENAME"
     else
-        export THERM2_PARAMS_FreezeFile="$1"
+        # If it's not a GRID path, just copy the file to fomodel
+        cp $1 fomodel/
     fi
+    BASENAME=$(basename $1)
+    export THERM2_PARAMS_FreezeFile="$BASENAME"
 
 } 
 
