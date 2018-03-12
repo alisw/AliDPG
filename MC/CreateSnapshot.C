@@ -13,6 +13,8 @@
 #include "TStopwatch.h"
 #endif
 
+#include "OCDBConfig.C"
+
 void CreateSnapshot(const char* snapshotName=0, const char* rawdata=0);
 
 
@@ -82,18 +84,14 @@ const Char_t *snapshotName[2] = {
 void CreateSnapshot(Int_t mode)
 {
 
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
-  #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-  gInterpreter->ProcessLine(TString::Format("OCDBConfig(kOCDBDefault, %d);", mode));
-  #else
-  gInterpreter->ProcessLine(TString::Format("OCDBConfig(%d, %d);", kOCDBDefault, mode));
-  #endif
+  OCDBConfig(kOCDBDefault, mode);
   CreateSnapshot(snapshotName[mode]);
   
 }
 
 void CreateSnapshot(const char* snapshotName, const char* rawdata)
 {
+
   TStopwatch sw;
   sw.Start();
   AliCDBManager* man = AliCDBManager::Instance();
