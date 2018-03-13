@@ -68,6 +68,8 @@ Int_t iTPC    = 1;
 Int_t iTRD    = 1;
 Int_t iVZERO  = 1;
 Int_t iZDC    = 1;
+Int_t iMFT    = 0;
+Int_t iFIT    = 0;
   
 void DetectorDefault();
 void DetectorMuon();

@@ -39,7 +39,7 @@ void OCDBConfig(Int_t tag, Int_t type)
       abort();
       return;
     }
-    gROOT->ProcessLine("OCDBCustom();");
+    gROOT->ProcessLine(Form("OCDBCustom(%d);",type));
     break;
     
   }
