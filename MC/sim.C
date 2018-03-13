@@ -8,6 +8,14 @@
 /*****************************************************************/
 /*****************************************************************/
 
+#if !defined(__CLING__) || defined(__ROOTCLING__)
+#include "TSystem.h"
+#include "TROOT.h"
+#include "AliSimulation.h"
+#endif
+
+#include "SimulationConfig.C"
+
 void sim() 
 {
 
@@ -17,13 +25,12 @@ void sim()
     nev = atoi(gSystem->Getenv("CONFIG_NEVENTS"));
 
   // simulation configuration
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/SimulationConfig.C");
-  Int_t simulationConfig = kSimulationDefault;
+  ESimulation_t simulationConfig = kSimulationDefault;
   if (gSystem->Getenv("CONFIG_SIMULATION")) {
     Bool_t valid = kFALSE;
     for (Int_t isim = 0; isim < kNSimulations; isim++)
       if (strcmp(gSystem->Getenv("CONFIG_SIMULATION"), SimulationName[isim]) == 0) {
-        simulationConfig = isim;
+        simulationConfig = (ESimulation_t) isim;
         valid = kTRUE;
         break;
       }
@@ -40,6 +47,8 @@ void sim()
     printf(">>>>> Config.C macro detected in CWD, using that one \n");
     config_macro = Form("%s/Config.C", gSystem->pwd());
   }
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Config_LoadLibraries.C");
+  gROOT->ProcessLine("Config_LoadLibraries();");
   AliSimulation sim(config_macro.Data());
 
   /* configuration */

@@ -8,6 +8,10 @@
 /*****************************************************************/
 /*****************************************************************/
 
+#if !defined(__CLING__) || defined(__ROOTCLING__)
+#include "TGeant3TGeo.h"
+#endif
+
 // global variables
 
 static Int_t   runNumber       = 0;         // run number
@@ -16,7 +20,7 @@ static Int_t   magnetConfig    = 0;         // magnetic field
 static Int_t   detectorConfig  = 0;         // detector
 static Int_t   generatorConfig = 0;         // MC generator
 static Float_t energyConfig    = 0.;        // CMS energy
-static Float_t triggerConfig   = 0.;        // trigger
+static Int_t triggerConfig   = 0.;        // trigger
 static Int_t   pdgConfig       = 0;         // PDG value 
 static Float_t bminConfig      = 0.;        // impact parameter min
 static Float_t bmaxConfig      = 20.;       // impact parameter max
@@ -39,6 +43,13 @@ static Int_t   quenchingConfig = 0;         // quenching
 static Float_t qhatConfig      = 1.7;       // q-hat
 static Bool_t  isGeant4        = kFALSE;    // geant4 flag
 
+#include "DetectorConfig.C"
+#include "GeneratorConfig.C"
+
+void ProcessEnvironment();
+void CreateGAlice();
+void GeneratorOptions();
+
 /*****************************************************************/
 
 void
@@ -46,8 +57,6 @@ Config()
 {
 
   /* initialise */
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/DetectorConfig.C");
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/GeneratorConfig.C");
   ProcessEnvironment();
 
   /* verbose */
@@ -81,9 +90,6 @@ Config()
   printf(">>>>>           geant4: %d \n", isGeant4);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
 
-  /* load libraries */
-  LoadLibraries();
-
   /* setup geant3 */
   if (!isGeant4) new TGeant3TGeo("C++ Interface to Geant3");
 
@@ -102,7 +108,7 @@ Config()
       geant4config_macro = Form("%s/Geant4Config.C", gSystem->pwd());
     }
     gROOT->LoadMacro(geant4config_macro.Data());
-    Geant4Config();
+    gROOT->ProcessLine("Geant4Config();");
   }
 
   /* configure MC generator */
@@ -319,40 +325,6 @@ ProcessEnvironment()
   if (gSystem->Getenv("CONFIG_GEANT4"))
     isGeant4 = kTRUE;
   
-}
-
-/*****************************************************************/
-
-void
-LoadLibraries()
-{
-
-  // get generator string 
-  TString genstr = gSystem->Getenv("CONFIG_GENERATOR");
-  // check if needs Phojet/Dpmjet
-  Bool_t isDpmjet = kFALSE;
-  if (genstr.Contains("dpmjet", TString::kIgnoreCase) || genstr.Contains("phojet", TString::kIgnoreCase)) {
-    isDpmjet = kTRUE;
-    printf(">>>>> Phojet/Dpmjet libraries receipt \n");
-  }
-
-  gSystem->Load("liblhapdf");
-  gSystem->Load("libEGPythia6");
-  // Phojet/DPMjet with PYTHIA 6.2.14
-  if (isDpmjet) {
-    gSystem->Load("libpythia6");
-  }
-  else { 
-    gSystem->Load("libpythia6_4_25");
-  }
-  gSystem->Load("libAliPythia6");
-  // hack to make Phojet/DPMjet work
-  if (isDpmjet) {
-    gSystem->Load("libDPMJET");
-    gSystem->Load("libTDPMjet");    
-  } 
-  gSystem->Load("libgeant321");
-
 }
 
 /*****************************************************************/

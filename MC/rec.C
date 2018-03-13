@@ -8,11 +8,12 @@
 /*****************************************************************/
 /*****************************************************************/
 
+#include "ReconstructionConfig.C"
+
 void rec() 
 {
 
   // reconstruction configuration
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/ReconstructionConfig.C");
   Int_t reconstructionConfig = kReconstructionDefault;
   if (gSystem->Getenv("CONFIG_RECONSTRUCTION")) {
     Bool_t valid = kFALSE;
