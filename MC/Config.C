@@ -8,7 +8,7 @@
 /*****************************************************************/
 /*****************************************************************/
 
-#if !defined(__CLING__) || defined(__ROOTCLING__)
+#if !(defined(__CLING__)  || defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
 #include "TGeant3TGeo.h"
 #endif
 
@@ -43,8 +43,10 @@ static Int_t   quenchingConfig = 0;         // quenching
 static Float_t qhatConfig      = 1.7;       // q-hat
 static Bool_t  isGeant4        = kFALSE;    // geant4 flag
 
-#include "DetectorConfig.C"
-#include "GeneratorConfig.C"
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#include "MC/DetectorConfig.C"
+#include "MC/GeneratorConfig.C"
+#endif
 
 void ProcessEnvironment();
 void CreateGAlice();
@@ -57,6 +59,12 @@ Config()
 {
 
   /* initialise */
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else  
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/DetectorConfig.C");
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/GeneratorConfig.C");
+#endif
   ProcessEnvironment();
 
   /* verbose */
@@ -89,6 +97,12 @@ Config()
   printf(">>>>>      random seed: %d \n", seedConfig);
   printf(">>>>>           geant4: %d \n", isGeant4);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else  
+  LoadLibraries();
+#endif
 
   /* setup geant3 */
   if (!isGeant4) new TGeant3TGeo("C++ Interface to Geant3");
@@ -326,6 +340,42 @@ ProcessEnvironment()
     isGeant4 = kTRUE;
   
 }
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else
+LoadLibraries()
+{
+
+  // get generator string 
+  TString genstr = gSystem->Getenv("CONFIG_GENERATOR");
+  // check if needs Phojet/Dpmjet
+  Bool_t isDpmjet = kFALSE;
+  if (genstr.Contains("dpmjet", TString::kIgnoreCase) || genstr.Contains("phojet", TString::kIgnoreCase)) {
+    isDpmjet = kTRUE;
+    printf(">>>>> Phojet/Dpmjet libraries receipt \n");
+  }
+
+  gSystem->Load("liblhapdf");
+  gSystem->Load("libEGPythia6");
+  // Phojet/DPMjet with PYTHIA 6.2.14
+  if (isDpmjet) {
+    gSystem->Load("libpythia6");
+  }
+  else { 
+    gSystem->Load("libpythia6_4_25");
+  }
+  gSystem->Load("libAliPythia6");
+  // hack to make Phojet/DPMjet work
+  if (isDpmjet) {
+    gSystem->Load("libDPMJET");
+    gSystem->Load("libTDPMjet");    
+  } 
+  gSystem->Load("libgeant321");
+
+}
+#endif
+
 
 /*****************************************************************/
 

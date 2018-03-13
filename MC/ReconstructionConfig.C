@@ -8,7 +8,7 @@
 /*****************************************************************/
 /*****************************************************************/
 
-#if !defined(__CLING__) || defined(__ROOTCLING__)
+#if (!defined(__CLING__) && !defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
 #include "AliMCEventHandler.h"
 #include "AliMagF.h"
 #endif

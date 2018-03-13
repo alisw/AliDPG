@@ -14,7 +14,9 @@
 #include "AliSimulation.h"
 #endif
 
-#include "$ALIDPG_ROOT/MC/SimulationConfig.C"
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#include "SimulationConfig.C"
+#endif
 
 void sim() 
 {
@@ -23,7 +25,13 @@ void sim()
   Int_t nev = 200;
   if (gSystem->Getenv("CONFIG_NEVENTS"))
     nev = atoi(gSystem->Getenv("CONFIG_NEVENTS"));
-
+  
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/SimulationConfig.C");
+#endif
+  
   // simulation configuration
   ESimulation_t simulationConfig = kSimulationDefault;
   if (gSystem->Getenv("CONFIG_SIMULATION")) {
