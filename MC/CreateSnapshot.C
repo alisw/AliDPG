@@ -1,4 +1,4 @@
-#if !defined(__CINT__) || defined(__MAKECINT__)
+#if !(defined(__CLING__)  || defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
 #include <TSystem.h>
 #include <TMap.h>
 #include <TObjArray.h>
@@ -13,7 +13,10 @@
 #include "TStopwatch.h"
 #endif
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
 #include "OCDBConfig.C"
+#endif
+
 
 void CreateSnapshot(const char* snapshotName=0, const char* rawdata=0);
 
@@ -83,7 +86,11 @@ const Char_t *snapshotName[2] = {
 
 void CreateSnapshot(Int_t mode)
 {
-
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+#endif  
   OCDBConfig(kOCDBDefault, mode);
   CreateSnapshot(snapshotName[mode]);
   
