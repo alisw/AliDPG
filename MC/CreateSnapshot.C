@@ -90,8 +90,9 @@ void CreateSnapshot(Int_t mode)
   // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
 #else
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
-#endif  
-  OCDBConfig(kOCDBDefault, mode);
+#endif
+  TString ocdbCustom = gSystem->Getenv("CONFIG_OCDBCUSTOM");
+  OCDBConfig(ocdbCustom.IsNull() ? kOCDBDefault : kOCDBCustom, mode);
   CreateSnapshot(snapshotName[mode]);
   
 }
