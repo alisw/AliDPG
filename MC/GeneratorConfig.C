@@ -998,6 +998,7 @@ GeneratorStarlight(){
   // kTwoGammaToRhoRho
   // kTwoGammaToF2
   // kCohRhoToPi
+  // kCohRhoToPiWithCont
   // kCohRhoToPiFlat
   // kCohPhiToKa
   // kCohJpsiToMu
@@ -1011,6 +1012,7 @@ GeneratorStarlight(){
   // kCohUpsilonToMu
   // kCohUpsilonToEl
   // kIncohRhoToPi
+  // kIncohRhoToPiWithCont
   // kIncohRhoToPiFlat
   // kIncohPhiToKa
   // kIncohJpsiToMu
@@ -1091,42 +1093,44 @@ GeneratorStarlight(){
     Float_t     wmax;
     Float_t     dy;
   } slConfig[] = {
-    {"kTwoGammaToMuLow",    1,      13,  292,  0.4, 15.0, 0.01 }, // from 0.4 to 15 GeV
-    {"kTwoGammaToElLow",    1,      11,  292,  0.4, 15.0, 0.01 }, // from 0.4 to 15 GeV
-    {"kTwoGammaToMuMedium", 1,      13,  264,  1.8, 15.0, 0.01 }, // from 1.8 to 15 GeV
-    {"kTwoGammaToElMedium", 1,      11,  264,  1.8, 15.0, 0.01 }, // from 1.8 to 15 GeV
-    {"kTwoGammaToMuHigh",   1,      13,  220,  4.0, 15.0, 0.01 }, // from 4.0 to 15 GeV
-    {"kTwoGammaToElHigh",   1,      11,  220,  4.0, 15.0, 0.01 }, // from 4.0 to 15 GeV
-    {"kTwoGammaToRhoRho",   1,      33,   20, -1.0, -1.0, 0.01 }, //
-    {"kTwoGammaToF2",       1,     225,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohRhoToPi",         3,     113, 1200, -1.0, -1.0, 0.02 }, //
-    {"kCohRhoToPiFlat",     3,     113,    1, -1.0,  2.5, 0.02 }, //
-    {"kCohPhiToKa",         2,     333,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohJpsiToMu",        2,  443013,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohJpsiToEl",        2,  443011,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohJpsiToElRad",     2,  443011,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohJpsiToProton",    2, 4432212,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohPsi2sToMu",       2,  444013,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohPsi2sToEl",       2,  444011,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohPsi2sToMuPi",     2,  444013,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohPsi2sToElPi",     2,  444011,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohUpsilonToMu",     2,  553013,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohUpsilonToEl",     2,  553011,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohRhoToPi",       4,     113, 1200, -1.0, -1.0, 0.02 }, //
-    {"kIncohRhoToPiFlat",   4,     113,    1, -1.0,  2.5, 0.02 }, //
-    {"kIncohPhiToKa",       4,     333,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohJpsiToMu",      4,  443013,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohJpsiToEl",      4,  443011,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohJpsiToElRad",   4,  443011,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohJpsiToProton",  4, 4432212,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohPsi2sToMu",     4,  444013,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohPsi2sToEl",     4,  444011,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohPsi2sToMuPi",   4,  444013,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohPsi2sToElPi",   4,  444011,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohUpsilonToMu",   4,  553013,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohUpsilonToEl",   4,  553011,   20, -1.0, -1.0, 0.01 }, //
- // {"kCohRhoPrime",        3,      0,   20,  -1.0, -1.0, 0.01 }, //
- // {"kIncohRhoPrime",      4,      0,   20,  -1.0, -1.0, 0.01 }, //
+    {"kTwoGammaToMuLow",     1,      13,  292,  0.4, 15.0, 0.01 }, // from 0.4 to 15 GeV
+    {"kTwoGammaToElLow",     1,      11,  292,  0.4, 15.0, 0.01 }, // from 0.4 to 15 GeV
+    {"kTwoGammaToMuMedium",  1,      13,  264,  1.8, 15.0, 0.01 }, // from 1.8 to 15 GeV
+    {"kTwoGammaToElMedium",  1,      11,  264,  1.8, 15.0, 0.01 }, // from 1.8 to 15 GeV
+    {"kTwoGammaToMuHigh",    1,      13,  220,  4.0, 15.0, 0.01 }, // from 4.0 to 15 GeV
+    {"kTwoGammaToElHigh",    1,      11,  220,  4.0, 15.0, 0.01 }, // from 4.0 to 15 GeV
+    {"kTwoGammaToRhoRho",    1,      33,   20, -1.0, -1.0, 0.01 }, //
+    {"kTwoGammaToF2",        1,     225,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohRhoToPi",          3,     113, 1200, -1.0, -1.0, 0.02 }, //
+    {"kCohRhoToPiWithCont",  3,     913, 1200, -1.0, -1.0, 0.02 }, //
+    {"kCohRhoToPiFlat",      3,     113,    1, -1.0,  2.5, 0.02 }, //
+    {"kCohPhiToKa",          2,     333,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToMu",         2,  443013,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToEl",         2,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToElRad",      2,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToProton",     2, 4432212,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohPsi2sToMu",        2,  444013,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohPsi2sToEl",        2,  444011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohPsi2sToMuPi",      2,  444013,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohPsi2sToElPi",      2,  444011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohUpsilonToMu",      2,  553013,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohUpsilonToEl",      2,  553011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohRhoToPi",        4,     113, 1200, -1.0, -1.0, 0.02 }, //
+    {"kIncohRhoToPiWithCont",4,     913, 1200, -1.0, -1.0, 0.02 }, //
+    {"kIncohRhoToPiFlat",    4,     113,    1, -1.0,  2.5, 0.02 }, //
+    {"kIncohPhiToKa",        4,     333,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToMu",       4,  443013,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToEl",       4,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToElRad",    4,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToProton",   4, 4432212,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohPsi2sToMu",      4,  444013,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohPsi2sToEl",      4,  444011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohPsi2sToMuPi",    4,  444013,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohPsi2sToElPi",    4,  444011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohUpsilonToMu",    4,  553013,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohUpsilonToEl",    4,  553011,   20, -1.0, -1.0, 0.01 }, //
+ // {"kCohRhoPrime",         3,      0,   20,  -1.0, -1.0, 0.01 }, //
+ // {"kIncohRhoPrime",       4,      0,   20,  -1.0, -1.0, 0.01 }, //
   };
   const Int_t nProcess = sizeof(slConfig)/sizeof(SLConfig);
   Int_t idx = -1;
