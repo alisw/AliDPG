@@ -1,6 +1,6 @@
 struct particle_inj {
   int n;
-  TString name;
+  char name[32];
   int pdg;
   double maxpt;
   double maxy;
@@ -29,11 +29,12 @@ AliGenerator* GeneratorCustom()
   };
 
   AliDecayerPythia *dec = new AliDecayerPythia;
+  AliPDG::AddParticlesToPdgDataBase();
 
   ctl->UseSingleInjectionPerEvent();
   for (int idx = 0; idx < nParticles; ++idx) {
     AliGenerator   *inj = GeneratorParam(particleList[idx].n, particleList[idx].pdg, 0., particleList[idx].maxpt,-particleList[idx].maxy, particleList[idx].maxy,dec);
-    ctl->AddGenerator(inj, (particleList[idx].name + " injector").Data(), 1.);
+    ctl->AddGenerator(inj, (TString(particleList[idx].name) + " injector").Data(), 1.);
   }
   return ctl;
 }
