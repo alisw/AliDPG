@@ -1,4 +1,4 @@
-AliGenerator * GeneratorCustom(string xmlPath) {
+AliGenerator * GeneratorCustom(TString xmlPath) {
 
   // ====================================================
   // set environment variables
@@ -7,8 +7,10 @@ AliGenerator * GeneratorCustom(string xmlPath) {
   gSystem->Setenv("THERM2_PARAMS_FreezeOutModel", "Lhyquid3D");
 
   // expand and set freezeout xml path for the selected model
-  string path = AliDataFile::GetFileName(xmlPath);
-  gSystem->Setenv("THERM2_PARAMS_XML_PATH", path.c_str());
+  string fullPath = AliDataFile::GetFileName(xmlPath.Data());
+  if(fullPath == "")
+    fullPath = xmlPath;
+  gSystem->Setenv("THERM2_PARAMS_XML_PATH", fullPath.c_str());
   
   // ====================================================
   // create Therminator2 generator
