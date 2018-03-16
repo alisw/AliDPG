@@ -13,7 +13,7 @@ if [ -z "$ALICE_ROOT" ]; then
 fi
 
 # set job and simulation variables as :
-COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig> --keepTrackRefsFraction <percentage> --ocdbCustom"
+COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig> --keepTrackRefsFraction <percentage> --ocdbCustom --purifyKineOff"
 
 function runcommand(){
     echo -e "\n"
@@ -152,6 +152,7 @@ CONFIG_AOD=""
 CONFIG_MODE="ocdb,full"
 CONFIG_OCDB="snapshot"
 CONFIG_OCDBCUSTOM=""
+CONFIG_PURIFYKINEOFF=""
 CONFIG_HLT=""
 CONFIG_GEANT4=""
 CONFIG_FASTB="on"
@@ -328,6 +329,9 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--ocdbCustom" ]; then
 	CONFIG_OCDBCUSTOM="1"
 	export CONFIG_OCDBCUSTOM
+    elif [ "$option" = "--purifyKineOff" ]; then
+	CONFIG_PURIFYKINEOFF="1"
+	export CONFIG_PURIFYKINEOFF
     elif [ "$option" = "--hlt" ]; then
         CONFIG_HLT="$1"
 	export CONFIG_HLT

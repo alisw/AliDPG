@@ -42,6 +42,7 @@ static Float_t pttrigmaxConfig = -1.;       // pt-trigger max
 static Int_t   quenchingConfig = 0;         // quenching
 static Float_t qhatConfig      = 1.7;       // q-hat
 static Bool_t  isGeant4        = kFALSE;    // geant4 flag
+static Bool_t  purifyKine      = kTRUE;     // purifyKine flag
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
 #include "MC/DetectorConfig.C"
@@ -96,6 +97,7 @@ Config()
   printf(">>>>>   crossing angle: %f \n", crossingConfig);
   printf(">>>>>      random seed: %d \n", seedConfig);
   printf(">>>>>           geant4: %d \n", isGeant4);
+  printf(">>>>>       purifyKine: %d \n", purifyKine);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
@@ -128,6 +130,8 @@ Config()
   /* configure MC generator */
   GeneratorConfig(generatorConfig);
   GeneratorOptions();
+
+  if (!purifyKine) gAlice->GetMCApp())->PurifyLimits(80., 80.);
 }
 
 /*****************************************************************/
@@ -338,7 +342,11 @@ ProcessEnvironment()
   isGeant4 = kFALSE;
   if (gSystem->Getenv("CONFIG_GEANT4"))
     isGeant4 = kTRUE;
-  
+
+  // PurifyKine OFF
+  purifyKine = kTRUE;
+  if (gSystem->Getenv("CONFIG_PURIFYKINEOFF"))
+    purifyKine = kFALSE;
 }
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
