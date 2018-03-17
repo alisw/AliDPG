@@ -55,13 +55,22 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     if(year<2018){
       if(gSystem->Getenv("ALIEN_JDL_LPMANCHORPASSNAME")){
 	TString passname=gSystem->Getenv("ALIEN_JDL_LPMANCHORPASSNAME");
+	TString periodname=gSystem->Getenv("CONFIG_PERIOD");
 	// the bug should be imposed for reconstructions done with AliRoot<v5-09-21
 	// pass1 of data colelcted before 2017
 	// pass4 of pp 2010
-	// pass2_UD of Pb-Pb MC
+	// pass2, pass3 and pass4 of LHC15n
+	// pass2_UD an lowIR passes of Pb-Pb LHC15o
 	if(passname.Contains("pass1")) doWithBug=kTRUE;
 	if(year==2010 && passname.Contains("pass4")) doWithBug=kTRUE;
-	if(year==2015 && passname.Contains("pass2_UD")) doWithBug=kTRUE;
+	if(periodname=="LHC15n"){
+	  if(passname=="pass4" || passname=="pass3" || passname=="pass2") doWithBug=kTRUE;
+	}
+	if(periodname=="LHC15o"){
+	  if(passname.Contains("pass5_lowIR") || passname.Contains("pass4_lowIR") ||
+	     passname.Contains("pass3_lowIR") || passname.Contains("pass2_lowIR") ||
+	     passname.Contains("pass2_UD")) doWithBug=kTRUE;
+	}
       }
     }
   }
