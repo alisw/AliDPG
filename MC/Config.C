@@ -131,7 +131,7 @@ Config()
   GeneratorConfig(generatorConfig);
   GeneratorOptions();
 
-  if (!purifyKine) gAlice->GetMCApp())->PurifyLimits(80., 80.);
+  if (!purifyKine) gAlice->GetMCApp()->PurifyLimits(80., 80.);
 }
 
 /*****************************************************************/
