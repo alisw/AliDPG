@@ -40,6 +40,8 @@ enum EGenerator_t {
   kGeneratorAMPT, kGeneratorAMPT_v226t7,
   // Therminator2
   kGeneratorTherminator2,
+  // Herwig7
+  kGeneratorHerwig7,
   //
   kGeneratorCustom,
   //
@@ -79,6 +81,8 @@ const Char_t *GeneratorName[kNGenerators] = {
   "AMPT", "AMPT_v226t7",
   // Therminator2
   "Therminator2",
+  // Herwig7
+  "Herwig7",
   //
   "Custom",
   //
@@ -181,6 +185,7 @@ AliGenerator *GeneratorPythia8JetsGammaTrg(Int_t tune = 0, Int_t acceptance = kC
 AliGenerator *GeneratorPythia8GammaJet(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
+AliGenerator *GeneratorHerwig7();
 AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
@@ -298,6 +303,10 @@ void GeneratorConfig(Int_t tag)
 
  case kGeneratorTherminator2:
     gen = GeneratorTherminator2();
+    break;
+
+  case kGeneratorHerwig7:
+    gen = GeneratorHerwig7();
     break;
 
     // Custom
@@ -920,6 +929,27 @@ GeneratorEPOSLHC()
   return gener;
 }
 
+/*** HERWIG7 ***************************************************/
+AliGenerator *
+GeneratorHerwig7()
+{
+  // run Herwig7
+  TString fifoname = "herwigeventfifo";
+  gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
+  gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
+  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_herwig.sh %s &> gen_herwig.log &",
+          fifoname.Data()));
+
+  //
+  // connect HepMC reader
+  AliGenReaderHepMC *reader = new AliGenReaderHepMC();
+  reader->SetFileName("herwigeventfifo");
+  AliGenExtFile *gener = new AliGenExtFile(-1);
+  gener->SetName(Form("Herwig7_%s", systemConfig.Data()));
+  gener->SetReader(reader);
+  return gener;
+}
+
 /*** HIJING ****************************************************/
 
 AliGenerator * 
@@ -1472,17 +1502,19 @@ GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t y
   return box;
 }
 
+
 /*** PARAMETRIC INJECTOR ****************************************/
 AliGenParam* GeneratorParam(int n, int pdg, double ptmin, double ptmax, double ymin, double ymax, AliDecayer* dec, double phimin, double phimax) {
   comment = comment.Append(Form(" | injected (pdg=%d, %d particles)", pdg, n));
+/*
   AliGenParam* gen = new AliGenParam(Form("%i",pdg), n, pdg);
   gen->SetYRange(ymin,ymax);
   gen->SetPtRange(ptmin,ptmax);
   gen->SetPhiRange(phimin,phimax);
   if (dec) gen->SetDecayer(dec);
-  return gen;
+*/
+  return 0x0;
 }
-
 
 
 /*** JPSI -> EE ****************************************************/
