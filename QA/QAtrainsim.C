@@ -277,6 +277,30 @@ void AddAnalysisTasks(const char *cdb_location)
 {
   AliAnalysisManager *mgr = AliAnalysisManager::GetAnalysisManager();
   mgr->SetCommonFileName("QAresults.root");
+  // Fixes/protections for specific AliRoot Versions
+  // ESD track QA can be run for AliPhysics >= v5-09-14
+  // PHOS QA tasks need different arguments starting for AliPhysics >= v5-09-24
+  Bool_t disableESDtrackQA=kTRUE;
+  Bool_t useEmptyStringForPHOS=kFALSE;
+  if(gSystem->Getenv("ALIEN_JDL_PACKAGES")){
+    TString packg=gSystem->Getenv("ALIEN_JDL_PACKAGES");
+    Int_t pos1=packg.Index("AliPhysics");
+    TString subs=packg(pos1,packg.Length()-pos1);
+    Int_t pos2=subs.Index("VO_ALICE");
+    if(pos2<=0) pos2=subs.Length();
+    TString aliph=subs(0,pos2);
+    Int_t ver,n1,n2;
+    Char_t str2[20];
+    sscanf(aliph.Data(),"AliPhysics::v%d-%d-%02d%s",&ver,&n1,&n2,str2);
+    if(ver>5){
+      disableESDtrackQA=kFALSE;
+      useEmptyStringForPHOS=kTRUE;
+    }else if(ver==5){
+      if(n1>9 || (n1==9 && n2>=14)) disableESDtrackQA=kFALSE;
+      if(n1>9 || (n1==9 && n2>=24)) useEmptyStringForPHOS=kTRUE;
+    }
+  }
+
   // Statistics task
   mgr->AddStatisticsTask(kTriggerMask);
   //
@@ -454,32 +478,9 @@ void AddAnalysisTasks(const char *cdb_location)
   //
   // Global tracks + V0s QA
   //
-  if(doESDTracks) {
-    // protection for bug fixed in v5-09-14
-    Bool_t disable=kTRUE;
-    if(gSystem->Getenv("ALIEN_JDL_PACKAGES")){
-      TString packg=gSystem->Getenv("ALIEN_JDL_PACKAGES");
-      TObjArray* pkgs=packg.Tokenize("##");
-      Int_t np=pkgs->GetEntries();
-      Int_t ver,n1,n2;
-      Char_t str2[20];
-      for(Int_t i=0; i<np; i++){
-	TObjString* str=(TObjString*)pkgs->At(i);
-	TString s=str->GetString();
-	if(s.Contains("AliPhysics")){
-	  s.ReplaceAll("VO_ALICE@","");
-	  sscanf(s.Data(),"AliPhysics::v%d-%d-%d-%s",&ver,&n1,&n2,str2);
-	  if(ver>=5 && n1>=9 && n2>=14){
-	    printf("%s -> enable ESD track QA\n",s.Data());
-	    disable=kFALSE;
-	  }else{
-	    disable=kTRUE;
-	    printf("%s -> disable ESD track QA\n",s.Data());
-	  }
-	}
-      }
-    }
-    if(!disable){
+  if(doESDTracks){
+    if(disableESDtrackQA) printf("AliAnalysisTaskCheckESDTracks switched off due to AliPhysics<v5-09-14\n");
+    else{
       gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskCheckESDTracks.C");
       AliAnalysisTaskCheckESDTracks* taskestr=AddTaskCheckESDTracks("QA",kFALSE,kTRUE,kTRUE);
       taskestr->SetPtBinning(160,0.,40.);
@@ -687,11 +688,15 @@ void AddAnalysisTasks(const char *cdb_location)
   if (doPHOS) {
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/PHOSTasks/CaloCellQA/macros/AddTaskCaloCellsQA.C");
     //AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = AddTaskCaloCellsQA(4, 1, NULL,"PHOSCellsQA_AnyInt");
-    AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_AnyInt");
+    AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = 0x0;
+    if(useEmptyStringForPHOS) taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, "","PHOSCellsQA_AnyInt");
+    else taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_AnyInt");
     taskPHOSCellQA1->SelectCollisionCandidates(kTriggerMask);
     taskPHOSCellQA1->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
     //AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = AddTaskCaloCellsQA(4, 1, NULL,"PHOSCellsQA_PHI7"); 
-    AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_PHI7");
+    AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = 0x0;
+    if(useEmptyStringForPHOS)  taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, "","PHOSCellsQA_PHI7");
+    else taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_PHI7");
     taskPHOSCellQA2->SelectCollisionCandidates(AliVEvent::kPHI7);
     taskPHOSCellQA2->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
     // Pi0 QA fo PbPb
@@ -702,7 +707,9 @@ void AddAnalysisTasks(const char *cdb_location)
   } 
    if (doPHOSTrig) {
      gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/PHOSTasks/PHOS_TriggerQA/macros/AddTaskPHOSTriggerQA.C");
-     AliAnalysisTaskPHOSTriggerQA *taskPHOSTrig = AddTaskPHOSTriggerQA(NULL);
+     AliAnalysisTaskPHOSTriggerQA *taskPHOSTrig = 0x0;
+     if(useEmptyStringForPHOS) taskPHOSTrig = AddTaskPHOSTriggerQA("");
+     else taskPHOSTrig = AddTaskPHOSTriggerQA(NULL);
   }   
   //
   // EMCAL QA (Gustavo Conesa)
