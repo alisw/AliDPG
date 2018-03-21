@@ -185,6 +185,27 @@ echo "* Printing ALL env variables"
 printenv
 echo ""
 
+
+# enable vdt library
+
+$ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
+echo "Let's check if we can enable VDT"
+enablevdt=$?
+if [ $enablevdt == 0 ]; then 
+    echo "According to the package versioning, we can enable VDT; let's check the JDL"
+    if [ -z "$ALIEN_JDL_DISABLEVDT" ]; then
+	if [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+	    echo "Use VDT math library"
+	    export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
+	else
+	    echo "VDT math library requested but not found"
+	fi
+    else
+	echo "VDT math library disabled via ALIEN_JDL_DISABLEVDT"
+    fi
+fi
+
+
 timeUsed=0
 
 # Extraction of TPC clusters - only if not in OCDB snapshot mode, and if requested, and if the rawToClust.C macro is there

@@ -60,6 +60,25 @@ void main_recCPass1(const char *filename="raw.root",Int_t nevents=-1, const char
     // rec.SetOption("TPC","useRAWorHLT"); // removed for LHC16i, since we are running with HLT clusters
   }
 
+  /** fast magnetic field **/
+  Bool_t useFast=kTRUE;
+  if(gSystem->Getenv("ALIEN_JDL_DISABLEFASTB")){
+    TString optionFast=gSystem->Getenv("ALIEN_JDL_DISABLEFASTB");
+    if(optionFast!=""){
+      printf("Fast magnetic field is disabled via ALIEN_JDL_DISABLEFASTB\n");
+      useFast=kFALSE;
+    }
+  }
+  if (useFast && !AliMagF::Class()->GetMethodAny("SetFastFieldDefault")) {
+    printf("ERROR: fast magnetic field is requested, but AliRoot version is not compatible\n");
+    useFast=kFALSE;
+  }
+  if(useFast){
+      printf(">>>>> Using fast magnetic field \n");
+      AliMagF::SetFastFieldDefault(kTRUE);
+  }
+
+
   // Upload CDB entries from the snapshot (local root file) if snapshot exist
   if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {        
     rec.SetCDBSnapshotMode("OCDB.root");
