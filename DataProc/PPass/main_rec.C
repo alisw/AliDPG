@@ -26,10 +26,10 @@ void main_rec(const char *filename="raw.root", const char* options="")
 
   /** fast magnetic field **/
   Bool_t useFast=kTRUE;
-  if(gSystem->Getenv("ALIEN_JDL_DISABLEVDTANDFASTB")){
-    TString optionFast=gSystem->Getenv("ALIEN_JDL_DISABLEVDTANDFASTB");
+  if(gSystem->Getenv("ALIEN_JDL_DISABLEFASTB")){
+    TString optionFast=gSystem->Getenv("ALIEN_JDL_DISABLEFASTB");
     if(optionFast!=""){
-      printf("Fast magnetic field is disabled via ALIEN_JDL_DISABLEVDTANDFASTB\n");
+      printf("Fast magnetic field is disabled via ALIEN_JDL_DISABLEFASTB\n");
       useFast=kFALSE;
     }
   }
