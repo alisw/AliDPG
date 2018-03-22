@@ -21,7 +21,7 @@ void makeOCDB(Int_t runNumber, TString  targetOCDBstorage="", TString sourceOCDB
   }
 
   // config calib train
-  gROOT->LoadMacro("$ALICE_PHYSICS_ROOT6/PWGPP/CalibMacros/CPass0/ConfigCalibTrain.C");
+  gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass0/ConfigCalibTrain.C");
 
   // main macro
   gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/CPass0/main_makeOCDB.C(%d, \"%s\", \"%s\", %d)", runNumber, targetOCDBstorage.Data(), sourceOCDBstorage.Data(), detectorBitsQualityFlag));

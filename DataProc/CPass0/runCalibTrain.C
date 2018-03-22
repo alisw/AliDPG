@@ -6,7 +6,7 @@ void runCalibTrain(Int_t runNumber, const char* inFileName = "AliESDs.root", con
   //
 
   // needed libraries
-  //gROOT->Macro("$ALICE_PHYSICS_ROOT6/PWGPP/CalibMacros/CPass0/LoadLibraries.C");
+  //gROOT->Macro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass0/LoadLibraries.C");
 
   // include path (still needed for ROOT5 but not for ROOT6)
   gSystem->SetIncludePath("-I$ALICE_PHYSICS/include -I$ALICE_ROOT/include");
