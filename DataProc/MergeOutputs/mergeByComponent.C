@@ -51,7 +51,7 @@ void mergeByComponent(TString       component,
 
 //___________________________________________________________________
 
-void MergeCPass(const Char_t *list, TString component, TString outputFileName="CalibObjects.root")
+void MergeCPass(const Char_t *list, TString component, TString outputFileName)
 {
   //AliTPCcalibTimeGain::SetMergeEntriesCut(2000000);
   //AliTPCcalibGainMult::SetMergeEntriesCut(2000000);
@@ -91,7 +91,7 @@ void MergeCPass(const Char_t *list, TString component, TString outputFileName="C
 }
 
 //___________________________________________________________________
-void MakeFileList(const char *searchdir, const char *pattern, const char* outputFileName="calib.list", Int_t timeOut=10)
+void MakeFileList(const char *searchdir, const char *pattern, const char* outputFileName, Int_t timeOut)
 {
   gSystem->Setenv("XRDCLIENTMAXWAIT",TString::Format("%d",timeOut));
   gEnv->SetValue("XNet.RequestTimeout", timeOut);
@@ -153,7 +153,7 @@ void MakeFileList(const char *searchdir, const char *pattern, const char* output
 }
 
 //___________________________________________________________________
-void CopyCPass(const char* alienFileList="alien.list", const char* outputFileList="local.list", Int_t timeOut=10)
+void CopyCPass(const char* alienFileList, const char* outputFileList, Int_t timeOut)
 {
   //copy all the alien files to local
   gSystem->Setenv("XRDCLIENTMAXWAIT",TString::Format("%d",timeOut));
