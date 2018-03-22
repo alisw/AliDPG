@@ -206,6 +206,32 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   Bool_t iall = (!ibarrel)&(!iouter);
   AliAnalysisManager *mgr = AliAnalysisManager::GetAnalysisManager();
   mgr->SetCommonFileName(Form("QAresults%s.root",suffix));
+
+  // Fixes/protections for specific AliRoot Versions
+  // ESD track QA can be run for AliPhysics >= v5-09-14
+  // PHOS QA tasks need different arguments starting for AliPhysics >= v5-09-24
+  Bool_t disableESDtrackQA=kTRUE;
+  Bool_t useEmptyStringForPHOS=kFALSE;
+  if(gSystem->Getenv("ALIEN_JDL_PACKAGES")){
+    TString packg=gSystem->Getenv("ALIEN_JDL_PACKAGES");
+    Int_t pos1=packg.Index("AliPhysics");
+    TString subs=packg(pos1,packg.Length()-pos1);
+    Int_t pos2=subs.Index("VO_ALICE");
+    if(pos2<=0) pos2=subs.Length();
+    TString aliph=subs(0,pos2);
+    Int_t ver,n1,n2;
+    Char_t str2[20];
+    sscanf(aliph.Data(),"AliPhysics::v%d-%d-%02d%s",&ver,&n1,&n2,str2);
+    printf("XXXXXXXXX=> %s\n",aliph.Data());
+    if(ver>5){
+      disableESDtrackQA=kFALSE;
+      useEmptyStringForPHOS=kTRUE;
+    }else if(ver==5){
+      if(n1>9 || (n1==9 && n2>=14)) disableESDtrackQA=kFALSE;
+      if(n1>9 || (n1==9 && n2>=24)) useEmptyStringForPHOS=kTRUE;
+    }
+  }
+
   // Statistics task
   if (doStatistics) mgr->AddStatisticsTask(kTriggerMask);
 
@@ -391,31 +417,8 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   //
 
   if(doESDTracks && (ibarrel || iall)) {
-    // protection for bug fixed in v5-09-14
-    Bool_t disable=kTRUE;
-    if(gSystem->Getenv("ALIEN_JDL_PACKAGES")){
-      TString packg=gSystem->Getenv("ALIEN_JDL_PACKAGES");
-      TObjArray* pkgs=packg.Tokenize("##");
-      Int_t np=pkgs->GetEntries();
-      Int_t ver,n1,n2;
-      Char_t str2[20];
-      for(Int_t i=0; i<np; i++){
-	TObjString* str=(TObjString*)pkgs->At(i);
-	TString s=str->GetString();
-	if(s.Contains("AliPhysics")){
-	  s.ReplaceAll("VO_ALICE@","");
-	  sscanf(s.Data(),"AliPhysics::v%d-%d-%d-%s",&ver,&n1,&n2,str2);
-	  if(ver>=5 && n1>=9 && n2>=14){
-	    printf("%s -> enable ESD track QA\n",s.Data());
-	    disable=kFALSE;
-	  }else{
-	    disable=kTRUE;
-	    printf("%s -> disable ESD track QA\n",s.Data());
-	  }
-	}
-      }
-    }
-    if(!disable){
+    if(disableESDtrackQA) printf("AliAnalysisTaskCheckESDTracks switched off due to AliPhysics<v5-09-14\n");
+    else{
       AliAnalysisTaskCheckESDTracks* taskestr=AddTaskCheckESDTracks("QA",kTRUE,kFALSE,kFALSE);
       taskestr->SetPtBinning(160,0.,40.);
       taskestr->SelectCollisionCandidates(kTriggerMask);
@@ -591,10 +594,14 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   // PHOS QA (Boris Polishchuk)
   // 
   if (doPHOS) {
-    AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, "","PHOSCellsQA_AnyInt");
+    AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = 0x0;
+    if(useEmptyStringForPHOS) taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, "","PHOSCellsQA_AnyInt");
+    else taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_AnyInt");
     taskPHOSCellQA1->SelectCollisionCandidates(kTriggerMask);
     taskPHOSCellQA1->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
-    AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, "","PHOSCellsQA_PHI7");
+    AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = 0x0;
+    if(useEmptyStringForPHOS)  taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, "","PHOSCellsQA_PHI7");
+    else taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_PHI7");
     taskPHOSCellQA2->SelectCollisionCandidates(AliVEvent::kPHI7);
     taskPHOSCellQA2->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
     // Pi0 QA fo PbPb
@@ -607,15 +614,23 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   //
   if (doPHOSTrig)
   {
-    AliAnalysisTaskPHOSTriggerQA *taskPHOSTrig1 = AddTaskPHOSTriggerQA("","PHOSTriggerQAResultsL0");
-    
-    AliAnalysisTaskPHOSTriggerQA* taskPHOSTrig2 = AddTaskPHOSTriggerQA("","PHOSTriggerQAResultsL1High");
+    AliAnalysisTaskPHOSTriggerQA *taskPHOSTrig1 = 0x0;
+    AliAnalysisTaskPHOSTriggerQA* taskPHOSTrig2 = 0x0;
+    AliAnalysisTaskPHOSTriggerQA* taskPHOSTrig3 = 0x0;
+    AliAnalysisTaskPHOSTriggerQA* taskPHOSTrig4 = 0x0;
+    if(useEmptyStringForPHOS){
+      taskPHOSTrig1 = AddTaskPHOSTriggerQA("","PHOSTriggerQAResultsL0");
+      taskPHOSTrig2 = AddTaskPHOSTriggerQA("","PHOSTriggerQAResultsL1High");
+      taskPHOSTrig3 = AddTaskPHOSTriggerQA("","PHOSTriggerQAResultsL1Medium");
+      taskPHOSTrig4 = AddTaskPHOSTriggerQA("","PHOSTriggerQAResultsL1Low");
+    }else{
+      taskPHOSTrig1 = AddTaskPHOSTriggerQA(NULL,"PHOSTriggerQAResultsL0");
+      taskPHOSTrig2 = AddTaskPHOSTriggerQA(NULL,"PHOSTriggerQAResultsL1High");
+      taskPHOSTrig3 = AddTaskPHOSTriggerQA(NULL,"PHOSTriggerQAResultsL1Medium");
+      taskPHOSTrig4 = AddTaskPHOSTriggerQA(NULL,"PHOSTriggerQAResultsL1Low");
+    }
     taskPHOSTrig2->SelectL1Threshold(0);
-    
-    AliAnalysisTaskPHOSTriggerQA* taskPHOSTrig3 = AddTaskPHOSTriggerQA("","PHOSTriggerQAResultsL1Medium");
     taskPHOSTrig3->SelectL1Threshold(1);
-    
-    AliAnalysisTaskPHOSTriggerQA* taskPHOSTrig4 = AddTaskPHOSTriggerQA("","PHOSTriggerQAResultsL1Low");
     taskPHOSTrig4->SelectL1Threshold(2);
   }
   //
