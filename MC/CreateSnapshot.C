@@ -82,11 +82,25 @@ const Char_t *snapshotName[2] = {
 CreateSnapshot(Int_t mode)
 {
 
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+  TString ocdbRun3 = gSystem->Getenv("CONFIG_OCDBRUN3");
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else
+  if(ocdbRun3.IsNull())
+    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+  else
+    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBRun3.C");
+#endif
   
-  OCDBConfig(kOCDBDefault, mode);
+  if(!ocdbRun3.IsNull()){
+    gROOT->ProcessLine(Form("OCDBRun3(%d);",mode));
+  }
+  else{
+    TString ocdbCustom = gSystem->Getenv("CONFIG_OCDBCUSTOM");
+    OCDBConfig(ocdbCustom.IsNull() ? kOCDBDefault : kOCDBCustom, mode);
+  }
   CreateSnapshot(snapshotName[mode]);
-  
 }
 
 void CreateSnapshot(const char* snapshotName, const char* rawdata)

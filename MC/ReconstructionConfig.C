@@ -16,6 +16,7 @@ enum EReconstruction_t {
   kReconstructionITSpureSA,
   kReconstructionNoSDD,  
   kReconstructionRun1TrackingPID,
+  kReconstructionRun3,
   kReconstructionCustom,
   kReconstructionNoTPC,
   kNReconstructions
@@ -29,9 +30,18 @@ const Char_t *ReconstructionName[kNReconstructions] = {
   "ITSpureSA",
   "NoSDD",
   "Run1TrackingPID",
+  "Run3",
   "Custom",
   "NoTPC"
 };
+
+void ReconstructionDefault(AliReconstruction &rec);
+void ReconstructionRun3(AliReconstruction &rec);
+void SetCDBRun3(int run);
+
+AliITSRecoParam *OverrideITSRecoParam_VertexerSmearMC();
+AliITSRecoParam *OverrideITSRecoParam_NoSDD_pPb2016();
+AliITSRecoParam *OverrideITSRecoParam_ITSpureSA_PbPb2015();
 
 /*****************************************************************/
 
@@ -184,6 +194,11 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     ReconstructionDefault(rec);
     rec.SetRun1PIDforTracking(kTRUE);
     return;
+
+    // Run3
+  case kReconstructionRun3:
+    ReconstructionRun3(rec);
+    return;
     
     // Custom
   case kReconstructionCustom:
@@ -243,6 +258,35 @@ ReconstructionDefault(AliReconstruction &rec)
     //
     rec.SetRunQA(":");
     //
+}
+
+/*****************************************************************/
+
+void ReconstructionRun3(AliReconstruction &rec)
+{
+
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
+  //
+  int runNumber = atoi(gSystem->Getenv("DC_RUN"));
+  SetCDBRun3(runNumber);
+  
+  gPluginMgr->AddHandler("AliReconstructor", "ITS",
+                         "AliITSUReconstructor","ITS", "AliITSUReconstructor()");
+
+  rec.SetRunReconstruction("ALL"); // run cluster finder
+  rec.SetRunMultFinder(kFALSE);   // to be implemented - CreateMultFinder
+  rec.SetRunPlaneEff(kFALSE);     // to be implemented - CreateTrackleter
+
+  rec.SetCleanESD(kFALSE);
+  rec.SetStopOnError(kFALSE);
+  rec.SetWriteESDfriend();
+  rec.SetWriteAlignmentData();
+  rec.SetFractionFriends(0.01);
+  rec.SetRunPlaneEff(kTRUE);
+  rec.SetUseTrackingErrorsForAlignment("ITS");
+  //
+  rec.SetRunQA(":");
+ 
 }
 
 /*****************************************************************/
@@ -383,4 +427,32 @@ OverrideITSRecoParam_VertexerSmearMC()
   
   //
   return itsRecoParam;
+}
+
+void SetCDBRun3(int run)
+{
+  // set OCDB source
+  TString ocdbConfig = "default,snapshot";
+  if (!gSystem->AccessPathName("OCDBrec.root")) {
+    // set OCDB snapshot mode
+    AliCDBManager *cdbm = AliCDBManager::Instance();
+    cdbm->SetSnapshotMode("OCDBrec.root");
+    cdbm->SetDefaultStorage("local://");
+    //    cdbm->SetSnapshotMode("OCDBsim.root");
+  }
+  else if (gSystem->Getenv("CONFIG_OCDBCUSTOM")) {
+    gROOT->LoadMacro("OCDBCustom.C");
+    gROOT->ProcessLine("OCDBDefault(0);");
+  }
+  else {
+    if (gSystem->Getenv("CONFIG_OCDB")) ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
+    if (ocdbConfig.Contains("alien") || ocdbConfig.Contains("cvmfs")) {
+      // set OCDB 
+      gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBRun3.C");
+      gROOT->ProcessLine("OCDBDefault(1);");
+    }
+  }
+  cdbm->SetSpecificStorage("GRP/GRP/Data", "local://./");
+
+  AliCDBManager::Instance()->SetRun(run);
 }
