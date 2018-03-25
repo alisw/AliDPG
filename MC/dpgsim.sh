@@ -152,6 +152,7 @@ CONFIG_AOD=""
 CONFIG_MODE="ocdb,full"
 CONFIG_OCDB="snapshot"
 CONFIG_OCDBCUSTOM=""
+CONFIG_OCDBRUN3=""
 CONFIG_PURIFYKINEOFF=""
 CONFIG_HLT=""
 CONFIG_GEANT4=""
@@ -487,6 +488,15 @@ if [[ $ALIEN_JDL_LPMOCDBJOB == "true" ]]; then
     export CONFIG_MODE="ocdb"
 fi
 
+### check if Run 3 (needed for snapshot creation)
+
+if [[ $CONFIG_MODE == *"Run3"* ]]; then
+    if [[ $CONFIG_OCDBRUN3 == "" ]]; then
+	CONFIG_OCDBRUN3="1"
+	export CONFIG_OCDBRUN3
+    fi
+fi
+
 ### createSnapshot.C
 
 if [[ $CONFIG_MODE == *"ocdb"* ]]; then
@@ -601,6 +611,23 @@ elif [[ $CONFIG_MODE == *"Muon"* ]]; then
         export CONFIG_AOD
     fi
 
+elif [[ $CONFIG_MODE == *"Run3"* ]]; then
+
+    if [[ $CONFIG_DETECTOR == "" ]]; then
+        CONFIG_DETECTOR="Run3"
+        export CONFIG_DETECTOR
+    fi
+
+    if [[ $CONFIG_SIMULATION == "" ]]; then
+        CONFIG_SIMULATION="Run3"
+        export CONFIG_SIMULATION
+    fi
+
+    if [[ $CONFIG_RECONSTRUCTION == "" ]]; then
+        CONFIG_RECONSTRUCTION="Run3"
+        export CONFIG_RECONSTRUCTION
+    fi
+
 fi
 
 ### automatic settings from GRP info
@@ -698,6 +725,7 @@ echo "System........... $CONFIG_SYSTEM"
 echo "Trigger.......... $CONFIG_TRIGGER"
 echo "OCDB............. $CONFIG_OCDB"
 echo "OCDBCustom....... $CONFIG_OCDBCUSTOM"
+echo "OCDBRun3......... $CONFIG_OCDBRUN3"
 echo "HLT.............. $CONFIG_HLT"
 echo "============================================"
 #echo "B-field.......... $CONFIG_MAGNET"
