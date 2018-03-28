@@ -25,7 +25,7 @@ GeneratorCustom()
     if(!simulation.Contains("Embed"))
       ctl->AddGenerator(bjpsi, "B2Jpsi2ee", 1., new TFormula("ten", "10."));
     else
-      ctl->AddGenerator(jpsi, "Jpsi2ee", 1.,0,10);
+      ctl->AddGenerator(bjpsi, "Jpsi2ee", 1.,0,10);
     TFile *file = new TFile("typeHF_5.proc", "recreate");
     file->Close();
   }
