@@ -420,15 +420,15 @@ GeneratorPythia6(Int_t tune, Int_t pdgtrig, Float_t etatrig)
     pythia->SetProjectile("P", 1, 1);
     pythia->SetTarget    ("n", 208, 82);
     pythia->SetUseNuclearPDF(kTRUE);
-    pythia->SetUseLorentzBoost(kTRUE);
-    comment = comment.Append(" | p-Pb Boosted");
+    pythia->SetUseLorentzBoost(kFALSE);  // the Lorentz boost should be switched off to avoid biases in the D and B meson decay topology
+    comment = comment.Append(" | p-Pb");
   }
   else if (systemConfig.EqualTo("Pb-p")) {
     pythia->SetProjectile("n", 208, 82);
     pythia->SetTarget    ("P", 1, 1);
     pythia->SetUseNuclearPDF(kTRUE);
-    pythia->SetUseLorentzBoost(kTRUE);
-    comment = comment.Append(" | Pb-p Boosted");
+    pythia->SetUseLorentzBoost(kFALSE);  // the Lorentz boost should be switched off to avoid biases in the D and B meson decay topology
+    comment = comment.Append(" | Pb-p");
   }
   //
   // Tune
