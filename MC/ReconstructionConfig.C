@@ -17,6 +17,7 @@ enum EReconstruction_t {
   kReconstructionNoSDD,  
   kReconstructionRun1TrackingPID,
   kReconstructionCustom,
+  kReconstructionNoTPC,
   kNReconstructions
 };
 
@@ -28,7 +29,8 @@ const Char_t *ReconstructionName[kNReconstructions] = {
   "ITSpureSA",
   "NoSDD",
   "Run1TrackingPID",
-  "Custom"
+  "Custom",
+  "NoTPC"
 };
 
 /*****************************************************************/
@@ -192,7 +194,11 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     }
     ReconstructionCustom(rec);
     return;
-
+    
+    // NoTPC
+  case kReconstructionNoTPC:
+    ReconstructionDefault(rec);
+    rec.SetRunReconstruction("ALL -TPC -HLT");
   }  
 
 }

@@ -19,6 +19,7 @@ enum ESimulation_t {
   kSimulationNoDigitization,
   kSimulationCustom,
   kSimulationDefaultIonTail,
+  kSimulationNoTPC,
   kNSimulations
 };
 
@@ -32,7 +33,8 @@ const Char_t *SimulationName[kNSimulations] = {
   "GeneratorOnly",
   "NoDigitization",
   "Custom",
-  "SimulationDefaultIonTail"
+  "SimulationDefaultIonTail",
+  "NoTPC"
 };
 
 
@@ -138,13 +140,22 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     return;
 
    // Default simulation enabling IonTail/Crosstalk for TPC
-    case kSimulationDefaultIonTail:
+  case kSimulationDefaultIonTail:
       SimulationDefault(sim);
       Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
       if (year < 2015) sim.SetMakeSDigits("TPC TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD");
       else             sim.SetMakeSDigits("TPC TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD AD");
       sim.SetMakeDigitsFromHits("ITS");
       return;
+
+   // Default simulation without TPC TPC
+  case kSimulationNoTPC:
+    SimulationDefault(sim);
+    sim.SetRunHLT("");
+    sim.SetMakeDigitsFromHits("ITS");
+    // sim.SetMakeDigits("ALL -TPC");  // this line does not work, the Digits tree will anyway be created also with this line. Without this line, an empty digits tree for the TPC will be created
+    return;
+
   }
 
 }
