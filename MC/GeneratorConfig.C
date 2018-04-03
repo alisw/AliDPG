@@ -40,6 +40,8 @@ enum EGenerator_t {
   kGeneratorAMPT, kGeneratorAMPT_v226t7,
   // Therminator2
   kGeneratorTherminator2,
+  // QED electrons
+  kGeneratorQED,
   //
   kGeneratorCustom,
   //
@@ -79,6 +81,8 @@ const Char_t *GeneratorName[kNGenerators] = {
   "AMPT", "AMPT_v226t7",
   // Therminator2
   "Therminator2",
+  // QED electrons
+  "QED",
   //
   "Custom",
   //
@@ -189,6 +193,7 @@ AliGenerator *GeneratorDRgen();
 AliGenerator *GeneratorAMPT();
 AliGenerator *GeneratorAMPT_v226t7();
 AliGenerator *GeneratorTherminator2();
+AliGenerator *GeneratorQED();
 
 /*****************************************************************/
 
@@ -298,6 +303,10 @@ void GeneratorConfig(Int_t tag)
 
  case kGeneratorTherminator2:
     gen = GeneratorTherminator2();
+    break;
+
+  case kGeneratorQED:
+    gen = GeneratorQED();
     break;
 
     // Custom
@@ -1644,4 +1653,39 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt,
   }
 
   return gener;
+}
+
+/*** QED electrons ****************************************************/
+
+AliGenerator * 
+GeneratorQED()
+{
+
+  // configure projectile/target
+  TString projN, targN;
+  Int_t projA, projZ, targA, targZ;
+
+  // Pb-Pb (only case so far)
+  if (systemConfig.EqualTo("Pb-Pb")) {
+    projN = "A"; projA = 208; projZ = 82;
+    targN = "A"; targA = 208; targZ = 82;
+  }
+  // not implemented
+  else {
+    printf("QED electrons not implemented for %s system\n", systemConfig.Data());
+    abort();
+  }
+  
+  comment = comment.Append(Form(" | QED electrons "));
+  //
+  AliGenQEDBg *genBg = new AliGenQEDBg();
+  genBg->SetEnergyCMS(energyConfig);
+  genBg->SetProjectile(projN, projA, projZ);
+  genBg->SetTarget    (targN, targA, targZ);
+  genBg->SetYRange(-6.,3);
+  genBg->SetPtRange(1.e-3,1.0);       // Set pt limits (GeV) for e+-: 1MeV corresponds to max R=13.3mm at 5kGaus
+  genBg->SetLumiIntTime(6.e27,3e-6);  // luminosity and integration time
+  genBg->SetVertexSource(kInternal);
+  
+  return genBg;
 }
