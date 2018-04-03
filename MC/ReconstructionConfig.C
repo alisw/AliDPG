@@ -22,6 +22,7 @@ enum EReconstruction_t {
   kReconstructionNoSDD,  
   kReconstructionRun1TrackingPID,
   kReconstructionCustom,
+  kReconstructionNoTPC,
   kNReconstructions
 };
 
@@ -33,7 +34,8 @@ const Char_t *ReconstructionName[kNReconstructions] = {
   "ITSpureSA",
   "NoSDD",
   "Run1TrackingPID",
-  "Custom"
+  "Custom",
+  "NoTPC"
 };
 
 void ReconstructionDefault(AliReconstruction &rec);
@@ -204,7 +206,11 @@ void ReconstructionConfig(AliReconstruction &rec, int tag_tmp)
     gg_tmp_rec = &rec;
     gROOT->ProcessLine("ReconstructionCustom(*gg_tmp_rec);");
     return;
-
+    
+    // NoTPC
+  case kReconstructionNoTPC:
+    ReconstructionDefault(rec);
+    rec.SetRunReconstruction("ALL -TPC -HLT");
   }  
 
 }
