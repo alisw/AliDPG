@@ -6,11 +6,16 @@ if [ -z "$ALIDPG_ROOT" ]; then
     exit 1
 fi
 
-# check ALICER_ROOT is set
+# check ALICE_ROOT is set
 if [ -z "$ALICE_ROOT" ]; then
     echo "ALICE_ROOT not set, abort."
     exit 1
 fi
+
+# enable vdt library
+
+$ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
+###################
 
 # set job and simulation variables as :
 COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig> --keepTrackRefsFraction <percentage>"
