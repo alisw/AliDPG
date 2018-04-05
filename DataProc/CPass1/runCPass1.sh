@@ -323,6 +323,12 @@ for OUTER_FILE in recCPass1_OuterDet.C; do
     ln -s ../$OUTER_FILE OuterDet/$OUTER_FILE
 done
 
+# Linking AliDPG folder - needed when we use the tarball
+if [ -d AliDPG ]; then
+    ln -s ../AliDPG Barrel/AliDPG;
+    ln -s ../AliDPG OuterDet/AliDPG;
+fi
+
 ####################################   Barrel   #######################################
 
 cd Barrel
