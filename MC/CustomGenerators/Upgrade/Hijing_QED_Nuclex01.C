@@ -34,10 +34,10 @@ AliGenerator * GeneratorCustom(TString opt = "")
     if (opt.EqualTo(optList[iopt]))
       iinj = iopt;
   
-  AliGenerator   *nu1a  = Generator_Nuclex(0x70000, kFALSE, ninj_nuclei[iinj], 10.0, 1.0);
-  AliGenerator   *nu1b  = Generator_Nuclex(0x70000, kTRUE, ninj_nuclei[iinj], 10.0, 1.0);
-  AliGenerator   *hyp1a  = Generator_Nuclex(0x70000, kFALSE, ninj_hypern[iinj], 10.0, 1.0);
-  AliGenerator   *hyp1b  = Generator_Nuclex(0x70000, kTRUE, ninj_hypern[iinj], 10.0, 1.0);
+  AliGenerator   *nu1a  = Generator_Nuclex(0x18C01F, kFALSE, ninj_nuclei[iinj], 10.0, 1.0);
+  AliGenerator   *nu1b  = Generator_Nuclex(0x18C01F, kTRUE, ninj_nuclei[iinj], 10.0, 1.0);
+  AliGenerator   *hyp1a  = Generator_Nuclex(0x18C01F, kFALSE, ninj_hypern[iinj], 10.0, 1.0);
+  AliGenerator   *hyp1b  = Generator_Nuclex(0x18C01F, kTRUE, ninj_hypern[iinj], 10.0, 1.0);
   
   ctl->AddGenerator(nu1a,  "Nuclex1a", 1.);
   ctl->AddGenerator(nu1b,  "Nuclex1b", 1.);
