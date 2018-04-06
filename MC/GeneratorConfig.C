@@ -978,7 +978,7 @@ GeneratorHijing()
   // enable shadowing
   gener->SetShadowing(1);
   // neutral pion and heavy particle decays switched off
-  gener->SetDecaysOff(1);
+  //  gener->SetDecaysOff(1);
   // kinematic selection
   gener->SetSelectAll(0);
   gener->SetPtHardMin (2.3);
