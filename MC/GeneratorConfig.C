@@ -1594,7 +1594,7 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt,
   //Generating a cocktail
   AliGenCocktail *gener = new AliGenCocktail();
 
-  Int_t pdgcodes[19] = {
+  Int_t pdgcodes[21] = {
     1000010020,
     1000020030,
     1000010030,
@@ -1618,7 +1618,7 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt,
     1020010040
   };
 
-  const Char_t *names[19] = {
+  const Char_t *names[21] = {
     "Deuteron", // 0x1
     "Helium-3", // 0x2
     "Triton",   // 0x4
@@ -1642,7 +1642,7 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt,
     "Double-Hyper-Hydrogen-4" //0x100000
   };
 
-  for (Int_t ipart = 0; ipart < 19; ipart++) {
+  for (Int_t ipart = 0; ipart < 21; ipart++) {
     if (injbit & 1 << ipart) {
       AliGenBox *box = new AliGenBox(ninj);
       Int_t pdg = pdgcodes[ipart];
