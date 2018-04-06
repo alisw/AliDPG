@@ -282,6 +282,14 @@ void AddAnalysisTasks(const char *cdb_location)
   // PHOS QA tasks need different arguments starting for AliPhysics >= v5-09-24
   Bool_t disableESDtrackQA=kTRUE;
   Bool_t useEmptyStringForPHOS=kFALSE;
+
+  if(!gSystem->Getenv("ALIEN_JDL_PACKAGES"))
+    if(gSystem->Getenv("ALIEN_PACKAGES"))
+    {
+      gSystem->Setenv("ALIEN_JDL_PACKAGES", gSystem->Getenv("ALIEN_PACKAGES"));
+      printf("Using ALIEN_PACKAGES instead of ALIEN_JDL_PACKAGES\n");
+    }
+
   if(gSystem->Getenv("ALIEN_JDL_PACKAGES")){
     TString packg=gSystem->Getenv("ALIEN_JDL_PACKAGES");
     Int_t pos1=packg.Index("AliPhysics");
