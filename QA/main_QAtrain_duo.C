@@ -334,7 +334,6 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   // Optionally friends information can be switched off by setting the 2st argument 
   // to false
   // Optionally highMult axis can be used by setting the 3st argument to true (for PbPb)
-  if (0){
   if (doTPC && (ibarrel || iall)) {
     AliPerformanceTask *tpcQA = 0;
     if (iCollisionType==kPbPb  || iCollisionType == kXeXe) {
@@ -346,14 +345,11 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     }
     tpcQA->SelectCollisionCandidates(kTriggerMask);
   }
-  }
 
   // HLT (Alberica Toia)
-  if (0){
   if (doHLT && (ibarrel || iall)) {
     AliPerformanceTask *hltQA = AddTaskPerformanceTPCdEdxQA(kFALSE, kTRUE, kFALSE,0,kTRUE);
     hltQA->SelectCollisionCandidates(kTriggerMask);
-  }
   }
   
   //
