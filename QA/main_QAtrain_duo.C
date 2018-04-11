@@ -115,7 +115,7 @@ Bool_t doPIDqa        = 1; //new
 Bool_t doFMD          = 1; // new
 Bool_t doPHOS         = 1; // new
 Bool_t doPHOSTrig     = 1; // new
-Bool_t doEMCAL        = 0;
+Bool_t doEMCAL        = 1;
 Bool_t doFBFqa        = 1; // new - not ported yet to revision
 Bool_t doAD           = 1; // new AD detector
 
@@ -643,7 +643,9 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   if (doEMCAL) {
     //AliAnalysisTaskEMCALTriggerQA *emctrig = AddTaskEMCALTriggerQA();
 //     emctrig->GetRecoUtils()->SwitchOffBadChannelsRemoval();
-  }   
+    AliEmcalTriggerMakerTask *emctrigmaker = AddTaskEmcalTriggerMakerNew("EmcalTriggers");
+    AliEmcalTriggerQATask *emctrig = AddTaskEmcalTriggerQA_QAtrain(run_number);
+  }
   //     
   // FLOW and BF QA (C.Perez && A.Rodriguez)
   // 
@@ -714,10 +716,12 @@ void QAmerge(const char *suffix, const char *dir, Int_t stage)
   gROOT->cd();
   mgr->StartAnalysis("gridterminate", tree);
   if (strlen(suffix)) {
-     if (gSystem->Exec(Form("mv trending.root trending%s.root", suffix)))
+    if(!strstr(suffix,"AOD") && !strstr(suffix,"aod")){ // when merging the AOD QA output we should not rename trending.root
+      if (gSystem->Exec(Form("mv trending.root trending%s.root", suffix)))
         ::Error("QAmerge", "File trending.root was not produced");
-     if (gSystem->Exec(Form("mv event_stat.root event_stat%s.root", suffix)))
-        ::Error("QAmerge", "File trending.root was not produced");
+    }
+    if (gSystem->Exec(Form("mv event_stat.root event_stat%s.root", suffix)))
+      ::Error("QAmerge", "File event_stat.root was not produced");
   }   
   ofstream out;
   out.open("outputs_valid", ios::out);
