@@ -54,6 +54,7 @@ export GRID_TOKEN=OK
 export XRD_TRANSACTIONTIMEOUT=300
 
 export PRODUCTION_METADATA="$ALIEN_JDL_LPMMETADATA"
+export triggerSelection=${ALIEN_JDL_TRIGGERSELECTION-$triggerSelection}
 
 echo "* PATH: $PATH"
 echo "* LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
@@ -213,9 +214,9 @@ if [ "$pass_type" == "ppass" ] && [ "$preclusterizeTPC" = "1" ] && [ "$OCDB_SNAP
     echo ""
     echo "" >&2
     echo "raw2clust.C" >&2
-    echo executing aliroot -l -b -q -x "raw2clust.C(\"$CHUNKNAME\"$RECO_ARGS)"
+    echo executing aliroot -l -b -q -x "raw2clust.C(\"$CHUNKNAME\"$RECO_ARGS, \"$triggerSelection\")"
     timeStart=`date +%s`
-    time aliroot -l -b -q -x "raw2clust.C(\"$CHUNKNAME\"$RECO_ARGS)" &> clust.log
+    time aliroot -l -b -q -x "raw2clust.C(\"$CHUNKNAME\"$RECO_ARGS, \"$triggerSelection\")" &> clust.log
     exitcode=$?
     timeEnd=`date +%s`
     timeUsed=$(( $timeUsed+$timeEnd-$timeStart ))
@@ -232,16 +233,16 @@ if [ "$pass_type" == "ppass" ] && [ "$preclusterizeTPC" = "1" ] && [ "$OCDB_SNAP
 fi
 
 
-echo "* Running AliRoot to reconstruct '$CHUNKNAME', extra arguments are '$RECO_ARGS' and run number is $runnum ..."
+echo "* Running AliRoot to reconstruct '$CHUNKNAME', triggerSelection is '$triggerSelection', extra arguments are '$RECO_ARGS' and run number is $runnum ..."
 echo ""
 echo "running the following rec.C macro:"
 cat rec.C
 echo ""
-echo executing aliroot -l -b -q -x "rec.C(\"$CHUNKNAME\"$RECO_ARGS)"
+echo executing aliroot -l -b -q -x "rec.C(\"$CHUNKNAME\"$RECO_ARGS, \"$triggerSelection\")"
 echo "" >&2
 echo "rec.C" >&2
 timeStart=`date +%s`
-time aliroot -l -b -q -x "rec.C(\"$CHUNKNAME\"$RECO_ARGS)" &> rec.log
+time aliroot -l -b -q -x "rec.C(\"$CHUNKNAME\"$RECO_ARGS, \"$triggerSelection\")" &> rec.log
 
 exitcode=$?
 timeEnd=`date +%s`
