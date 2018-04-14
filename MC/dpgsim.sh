@@ -486,13 +486,6 @@ if [ -f "$G4INSTALL/bin/geant4.sh" ]; then
     source $G4INSTALL/bin/geant4.sh
 fi
 
-### check whether we are in OCDB generation job
-
-if [[ $ALIEN_JDL_LPMOCDBJOB == "true" ]]; then
-    echo ">>>>> OCDB generation: force MODE to 'ocdb'"
-    export CONFIG_MODE="ocdb"
-fi
-
 ### check if Run 3 (needed for snapshot creation)
 
 if [[ $CONFIG_MODE == *"Run3"* ]]; then
@@ -501,6 +494,14 @@ if [[ $CONFIG_MODE == *"Run3"* ]]; then
 	export CONFIG_OCDBRUN3
     fi
 fi
+
+### check whether we are in OCDB generation job
+
+if [[ $ALIEN_JDL_LPMOCDBJOB == "true" ]]; then
+    echo ">>>>> OCDB generation: force MODE to 'ocdb'"
+    export CONFIG_MODE="ocdb"
+fi
+
 
 ### createSnapshot.C
 
