@@ -182,8 +182,8 @@ void WriteProfile(TObject* obj){
 
 
 Bool_t AreIdenticalHistos(TH1* hA, TH1* hB){
-  Int_t nEventsA=hA->GetEntries(); //temporary: we should use the number of analyized events
-  Int_t nEventsB=hB->GetEntries(); //temporary: we should use the number of analyized events
+  Long_t nEventsA=hA->GetEntries(); //temporary: we should use the number of analyized events
+  Long_t nEventsB=hB->GetEntries(); //temporary: we should use the number of analyized events
   if(nEventsA!=nEventsB) {
     Printf(" -> Different number of entries: A --> %d, B --> %d", nEventsA, nEventsB);
     return kFALSE;
