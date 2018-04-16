@@ -8,6 +8,11 @@
 /*****************************************************************/
 /*****************************************************************/
 
+#if (!defined(__CLING__) && !defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
+#include "AliMCEventHandler.h"
+#include "AliMagF.h"
+#endif
+
 enum EReconstruction_t {
   kReconstructionDefault,
   kReconstructionMuon,
@@ -45,9 +50,10 @@ AliITSRecoParam *OverrideITSRecoParam_ITSpureSA_PbPb2015();
 
 /*****************************************************************/
 
-ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
+AliReconstruction* gg_tmp_rec;
+void ReconstructionConfig(AliReconstruction &rec, int tag_tmp)
 {
-
+  EReconstruction_t tag = (EReconstruction_t) tag_tmp;
   printf(">>>>> ReconstructionConfig: %s \n", ReconstructionName[tag]);
 
   /** fast magnetic field **/
@@ -128,12 +134,12 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     }
     if (!bgDir.EndsWith("/")) bgDir += "/";
     AliMCEventHandler* mcHandler = new AliMCEventHandler();
-    mcHandler->SetPreReadMode(1);
+    mcHandler->SetPreReadMode((AliMCEventHandler::PreReadMode_t) 1);
     mcHandler->SetReadTR(kFALSE);
     //
     AliMCEventHandler* mcHandlerBg = new AliMCEventHandler();
     mcHandlerBg->SetInputPath(bgDir.Data());
-    mcHandlerBg->SetPreReadMode(1);
+    mcHandlerBg->SetPreReadMode((AliMCEventHandler::PreReadMode_t) 1);
     mcHandlerBg->SetReadTR(kFALSE);
     mcHandler->AddSubsidiaryHandler(mcHandlerBg);
     //
@@ -207,7 +213,8 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
       abort();
       return;
     }
-    ReconstructionCustom(rec);
+    gg_tmp_rec = &rec;
+    gROOT->ProcessLine("ReconstructionCustom(*gg_tmp_rec);");
     return;
     
     // NoTPC
@@ -220,7 +227,7 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
 
 /*****************************************************************/
 
-ReconstructionDefault(AliReconstruction &rec)
+void ReconstructionDefault(AliReconstruction &rec)
 {
 
   Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
@@ -233,7 +240,7 @@ ReconstructionDefault(AliReconstruction &rec)
   if (ocdbConfig.Contains("alien") || ocdbConfig.Contains("cvmfs")) {
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
-    OCDBDefault(1);
+    gROOT->ProcessLine("OCDBDefault(1);");
   }
   else {
     // set OCDB snapshot mode

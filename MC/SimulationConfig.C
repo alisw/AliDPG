@@ -8,6 +8,15 @@
 /*****************************************************************/
 /*****************************************************************/
 
+#if (!defined(__CLING__) && !defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
+#include "AliSimulation.h"
+#include "AliModule.h"
+#include "AliMagF.h"
+#include "AliPHOSSimParam.h"
+#include "TGrid.h"
+#include "TROOT.h"
+#endif
+
 enum ESimulation_t {
   kSimulationDefault,
   kSimulationMuon,
@@ -111,15 +120,17 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     SimulationDefault(sim);
     sim.SetMakeSDigits("ALL");
     sim.SetMakeDigitsFromHits("");
-    TString bgstr = gSystem->Getenv("CONFIG_BGEVDIR");
-    if (!bgstr.IsNull()) { 
-      if (bgstr.BeginsWith("alien://") && !gGrid && !TGrid::Connect("alien://")) {
-	printf("Failed to create a grid connection\n");
-	abort();
+    {
+      TString bgstr = gSystem->Getenv("CONFIG_BGEVDIR");
+      if (!bgstr.IsNull()) { 
+        if (bgstr.BeginsWith("alien://") && !gGrid && !TGrid::Connect("alien://")) {
+	  printf("Failed to create a grid connection\n");
+	  abort();
+        }
+        if (!bgstr.EndsWith("/")) bgstr += "/";
+        bgstr += "galice.root";
+        sim.EmbedInto(bgstr.Data());
       }
-      if (!bgstr.EndsWith("/")) bgstr += "/";
-      bgstr += "galice.root";
-      sim.EmbedInto(bgstr.Data());
     }
     return;
     
@@ -151,7 +162,8 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
       abort();
       return;
     }
-    SimulationCustom(sim);
+    gg_tmp_sim = &sim;
+    gROOT->ProcessLine("SimulationCustom(*gg_tmp_sim)");
     return;
 
    // Default simulation enabling IonTail/Crosstalk for TPC
@@ -188,7 +200,7 @@ void SimulationDefault(AliSimulation &sim)
   if (ocdbConfig.Contains("alien") || ocdbConfig.Contains("cvmfs")) {
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
-    OCDBDefault(0);
+    gROOT->ProcessLine("OCDBDefault(0);");
   }
   else {
     // set OCDB snapshot mode
@@ -215,7 +227,7 @@ void SimulationDefault(AliSimulation &sim)
   // material budget settings
   if (gSystem->Getenv("CONFIG_MATERIAL")) {
     Float_t material = atof(gSystem->Getenv("CONFIG_MATERIAL"));
-    sim.AliModule::SetDensityFactor(material);
+    AliModule::SetDensityFactor(material);
   }
 
   //

@@ -18,7 +18,7 @@ $ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
 ###################
 
 # set job and simulation variables as :
-COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig> --keepTrackRefsFraction <percentage>"
+COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig> --keepTrackRefsFraction <percentage> --ocdbCustom --purifyKineOff"
 
 function runcommand(){
     echo -e "\n"
@@ -332,6 +332,12 @@ while [ ! -z "$1" ]; do
         fi
         export CONFIG_OCDB
         shift
+    elif [ "$option" = "--ocdbCustom" ]; then
+	CONFIG_OCDBCUSTOM="1"
+	export CONFIG_OCDBCUSTOM
+    elif [ "$option" = "--purifyKineOff" ]; then
+	CONFIG_PURIFYKINEOFF="1"
+	export CONFIG_PURIFYKINEOFF
     elif [ "$option" = "--hlt" ]; then
         CONFIG_HLT="$1"
 	export CONFIG_HLT
@@ -480,13 +486,6 @@ if [ -f "$G4INSTALL/bin/geant4.sh" ]; then
     source $G4INSTALL/bin/geant4.sh
 fi
 
-### check whether we are in OCDB generation job
-
-if [[ $ALIEN_JDL_LPMOCDBJOB == "true" ]]; then
-    echo ">>>>> OCDB generation: force MODE to 'ocdb'"
-    export CONFIG_MODE="ocdb"
-fi
-
 ### check if Run 3 (needed for snapshot creation)
 
 if [[ $CONFIG_MODE == *"Run3"* ]]; then
@@ -495,6 +494,14 @@ if [[ $CONFIG_MODE == *"Run3"* ]]; then
 	export CONFIG_OCDBRUN3
     fi
 fi
+
+### check whether we are in OCDB generation job
+
+if [[ $ALIEN_JDL_LPMOCDBJOB == "true" ]]; then
+    echo ">>>>> OCDB generation: force MODE to 'ocdb'"
+    export CONFIG_MODE="ocdb"
+fi
+
 
 ### createSnapshot.C
 

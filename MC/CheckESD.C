@@ -1,4 +1,4 @@
-#if !defined( __CINT__) || defined(__MAKECINT__)
+#if !(defined(__CLING__)  || defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__) 
 #include <TROOT.h>
 #include <TFile.h>
 #include <TError.h>

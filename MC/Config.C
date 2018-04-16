@@ -8,6 +8,10 @@
 /*****************************************************************/
 /*****************************************************************/
 
+#if !(defined(__CLING__)  || defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
+#include "TGeant3TGeo.h"
+#endif
+
 // global variables
 
 static Int_t   runNumber       = 0;         // run number
@@ -16,7 +20,7 @@ static Int_t   magnetConfig    = 0;         // magnetic field
 static Int_t   detectorConfig  = 0;         // detector
 static Int_t   generatorConfig = 0;         // MC generator
 static Float_t energyConfig    = 0.;        // CMS energy
-static Float_t triggerConfig   = 0.;        // trigger
+static Int_t triggerConfig   = 0.;        // trigger
 static Int_t   pdgConfig       = 0;         // PDG value 
 static Float_t bminConfig      = 0.;        // impact parameter min
 static Float_t bmaxConfig      = 20.;       // impact parameter max
@@ -38,6 +42,16 @@ static Float_t pttrigmaxConfig = -1.;       // pt-trigger max
 static Int_t   quenchingConfig = 0;         // quenching
 static Float_t qhatConfig      = 1.7;       // q-hat
 static Bool_t  isGeant4        = kFALSE;    // geant4 flag
+static Bool_t  purifyKine      = kTRUE;     // purifyKine flag
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#include "MC/DetectorConfig.C"
+#include "MC/GeneratorConfig.C"
+#endif
+
+void ProcessEnvironment();
+void CreateGAlice();
+void GeneratorOptions();
 
 /*****************************************************************/
 
@@ -46,8 +60,12 @@ Config()
 {
 
   /* initialise */
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else  
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/DetectorConfig.C");
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/GeneratorConfig.C");
+#endif
   ProcessEnvironment();
 
   /* verbose */
@@ -79,10 +97,14 @@ Config()
   printf(">>>>>   crossing angle: %f \n", crossingConfig);
   printf(">>>>>      random seed: %d \n", seedConfig);
   printf(">>>>>           geant4: %d \n", isGeant4);
+  printf(">>>>>       purifyKine: %d \n", purifyKine);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
 
-  /* load libraries */
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else  
   LoadLibraries();
+#endif
 
   /* setup geant3 */
   if (!isGeant4) new TGeant3TGeo("C++ Interface to Geant3");
@@ -102,12 +124,14 @@ Config()
       geant4config_macro = Form("%s/Geant4Config.C", gSystem->pwd());
     }
     gROOT->LoadMacro(geant4config_macro.Data());
-    Geant4Config();
+    gROOT->ProcessLine("Geant4Config();");
   }
 
   /* configure MC generator */
   GeneratorConfig(generatorConfig);
   GeneratorOptions();
+
+  if (!purifyKine) gAlice->GetMCApp()->PurifyLimits(80., 80.);
 }
 
 /*****************************************************************/
@@ -318,12 +342,16 @@ ProcessEnvironment()
   isGeant4 = kFALSE;
   if (gSystem->Getenv("CONFIG_GEANT4"))
     isGeant4 = kTRUE;
-  
+
+  // PurifyKine OFF
+  purifyKine = kTRUE;
+  if (gSystem->Getenv("CONFIG_PURIFYKINEOFF"))
+    purifyKine = kFALSE;
 }
 
-/*****************************************************************/
-
-void
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else
 LoadLibraries()
 {
 
@@ -354,6 +382,8 @@ LoadLibraries()
   gSystem->Load("libgeant321");
 
 }
+#endif
+
 
 /*****************************************************************/
 

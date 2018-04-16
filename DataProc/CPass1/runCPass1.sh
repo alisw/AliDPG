@@ -178,6 +178,27 @@ echo "* ************************"
 echo "* Printing ALL env variables"
 printenv
 echo ""
+
+
+# enable vdt library
+
+$ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
+echo "Let's check if we can enable VDT"
+enablevdt=$?
+if [ $enablevdt == 0 ]; then 
+    echo "According to the package versioning, we can enable VDT; let's check the JDL"
+    if [ -z "$ALIEN_JDL_DISABLEVDT" ]; then
+	if [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+	    echo "Use VDT math library"
+	    export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
+	else
+	    echo "VDT math library requested but not found"
+	fi
+    else
+	echo "VDT math library disabled via ALIEN_JDL_DISABLEVDT"
+    fi
+fi
+
 timeUsed=0
 
 mkdir Barrel OuterDet
@@ -301,6 +322,12 @@ if [ -f raw2clust.C ]; then ln -s ../raw2clust.C Barrel/raw2clust.C; fi
 for OUTER_FILE in recCPass1_OuterDet.C; do
     ln -s ../$OUTER_FILE OuterDet/$OUTER_FILE
 done
+
+# Linking AliDPG folder - needed when we use the tarball
+if [ -d AliDPG ]; then
+    ln -s ../AliDPG Barrel/AliDPG;
+    ln -s ../AliDPG OuterDet/AliDPG;
+fi
 
 ####################################   Barrel   #######################################
 

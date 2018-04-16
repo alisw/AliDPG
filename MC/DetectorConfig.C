@@ -70,6 +70,8 @@ Int_t iTPC    = 1;
 Int_t iTRD    = 1;
 Int_t iVZERO  = 1;
 Int_t iZDC    = 1;
+Int_t iMFT    = 0;
+Int_t iFIT    = 0;
   
 void DetectorDefault();
 void DetectorMuon();
@@ -115,7 +117,7 @@ DetectorConfig(Int_t tag)
       abort();
       return;
     }
-    DetectorCustom();
+    gROOT->ProcessLine("DetectorCustom();");
     break;
     
   }
@@ -366,13 +368,14 @@ DetectorInit(Int_t tag)
     {
       //=================== ZDC parameters ============================
 
+      AliZDC *ZDC;
       if (year == 2010) {
-	AliZDC *ZDC = new AliZDCv3("ZDC", "normal ZDC");
+	ZDC = new AliZDCv3("ZDC", "normal ZDC");
 	ZDC->SetSpectatorsTrack();
         ZDC->SetLumiLength(0.);
       }
       else if (year < 2015) {
-	AliZDC *ZDC = new AliZDCv3("ZDC", "normal ZDC");
+	ZDC = new AliZDCv3("ZDC", "normal ZDC");
 	//Collimators aperture
 	ZDC->SetVCollSideCAperture(0.85);
 	ZDC->SetVCollSideCCentre(0.);
@@ -385,7 +388,7 @@ DetectorInit(Int_t tag)
 	ZDC->SetYZPA(1.6);
       }
       else {
-	AliZDC *ZDC = new AliZDCv4("ZDC", "normal ZDC");
+	ZDC = new AliZDCv4("ZDC", "normal ZDC");
 	ZDC->SetLumiLength(0.);
 	ZDC->SetVCollSideCAperture(2.8);
 	ZDC->SetVCollSideCApertureNeg(2.8);
@@ -398,13 +401,20 @@ DetectorInit(Int_t tag)
     {
       //=================== TRD parameters ============================
 
+      AliTRDgeometry *geoTRD;
       if (isGeant4) {
 	AliTRDtestG4 *TRD = new AliTRDtestG4("TRD", "TRD slow simulator");
 	TRD->SetScaleG4(1.11);
+	if( tag == kDetectorPhosOnly) TRD->DisableStepManager();
+	geoTRD = TRD->GetGeometry();
       }
       else 
+      {
 	AliTRD *TRD = new AliTRDv1("TRD", "TRD slow simulator");
-      AliTRDgeometry *geoTRD = TRD->GetGeometry();
+	if( tag == kDetectorPhosOnly) TRD->DisableStepManager();
+	geoTRD = TRD->GetGeometry();
+      }
+      
       // Partial geometry: modules at 0,1,7,8,9,16,17
       // starting at 3h in positive direction
 
@@ -438,8 +448,6 @@ DetectorInit(Int_t tag)
 	geoTRD->SetSMstatus(13,0);
 	geoTRD->SetSMstatus(14,0);
       }
-      if( tag == kDetectorPhosOnly)
-	TRD->DisableStepManager();
     }
   
   if (iFMD)
@@ -498,13 +506,14 @@ DetectorInit(Int_t tag)
     {
       //=================== EMCAL parameters ============================
 
-      AliEMCAL *EMCAL = new AliEMCALv2("EMCAL", "EMCAL_COMPLETE12SMV1_DCAL_8SM");
+      //Cannot use EMCAL as name since it collides with EMCAL namespace definition
+      AliEMCAL *EMCAL_DET = new AliEMCALv2("EMCAL", "EMCAL_COMPLETE12SMV1_DCAL_8SM");
       // by default Run2 configuration name but the proper geometry name is taken 
       // automatically depending on the anchor run 
       // 2010 - 4 SM, 2011 - 10 SM, 2012 - 12 SM, >2014 - 20 SM
       
       if( tag == kDetectorPhosOnly)
-	EMCAL->DisableStepManager();
+	EMCAL_DET->DisableStepManager();
       
     }
 
