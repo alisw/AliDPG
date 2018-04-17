@@ -34,7 +34,8 @@ Config_LoadLibraries()
     gSystem->Load("libDPMJET");
     gSystem->Load("libTDPMjet");    
   } 
-  gSystem->Load("libgeant321");
+  TString isFluka = gSystem->Getenv("CONFIG_FLUKA");
+  if (isFluka!="on") gSystem->Load("libgeant321");
 
 }
 
