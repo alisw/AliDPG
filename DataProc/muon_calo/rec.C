@@ -1,12 +1,11 @@
-void rec(const char *filename="raw.root")
+void rec(const char *filename="raw.root", const char* options="")
 {
   /////////////////////////////////////////////////////////////////////////////////////////
   //
-  // Reconstruction script for 2010 RAW data
+  // Reconstruction script for RAW data
   //
   /////////////////////////////////////////////////////////////////////////////////////////
 
-  AliReconstruction rec;
 
   // Upload CDB entries from the snapshot (local root file) if snapshot exist
   if (gSystem->AccessPathName("OCDB.root", kFileExists)!=0) { // we don't have the snapshot        
@@ -17,6 +16,6 @@ void rec(const char *filename="raw.root")
     }
   }
 
-  gROOT->Macro(TString::Format("main_rec.C(\"%s\")", filename));
+  gROOT->Macro(TString::Format("main_rec.C(\"%s\", \"%s\")", filename, options));
   
 }

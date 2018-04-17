@@ -1,4 +1,4 @@
-void main_rec(const char *filename="raw.root")
+void main_rec(const char *filename="raw.root", const char* options="")
 {
   /////////////////////////////////////////////////////////////////////////////////////////
   //
@@ -40,7 +40,9 @@ void main_rec(const char *filename="raw.root")
   // AliReconstruction settings
   rec.SetWriteESDfriend(kTRUE);
   rec.SetWriteAlignmentData();
-  rec.SetInput(filename);
+  TString filenamewithopt = filename;
+  filenamewithopt += options;
+  rec.SetInput(filenamewithopt.Data());
   rec.SetUseTrackingErrorsForAlignment("ITS");
 
   /** fast magnetic field **/
