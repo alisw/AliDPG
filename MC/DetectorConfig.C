@@ -339,7 +339,7 @@ DetectorInit(Int_t tag)
       //============================ TPC parameters =====================
 
       AliTPC *TPC = new AliTPCv2("TPC", "Default");
-      if (isGeant4) 
+      if (isGeant4 || isFluka) 
 	TPC->SetPrimaryIonisation(1);
       if( tag == kDetectorPhosOnly)
 	TPC->DisableStepManager();
@@ -537,11 +537,15 @@ DetectorInit(Int_t tag)
     }  
 
   if (iAD){
-    //=================== AD parameters ============================
-
-    AliAD *AD = new AliADv1("AD", "normal AD");
-    if( tag == kDetectorPhosOnly)
-      AD->DisableStepManager();
+     if (!isFluka){ // does not work for now with Fluka
+        //=================== AD parameters ============================
+        AliAD *AD = new AliADv1("AD", "normal AD");
+        if( tag == kDetectorPhosOnly)
+        AD->DisableStepManager();
+     }
+     else {
+	    Printf("AD is disabled, as we are using Fluka");
+     }
   }
 
 }

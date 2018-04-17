@@ -18,7 +18,7 @@ $ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
 ###################
 
 # set job and simulation variables as :
-COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig> --keepTrackRefsFraction <percentage> --ocdbCustom --purifyKineOff"
+COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig> --keepTrackRefsFraction <percentage> --ocdbCustom --purifyKineOff --fluka --geant4"
 
 function runcommand(){
     echo -e "\n"
@@ -161,6 +161,7 @@ CONFIG_OCDBRUN3=""
 CONFIG_PURIFYKINEOFF=""
 CONFIG_HLT=""
 CONFIG_GEANT4=""
+CONFIG_FLUKA=""
 CONFIG_FASTB="on"
 CONFIG_VDT="on"
 CONFIG_MATERIAL=""
@@ -349,6 +350,9 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
 	export CONFIG_GEANT4
+    elif [ "$option" = "--fluka" ]; then
+        CONFIG_FLUKA="on"
+	export CONFIG_FLUKA
     elif [ "$option" = "--nofastB" ]; then
         CONFIG_FASTB=""
     elif [ "$option" = "--novdt" ]; then
@@ -493,6 +497,13 @@ if [[ $CONFIG_MODE == *"Run3"* ]]; then
 	CONFIG_OCDBRUN3="1"
 	export CONFIG_OCDBRUN3
     fi
+fi
+
+### check for Fluka and configure it if needed
+
+if [[ $CONFIG_FLUKA == "on" ]]; then
+    echo "* Linking files needed for Fluka"
+    source $ALIDPG_ROOT/MC/FlukaConfig.sh
 fi
 
 ### check whether we are in OCDB generation job
@@ -720,6 +731,8 @@ echo "No. Events....... $CONFIG_NBKG"
 echo "============================================"
 echo "Detector......... $CONFIG_DETECTOR"
 echo "GEANT4........... $CONFIG_GEANT4"
+echo "FLUKA............ $CONFIG_FLUKA"
+echo "PurifyKineOff.... $CONFIG_PURIFYKINEOFF"
 echo "Fast-B........... $CONFIG_FASTB"
 echo "VDT math......... $CONFIG_VDT"
 echo "Material Budget.. $CONFIG_MATERIAL"

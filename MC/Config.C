@@ -43,6 +43,7 @@ static Int_t   quenchingConfig = 0;         // quenching
 static Float_t qhatConfig      = 1.7;       // q-hat
 static Bool_t  isGeant4        = kFALSE;    // geant4 flag
 static Bool_t  purifyKine      = kTRUE;     // purifyKine flag
+static Bool_t  isFluka         = kFALSE;    // fluka flag
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
 #include "MC/DetectorConfig.C"
@@ -98,6 +99,7 @@ Config()
   printf(">>>>>      random seed: %d \n", seedConfig);
   printf(">>>>>           geant4: %d \n", isGeant4);
   printf(">>>>>       purifyKine: %d \n", purifyKine);
+  printf(">>>>>            fluka: %d \n", isFluka);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
@@ -106,8 +108,14 @@ Config()
   LoadLibraries();
 #endif
 
+  /* Check that it is not set both Geant4 and Fluka */
+  if (isGeant4 && isFluka) {
+     printf(">>>>> You cannot have in your parameters both Geant4 and Fluka set!: isGeant4 = %d, isFluka = %d \n", (Int_t)isGeant4, (Int_t)isFluka);
+     abort();
+  }
+
   /* setup geant3 */
-  if (!isGeant4) new TGeant3TGeo("C++ Interface to Geant3");
+  if (!isGeant4 && !isFluka) new TGeant3TGeo("C++ Interface to Geant3");
 
   /* create galice.root */
   CreateGAlice();
@@ -125,6 +133,14 @@ Config()
     }
     gROOT->LoadMacro(geant4config_macro.Data());
     gROOT->ProcessLine("Geant4Config();");
+  }
+
+  /* configure Fluka if requested */
+  if (isFluka) {
+     gSystem->Load("libfluka.so");
+     new TFluka("C++ Interface to Fluka", 0/*verbositylevel*/);
+     TFluka* fluka = (TFluka*) gMC; 
+     fluka->SetLowEnergyNeutronTransport(1);
   }
 
   /* configure MC generator */
@@ -347,6 +363,12 @@ ProcessEnvironment()
   purifyKine = kTRUE;
   if (gSystem->Getenv("CONFIG_PURIFYKINEOFF"))
     purifyKine = kFALSE;
+
+  // Fluka configuration
+  isFluka = kFALSE;
+  if (gSystem->Getenv("CONFIG_FLUKA"))
+    isFluka = kTRUE;
+
 }
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
@@ -379,7 +401,7 @@ LoadLibraries()
     gSystem->Load("libDPMJET");
     gSystem->Load("libTDPMjet");    
   } 
-  gSystem->Load("libgeant321");
+  if (!isFluka)  gSystem->Load("libgeant321");
 
 }
 #endif
