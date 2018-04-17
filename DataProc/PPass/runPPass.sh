@@ -116,6 +116,8 @@ RECO_ARGS=""
 if [ "$1" == "SPLIT" ]; then
     RECO_ARGS=",$2,$3"
     shift 3
+else
+    RECO_ARGS=",-1,\"raw://\""
 fi
 
 if [ "${CHUNKNAME:0:1}" = "/" ]; then
@@ -238,11 +240,11 @@ echo ""
 echo "running the following rec.C macro:"
 cat rec.C
 echo ""
-echo executing aliroot -l -b -q -x "rec.C(\"$CHUNKNAME\"$RECO_ARGS, \"$triggerSelection\")"
+echo executing aliroot -l -b -q -x "rec.C(\"$CHUNKNAME\", \"$triggerSelection\")"
 echo "" >&2
 echo "rec.C" >&2
 timeStart=`date +%s`
-time aliroot -l -b -q -x "rec.C(\"$CHUNKNAME\"$RECO_ARGS, \"$triggerSelection\")" &> rec.log
+time aliroot -l -b -q -x "rec.C(\"$CHUNKNAME\", \"$triggerSelection\")" &> rec.log
 
 exitcode=$?
 timeEnd=`date +%s`
