@@ -16,6 +16,12 @@ void rec(const char *filename="raw.root", const char* options="")
     }
   }
 
-  gROOT->Macro(TString::Format("main_rec.C(\"%s\", \"%s\")", filename, options));
-  
+
+  if(gSystem->Exec("ls main_rec.C > /dev/null 2>&1")==0){
+    printf("Use main_rec.C macro passed as input\n");
+    gROOT->Macro(TString::Format("main_rec.C(\"%s\", \"%s\")", filename, options));
+  }else{
+    printf("Use main_rec.C macro from AliDPG\n");
+    gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/muon_calo/main_rec.C(\"%s\", \"%s\")", filename, options));
+  }
 }
