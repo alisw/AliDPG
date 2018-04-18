@@ -1,4 +1,4 @@
-Geant4Config()
+void Geant4Config()
 {
 
   if (gClassTable->GetID("TGeant4") == -1) {
