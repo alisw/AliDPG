@@ -44,7 +44,7 @@ static Float_t qhatConfig      = 1.7;       // q-hat
 static Bool_t  isGeant4        = kFALSE;    // geant4 flag
 static Bool_t  purifyKine      = kTRUE;     // purifyKine flag
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
 #include "MC/DetectorConfig.C"
 #include "MC/GeneratorConfig.C"
 #endif
@@ -60,7 +60,7 @@ Config()
 {
 
   /* initialise */
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
   // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
 #else  
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/DetectorConfig.C");
@@ -100,7 +100,7 @@ Config()
   printf(">>>>>       purifyKine: %d \n", purifyKine);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
   // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
 #else  
   LoadLibraries();
@@ -349,7 +349,7 @@ ProcessEnvironment()
     purifyKine = kFALSE;
 }
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
   // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
 #else
 LoadLibraries()

@@ -56,7 +56,7 @@ const Char_t *SimulationName[kNSimulations] = {
 void SimulationDefault(AliSimulation &sim);
 void SimulationConfigPHOS(AliSimulation &sim);
 void SimulationRun3(AliSimulation &sim);
-void AddDetToGRPRun3(AliDAQ::DetectorBits det, int run);
+void AddDetToGRPRun3(AliDAQ::DetectorBits detAdd, AliDAQ::DetectorBits detRem, int run);
 void SetCDBRun3(int run);
 
 AliSimulation* gg_tmp_sim;
@@ -171,7 +171,8 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
    // Default simulation enabling IonTail/Crosstalk for TPC
   case kSimulationDefaultIonTail:
       SimulationDefault(sim);
-      Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
+      Int_t year;
+      year = atoi(gSystem->Getenv("CONFIG_YEAR"));
       if (year < 2015) sim.SetMakeSDigits("TPC TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD");
       else             sim.SetMakeSDigits("TPC TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD AD");
       sim.SetMakeDigitsFromHits("ITS");
@@ -302,7 +303,7 @@ void SimulationRun3(AliSimulation &sim)
   sim.SetRunQA(":");
   //
   printf("Adding new detectors to GRP and suppressing HLT\n");
-  AddDetToGRPRun3(AliDAQ::kMFT | AliDAQ::kFIT, AliDAQ::kHLT, runNumber); // recreate GRP
+  AddDetToGRPRun3((AliDAQ::DetectorBits)(AliDAQ::kMFT | AliDAQ::kFIT), AliDAQ::kHLT, runNumber); // recreate GRP
   AliCDBManager* man = AliCDBManager::Instance();
   man->ClearCache();
   man->SetSpecificStorage("GRP/GRP/Data", "local://./");

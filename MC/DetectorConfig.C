@@ -75,6 +75,7 @@ Int_t iFIT    = 0;
   
 void DetectorDefault();
 void DetectorMuon();
+void DetectorRun3();
 void DetectorInit(Int_t tag);
 void DetectorInitRun3(Int_t tag);
 
