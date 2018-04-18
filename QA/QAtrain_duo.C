@@ -84,7 +84,7 @@ void QAtrain_duo(const char *suffix="", Int_t run = 0,
   // running the main macro
 if (gSystem->AccessPathName("main_QAtrain_duo.C", kFileExists)==0) {
     Printf("Using local main_QAtrain_duo.C");
-    gROOT->Macro(TString::Format("$ALIDPG_ROOT/QA/main_QAtrain_duo.C(\"%s\", %d, \"%s\", %d, \"%s\")", suffix, run, xmlfile, stage, cdb));
+    gROOT->Macro(TString::Format("main_QAtrain_duo.C(\"%s\", %d, \"%s\", %d, \"%s\")", suffix, run, xmlfile, stage, cdb));
   }
   else {
     Printf("Using main_QAtrain_duo.C from AliDPG");    
