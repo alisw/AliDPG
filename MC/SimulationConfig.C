@@ -30,6 +30,7 @@ enum ESimulation_t {
   kSimulationCustom,
   kSimulationDefaultIonTail,
   kSimulationNoTPC,
+  kSimulationNoEMCal,
   kNSimulations
 };
 
@@ -45,7 +46,8 @@ const Char_t *SimulationName[kNSimulations] = {
   "Run3",
   "Custom",
   "SimulationDefaultIonTail",
-  "NoTPC"
+  "NoTPC",
+  "NoEMCal"
 };
 
 
@@ -175,12 +177,20 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
       sim.SetMakeDigitsFromHits("ITS");
       return;
 
-   // Default simulation without TPC TPC
+   // Default simulation without TPC 
   case kSimulationNoTPC:
     SimulationDefault(sim);
     sim.SetRunHLT("");
     sim.SetMakeDigitsFromHits("ITS");
     // sim.SetMakeDigits("ALL -TPC");  // this line does not work, the Digits tree will anyway be created also with this line. Without this line, an empty digits tree for the TPC will be created
+    return;
+
+    // Default simulation without EMCal 
+  case kSimulationNoEMCal:
+    SimulationDefault(sim);
+    Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
+    if (year < 2015) sim.SetMakeSDigits("TRD TOF PHOS HMPID MUON ZDC PMD T0 VZERO FMD");
+    else             sim.SetMakeSDigits("TRD TOF PHOS HMPID MUON ZDC PMD T0 VZERO FMD AD");
     return;
 
   }
