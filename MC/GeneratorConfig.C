@@ -1410,7 +1410,7 @@ GeneratorTherminator2()
     //gSystem->Setenv("THERM2_PARAMS_FreezeOutModel", "BWAVT");
 
     // Example of setting a local xml path for the hydro model
-    //gSystem->Setenv("THERM2_PARAMS_XML_PATH", "lhyquid2dbi/LHCPbPb5500c0005Ti500ti100Tf145.xml");
+    //gSystem->Setenv("THERM2_PARAMS_XML_PATH", "fomodel/lhyquid2dbi/LHCPbPb5500c0005Ti500ti100Tf145.xml");
 
     // Example of setting a GRID xml path for the hydro model
     //gSystem->Setenv("THERM2_PARAMS_XML_PATH", "alien:/alice/<rest_of_GRID_PATH>");
