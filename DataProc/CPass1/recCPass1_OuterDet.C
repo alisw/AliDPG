@@ -19,7 +19,12 @@ void recCPass1_OuterDet(const char *filename="raw.root",Int_t nevents=-1, const 
   Int_t useFullITS_int = (Int_t)useFullITS; // convert to integer to be able to call the main macro
   
   // main macro
-  Printf("\n\n running reco");
-  gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/CPass1/main_recCPass1_OuterDet.C(\"%s\", %d, \"%s\", %d)", filename, nevents, ocdb, useFullITS_int));
+  if (gSystem->AccessPathName("main_recCPass1_OuterDet", kFileExists)==0) {
+    Printf("Using local main_recCPass1_OuterDet");
+    gROOT->Macro(TString::Format("main_recCPass1_OuterDet.C(\"%s\", %d, \"%s\", %d)", filename, nevents, ocdb, useFullITS_int));
+  }
+  else {
+    gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/CPass1/main_recCPass1_OuterDet.C(\"%s\", %d, \"%s\", %d)", filename, nevents, ocdb, useFullITS_int));
+  }
 }
 

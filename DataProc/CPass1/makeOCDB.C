@@ -27,8 +27,13 @@ void makeOCDB(Int_t runNumber, TString  targetOCDBstorage="", TString sourceOCDB
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/ConfigCalibTrain.C");
 
   // main macro
-  gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/CPass1/main_makeOCDB.C(%d, \"%s\", \"%s\", %d)", runNumber, targetOCDBstorage.Data(), sourceOCDBstorage.Data(), detectorBitsQualityFlag));
-
+  if (gSystem->AccessPathName("main_makeOCDB.C", kFileExists)==0) {
+    Printf("Using local main_makeOCDB.C");
+    gROOT->Macro(TString::Format("main_makeOCDB.C(%d, \"%s\", \"%s\", %d)", runNumber, targetOCDBstorage.Data(), sourceOCDBstorage.Data(), detectorBitsQualityFlag));
+  }
+  else {
+    gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/CPass1/main_makeOCDB.C(%d, \"%s\", \"%s\", %d)", runNumber, targetOCDBstorage.Data(), sourceOCDBstorage.Data(), detectorBitsQualityFlag));
+  }
 }
 
 

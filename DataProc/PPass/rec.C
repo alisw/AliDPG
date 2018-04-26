@@ -15,6 +15,11 @@ void rec(const char *filename="raw.root", const char* options="")
   if (cdbMode == "kTRUE") {
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/CreateSnapshot.C");
   }
-  gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/PPass/main_rec.C(\"%s\", \"%s\")", filename, options));
-  
+  if (gSystem->AccessPathName("main_rec.C", kFileExists)==0) {
+    Printf("Using local main_rec.C");
+    gROOT->Macro(TString::Format("main_rec.C(\"%s\", \"%s\")", filename, options));
+  }
+  else {
+    gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/PPass/main_rec.C(\"%s\", \"%s\")", filename, options));
+  }
 }

@@ -28,7 +28,12 @@ void recCPass0(const char *filename="raw.root",Int_t nevents=-1, const char *ocd
   }
   
   // main macro
-  gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/CPass0/main_recCPass0.C(\"%s\", %d, \"%s\", \"%s\")", filename, nevents, ocdb, options));
-  
+  if (gSystem->AccessPathName("main_recCPass0.C", kFileExists)==0) {
+    Printf("Using local main_recCPass0.C");
+    gROOT->Macro(TString::Format("main_recCPass0.C(\"%s\", %d, \"%s\", \"%s\")", filename, nevents, ocdb, options));
+  }
+  else {
+    gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/CPass0/main_recCPass0.C(\"%s\", %d, \"%s\", \"%s\")", filename, nevents, ocdb, options));
+  }
 }
 

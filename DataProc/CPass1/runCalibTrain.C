@@ -54,8 +54,13 @@ void runCalibTrain(Int_t runNumber, const char *inFileName = "AliESDs.root", con
 
 
   // now running the main macro
-  gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/CPass1/main_runCalibTrain.C(%d, \"%s\", \"%s\")", runNumber, inFileName, ocdb));
-  
+  if (gSystem->AccessPathName("main_runCalibTrain.C", kFileExists)==0) {
+    Printf("Using local main_runCalibTrain.C");
+    gROOT->Macro(TString::Format("main_runCalibTrain.C(%d, \"%s\", \"%s\")", runNumber, inFileName, ocdb));
+  }
+  else {
+    gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/CPass1/main_runCalibTrain.C(%d, \"%s\", \"%s\")", runNumber, inFileName, ocdb));
+  }
   return;
   
 }
