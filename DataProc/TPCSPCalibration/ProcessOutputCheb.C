@@ -14,8 +14,14 @@ Bool_t ProcessOutputCheb(TString filesToProcess, Int_t startRun, Int_t endRun, c
     ::Info("ProcessOutputCheb","using %s","$ALIDPG_ROOT/DataProc/TPCSPCalibration/CreateCorrMapObj.C");
   }
 
-  Bool_t retCode = gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/TPCSPCalibration/main_ProcessOutputCheb.C(\"%s\", %d, %d, \"%s\", %d, %d)", filesToProcess.Data(), startRun, endRun, ocdbStorage, (Int_t)corr, (Int_t)dist));
-  
+  Bool_t retCode = kFALSE;
+  if (!gSystem->AccessPathName("main_ProcessOutputCheb.C")) {    
+    Printf("Using local main_ProcessOutputCheb.C");
+    retCode = gROOT->Macro(TString::Format("main_ProcessOutputCheb.C(\"%s\", %d, %d, \"%s\", %d, %d)", filesToProcess.Data(), startRun, endRun, ocdbStorage, (Int_t)corr, (Int_t)dist));
+  }
+  else {
+    retCode = gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/TPCSPCalibration/main_ProcessOutputCheb.C(\"%s\", %d, %d, \"%s\", %d, %d)", filesToProcess.Data(), startRun, endRun, ocdbStorage, (Int_t)corr, (Int_t)dist));
+  }
   return retCode;
   
 }
