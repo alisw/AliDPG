@@ -286,8 +286,8 @@ void SimulationRun3(AliSimulation &sim)
   SetCDBRun3(runNumber);
   //
   sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC");
-  //sim.SetMakeSDigits("MFT TRD TOF PHOS HMPID EMCAL MUON ZDC"); // removed MFT for the time being
-  sim.SetMakeDigits("ALL");
+  sim.SetMakeDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC FIT");
+  //  sim.SetMakeDigits("ALL");
   sim.SetMakeDigitsFromHits("ITS TPC");
    // material budget settings
   if (gSystem->Getenv("CONFIG_MATERIAL")) {
