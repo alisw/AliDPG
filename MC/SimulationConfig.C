@@ -285,7 +285,8 @@ void SimulationRun3(AliSimulation &sim)
   int runNumber = atoi(gSystem->Getenv("DC_RUN"));
   SetCDBRun3(runNumber);
   //
-  sim.SetMakeSDigits("MFT TRD TOF PHOS HMPID EMCAL MUON ZDC");
+  sim.SetMakeSDigits("TRD TOF PHOS HMPID EMCAL MUON ZDC");
+  //sim.SetMakeSDigits("MFT TRD TOF PHOS HMPID EMCAL MUON ZDC"); // removed MFT for the time being
   sim.SetMakeDigits("ALL");
   sim.SetMakeDigitsFromHits("ITS TPC");
    // material budget settings
@@ -303,7 +304,8 @@ void SimulationRun3(AliSimulation &sim)
   sim.SetRunQA(":");
   //
   printf("Adding new detectors to GRP and suppressing HLT\n");
-  AddDetToGRPRun3((AliDAQ::DetectorBits)(AliDAQ::kMFT | AliDAQ::kFIT), AliDAQ::kHLT, runNumber); // recreate GRP
+  AddDetToGRPRun3((AliDAQ::DetectorBits)(AliDAQ::kFIT), AliDAQ::kHLT, runNumber); // recreate GRP
+  //AddDetToGRPRun3((AliDAQ::DetectorBits)(AliDAQ::kMFT | AliDAQ::kFIT), AliDAQ::kHLT, runNumber); // recreate GRP, removed MFT for the time being
   AliCDBManager* man = AliCDBManager::Instance();
   man->ClearCache();
   man->SetSpecificStorage("GRP/GRP/Data", "local://./");
