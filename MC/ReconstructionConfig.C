@@ -287,7 +287,7 @@ void ReconstructionRun3(AliReconstruction &rec)
   gPluginMgr->AddHandler("AliReconstructor", "ITS",
                          "AliITSUReconstructor","ITS", "AliITSUReconstructor()");
 
-  rec.SetRunReconstruction("ALL"); // run cluster finder
+  rec.SetRunReconstruction("ALL -MFT"); // run cluster finder
   rec.SetRunMultFinder(kFALSE);   // to be implemented - CreateMultFinder
   rec.SetRunPlaneEff(kFALSE);     // to be implemented - CreateTrackleter
 
