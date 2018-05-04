@@ -10,9 +10,10 @@ void OCDBRun3(int type=0)
   // common for sim and rec
   
   man->SetSpecificStorage("MUON/Align/Data","alien://folder=/alice/simulation/2008/v4-15-Release/Ideal/");
-  
-  man->SetSpecificStorage("MFT/Align/Data",       "alien://folder=/alice/cern.ch/user/a/auras/OCDB/");
-  man->SetSpecificStorage("MFT/Calib/RecoParam",  "alien://folder=/alice/cern.ch/user/a/auras/OCDB/");
+
+  // removed MFT for the time being
+  // man->SetSpecificStorage("MFT/Align/Data",       "alien://folder=/alice/cern.ch/user/a/auras/OCDB/");
+  // man->SetSpecificStorage("MFT/Calib/RecoParam",  "alien://folder=/alice/cern.ch/user/a/auras/OCDB/");
 
   man->SetSpecificStorage("FIT/Align/Data", "alien://folder=/alice/cern.ch/user/p/pwg_pp/JIRA/UPG-11/OCDB/");
   man->SetSpecificStorage("FIT/Calib/RecoParam", "alien://folder=/alice/cern.ch/user/p/pwg_pp/JIRA/UPG-11/OCDB/");
