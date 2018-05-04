@@ -242,7 +242,7 @@ void DetectorRun3()
   iTRD    = 1;
   iVZERO  = 0;
   iZDC    = 1;
-  iMFT    = 1;
+  iMFT    = 0; // removed MFT for the time being
   iFIT    = 1;
 
 }
