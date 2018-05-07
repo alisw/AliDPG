@@ -84,7 +84,7 @@ void main_recCPass0(const char *filename="raw.root",Int_t nevents=-1, const char
   }
 
   /** fast magnetic field **/
-  Bool_t useFast=kTRUE;
+  Bool_t useFast=kFALSE; // disable fast B due to issue in the muon arm (07-May-2018)
   if(gSystem->Getenv("ALIEN_JDL_DISABLEFASTB")){
     TString optionFast=gSystem->Getenv("ALIEN_JDL_DISABLEFASTB");
     if(optionFast!=""){
