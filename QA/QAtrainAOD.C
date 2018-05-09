@@ -37,7 +37,13 @@ void QAtrainAOD(Bool_t isMC=kFALSE, Int_t iCollisionType=0){
     }
   }
 
-  gROOT->Macro(TString::Format("$ALIDPG_ROOT/QA/main_QAtrainAOD.C(%d, %d)", (Int_t)isMC, iCollisionType));
-
+  if (gSystem->AccessPathName("main_QAtrainAOD.C", kFileExists)==0) {
+    Printf("Using local main_QAtrainAOD.C");
+    gROOT->Macro(TString::Format("main_QAtrainAOD.C(%d, %d)", (Int_t)isMC, iCollisionType));
+  }
+  else {
+    Printf("Using main_QAtrainAOD.C from AliDPG"); 
+    gROOT->Macro(TString::Format("$ALIDPG_ROOT/QA/main_QAtrainAOD.C(%d, %d)", (Int_t)isMC, iCollisionType));
+  }
   
 }
