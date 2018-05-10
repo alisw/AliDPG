@@ -162,8 +162,6 @@ void CopyCPass(const char* alienFileList, const char* outputFileList, Int_t time
   gEnv->SetValue("XNet.TransactionTimeout", timeOut);
   TFile::SetOpenTimeout(timeOut);
 
-  TGrid::Connect("alien");
-
   ifstream inputFile;
   inputFile.open(alienFileList);
   ofstream outputFile;
@@ -181,6 +179,12 @@ void CopyCPass(const char* alienFileList, const char* outputFileList, Int_t time
     TString src("");
     src.ReadLine(inputFile);
     if (src.IsNull()) continue;
+    if (!counter && !gGrid) {
+      TUrl url(src);
+      if (url.GetProtocol() == "alien") {
+        TGrid::Connect("alien");
+      }
+    }
     TString dst=src;
     dst.ReplaceAll("alien:///","");
     dst.ReplaceAll("/","_");
