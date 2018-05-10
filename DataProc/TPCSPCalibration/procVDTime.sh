@@ -9,7 +9,11 @@ Usage() {
 ##############################################################################
 extractFileNamesFromXMLCollection()
 {
-    egrep turl|sed 's|^.*turl\s*=\s*"\s*\([a-zA-Z]*://.*\.root\).*$|\1|g'
+    if [[ ! $ROOTSYS || ! $ALIDPG_ROOT ]]; then
+        grep turl|sed 's|^.*turl\s*=\s*"\s*\([a-zA-Z]*://.*\.root\).*$|\1|g'
+        return
+    fi
+    "$ALIDPG_ROOT"/DataProc/Common/readAliEnCollection.sh
 }
 
 ##############################################################################
