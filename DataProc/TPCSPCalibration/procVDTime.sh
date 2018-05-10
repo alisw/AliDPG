@@ -100,7 +100,7 @@ export autoCacheSize=0
 echo "onGrid=$onGrid, treeCacheSize=$treeCacheSize, autoCacheSize=$autoCacheSize"
 
 echo sourcing alilog4bash.sh
-source $ALICE_PHYSICS/PWGPP/scripts/alilog4bash.sh  
+[[ -e $ALICE_PHYSICS/PWGPP/scripts/alilog4bash.sh ]] && source "$ALICE_PHYSICS"/PWGPP/scripts/alilog4bash.sh || source "$ALICE_ROOT"/libexec/alilog4bash.sh
 
 loadLibMacro="$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/LoadLibraries.C"
 inclMacro="$ALIDPG_ROOT/DataProc/TPCSPCalibration/includeMacro.C"
