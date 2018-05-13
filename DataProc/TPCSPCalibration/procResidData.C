@@ -2,9 +2,12 @@
 #include "AliTPCDcalibRes.h"
 #include <TString.h>
 #include <TSystem.h>
+#include <TInterpreter.h>
+#include <TROOT.h>
 #endif
 
 AliTPCDcalibRes*  CreateSetCalib(int run,int tmin=0,int tmax=0x7fffffff,const char* inp="lst.txt");
+void loadLocalOCDBIfExists(AliTPCDcalibRes *clb);
 AliTPCDcalibRes* clb = 0;
 
 //================================================================================================
@@ -21,6 +24,7 @@ void procResidData(int mode,                       // processing mode
   if (mode==0) {   // vdrift and time bins definition
     printf("VDrift extraction and time bins defintion for run %d\n",run);
     clb = CreateSetCalib(run,tmin,tmax,inp);
+    loadLocalOCDBIfExists(clb);
     clb->CalibrateVDrift();
     clb->Save();
     return;
@@ -34,6 +38,7 @@ void procResidData(int mode,                       // processing mode
       if (!completeMissing) return;
       printf("autocompletion mode ON: creating object and extractin vdrift");
       clb = CreateSetCalib(run,tmin,tmax,inp);
+      loadLocalOCDBIfExists(clb);
       clb->CalibrateVDrift();
       clb->Save();
     }
@@ -49,6 +54,7 @@ void procResidData(int mode,                       // processing mode
       if (!completeMissing) return;
       printf("autocompletion mode ON: creating object and extracting vdrift and maps");
       clb = CreateSetCalib(run,tmin,tmax,inp);
+      loadLocalOCDBIfExists(clb);
       clb->CalibrateVDrift();
       clb->Save();      
     }
@@ -66,6 +72,7 @@ void procResidData(int mode,                       // processing mode
       if (!completeMissing) return;
       printf("autocompletion mode ON: creating object and extracting vdrift and maps");
       clb = CreateSetCalib(run,tmin,tmax,inp);
+      loadLocalOCDBIfExists(clb);
       clb->CalibrateVDrift();
       clb->ProcessFromDeltaTrees();
       clb->Save();      
@@ -81,6 +88,15 @@ void procResidData(int mode,                       // processing mode
   //
 }
 
+//________________________________________________________________________
+void loadLocalOCDBIfExists(AliTPCDcalibRes *clb) {
+  if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists) == 0) {
+    // Override OCDB configuration if applicable (mostly for local tests or release validation)
+    clb->Init();  // does AliCDBManager::SetDefaultStorage()
+    gROOT->LoadMacro("localOCDBaccessConfig.C");
+    gInterpreter->ProcessLine("localOCDBaccessConfig();");
+  }
+}
 
 //________________________________________________________________________
 AliTPCDcalibRes*  CreateSetCalib(int run,int tmin,int tmax,const char* inp)
