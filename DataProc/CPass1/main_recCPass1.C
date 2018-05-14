@@ -86,6 +86,9 @@ void main_recCPass1(const char *filename="raw.root",Int_t nevents=-1, const char
   else {
     // setup ocdb by custom (if any) or default settings
     if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists)==0) {
+      TString envRunNumBuf = gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER");
+      Int_t envRunNum = envRunNumBuf.Atoi();
+      if (envRunNum > 0) man->SetRun(envRunNum);
       gInterpreter->ProcessLine("localOCDBaccessConfig();");
     }
     else { // default settings
