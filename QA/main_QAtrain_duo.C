@@ -146,7 +146,7 @@ void main_QAtrain_duo(const char *suffix="", Int_t run = 0,
   PrintSettings();
 
   TString cdbString(cdb);
-  if (cdbString.Contains("raw://"))
+  if (cdbString.Contains("raw://") && !gSystem->Getenv("OCDB_PATH"))
   {
     TGrid::Connect("alien://");
     if (!gGrid || !gGrid->IsConnected()) {
