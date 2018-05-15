@@ -51,7 +51,7 @@ fi
 
 if [ -f "QAtrain_duo.C" ]; then
     echo "QAtrain_duo macro found"
-    if grep -q -E -e "/cpass1|cpass1/" *.xml; then
+    if grep -q -E -e "/cpass1|cpass1/" *.xml || grep -q -E -e "/cpass1|cpass1/" "$1"; then
         echo "* Running QA duo on _barrel" >&2
         time aliroot -b -q -x QAtrain_duo.C\(\"_barrel\",$runNum,\"$1\",$2\) >stdout.barrel.log 2>stderr.barrel.log
 

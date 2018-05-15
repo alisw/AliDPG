@@ -146,7 +146,7 @@ void main_QAtrain_duo(const char *suffix="", Int_t run = 0,
   PrintSettings();
 
   TString cdbString(cdb);
-  if (cdbString.Contains("raw://"))
+  if (cdbString.Contains("raw://") && !gSystem->Getenv("OCDB_PATH"))
   {
     TGrid::Connect("alien://");
     if (!gGrid || !gGrid->IsConnected()) {
@@ -235,8 +235,8 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
       disableESDtrackQA=kFALSE;
       useEmptyStringForPHOS=kTRUE;
     }else if(ver==5){
-      if(n1>9 || (n1==9 && n2>=14)) disableESDtrackQA=kFALSE;
-      if(n1>9 || (n1==9 && n2>=24)) useEmptyStringForPHOS=kTRUE;
+      if(n1>9 || (n1==9 && n2>=14)) disableESDtrackQA=kFALSE;  // >= v5-09-14
+      if(n1>9 || (n1==9 && n2>=24)) useEmptyStringForPHOS=kTRUE;  // >= v5-09-24
     }
   }
 
