@@ -624,7 +624,8 @@ void DetectorInitRun3(Int_t tag)
     {
       //=================== PIPE parameters ============================
 
-      AliPIPE *PIPE = new AliPIPEv3("PIPE", "Beam Pipe");
+      // AliPIPE *PIPE = new AliPIPEv3("PIPE", "Beam Pipe");
+      AliPIPE *PIPE = new AliPIPEupgrade("PIPE", "Beam Pipe");
     }
  
   if (iITS)
