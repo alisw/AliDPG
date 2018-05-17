@@ -115,6 +115,7 @@ void UpdateFlags()
       useV0tender        = kFALSE;
       iJETAN             = 0;
       iJETANdelta        = 0;
+      iPWGHFvertexing    = 0;
       iPWGDQJPSIfilter   = 0;
       iPWGPP             = 0; 
       iPWGLFForward      = 0; 
