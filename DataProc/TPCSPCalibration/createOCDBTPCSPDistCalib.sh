@@ -89,6 +89,36 @@ if [[ ! -f "$locMacro" ]] ; then cp $macroName ./ ; fi
 
 time aliroot -b -q "${locMacro}(\"$inputFileList\", $startRun, $endRun, \"$targetOCDBDir\",$corr ,$dist)" >> ocdb.log
 
+if [[ $ALIEN_JDL_CREATEOCDBARCHIVE ]]; then
+  # Creates OCDB archive and macro to access it in the same archive, upon request
+  cat > localOCDBaccessConfig.C <<EOF
+void localOCDBaccessConfig() {
+  cout << "Using localOCDBaccessConfig to set various specific storages" << endl;
+  const TString ocdbPaths[2] = { "./OCDB", "../OCDB" };
+  TString ocdbPath;
+  for (int i=0; i<2; i++) {
+    if (gSystem->AccessPathName(ocdbPaths[i].Data(), kFileExists) == 0) {
+      ocdbPath = "local://";
+      ocdbPath += ocdbPaths[i];
+      break;
+    }
+  }
+  if (ocdbPath.IsNull()) {
+    cout << "FATAL: cannot find local OCDB anywhere" << endl;
+    gSystem->Exit(1);
+  }
+  AliCDBManager *cdb = AliCDBManager::Instance();
+  if (!cdb->IsDefaultStorageSet()) {
+    cout << "FATAL: cannot set specific storages if no default storage was set before!" << endl;
+    gSystem->Exit(1);
+  }
+$(cd ${targetOCDBDir//local:\/\/} && ls -1 */*/*/*.root 2> /dev/null | sed -e 's!^\([^/]*/[^/]*/[^/]*\).*$!\1!' | sort -u | xargs -n1 -IXXX echo '  cdb->SetSpecificStorage("/XXX", ocdbPath.Data());')
+}
+EOF
+  rsync -a ${targetOCDBDir//local:\/\/}/ OCDB/
+  tar cjvvf "$ALIEN_JDL_CREATEOCDBARCHIVE" localOCDBaccessConfig.C OCDB/
+fi
+
 #if [ "$corr" == "1" ]; then
 #    time aliroot -b -q "${locMacro}(\"$inputFileList\", $startRun, $endRun, \"$targetOCDBDir\",1)" >> ocdb.log
 #fi
