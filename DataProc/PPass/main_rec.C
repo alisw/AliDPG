@@ -8,6 +8,14 @@ void main_rec(const char *filename="raw.root", const char* options="")
 
   
   AliReconstruction rec;
+
+  TString evtPerJobStr = gSystem->Getenv("EVENTS_PER_JOB");
+  Int_t evtPerJob = evtPerJobStr.Atoi()-1;
+  if (evtPerJob >= 0) {
+    printf("Limiting to %d events\n", evtPerJob+1);
+    rec.SetEventRange(0, evtPerJob);
+  }
+
   // Set reconstruction flags (skip detectors here if neded with -<detector name>
 
   // do we extract the TPC recpoints in advance
@@ -48,12 +56,20 @@ void main_rec(const char *filename="raw.root", const char* options="")
     rec.SetCDBSnapshotMode("OCDB.root");
   }
   else {
+    AliCDBManager* man = AliCDBManager::Instance();
     // setup ocdb by custom (if any) or default settings
     if (gSystem->AccessPathName("OCDBconfig.C", kFileExists)==0) {
       gROOT->ProcessLine("OCDBconfig.C");
     }
+    else if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists)==0) {
+      // Alternative OCDB setup (release validation/override)
+      man->SetDefaultStorage("raw://");
+      TString envRunNumBuf = gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER");
+      Int_t envRunNum = envRunNumBuf.Atoi();
+      if (envRunNum > 0) man->SetRun(envRunNum);
+      gInterpreter->ProcessLine("localOCDBaccessConfig();");
+    }
     else { // default settings
-      AliCDBManager* man = AliCDBManager::Instance();
       man->SetRaw(kTRUE);
     }
     //
