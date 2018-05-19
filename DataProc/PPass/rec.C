@@ -11,6 +11,10 @@ void rec(const char *filename="raw.root", const char* options="")
   if (gSystem->AccessPathName("OCDBconfig.C", kFileExists)==0) {
     gROOT->LoadMacro("OCDBconfig.C");
   }
+  // Alternative OCDB setup (release validation/override)
+  if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists)==0) {
+    gROOT->LoadMacro("localOCDBaccessConfig.C");
+  }
   TString cdbMode = gSystem->Getenv("OCDB_SNAPSHOT_CREATE");
   if (cdbMode == "kTRUE") {
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/CreateSnapshot.C");
