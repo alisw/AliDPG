@@ -187,7 +187,7 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE)
 
   Bool_t needGrid=kFALSE;
   if(merge || doCDBconnect) needGrid=kTRUE;
-  if(isMC && gSystem->Getenv("OCDB_PATH")) needGrid=kFALSE;
+  if(gSystem->Getenv("OCDB_PATH")) needGrid=kFALSE;
 
   if (needGrid) {
     TGrid::Connect("alien://");
