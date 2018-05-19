@@ -22,6 +22,11 @@ void AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE)
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGJE/macros/AddTaskJetCluster.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGJE/macros/AddTaskJetBackgroundSubtract.C");
   */
+
+  if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists) == 0) {
+    gROOT->LoadMacro("localOCDBaccessConfig.C");
+  }
+
   // main AOD macro
   if (gSystem->AccessPathName("main_AODtrainRawAndMC.C", kFileExists)==0) {
     Printf("Using local main_AODtrainRawAndMC.C");
