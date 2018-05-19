@@ -119,7 +119,7 @@ void main_AODtrain(Int_t merge=0)
 
   PrintSettings();
 
-  if (merge || doCDBconnect) {
+  if ((merge || doCDBconnect) && !gSystem->Getenv("OCDB_PATH")) {
     TGrid::Connect("alien://");
     if (!gGrid || !gGrid->IsConnected()) {
       ::Error("AODtrain", "No grid connection");
