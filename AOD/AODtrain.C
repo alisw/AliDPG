@@ -22,6 +22,11 @@ void AODtrain(Int_t merge=0){
   //gROOT->LoadMacro("$ALICE_PHYSICS/PWGJE/macros/AddTaskJetCluster.C");
   //gROOT->LoadMacro("$ALICE_PHYSICS/PWGJE/macros/AddTaskJetBackgroundSubtract.C");
   
+
+  if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists) == 0) {
+    gROOT->LoadMacro("localOCDBaccessConfig.C");
+  }
+
   if (gSystem->AccessPathName("main_AODtrain.C", kFileExists)==0) {
     Printf("Using local main_AODtrain.C");
     gROOT->Macro(TString::Format("main_AODtrain.C(%d)", merge));
