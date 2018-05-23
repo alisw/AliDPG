@@ -1410,9 +1410,16 @@ GeneratorTherminator2()
 AliGenerator *
 GeneratorALIGENMC()
 {
+  // select aligenmc as proxy generator
   AliGenExtExec *gener = new AliGenExtExec();
   gener->SetPathScript("$ALIDPG_ROOT/MC/aligenmc/gen_aligenmc.sh");
-  // how to pass parameters ???
+
+  // configure aligenmc options
+  gSystem->Setenv("ALIGENMC_PACKAGES", "AliGenerators/v20180515-1");
+  // gSystem->Setenv("ALIGENMC_GENERATOR", "jewel");
+  gSystem->Setenv("ALIGENMC_GENERATOR", "pythia8");
+  gSystem->Setenv("ALIGENMC_OPTIONS", "");
+
   return gener;
 }
 

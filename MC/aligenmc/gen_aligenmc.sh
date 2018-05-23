@@ -8,4 +8,4 @@ fi
 
 echo "running in `pwd`, writing HepMC to $1"
 
-aligenmc -p AliGenerators/v20180515-1 -g jewel -o $1
+aligenmc ${ALIGENMC_PACKAGES:+-p $ALIGENMC_PACKAGES} ${ALIGENMC_GENERATOR:+-g $ALIGENMC_GENERATOR} ${ALIGENMC_OPTIONS:+$ALIGENMC_OPTIONS} -o $1
