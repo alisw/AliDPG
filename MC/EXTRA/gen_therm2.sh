@@ -102,7 +102,7 @@ fi
 echo "running in `pwd`, writing HepMC to $1"
 
 # prepare environment
-eval $(/cvmfs/alice-nightlies.cern.ch/bin/alienv printenv Therminator2::v2.0.3-alice1_PWGMMTEST-2)
+eval $(/cvmfs/alice.cern.ch/bin/alienv printenv Therminator2::v2.0.3-alice1-1)
 
 if [ -d events/ ];
 then
