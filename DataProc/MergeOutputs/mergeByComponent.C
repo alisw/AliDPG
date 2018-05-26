@@ -188,6 +188,9 @@ void CopyCPass(const char* alienFileList, const char* outputFileList, Int_t time
     TString dst=src;
     dst.ReplaceAll("alien:///","");
     dst.ReplaceAll("/","_");
+    if (dst.Length() > 240) {
+      dst = src.MD5();
+    }
     Bool_t result = TFile::Cp(src.Data(),dst.Data(),kTRUE);
     AliSysInfo::AddStamp(dst.Data(),counter, result);
     if (result) 
