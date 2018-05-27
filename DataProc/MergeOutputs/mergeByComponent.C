@@ -190,6 +190,9 @@ void CopyCPass(const char* alienFileList, const char* outputFileList, Int_t time
     dst.ReplaceAll("/","_");
     if (dst.Length() > 240) {
       dst = src.MD5();
+      dst.Append("_");
+      dst.Append(gSystem->BaseName(src));
+      cout << "Note: long file name " << src << " will be copied locally as " << dst << endl;
     }
     Bool_t result = TFile::Cp(src.Data(),dst.Data(),kTRUE);
     AliSysInfo::AddStamp(dst.Data(),counter, result);
