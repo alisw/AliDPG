@@ -22,6 +22,25 @@ echo "========================================="
 
 MACROPATH=""
 
+### check environment
+
+if [ "$ALIDPG_ROOT" = "" ]; then
+
+    if [ -f "alidpg.tgz" ]; then
+
+	echo "Using AliDPG from tarball"
+	tar zxvf alidpg.tgz
+	export ALIDPG_ROOT=AliDPG
+	
+    else
+	
+	echo "*! ERROR: ALIDPG_ROOT is not set!"
+	echo "ERROR: ALIDPG_ROOT is not set!" > validation_error.message
+	exit
+	
+    fi
+fi
+
 for testPath in AODtrainsim.C AODtrain.C $ALIDPG_ROOT/AOD/AODtrainsim.C $ALIDPG_ROOT/AOD/AODtrain.C; do
     if [ -f "$testPath" ]; then
         MACROPATH="$testPath"
