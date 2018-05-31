@@ -897,15 +897,15 @@ if [[ $CONFIG_MODE == *"qa"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
 fi
 
-### AODtrainsim.C
+### AODtrainRawAndMC.C
 
 if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
     echo "AliAOD.root" >> validation_extrafiles.list
 
-    AODTRAINSIMC=$ALIDPG_ROOT/AOD/AODtrainsim.C
-    if [ -f AODtrainsim.C ]; then
-	AODTRAINSIMC=AODtrainsim.C
+    AODTRAINSIMC=$ALIDPG_ROOT/AOD/AODtrainRawAndMC.C\(0,kTRUE\)
+    if [ -f AODtrainRawAndMC.C ]; then
+	AODTRAINSIMC=AODtrainRawAndMC.C\(0,kTRUE\)
     fi
 
     rm -f outputs_valid &>/dev/null

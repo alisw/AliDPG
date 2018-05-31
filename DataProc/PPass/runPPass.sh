@@ -187,11 +187,11 @@ else
     echo "Cosmics type, not using mergeQAgroups"
 fi
 
-if [ -f AODtrain.C ]; then
-    echo "Use AODtrain.C macro passed as input"
+if [ -f AODtrainRawAndMC.C ]; then
+    echo "Use AODtrainRawAndMC.C macro passed as input"
 elif [ "$pass_type" != "cosmics" ]; then
-    echo "Use AODtrain.C macro from AliDPG"
-    cp $ALIDPG_ROOT/AOD/AODtrain.C .
+    echo "Use AODtrainRawAndMC.C macro from AliDPG"
+    cp $ALIDPG_ROOT/AOD/AODtrainRawAndMC.C .
 else 
     echo "Cosmics type, not using AODtrain"
 fi
@@ -375,20 +375,20 @@ if [ -f QAtrain_duo.C ]; then
     fi
 fi
 
-if [ -f AODtrain.C ]; then
+if [ -f AODtrainRawAndMC.C ]; then
     rm -f outputs_valid &>/dev/null
     echo "AliAOD.root" >> validation_extrafiles.list
 
     echo "* Running the FILTERING train..."
     echo ""
-    echo "running the following AODtrain.C macro:"
-    cat AODtrain.C
+    echo "running the following AODtrainRawAndMC.C macro:"
+    cat AODtrainRawAndMC.C
     echo ""
-    echo executing aliroot -b -q  -x AODtrain.C\(\)
+    echo executing aliroot -b -q  -x AODtrainRawAndMC.C\(\)
     echo "" >&2
-    echo "AODtrain.C" >&2
+    echo "AODtrainRawAndMC.C" >&2
     timeStart=`date +%s`
-    time aliroot -b -q  -x AODtrain.C\(\) &> aod.log
+    time aliroot -b -q  -x AODtrainRawAndMC.C\(\) &> aod.log
 
     exitcode=$?
     timeEnd=`date +%s`
@@ -399,7 +399,7 @@ if [ -f AODtrain.C ]; then
     echo "Exit code: $exitcode"
     
     if [ $exitcode -ne 0 ]; then
-        echo "AODtrain.C exited with code $exitcode" > validation_error.message
+        echo "AODtrainRawAndMC.C exited with code $exitcode" > validation_error.message
         exit 200
     fi
 
