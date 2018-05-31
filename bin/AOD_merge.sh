@@ -41,7 +41,7 @@ if [ "$ALIDPG_ROOT" = "" ]; then
     fi
 fi
 
-for testPath in AODtrainsim.C AODtrain.C $ALIDPG_ROOT/AOD/AODtrainsim.C $ALIDPG_ROOT/AOD/AODtrain.C; do
+for testPath in AODtrainRawAndMC.C $ALIDPG_ROOT/AOD/AODtrainRawAndMC.C; do
     if [ -f "$testPath" ]; then
         MACROPATH="$testPath"
         break
