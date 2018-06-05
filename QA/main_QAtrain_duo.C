@@ -210,8 +210,9 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   // Fixes/protections for specific AliRoot Versions
   // ESD track QA can be run for AliPhysics >= v5-09-14
   // PHOS QA tasks need different arguments starting for AliPhysics >= v5-09-24
-  Bool_t disableESDtrackQA=kTRUE;
-  Bool_t useEmptyStringForPHOS=kFALSE;
+  // we expect by default to be using an AliPhysics recent than the two above
+  Bool_t disableESDtrackQA=kFALSE;
+  Bool_t useEmptyStringForPHOS=kTRUE;
 
   if(!gSystem->Getenv("ALIEN_JDL_PACKAGES"))
     if(gSystem->Getenv("ALIEN_PACKAGES"))
@@ -231,12 +232,12 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     Char_t str2[20];
     sscanf(aliph.Data(),"AliPhysics::v%d-%d-%02d%s",&ver,&n1,&n2,str2);
     printf("XXXXXXXXX=> %s\n",aliph.Data());
-    if(ver>5){
-      disableESDtrackQA=kFALSE;
-      useEmptyStringForPHOS=kTRUE;
+    if(ver<5){
+      disableESDtrackQA=kTRUE;
+      useEmptyStringForPHOS=kFALSE;
     }else if(ver==5){
-      if(n1>9 || (n1==9 && n2>=14)) disableESDtrackQA=kFALSE;
-      if(n1>9 || (n1==9 && n2>=24)) useEmptyStringForPHOS=kTRUE;
+      if(n1<9 || (n1==9 && n2<14)) disableESDtrackQA=kTRUE;  // < v5-09-14
+      if(n1<9 || (n1==9 && n2<24)) useEmptyStringForPHOS=kFALSE;  // < v5-09-24
     }
   }
 
