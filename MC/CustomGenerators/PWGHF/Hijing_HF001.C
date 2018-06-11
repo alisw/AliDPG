@@ -1,6 +1,10 @@
 AliGenerator *
 GeneratorCustom(TString opt = "")
 {
+  AliGenCocktail *ctl  = GeneratorCocktail("Hijing_HF");
+  AliGenerator   *hij  = GeneratorHijing();
+  ctl->AddGenerator(hij, "Hijing", 1.);
+
   const Char_t *label[2][3] = {
     "chadr PYTHIA", "chadr PYTHIA", "cele PYTHIA",
     "bchadr PYTHIA", "bchadr PYTHIA", "bele PYTHIA"
@@ -17,6 +21,8 @@ GeneratorCustom(TString opt = "")
       idecay = iopt;
   //
   AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], kPythia6Tune_Perugia2011);
+  //
+  TFormula *formula = new TFormula("Signals","max(1.,120.*(x<5.)+80.*(1.-x/20.)*(x>5.)*(x<11.)+240.*(1.-x/13.)*(x>11.))");
   //
   Float_t pth[4] = {2.76, 20., 50., 1000.};
   Int_t ipt;

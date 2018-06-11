@@ -1,4 +1,4 @@
-#if !defined(__CINT__) || defined(__MAKECINT__)
+#if !(defined(__CLING__)  || defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
 #include <TSystem.h>
 #include <TMap.h>
 #include <TObjArray.h>
@@ -12,6 +12,11 @@
 #include "AliLog.h"
 #include "TStopwatch.h"
 #endif
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#include "OCDBConfig.C"
+#endif
+
 
 void CreateSnapshot(const char* snapshotName=0, const char* rawdata=0);
 
@@ -79,18 +84,33 @@ const Char_t *snapshotName[2] = {
   "OCDBrec.root"
 };
 
-CreateSnapshot(Int_t mode)
+void CreateSnapshot(Int_t mode)
 {
 
-  gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+  TString ocdbRun3 = gSystem->Getenv("CONFIG_OCDBRUN3");
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else
+  if(ocdbRun3.IsNull())
+    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+  else
+    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBRun3.C");
+#endif
   
-  OCDBConfig(kOCDBDefault, mode);
+  if(!ocdbRun3.IsNull()){
+    gROOT->ProcessLine(Form("OCDBRun3(%d);",mode));
+  }
+  else{
+    TString ocdbCustom = gSystem->Getenv("CONFIG_OCDBCUSTOM");
+    OCDBConfig(ocdbCustom.IsNull() ? kOCDBDefault : kOCDBCustom, mode);
+  }
   CreateSnapshot(snapshotName[mode]);
-  
 }
 
 void CreateSnapshot(const char* snapshotName, const char* rawdata)
 {
+
   TStopwatch sw;
   sw.Start();
   AliCDBManager* man = AliCDBManager::Instance();
@@ -122,7 +142,7 @@ void CreateSnapshot(const char* snapshotName, const char* rawdata)
 	exit(1);
       }
       reader->NextEvent();
-      int run = reader->GetRunNumber();   
+      run = reader->GetRunNumber();   
       delete reader;
       printf("I-CreateSnapshot: Extracted run number %d from %s\n",run,rawdataS.Data());
     }

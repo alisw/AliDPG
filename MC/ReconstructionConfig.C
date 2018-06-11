@@ -8,14 +8,23 @@
 /*****************************************************************/
 /*****************************************************************/
 
+#if (!defined(__CLING__) && !defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
+#include "AliMCEventHandler.h"
+#include "AliMagF.h"
+#endif
+
 enum EReconstruction_t {
   kReconstructionDefault,
   kReconstructionMuon,
   kReconstructionMuonOnly,
+  kReconstructionPhosOnly,
   kReconstructionITSpureSA,
   kReconstructionNoSDD,  
   kReconstructionRun1TrackingPID,
+  kReconstructionRun3,
   kReconstructionCustom,
+  kReconstructionNoTPC,
+  kReconstructionNoEMCal,
   kNReconstructions
 };
 
@@ -23,17 +32,30 @@ const Char_t *ReconstructionName[kNReconstructions] = {
   "Default",
   "Muon",
   "MuonOnly",
+  "PhosOnly",
   "ITSpureSA",
   "NoSDD",
   "Run1TrackingPID",
-  "Custom"
+  "Run3",
+  "Custom",
+  "NoTPC",
+  "NoEMCal"
 };
+
+void ReconstructionDefault(AliReconstruction &rec);
+void ReconstructionRun3(AliReconstruction &rec);
+void SetCDBRun3(int run);
+
+AliITSRecoParam *OverrideITSRecoParam_VertexerSmearMC();
+AliITSRecoParam *OverrideITSRecoParam_NoSDD_pPb2016();
+AliITSRecoParam *OverrideITSRecoParam_ITSpureSA_PbPb2015();
 
 /*****************************************************************/
 
-ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
+AliReconstruction* gg_tmp_rec;
+void ReconstructionConfig(AliReconstruction &rec, int tag_tmp)
 {
-
+  EReconstruction_t tag = (EReconstruction_t) tag_tmp;
   printf(">>>>> ReconstructionConfig: %s \n", ReconstructionName[tag]);
 
   /** fast magnetic field **/
@@ -46,8 +68,86 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     AliMagF::SetFastFieldDefault(kTRUE);
  }
 
+  /** Flag to impose or revert at run-time the bugfix in AliITStrackerMI **/
+  Bool_t doWithBug=kFALSE;
+  if(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR")){
+    Int_t year = atoi(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"));
+    if(year<2018){
+      if(gSystem->Getenv("ALIEN_JDL_LPMANCHORPASSNAME")){
+	TString passname=gSystem->Getenv("ALIEN_JDL_LPMANCHORPASSNAME");
+	TString periodname=gSystem->Getenv("CONFIG_PERIOD");
+	// the bug should be imposed for reconstructions done with AliRoot<v5-09-21
+	// pass1 of data colelcted before 2017
+	// pass4 of pp 2010
+	// pass2, pass3 and pass4 of LHC15n
+	// pass2_UD an lowIR passes of Pb-Pb LHC15o
+	if(passname.Contains("pass1")) doWithBug=kTRUE;
+	if(year==2010 && passname.Contains("pass4")) doWithBug=kTRUE;
+	if(periodname=="LHC15n"){
+	  if(passname=="pass4" || passname=="pass3" || passname=="pass2") doWithBug=kTRUE;
+	}
+	if(periodname=="LHC15o"){
+	  if(passname.Contains("pass5_lowIR") || passname.Contains("pass4_lowIR") ||
+	     passname.Contains("pass3_lowIR") || passname.Contains("pass2_lowIR") ||
+	     passname.Contains("pass2_UD")) doWithBug=kTRUE;
+	}
+      }
+    }
+  }
+  Bool_t hasBugFixed=kFALSE;
+  if(gSystem->Getenv("ALIEN_JDL_PACKAGES")){
+    // Bug fix introfuced in v5-09-21
+    // No need to re-impose it for AliRoot<v5-09-21
+    TString packg=gSystem->Getenv("ALIEN_JDL_PACKAGES");
+    Int_t pos1=packg.Index("AliPhysics");
+    TString subs=packg(pos1,packg.Length()-pos1);
+    Int_t pos2=subs.Index("VO_ALICE");
+    if(pos2<=0) pos2=subs.Length();
+    TString aliph=subs(0,pos2);
+    Int_t ver,n1,n2;
+    Char_t str2[20];
+    sscanf(aliph.Data(),"AliPhysics::v%d-%d-%02d%s",&ver,&n1,&n2,str2);
+    if(ver>5)  hasBugFixed=kTRUE;
+    else if(ver==5){
+      if(n1>9 || (n1==9 && n2>=21)) hasBugFixed=kTRUE;
+    }
+  }
+  if(!hasBugFixed){
+    printf("AliRoot version <v5-09-21 no need to impose the fAfterV0 bug\n");
+  }
+  if(hasBugFixed && doWithBug){
+    if (AliITStrackerMI::Class()->GetMethod("SetFixBugAfterV0","false")) {
+      printf("Call SetFixBugAfterV0(kFALSE) to impose the fAfterV0 bug to match the corresponding raw data pass\n");
+      gROOT->ProcessLine("AliITStrackerMI::SetFixBugAfterV0(kFALSE)");
+    }else{
+      printf("ERROR: imposing of V0 bug in AliITStrackerMI is requested, but AliRoot version is not compatible\n");
+      abort();
+    }
+  }
+
   TString system = gSystem->Getenv("CONFIG_SYSTEM");
   
+  // subsidiary handler for mc-to-mc embedding
+  TString bgDir = gSystem->Getenv("CONFIG_BGEVDIR");
+  if (!bgDir.IsNull()) { // add extra handler for underlaying event
+    if (bgDir.BeginsWith("alien://") && !gGrid && !TGrid::Connect("alien://")) { 
+      printf("Failed to create a grid connection\n"); 
+      abort(); 
+    }
+    if (!bgDir.EndsWith("/")) bgDir += "/";
+    AliMCEventHandler* mcHandler = new AliMCEventHandler();
+    mcHandler->SetPreReadMode((AliMCEventHandler::PreReadMode_t) 1);
+    mcHandler->SetReadTR(kFALSE);
+    //
+    AliMCEventHandler* mcHandlerBg = new AliMCEventHandler();
+    mcHandlerBg->SetInputPath(bgDir.Data());
+    mcHandlerBg->SetPreReadMode((AliMCEventHandler::PreReadMode_t) 1);
+    mcHandlerBg->SetReadTR(kFALSE);
+    mcHandler->AddSubsidiaryHandler(mcHandlerBg);
+    //
+    rec.SetMCEventHandler(mcHandler);
+  }
+
   switch(tag) {
     
     // Default
@@ -70,11 +170,24 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     rec.SetRunPlaneEff(kFALSE);
     rec.SetRecoParam("ITS",OverrideITSRecoParam_VertexerSmearMC());
     return;
+
+    // Phos only
+  case kReconstructionPhosOnly:
+    ReconstructionDefault(rec);
+    rec.SetRunReconstruction("PHOS");
+    rec.SetRunTracking("PHOS");
+    rec.SetFillESD("PHOS");
+    rec.SetRunQA(":");
+    rec.SetWriteESDfriend(kFALSE);
+    rec.SetRunPlaneEff(kFALSE);
+    rec.SetRunMultFinder(kFALSE);
+    rec.SetRunVertexFinder(kFALSE);
+    return;
     
     // ITSpureSA
   case kReconstructionITSpureSA:
     ReconstructionDefault(rec);
-    if (system.EqualTo("Pb-Pb"))
+    if (system.EqualTo("Pb-Pb") || system.EqualTo("Xe-Xe"))
       rec.SetRecoParam("ITS", OverrideITSRecoParam_ITSpureSA_PbPb2015());
     return;
     
@@ -89,6 +202,11 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
     ReconstructionDefault(rec);
     rec.SetRun1PIDforTracking(kTRUE);
     return;
+
+    // Run3
+  case kReconstructionRun3:
+    ReconstructionRun3(rec);
+    return;
     
     // Custom
   case kReconstructionCustom:
@@ -97,16 +215,26 @@ ReconstructionConfig(AliReconstruction &rec, EReconstruction_t tag)
       abort();
       return;
     }
-    ReconstructionCustom(rec);
+    gg_tmp_rec = &rec;
+    gROOT->ProcessLine("ReconstructionCustom(*gg_tmp_rec);");
     return;
+    
+    // NoTPC
+  case kReconstructionNoTPC:
+    ReconstructionDefault(rec);
+    rec.SetRunReconstruction("ALL -TPC -HLT");
 
+    // NoEMCal
+  case kReconstructionNoEMCal:
+    ReconstructionDefault(rec);
+    rec.SetRunReconstruction("ALL -EMCAL");
   }  
 
 }
 
 /*****************************************************************/
 
-ReconstructionDefault(AliReconstruction &rec)
+void ReconstructionDefault(AliReconstruction &rec)
 {
 
   Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
@@ -119,7 +247,7 @@ ReconstructionDefault(AliReconstruction &rec)
   if (ocdbConfig.Contains("alien") || ocdbConfig.Contains("cvmfs")) {
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
-    OCDBDefault(1);
+    gROOT->ProcessLine("OCDBDefault(1);");
   }
   else {
     // set OCDB snapshot mode
@@ -144,6 +272,35 @@ ReconstructionDefault(AliReconstruction &rec)
     //
     rec.SetRunQA(":");
     //
+}
+
+/*****************************************************************/
+
+void ReconstructionRun3(AliReconstruction &rec)
+{
+
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
+  //
+  int runNumber = atoi(gSystem->Getenv("DC_RUN"));
+  SetCDBRun3(runNumber);
+  
+  gPluginMgr->AddHandler("AliReconstructor", "ITS",
+                         "AliITSUReconstructor","ITS", "AliITSUReconstructor()");
+
+  rec.SetRunReconstruction("ALL -MFT"); // run cluster finder
+  rec.SetRunMultFinder(kFALSE);   // to be implemented - CreateMultFinder
+  rec.SetRunPlaneEff(kFALSE);     // to be implemented - CreateTrackleter
+
+  rec.SetCleanESD(kFALSE);
+  rec.SetStopOnError(kFALSE);
+  rec.SetWriteESDfriend();
+  rec.SetWriteAlignmentData();
+  rec.SetFractionFriends(0.01);
+  rec.SetRunPlaneEff(kTRUE);
+  rec.SetUseTrackingErrorsForAlignment("ITS");
+  //
+  rec.SetRunQA(":");
+ 
 }
 
 /*****************************************************************/
@@ -284,4 +441,32 @@ OverrideITSRecoParam_VertexerSmearMC()
   
   //
   return itsRecoParam;
+}
+
+void SetCDBRun3(int run)
+{
+  // set OCDB source
+  TString ocdbConfig = "default,snapshot";
+  if (!gSystem->AccessPathName("OCDBrec.root")) {
+    // set OCDB snapshot mode
+    AliCDBManager *cdbm = AliCDBManager::Instance();
+    cdbm->SetSnapshotMode("OCDBrec.root");
+    cdbm->SetDefaultStorage("local://");
+    //    cdbm->SetSnapshotMode("OCDBsim.root");
+  }
+  else if (gSystem->Getenv("CONFIG_OCDBCUSTOM")) {
+    gROOT->LoadMacro("OCDBCustom.C");
+    gROOT->ProcessLine("OCDBDefault(0);");
+  }
+  else {
+    if (gSystem->Getenv("CONFIG_OCDB")) ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
+    if (ocdbConfig.Contains("alien") || ocdbConfig.Contains("cvmfs")) {
+      // set OCDB 
+      gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBRun3.C");
+      gROOT->ProcessLine("OCDBDefault(1);");
+    }
+  }
+  cdbm->SetSpecificStorage("GRP/GRP/Data", "local://./");
+
+  AliCDBManager::Instance()->SetRun(run);
 }

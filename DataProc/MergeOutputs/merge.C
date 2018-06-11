@@ -1,11 +1,14 @@
-void merge(const char *filesToMerge="FilterEvents_Trees.root")
+void merge(const char *filesToMerge="FilterEvents_Trees.root", const char *inputCollection="wn.xml")
 {
-  TGrid::Connect("alien://");
-  if (!gGrid || !gGrid->IsConnected()) {
-    ::Error("QAtrain", "No grid connection");
-    return;
+  TString noGridConnect = gSystem->Getenv("ALIEN_JDL_NOGRIDCONNECT");
+  if (noGridConnect != "1") {
+    TGrid::Connect("alien://");
+    if (!gGrid || !gGrid->IsConnected()) {
+      ::Error("QAtrain", "No grid connection");
+      return;
+    }
   }
-    
+
   // Set temporary compilation directory to current one
   gSystem->SetBuildDir(gSystem->pwd(), kTRUE);
     
@@ -27,7 +30,7 @@ void merge(const char *filesToMerge="FilterEvents_Trees.root")
   // Merging method. No staging and no terminate phase.
   TStopwatch timer;
   timer.Start();
-  TString outputDir = "wn.xml";
+  TString outputDir = inputCollection;
   TString outputFiles = filesToMerge;
   TString mergeExcludes = "";
   TObjArray *list = outputFiles.Tokenize(",");

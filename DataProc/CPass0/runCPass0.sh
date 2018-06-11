@@ -76,7 +76,15 @@ ulimit -S -v 3500000
 
 # run TPC clusterization in separate process before reconstruction
 export preclusterizeTPC='0'
-# enabling it for 2015 PbPb
+# enabling it for PbPb and XeXe based on environment variable
+if [ -z "$ALIEN_JDL_LPMINTERACTIONTYPE" ]; then
+    echo "ALIEN_JDL_LPMINTERACTIONTYPE not defined"
+else
+    if [ "$ALIEN_JDL_LPMINTERACTIONTYPE" == "PbPb" ] || [ "$ALIEN_JDL_LPMINTERACTIONTYPE" == "XeXe" ]; then
+	preclusterizeTPC='1'
+    fi
+fi
+# enabling it for 2015 PbPb based on run numbers 
 if [ "$runNum" -ge 244917 ] && [ "$runNum" -le 246994 ]; then
  preclusterizeTPC='1'
 fi
@@ -176,6 +184,27 @@ echo "* ************************"
 echo "* Printing ALL env variables"
 printenv
 echo ""
+
+
+# enable vdt library
+
+$ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
+echo "Let's check if we can enable VDT"
+enablevdt=$?
+if [ $enablevdt == 0 ]; then 
+    echo "According to the package versioning, we can enable VDT; let's check the JDL"
+    if [ -z "$ALIEN_JDL_DISABLEVDT" ]; then
+	if [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+	    echo "Use VDT math library"
+	    export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
+	else
+	    echo "VDT math library requested but not found"
+	fi
+    else
+	echo "VDT math library disabled via ALIEN_JDL_DISABLEVDT"
+    fi
+fi
+
 
 timeUsed=0
 

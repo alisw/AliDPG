@@ -1,4 +1,4 @@
-Geant4Config()
+void Geant4Config()
 {
 
   if (gClassTable->GetID("TGeant4") == -1) {
@@ -22,7 +22,7 @@ Geant4Config()
 								    "specialCuts+stackPopper+stepLimiter",
 								    true);
     geant4 = new TGeant4("TGeant4", 
-			 "The Geant4 Monte Carlo : FTFP_BERT_EMV", 
+			 "The Geant4 Monte Carlo : FTFP_BERT_EMV-EMCAL", 
 			 runConfiguration);
     cout << "Geant4 has been created." << endl;
   } 

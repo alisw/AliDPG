@@ -3,13 +3,17 @@
 Usage() {
     echo "Usage: ${0##*/} <xml collection of residual trees> <runNum1> [runNum2] ..."
     echo "where runNum's are the runs to be processed; at least one MUST be provided"
-    exit
+    exit 1
 }
 
 ##############################################################################
 extractFileNamesFromXMLCollection()
 {
-    egrep turl|sed 's|^.*turl\s*=\s*"\s*\([a-zA-Z]*://.*\.root\).*$|\1|g'
+    if [[ ! $ROOTSYS || ! $ALIDPG_ROOT ]]; then
+        grep turl|sed 's|^.*turl\s*=\s*"\s*\([a-zA-Z]*://.*\.root\).*$|\1|g'
+        return
+    fi
+    "$ALIDPG_ROOT"/DataProc/Common/readAliEnCollection.sh
 }
 
 ##############################################################################
@@ -59,7 +63,7 @@ extractEnvVars()
 }
 
 ##############################################################################
-[[ $# -ne 2 ]] &&  Usage && exit
+[[ $# -ne 2 ]] &&  Usage && exit 1
 
 echo Starting...
 residualFileList=residualFilesList.log
@@ -96,7 +100,7 @@ export autoCacheSize=0
 echo "onGrid=$onGrid, treeCacheSize=$treeCacheSize, autoCacheSize=$autoCacheSize"
 
 echo sourcing alilog4bash.sh
-source $ALICE_PHYSICS/PWGPP/scripts/alilog4bash.sh  
+[[ -e $ALICE_PHYSICS/PWGPP/scripts/alilog4bash.sh ]] && source "$ALICE_PHYSICS"/PWGPP/scripts/alilog4bash.sh || source "$ALICE_ROOT"/libexec/alilog4bash.sh
 
 loadLibMacro="$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/LoadLibraries.C"
 inclMacro="$ALIDPG_ROOT/DataProc/TPCSPCalibration/includeMacro.C"
@@ -109,7 +113,7 @@ curdir=`pwd`
 # we need macro locally to compile it
 locMacro=$(basename "$macroName")
 [[ ! -f "$locMacro" ]] && cp $macroName ./ 
-[[ ! -f "$locMacro" ]] && echo "did not find $locMacro" && exit 1
+[[ ! -f "$locMacro" ]] && echo "did not find $locMacro" && exit -1
 
 residFilesRun="residual.list"
 
@@ -186,3 +190,5 @@ for arun in `cat $runList`; do
 done
 
 alilog_info "END: VDrift and time bins definition"
+
+exit 0

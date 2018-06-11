@@ -32,8 +32,7 @@ else
     echo "Use merge.C macro from AliDPG"
     cp $ALIDPG_ROOT/DataProc/MergeOutputs/merge.C .
 fi
-
-time aliroot -b -q -x merge.C\(\"$TO_MERGE\"\)
+time aliroot -b -q -x merge.C'('"\"${TO_MERGE}\""${ALIEN_JDL_INPUTXML:+", \"${ALIEN_JDL_INPUTXML}\""}')'
 
 echo "FILESTOCHECK=\"outputs_valid $TO_MERGE\"" | tr ',' ' ' > validation_merge.rc
 

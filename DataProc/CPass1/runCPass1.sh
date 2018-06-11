@@ -68,17 +68,6 @@ runNum=`echo "$runNumF" |  sed 's/^0*//'`
 ##runNum=`echo $1 | cut -d "/" -f 6 | sed 's/^0*//'`
 
 defAlias="kCalibBarrel"
-#default alias for CPass1 2015 PbPb is kCalibBarrelMB
-if [ "$runNum" -ge 244917 ] && [ "$runNum" -le 246994 ]; then 
-defAlias="kCalibBarrelMB"
-fi	
-
-#optionallly skip Outer pass, set to true for 2015 PbPb
-export outerUsesFullITS=1
-if [ "$runNum" -ge 244917 ] && [ "$runNum" -le 246994 ]; then
-export skipOuter='1'
-outerUsesFullITS=0
-fi
 
 # Exporting variable to define that we are in CPass1 to be used in reconstruction
 export CPass='1'
@@ -88,11 +77,27 @@ export PRODUCTION_METADATA="$ALIEN_JDL_LPMMETADATA"
 # Set memory limits to a value lower than the hard site limits to at least get the logs of failing jobs
 ulimit -S -v 3500000
 
+# skip Outer pass by default
+export skipOuter='1'
+#option for outerPass
+export outerUsesFullITS=1
 # run TPC clusterization in separate process before reconstruction
 export preclusterizeTPC='0'
-# enabling it for 2015 PbPb
+# enabling it for PbPb and XeXe based on environment variable
+if [ -z "$ALIEN_JDL_LPMINTERACTIONTYPE" ]; then
+    echo "ALIEN_JDL_LPMINTERACTIONTYPE not defined"
+else
+    if [ "$ALIEN_JDL_LPMINTERACTIONTYPE" == "PbPb" ] || [ "$ALIEN_JDL_LPMINTERACTIONTYPE" == "XeXe" ]; then
+	preclusterizeTPC='1'
+	outerUsesFullITS=0
+    fi
+fi
+# enabling preclusterization, disabling outer for 2015 PbPb based on run numbers 
 if [ "$runNum" -ge 244917 ] && [ "$runNum" -le 246994 ]; then
  preclusterizeTPC='1'
+ outerUsesFullITS=0
+#default alias for CPass1 2015 PbPb is kCalibBarrelMB
+ defAlias="kCalibBarrelMB"
 fi
 
 
@@ -173,6 +178,27 @@ echo "* ************************"
 echo "* Printing ALL env variables"
 printenv
 echo ""
+
+
+# enable vdt library
+
+$ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
+echo "Let's check if we can enable VDT"
+enablevdt=$?
+if [ $enablevdt == 0 ]; then 
+    echo "According to the package versioning, we can enable VDT; let's check the JDL"
+    if [ -z "$ALIEN_JDL_DISABLEVDT" ]; then
+	if [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+	    echo "Use VDT math library"
+	    export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
+	else
+	    echo "VDT math library requested but not found"
+	fi
+    else
+	echo "VDT math library disabled via ALIEN_JDL_DISABLEVDT"
+    fi
+fi
+
 timeUsed=0
 
 mkdir Barrel OuterDet
@@ -296,6 +322,12 @@ if [ -f raw2clust.C ]; then ln -s ../raw2clust.C Barrel/raw2clust.C; fi
 for OUTER_FILE in recCPass1_OuterDet.C; do
     ln -s ../$OUTER_FILE OuterDet/$OUTER_FILE
 done
+
+# Linking AliDPG folder - needed when we use the tarball
+if [ -d AliDPG ]; then
+    ln -s ../AliDPG Barrel/AliDPG;
+    ln -s ../AliDPG OuterDet/AliDPG;
+fi
 
 ####################################   Barrel   #######################################
 

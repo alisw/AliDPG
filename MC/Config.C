@@ -8,6 +8,10 @@
 /*****************************************************************/
 /*****************************************************************/
 
+#if !(defined(__CLING__)  || defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
+#include "TGeant3TGeo.h"
+#endif
+
 // global variables
 
 static Int_t   runNumber       = 0;         // run number
@@ -16,11 +20,16 @@ static Int_t   magnetConfig    = 0;         // magnetic field
 static Int_t   detectorConfig  = 0;         // detector
 static Int_t   generatorConfig = 0;         // MC generator
 static Float_t energyConfig    = 0.;        // CMS energy
-static Float_t triggerConfig   = 0.;        // trigger
+static Int_t triggerConfig   = 0.;        // trigger
+static Int_t   pdgConfig       = 0;         // PDG value 
 static Float_t bminConfig      = 0.;        // impact parameter min
 static Float_t bmaxConfig      = 20.;       // impact parameter max
 static Float_t yminConfig      = -1.e6;     // rapidity min
 static Float_t ymaxConfig      =  1.e6;     // rapidity max
+static Float_t phiminConfig    = 0.;        // phi min
+static Float_t phimaxConfig    = 360.;      // phi max
+static Float_t ptminConfig     = 0.;        // pt min
+static Float_t ptmaxConfig     = -1.;       // pt max
 static Float_t crossingConfig  = 0.;        // 2.8e-4 // crossing angle
 static Int_t   seedConfig      = 123456789; // random seed
 static Int_t   uidConfig       = 1;         // unique ID
@@ -33,6 +42,17 @@ static Float_t pttrigmaxConfig = -1.;       // pt-trigger max
 static Int_t   quenchingConfig = 0;         // quenching
 static Float_t qhatConfig      = 1.7;       // q-hat
 static Bool_t  isGeant4        = kFALSE;    // geant4 flag
+static Bool_t  purifyKine      = kTRUE;     // purifyKine flag
+static Bool_t  isFluka         = kFALSE;    // fluka flag
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#include "MC/DetectorConfig.C"
+#include "MC/GeneratorConfig.C"
+#endif
+
+void ProcessEnvironment();
+void CreateGAlice();
+void GeneratorOptions();
 
 /*****************************************************************/
 
@@ -41,8 +61,12 @@ Config()
 {
 
   /* initialise */
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else  
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/DetectorConfig.C");
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/GeneratorConfig.C");
+#endif
   ProcessEnvironment();
 
   /* verbose */
@@ -56,10 +80,15 @@ Config()
   printf(">>>>>           system: %s \n", systemConfig.Data());
   printf(">>>>>       CMS energy: %f \n", energyConfig);
   printf(">>>>>          trigger: %s \n", TriggerName[triggerConfig]);
+  printf(">>>>>              PDG: %d \n", pdgConfig);
   printf(">>>>>            b-min: %f \n", bminConfig);
   printf(">>>>>            b-max: %f \n", bmaxConfig);
   printf(">>>>>            y-min: %f \n", yminConfig);
   printf(">>>>>            y-max: %f \n", ymaxConfig);
+  printf(">>>>>   phi-min (deg.): %f \n", phiminConfig);
+  printf(">>>>>   phi-max (deg.): %f \n", phimaxConfig);
+  printf(">>>>>           pt-min: %f \n", ptminConfig);
+  printf(">>>>>           pt-max: %f \n", ptmaxConfig);
   printf(">>>>>      pt-hard min: %f \n", pthardminConfig);
   printf(">>>>>      pt-hard max: %f \n", pthardmaxConfig);
   printf(">>>>>   pt-trigger min: %f \n", pttrigminConfig);
@@ -69,13 +98,24 @@ Config()
   printf(">>>>>   crossing angle: %f \n", crossingConfig);
   printf(">>>>>      random seed: %d \n", seedConfig);
   printf(">>>>>           geant4: %d \n", isGeant4);
+  printf(">>>>>       purifyKine: %d \n", purifyKine);
+  printf(">>>>>            fluka: %d \n", isFluka);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
 
-  /* load libraries */
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else  
   LoadLibraries();
+#endif
+
+  /* Check that it is not set both Geant4 and Fluka */
+  if (isGeant4 && isFluka) {
+     printf(">>>>> You cannot have in your parameters both Geant4 and Fluka set!: isGeant4 = %d, isFluka = %d \n", (Int_t)isGeant4, (Int_t)isFluka);
+     abort();
+  }
 
   /* setup geant3 */
-  if (!isGeant4) new TGeant3TGeo("C++ Interface to Geant3");
+  if (!isGeant4 && !isFluka) new TGeant3TGeo("C++ Interface to Geant3");
 
   /* create galice.root */
   CreateGAlice();
@@ -92,12 +132,22 @@ Config()
       geant4config_macro = Form("%s/Geant4Config.C", gSystem->pwd());
     }
     gROOT->LoadMacro(geant4config_macro.Data());
-    Geant4Config();
+    gROOT->ProcessLine("Geant4Config();");
+  }
+
+  /* configure Fluka if requested */
+  if (isFluka) {
+     gSystem->Load("libfluka.so");
+     new TFluka("C++ Interface to Fluka", 0/*verbositylevel*/);
+     TFluka* fluka = (TFluka*) gMC; 
+     fluka->SetLowEnergyNeutronTransport(1);
   }
 
   /* configure MC generator */
   GeneratorConfig(generatorConfig);
   GeneratorOptions();
+
+  if (!purifyKine) gAlice->GetMCApp()->PurifyLimits(80., 80.);
 }
 
 /*****************************************************************/
@@ -209,7 +259,11 @@ ProcessEnvironment()
       abort();
     }
   }
-  
+
+  // PDG value for single particles
+  if (gSystem->Getenv("CONFIG_PDG"))
+    pdgConfig = atoi(gSystem->Getenv("CONFIG_PDG"));
+
   // impact parameter configuration
   bminConfig = 0.;
   if (gSystem->Getenv("CONFIG_BMIN"))
@@ -226,7 +280,7 @@ ProcessEnvironment()
     abort();
   }
 
-  // rapidity configuration
+  // rapidity, phi, pT configuration
   yminConfig = -1.e6;
   if (gSystem->Getenv("CONFIG_YMIN"))
     yminConfig = atof(gSystem->Getenv("CONFIG_YMIN"));
@@ -235,6 +289,30 @@ ProcessEnvironment()
     ymaxConfig = atof(gSystem->Getenv("CONFIG_YMAX"));
   if (ymaxConfig <= yminConfig) {
     printf(">>>>> Invalid max rapidity: %f \n", ymaxConfig);
+    abort();
+  }
+  phiminConfig = 0.;
+  if (gSystem->Getenv("CONFIG_PHIMIN"))
+    phiminConfig = atof(gSystem->Getenv("CONFIG_PHIMIN"));
+  phimaxConfig = 360.;
+  if (gSystem->Getenv("CONFIG_PHIMAX"))
+    phimaxConfig = atof(gSystem->Getenv("CONFIG_PHIMAX"));
+  if (phimaxConfig <= phiminConfig) {
+    printf(">>>>> Invalid max phi: %f \n", phimaxConfig);
+    abort();
+  }
+  if (phimaxConfig <= 2.*TMath::Pi()) {
+    printf(">>>>> WARNING: phi is expected to be in degree\n");
+    printf(">>>>> WARNING: max phi = %f suspected to be in rad. \n", phimaxConfig);
+  }
+  ptminConfig = 0.;
+  if (gSystem->Getenv("CONFIG_PTMIN"))
+    ptminConfig = atof(gSystem->Getenv("CONFIG_PTMIN"));
+  ptmaxConfig = -1.;
+  if (gSystem->Getenv("CONFIG_PTMAX"))
+    ptmaxConfig = atof(gSystem->Getenv("CONFIG_PTMAX"));
+  if (ptmaxConfig != -1 && ptmaxConfig <= ptminConfig) {
+    printf(">>>>> Invalid max pt: %f \n", ptmaxConfig);
     abort();
   }
   
@@ -280,12 +358,22 @@ ProcessEnvironment()
   isGeant4 = kFALSE;
   if (gSystem->Getenv("CONFIG_GEANT4"))
     isGeant4 = kTRUE;
-  
+
+  // PurifyKine OFF
+  purifyKine = kTRUE;
+  if (gSystem->Getenv("CONFIG_PURIFYKINEOFF"))
+    purifyKine = kFALSE;
+
+  // Fluka configuration
+  isFluka = kFALSE;
+  if (gSystem->Getenv("CONFIG_FLUKA"))
+    isFluka = kTRUE;
+
 }
 
-/*****************************************************************/
-
-void
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else
 LoadLibraries()
 {
 
@@ -313,9 +401,11 @@ LoadLibraries()
     gSystem->Load("libDPMJET");
     gSystem->Load("libTDPMjet");    
   } 
-  gSystem->Load("libgeant321");
+  if (!isFluka)  gSystem->Load("libgeant321");
 
 }
+#endif
+
 
 /*****************************************************************/
 
@@ -386,9 +476,15 @@ GeneratorOptions()
   //======================//
   // Set External decayer //
   //======================//
-  TVirtualMCDecayer* decayer = new AliDecayerPythia();
-  decayer->SetForceDecay(kAll);
-  decayer->Init();
-  gMC->SetExternalDecayer(decayer);
+  if(!gMC->GetDecayer()){
+    cout<<"Create and set external decayer..."<<endl;
+    TVirtualMCDecayer* decayer = new AliDecayerPythia();
+    decayer->SetForceDecay(kAll);
+    decayer->Init();
+    gMC->SetExternalDecayer(decayer);
+  }
+  else{
+    cout<<"External decayer was set already ... nothing to do."<<endl;
+  }
   //
 }
