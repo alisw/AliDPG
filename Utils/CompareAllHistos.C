@@ -21,6 +21,7 @@ Int_t correlationCase=0;
 void ProcessFile(TString fname, TString dirToAnalyse);
 void ProcessDirectory(TDirectoryFile* df);
 void ProcessList(TList* ls);
+void ProcessArray(TObjArray* arr);
 void WriteHisto(TObject* obj);
 void WriteProfile(TObject* obj);
 Bool_t AreIdenticalHistos(TH1* hA, TH1* hB);
@@ -100,7 +101,7 @@ void ProcessFile(TString fname, TString dirToAnalyse){
 
 
 void ProcessDirectory(TDirectoryFile* df){
-  //  printf("--- Process TDirectoryFile %s ---\n",df->GetName());
+  printf("--- Process TDirectoryFile %s ---\n",df->GetName());
 
   Int_t nkeys=df->GetNkeys();
   TList* lkeys=df->GetListOfKeys();
@@ -113,6 +114,10 @@ void ProcessDirectory(TDirectoryFile* df){
       TList* ls=(TList*)df->Get(oname.Data());
       prefix.Append(Form("%s_",ls->GetName()));	
       ProcessList(ls);
+    }else if(cname=="TObjArray"){
+      TObjArray* arr=(TObjArray*)df->Get(oname.Data());
+      prefix.Append(Form("%s_",arr->GetName()));	
+      ProcessArray(arr);
     }else if(cname.Contains("THnSpars")){
       printf("   --> DIRECTORY %s CONTAINS A THNSPARSE: %s\n",df->GetName(),oname.Data());
     }else if(cname.Contains("TNtuple")){
@@ -167,6 +172,36 @@ void ProcessList(TList* ls){
 }
 
 
+void ProcessArray(TObjArray* arr){
+
+  printf(" * Process TObjArray %s *\n",arr->GetName());
+  Int_t nent=arr->GetEntries();
+  for(Int_t j=0; j<nent; j++){
+    TObject* o=(TObject*)arr->At(j);
+    if(!o) continue;
+    TString clname=o->ClassName();
+    if(clname.Contains("THnSpars")){
+      printf("   --> ARRAY %s CONTAINS A THNSPARSE: %s \n",arr->GetName(),o->GetName());
+    }else if(clname.Contains("TNtupl")){
+      printf("   --> ARRAY %s CONTAINS A TNtuple: %s\n",arr->GetName(),o->GetName());
+    }else if(clname.Contains("TTree")){
+      printf("   --> ARRAY %s CONTAINS A TTree: %s\n",arr->GetName(),o->GetName());
+    }else if(clname.BeginsWith("TH")){
+      WriteHisto(o);
+      //      printf("Histo %s size %.0f\n",o->GetName(),hSize/1e6);
+    }else if(clname.BeginsWith("TProfile")){
+      WriteProfile(o);
+    }else if(clname=="TObjArray"){
+      TObjArray* arrInside=(TObjArray*)arr->At(j);
+      prefix.Append(Form("%s_",arrInside->GetName()));	
+      ProcessArray(arrInside);
+    }else{
+      printf("Class not found: %s\n",clname.Data());
+    }
+  }
+}
+
+
 void WriteHisto(TObject* obj){
   TH1* hA=static_cast<TH1*>(obj);
   TDirectory *current=gDirectory;
@@ -182,10 +217,10 @@ void WriteProfile(TObject* obj){
 
 
 Bool_t AreIdenticalHistos(TH1* hA, TH1* hB){
-  Long_t nEventsA=hA->GetEntries(); //temporary: we should use the number of analyized events
-  Long_t nEventsB=hB->GetEntries(); //temporary: we should use the number of analyized events
+  Long_t nEventsA=hA->GetEntries(); //temporary: we should use the number of analyzed events
+  Long_t nEventsB=hB->GetEntries(); //temporary: we should use the number of analyzed events
   if(nEventsA!=nEventsB) {
-    Printf(" -> Different number of entries: A --> %d, B --> %d", nEventsA, nEventsB);
+    printf(" -> Different number of entries: A --> %ld, B --> %ld", nEventsA, nEventsB);
     return kFALSE;
   }
   for(Int_t ix=1; ix<=hA->GetNbinsX(); ix++){
