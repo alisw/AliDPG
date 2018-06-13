@@ -1687,7 +1687,7 @@ GeneratorQED()
   genBg->SetProjectile(projN, projA, projZ);
   genBg->SetTarget    (targN, targA, targZ);
   genBg->SetYRange(-6.,3);
-  genBg->SetPtRange(1.e-3,1.0);       // Set pt limits (GeV) for e+-: 1MeV corresponds to max R=13.3mm at 5kGaus
+  genBg->SetPtRange(0.4e-3,1.0);       // Set pt limits (GeV) for e+-: 1MeV corresponds to max R=13.3mm at 5kGaus
   genBg->SetLumiIntTime(6.e27,3e-6);  // luminosity and integration time
   genBg->SetVertexSource(kInternal);
   
