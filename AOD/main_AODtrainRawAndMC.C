@@ -312,9 +312,13 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
   // CDB connection
   //
   if (doCDBconnect && !useTender) {
-    AliTaskCDBconnect *taskCDB = 0x0;
-    if(isMC) taskCDB = AddTaskCDBconnect(cdb_location, run_number);
-    else taskCDB = AddTaskCDBconnect(cdb_location, 0 /*run_number*/);
+    //
+    // Run number is necessary for latest PCM task, since AliPhysics v5-09-33-01-1
+    //
+    //AliTaskCDBconnect *taskCDB = 0x0;
+    //if(isMC) taskCDB = AddTaskCDBconnect(cdb_location, run_number);
+    //else taskCDB = AddTaskCDBconnect(cdb_location, 0 /*run_number*/);
+    AliTaskCDBconnect *taskCDB = AddTaskCDBconnect(cdb_location, run_number);
     if (!taskCDB) return;
     AliCDBManager *cdb = AliCDBManager::Instance();
     cdb->SetDefaultStorage(cdb_location);
