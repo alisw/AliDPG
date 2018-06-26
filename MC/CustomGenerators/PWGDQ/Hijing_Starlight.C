@@ -2,7 +2,13 @@ AliGenerator *
 GeneratorCustom()
 {
   AliGenCocktail* cocktail = GeneratorCocktail("Hijing_Starlight");
+  
   AliGenerator* starlight = GeneratorStarlight();
+  if (processConfig == TString("kTwoGammaToElMedium")) {
+     AliGenStarLight *genStarLight = (AliGenStarLight*) starlight;
+     genStarLight->SetParameter("W_MIN        =   1.5    #Min value of w");
+     genStarLight->SetParameter("RAP_MAX      =   1.00    #max y");
+  }
   cocktail->AddGenerator(starlight, "Starlight", 1.);
   
   AliGenerator* hijing = GeneratorHijing();
