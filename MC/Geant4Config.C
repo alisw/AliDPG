@@ -18,11 +18,11 @@ void Geant4Config()
   TGeant4 *geant4 = 0;
   if ( ! gMC ) {
     TG4RunConfiguration* runConfiguration = new TG4RunConfiguration("geomRoot",
-								    "FTFP_BERT_EMV+optical",
+								    "FTFP_INCLXX_EMV+optical",
 								    "specialCuts+stackPopper+stepLimiter",
 								    true);
     geant4 = new TGeant4("TGeant4", 
-			 "The Geant4 Monte Carlo : FTFP_BERT_EMV-EMCAL", 
+			 "The Geant4 Monte Carlo : FTFP_INCLXX_EMV+optical", 
 			 runConfiguration);
     cout << "Geant4 has been created." << endl;
   } 
