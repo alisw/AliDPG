@@ -181,7 +181,7 @@ void CopyCPass(const char* alienFileList, const char* outputFileList, Int_t time
     if (src.IsNull()) continue;
     if (!counter && !gGrid) {
       TUrl url(src);
-      if (url.GetProtocol() == "alien") {
+      if (TString(url.GetProtocol()) == "alien") {
         TGrid::Connect("alien");
       }
     }
