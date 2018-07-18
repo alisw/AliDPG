@@ -325,6 +325,20 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t disableESDtrackQA, Bool_t
   // Vertexing (A. Dainese)
   // 
   if (doVertex) {
+    AliAnalysisTaskVertexESD* taskvertexesd =  AddTaskVertexESD(kTRUE, kTriggerMask);
+    taskvertexesd->SelectCollisionCandidates(kTriggerMask);
+  }  
+
+  // TPC QA (E. Sicking)
+  //
+  if (doQAsym) {
+  // offline trigger in AddTask
+    AliAnalysisTaskSE * taskqasim = AddTaskQAsym(0, kTriggerMask, kTriggerHM, kTriggerEMC, kTriggerMuonBarell);
+  }  
+  //
+  // VZERO QA  (C. Cheshkov)
+  //
+  if (doVZERO) {
     AliAnalysisTaskSE * taskv0qa = AddTaskVZEROQA(0);
 //  taskv0qa->SelectCollisionCandidates();
   }
