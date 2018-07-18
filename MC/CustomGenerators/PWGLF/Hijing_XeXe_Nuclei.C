@@ -8,8 +8,8 @@ GeneratorCustom()
   ctl->AddGenerator(hij,  "Hijing",           1.);
   ctl->AddGenerator(iom,  "Injector (Omega)", 1.);
   ctl->AddGenerator(iaom, "Injector (AntiOmega)", 1.);
-  AliGenerator   *nu1a  = Generator_Nuclex(0x5, kFALSE, 2,6.f,0.82f);
-  AliGenerator   *nu1b  = Generator_Nuclex(0x5, kTRUE,  2,6.f,0.82f);
+  AliGenerator   *nu1a  = Generator_Nuclex(0x3, kFALSE, 2,6.f,0.82f);
+  AliGenerator   *nu1b  = Generator_Nuclex(0x3, kTRUE,  2,6.f,0.82f);
   ctl->AddGenerator(nu1a,  "Nuclex1a", 1.);
   ctl->AddGenerator(nu1b,  "Nuclex1b", 1.);
   return ctl;
