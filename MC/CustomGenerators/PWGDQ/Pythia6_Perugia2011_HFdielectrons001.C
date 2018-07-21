@@ -46,7 +46,6 @@ AliGenerator* MbPythiaTunePerugia2011bcforcele(Int_t flag)
   pythiaCC->SetPdgCodeParticleforAcceptanceCut(11);
   pythiaCC->SetChildYRange(-1.2,1.2);
   pythiaCC->SetChildPtRange(0,10000.);
-  pythiaCC->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
 
   ////////////////////////////////////////////
   //    Pythia bb->ee
@@ -70,7 +69,6 @@ AliGenerator* MbPythiaTunePerugia2011bcforcele(Int_t flag)
   pythiaBB->SetPdgCodeParticleforAcceptanceCut(11);
   pythiaBB->SetChildYRange(-1.2,1.2);
   pythiaBB->SetChildPtRange(0,10000.);
-  pythiaBB->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
 
 
   ////////////////////////////////////////////
@@ -94,7 +92,6 @@ AliGenerator* MbPythiaTunePerugia2011bcforcele(Int_t flag)
   pythiaB->SetPdgCodeParticleforAcceptanceCut(11);
   pythiaB->SetChildYRange(-1.2,1.2);
   pythiaB->SetChildPtRange(0,10000.);
-  pythiaB->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
 
 
   ////////////////////////////////////////////
