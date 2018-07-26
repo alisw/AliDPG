@@ -1674,15 +1674,15 @@ GeneratorQED()
   TString projN, targN;
   Int_t projA, projZ, targA, targZ;
 
-  // Pb-Pb 
+  // Pb-Pb (only case so far)
   if (systemConfig.EqualTo("Pb-Pb")) {
     projN = "A"; projA = 208; projZ = 82;
     targN = "A"; targA = 208; targZ = 82;
-  } // Pb-p
+  }
   else if (systemConfig.EqualTo("Pb-p")) {
     projN = "A"; projA = 208; projZ = 82;
     targN = "p"; targA = 1; targZ = 1;
-  } // p-Pb
+  }
   else if (systemConfig.EqualTo("p-Pb")) {
     projN = "p"; projA = 1; projZ = 1;
     targN = "A"; targA = 208; targZ = 82;
