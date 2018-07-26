@@ -28,7 +28,7 @@ Bool_t AreIdenticalHistos(TH1* hA, TH1* hB);
 Bool_t CompareHistos(TH1* hA, TH1* hB);
 
 
-void CompareAllHistos(TString filename="v5-09-24/QAresults_merged.root", TString filename2="v5-09-23-rc3/QAresults_merged.root", TString dirToAnalyse="TPC", Bool_t areIndependentSamples=kFALSE){
+void CompareAllHistos(TString filename="QAresults_v5-09-35.root", TString filename2="QAresults_v5-09-33.root", TString dirToAnalyse="ITS", Bool_t areIndependentSamples=kFALSE){
 
   if(areIndependentSamples) correlationCase=1;
 
@@ -220,7 +220,7 @@ Bool_t AreIdenticalHistos(TH1* hA, TH1* hB){
   Long_t nEventsA=hA->GetEntries(); //temporary: we should use the number of analyzed events
   Long_t nEventsB=hB->GetEntries(); //temporary: we should use the number of analyzed events
   if(nEventsA!=nEventsB) {
-    printf(" -> Different number of entries: A --> %ld, B --> %ld", nEventsA, nEventsB);
+    printf(" -> Different number of entries: A --> %ld, B --> %ld\n", nEventsA, nEventsB);
     return kFALSE;
   }
   for(Int_t ix=1; ix<=hA->GetNbinsX(); ix++){
@@ -251,9 +251,13 @@ Bool_t CompareHistos(TH1* hA, TH1* hB){
     for(Int_t iy=1; iy<=hA->GetNbinsY(); iy++){
       for(Int_t iz=1; iz<=hA->GetNbinsZ(); iz++){
 	Double_t cA=hA->GetBinContent(ix,iy,iz);
-	Double_t eA=TMath::Sqrt(cA);
+	Double_t eA=0;
+	if(cA<0) printf("Negative counts!!! cA=%f in bin %d %d %d\n",cA,ix,iy,iz);
+	else eA=TMath::Sqrt(cA);
 	Double_t cB=hB->GetBinContent(ix,iy,iz);
-	Double_t eB=TMath::Sqrt(cB);
+	Double_t eB=0;
+	if(cB<0) printf("Negative counts!!! cB=%f in bin %d %d %d\n",cB,ix,iy,iz);
+	else eB=TMath::Sqrt(cB);
 	Double_t diff=cA-cB;
 	if(cA>0 && cB>0){
 	  Double_t correl=0.;
