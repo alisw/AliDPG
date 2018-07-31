@@ -75,6 +75,7 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     AliMagF::SetFastFieldDefault(kTRUE);
  }
 
+  Int_t year;
   switch(tag) {
     
     // Default
@@ -171,7 +172,6 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
    // Default simulation enabling IonTail/Crosstalk for TPC
   case kSimulationDefaultIonTail:
       SimulationDefault(sim);
-      Int_t year;
       year = atoi(gSystem->Getenv("CONFIG_YEAR"));
       if (year < 2015) sim.SetMakeSDigits("TPC TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD");
       else             sim.SetMakeSDigits("TPC TRD TOF PHOS HMPID EMCAL MUON ZDC PMD T0 VZERO FMD AD");
@@ -189,7 +189,7 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     // Default simulation without EMCal 
   case kSimulationNoEMCal:
     SimulationDefault(sim);
-    Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
+    year = atoi(gSystem->Getenv("CONFIG_YEAR"));
     if (year < 2015) sim.SetMakeSDigits("TRD TOF PHOS HMPID MUON ZDC PMD T0 VZERO FMD");
     else             sim.SetMakeSDigits("TRD TOF PHOS HMPID MUON ZDC PMD T0 VZERO FMD AD");
     return;
