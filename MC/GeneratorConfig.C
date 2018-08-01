@@ -611,7 +611,7 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune, Bool_t HFonly)
     pythia->SetHeavyQuarkYRange(-1.5, 1.5);
     break;
   case kPythia6HFYellowReport:
-    pythia->SetHeavyQuarkYRange(-1.5, 1.5)
+    pythia->SetHeavyQuarkYRange(-1.5, 1.5);
     pythia->SetForceDecay(kHFYellowReport);
     break;
   }
