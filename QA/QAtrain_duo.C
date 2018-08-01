@@ -79,7 +79,7 @@ void QAtrain_duo(const char *suffix="", Int_t run = 0,
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/AD/AddTaskADQA.C");
 
   // loading the libraries (needed for ROOT5)
-  gROOT->Macro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/LoadLibraries.C");
+  gROOT->Macro("$ALIDPG_ROOT/DataProc/Common/LoadLibraries.C");
   
   // running the main macro
 if (gSystem->AccessPathName("main_QAtrain_duo.C", kFileExists)==0) {
