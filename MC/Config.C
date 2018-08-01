@@ -46,8 +46,8 @@ static Bool_t  purifyKine      = kTRUE;     // purifyKine flag
 static Bool_t  isFluka         = kFALSE;    // fluka flag
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-#include "MC/DetectorConfig.C"
-#include "MC/GeneratorConfig.C"
+#include "DetectorConfig.C"
+#include "GeneratorConfig.C"
 #endif
 
 void ProcessEnvironment();
