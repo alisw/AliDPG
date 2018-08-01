@@ -89,7 +89,7 @@ void CreateSnapshot(Int_t mode)
 
   TString ocdbRun3 = gSystem->Getenv("CONFIG_OCDBRUN3");
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
   // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
 #else
   if(ocdbRun3.IsNull())
