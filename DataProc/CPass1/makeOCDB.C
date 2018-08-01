@@ -24,7 +24,7 @@ void makeOCDB(Int_t runNumber, TString  targetOCDBstorage="", TString sourceOCDB
   }
   
   // config calib train
-  gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/ConfigCalibTrain.C");
+  gROOT->LoadMacro("$ALIDPG_ROOT/DataProc/Common/ConfigCalibTrain.C");
 
   // main macro
   if (gSystem->AccessPathName("main_makeOCDB.C", kFileExists)==0) {

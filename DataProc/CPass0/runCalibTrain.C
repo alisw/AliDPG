@@ -24,7 +24,7 @@ void runCalibTrain(Int_t runNumber, const char* inFileName = "AliESDs.root", con
   }
   
   // configuration of the OCDB for the calib train
-  gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass0/ConfigCalibTrain.C");
+  gROOT->LoadMacro("$ALIDPG_ROOT/DataProc/Common/ConfigCalibTrain.C");
 
   // detector tasks
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass0/AddTaskTPCCalib.C");
