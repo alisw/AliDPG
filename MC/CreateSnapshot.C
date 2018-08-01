@@ -92,13 +92,11 @@ void CreateSnapshot(Int_t mode)
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
   // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
 #else
-  if(ocdbRun3.IsNull())
-    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
-  else
-    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBRun3.C");
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
 #endif
-  
+
   if(!ocdbRun3.IsNull()){
+    gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBRun3.C");
     gROOT->ProcessLine(Form("OCDBRun3(%d);",mode));
   }
   else{
