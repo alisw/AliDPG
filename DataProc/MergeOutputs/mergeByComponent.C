@@ -23,7 +23,7 @@ void mergeByComponent(TString       component,
   //   liek on the alien nodes
   /* load libs */
   printf("Executing mergeByComponent.C\n");
-  gROOT->Macro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass0/LoadLibraries.C");
+  gROOT->Macro("$ALIDPG_ROOT/DataProc/Common/LoadLibraries.C");
   TH1::AddDirectory(0);
 
   /* copy only */ 

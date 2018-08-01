@@ -85,7 +85,7 @@ export runNumber=$3
 export distNTracksClosureTest
 if [[ $# -gt 3 ]] ; then distNTracksClosureTest=$4 ;fi
 
-loadLibMacro="$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/LoadLibraries.C"
+loadLibMacro="$ALIDPG_ROOT/DataProc/Common/LoadLibraries.C"
 inclMacro="$ALIDPG_ROOT/DataProc/TPCSPCalibration/includeMacro.C"
 macroName="$ALIDPG_ROOT/DataProc/TPCSPCalibration/procResidData.C"
 locMacro=$(basename "$macroName")
