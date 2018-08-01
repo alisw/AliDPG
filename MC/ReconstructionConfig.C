@@ -447,9 +447,9 @@ void SetCDBRun3(int run)
 {
   // set OCDB source
   TString ocdbConfig = "default,snapshot";
+  AliCDBManager *cdbm = AliCDBManager::Instance();
   if (!gSystem->AccessPathName("OCDBrec.root")) {
     // set OCDB snapshot mode
-    AliCDBManager *cdbm = AliCDBManager::Instance();
     cdbm->SetSnapshotMode("OCDBrec.root");
     cdbm->SetDefaultStorage("local://");
     //    cdbm->SetSnapshotMode("OCDBsim.root");
