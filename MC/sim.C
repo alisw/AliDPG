@@ -26,7 +26,7 @@ void sim()
   if (gSystem->Getenv("CONFIG_NEVENTS"))
     nev = atoi(gSystem->Getenv("CONFIG_NEVENTS"));
   
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
   // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
 #else
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/SimulationConfig.C");
