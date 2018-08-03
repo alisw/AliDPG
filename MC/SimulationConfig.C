@@ -309,6 +309,7 @@ void SimulationRun3(AliSimulation &sim)
   AliCDBManager* man = AliCDBManager::Instance();
   man->ClearCache();
   man->SetSpecificStorage("GRP/GRP/Data", "local://./");
+  sim.SetGRPWriteLocation(Form("local://./dummyGRP")); // The GRP written by AliSimulation should NOT be used
 }
 
 /*******************************************************/
