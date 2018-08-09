@@ -5,7 +5,7 @@
   ouput: TimeGain and TimeVdrift calibration objects for TPC and TRD
 
   Example:
-  .L $ALICE_PHYSICS/PWGPP/CalibMacros/CPass0/makeOCDB.C
+  .L makeOCDB.C
   makeOCDB("105160");
 
 */

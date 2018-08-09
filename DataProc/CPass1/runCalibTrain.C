@@ -7,7 +7,7 @@
   - output CalibObjects.root with TPC and TRD calibration objects are created
 
   Example:
-  .L $ALICE_ROOT/ANALYSIS/macros/runCalibTrain.C
+  .L runCalibTrain.C
   runCalibTrain("104892");
 */
 
