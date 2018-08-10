@@ -229,7 +229,7 @@ void main_QAtrainsim(Int_t run = 0,
   // Monte Carlo handler
   AliMCEventHandler* mcHandler = new AliMCEventHandler();
   mgr->SetMCtruthEventHandler(mcHandler);
-  mcHandler->SetPreReadMode(1);
+  mcHandler->SetPreReadMode((AliMCEventHandler::PreReadMode_t) 1);
   mcHandler->SetReadTR(kTRUE);
 
   // subsidiary handler for mc-to-mc embedding
@@ -242,7 +242,7 @@ void main_QAtrainsim(Int_t run = 0,
     if (!bgDir.EndsWith("/")) bgDir += "/";
     AliMCEventHandler* mcHandlerBg = new AliMCEventHandler();
     mcHandlerBg->SetInputPath(bgDir.Data());
-    mcHandlerBg->SetPreReadMode(1);
+    mcHandlerBg->SetPreReadMode((AliMCEventHandler::PreReadMode_t) 1);
     mcHandlerBg->SetReadTR(kTRUE);
     mcHandler->AddSubsidiaryHandler(mcHandlerBg);
   }
@@ -254,7 +254,7 @@ void main_QAtrainsim(Int_t run = 0,
   //  mgr->UnLock();
   //  mcHandler = (AliMCEventHandler*)mgr->GetMCtruthEventHandler();
   //  mcHandler->SetReadTR(kTRUE);
-  //  mcHandler->SetPreReadMode(1);
+  //  mcHandler->SetPreReadMode((AliMCEventHandler::PreReadMode_t) 1);
   if (stage>0) {
     QAmerge(xmlfile, stage);
     return;
@@ -325,7 +325,7 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t disableESDtrackQA, Bool_t
   // Vertexing (A. Dainese)
   // 
   if (doVertex) {
-    AliAnalysisTaskVertexESD* taskvertexesd =  AddTaskVertexESD(kTRUE, kTriggerMask);
+    AliAnalysisTaskVertexESD* taskvertexesd =  AddTaskVertexESD(kTRUE, (AliVEvent::EOfflineTriggerTypes) kTriggerMask);
     taskvertexesd->SelectCollisionCandidates(kTriggerMask);
   }  
 
@@ -630,17 +630,28 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t disableESDtrackQA, Bool_t
    //     
   // PHOS QA (Boris Polishchuk)
   //
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+useEmptyStringForPHOS = 1; //Other version will not even compile for ROOT 6
+#endif
+  
   if (doPHOS) {
     //AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = AddTaskCaloCellsQA(4, 1, NULL,"PHOSCellsQA_AnyInt");
     AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = 0x0;
     if(useEmptyStringForPHOS) taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, "","PHOSCellsQA_AnyInt");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#else
     else taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_AnyInt");
+#endif
     taskPHOSCellQA1->SelectCollisionCandidates(kTriggerMask);
     taskPHOSCellQA1->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
     //AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = AddTaskCaloCellsQA(4, 1, NULL,"PHOSCellsQA_PHI7"); 
     AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = 0x0;
     if(useEmptyStringForPHOS)  taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, "","PHOSCellsQA_PHI7");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#else
     else taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_PHI7");
+#endif
     taskPHOSCellQA2->SelectCollisionCandidates(AliVEvent::kPHI7);
     taskPHOSCellQA2->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
     // Pi0 QA fo PbPb
@@ -651,13 +662,20 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t disableESDtrackQA, Bool_t
    if (doPHOSTrig) {
      AliAnalysisTaskPHOSTriggerQA *taskPHOSTrig = 0x0;
      if(useEmptyStringForPHOS) taskPHOSTrig = AddTaskPHOSTriggerQA("");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#else
      else taskPHOSTrig = AddTaskPHOSTriggerQA(NULL);
+#endif
   }   
   //
   // EMCAL QA (Gustavo Conesa)
   //
   if (doEMCAL) {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+     //Loading of the corresponding macro is disabled, so we have to disable it here as well!
+#else
      AliAnalysisTaskEMCALTriggerQA *emctrig = AddTaskEMCALTriggerQA();
+#endif
   }  
    //
   // EvTrk QA (Zaida)
