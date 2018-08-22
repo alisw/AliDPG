@@ -331,7 +331,7 @@ if [ $exitcode -ne 0 ]; then
 fi
 
 echo "*  Running filtering task *"
-filtMacro=$ALICE_PHYSICS/PWGPP/macros/runFilteringTask.C
+filtMacro=$ALIDPG_ROOT/DataProc/Common/runFilteringTask.C
 if [ -f $filtMacro ]; then
     echo ""
     echo "running the following runFilteringTask.C macro:"

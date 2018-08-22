@@ -428,7 +428,7 @@ fi
 
 echo "" 
 echo "*  Running filtering task for barrel *"
-filtMacro=$ALICE_PHYSICS/PWGPP/macros/runFilteringTask.C
+filtMacro=$ALIDPG_ROOT/DataProc/Common/runFilteringTask.C
 if [ -f $filtMacro ]; then
     echo "" 
     echo "running the following runFilteringTask.C macro:"
