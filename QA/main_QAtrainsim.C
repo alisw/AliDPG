@@ -325,7 +325,11 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t disableESDtrackQA, Bool_t
   // Vertexing (A. Dainese)
   // 
   if (doVertex) {
-    AliAnalysisTaskVertexESD* taskvertexesd =  AddTaskVertexESD(kTRUE, (AliVEvent::EOfflineTriggerTypes) kTriggerMask);
+    #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+    AliAnalysisTaskVertexESD* taskvertexesd =  AddTaskVertexESD(kFALSE, static_cast<AliVEvent::EOfflineTriggerTypes>(kTriggerMask)); //ROOT6
+    #else
+    AliAnalysisTaskVertexESD* taskvertexesd =  AddTaskVertexESD(kFALSE, kTriggerMask); // ROOT5
+    #endif
     taskvertexesd->SelectCollisionCandidates(kTriggerMask);
   }  
 
