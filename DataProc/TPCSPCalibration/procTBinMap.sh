@@ -69,7 +69,8 @@ extractEnvVars()
 [[ $# -lt 3 ]] &&  Usage && exit 1
 echo "Arguments: 1 = $1, 2 = $2, 3 = $3"
 
-[[ -e $ALICE_PHYSICS/PWGPP/scripts/alilog4bash.sh ]] && source "$ALICE_PHYSICS"/PWGPP/scripts/alilog4bash.sh || source "$ALICE_ROOT"/libexec/alilog4bash.sh
+
+source "$ALICE_ROOT"/libexec/alilog4bash.sh
 
 prepobj="alitpcdcalibres.root"
 
