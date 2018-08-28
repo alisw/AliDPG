@@ -6,6 +6,7 @@
  
 #if !(defined(__CLING__)  || defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
 #include "AliGenPythia.h"
+#include "AliDecayer.h"
 #endif
 
 enum EGenerator_t {
