@@ -138,9 +138,8 @@ Config()
   /* configure Fluka if requested */
   if (isFluka) {
      gSystem->Load("libfluka.so");
-     new TFluka("C++ Interface to Fluka", 0/*verbositylevel*/);
-     TFluka* fluka = (TFluka*) gMC; 
-     fluka->SetLowEnergyNeutronTransport(1);
+     gROOT->ProcessLine("new TFluka(\"C++ Interface to Fluka\", 0/*verbositylevel*/);");
+     gROOT->ProcessLine("((TFluka*) gMC)->SetLowEnergyNeutronTransport(1);");
   }
 
   /* configure MC generator */
