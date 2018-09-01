@@ -66,7 +66,7 @@ void CompareAllHistos(TString filename="QAresults_v5-09-35.root", TString filena
 
 void ProcessFile(TString fname, TString dirToAnalyse){
 
-  TFile *fileBase=new TFile(fname.Data());
+  TFile *fileBase=TFile::Open(fname.Data());
   Int_t nkeys=fileBase->GetNkeys();
   TList* lkeys=fileBase->GetListOfKeys();
   for(Int_t j=0; j<nkeys; j++){
