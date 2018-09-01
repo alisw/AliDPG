@@ -68,7 +68,22 @@ void QAtrain_duo(const char *suffix="", Int_t run = 0,
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/HMPID/AddTaskHmpidQA.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/T0/AddTaskT0QA.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGLF/FORWARD/analysis2/AddTaskForwardQA.C");
+
+  // The following macro exists across ROOT versions with two different signatures. We need to know
+  // which one we are using. Note that checking the AliRoot version is weak (since we may not have
+  // a variable holding the version, for instance during development). We ask the interpreter to
+  // process a define directive. The directive is processed before we invoke the corresponding
+  // main_QAtrain_duo.C macro, and expanded properly there, in both ROOT 5 and 6
+  if (gSystem->Exec("grep -q 'char* fname' $ALICE_PHYSICS/PWGGA/PHOSTasks/CaloCellQA/macros/AddTaskCaloCellsQA.C") == 0) {
+    // Using the old version (with char* fname, accepting NULL as value)
+    gInterpreter->ProcessLine("#define CALOCELLS_NULL 0x0");
+  }
+  else {
+    // We expect any other version to support "" for empty strings
+    gInterpreter->ProcessLine("#define CALOCELLS_NULL \"\"");
+  }
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/PHOSTasks/CaloCellQA/macros/AddTaskCaloCellsQA.C");
+
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/PHOSTasks/PHOS_PbPbQA/macros/AddTaskPHOSPbPb.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/PHOSTasks/PHOS_TriggerQA/macros/AddTaskPHOSTriggerQA.C");
   //gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/EMCALTasks/macros/AddTaskEMCALTriggerQA.C"); // obsolete
@@ -80,16 +95,16 @@ void QAtrain_duo(const char *suffix="", Int_t run = 0,
 
   // loading the libraries (needed for ROOT5)
   gROOT->Macro("$ALIDPG_ROOT/DataProc/Common/LoadLibraries.C");
-  
+
   // running the main macro
 if (gSystem->AccessPathName("main_QAtrain_duo.C", kFileExists)==0) {
     Printf("Using local main_QAtrain_duo.C");
     gROOT->Macro(TString::Format("main_QAtrain_duo.C(\"%s\", %d, \"%s\", %d, \"%s\")", suffix, run, xmlfile, stage, cdb));
   }
   else {
-    Printf("Using main_QAtrain_duo.C from AliDPG");    
+    Printf("Using main_QAtrain_duo.C from AliDPG");
     gROOT->Macro(TString::Format("$ALIDPG_ROOT/QA/main_QAtrain_duo.C(\"%s\", %d, \"%s\", %d, \"%s\")", suffix, run, xmlfile, stage, cdb));
-  }  
+  }
 
   return;
 

@@ -1,6 +1,6 @@
 #include "Riostream.h"
 void LoadLibraries();
-void AddAnalysisTasks(const char *cdb_location, Bool_t disableESDtrackQA, Bool_t useEmptyStringForPHOS); 
+void AddAnalysisTasks(const char *cdb_location, Bool_t disableESDtrackQA);
 void QAmerge(const char *, Int_t);
 void ProcessEnvironment();
 
@@ -168,8 +168,7 @@ void main_QAtrainsim(Int_t run = 0,
 		const char *xmlfile   = "wn.xml",
 		Int_t  stage          = 0, /*0 = QA train, 1...n - merging stage*/
 		const char *cdb     = "raw://",
-		Bool_t disableESDtrackQA = kTRUE,
-		Bool_t useEmptyStringForPHOS = kFALSE)
+		Bool_t disableESDtrackQA = kTRUE)
 {
   run_number = run;
 
@@ -246,11 +245,11 @@ void main_QAtrainsim(Int_t run = 0,
     mcHandlerBg->SetReadTR(kTRUE);
     mcHandler->AddSubsidiaryHandler(mcHandlerBg);
   }
-  
+
   // AnalysisTasks
   //  mgr->Lock();
-  mgr->SetFileInfoLog("fileinfo.log"); 
-  AddAnalysisTasks(cdb, disableESDtrackQA, useEmptyStringForPHOS);
+  mgr->SetFileInfoLog("fileinfo.log");
+  AddAnalysisTasks(cdb, disableESDtrackQA);
   //  mgr->UnLock();
   //  mcHandler = (AliMCEventHandler*)mgr->GetMCtruthEventHandler();
   //  mcHandler->SetReadTR(kTRUE);
@@ -258,14 +257,14 @@ void main_QAtrainsim(Int_t run = 0,
   if (stage>0) {
     QAmerge(xmlfile, stage);
     return;
-  }   
+  }
   // Input chain
   TChain *chain = new TChain("esdTree");
   chain->Add("AliESDs.root");
   TStopwatch timer;
   timer.Start();
-  if (mgr->InitAnalysis()) {                                                                                                              
-    mgr->PrintStatus(); 
+  if (mgr->InitAnalysis()) {
+    mgr->PrintStatus();
     mgr->SetSkipTerminate(kTRUE);
   //   mgr->SetNSysInfo(1);
     mgr->StartAnalysis("local", chain);
@@ -273,7 +272,7 @@ void main_QAtrainsim(Int_t run = 0,
   timer.Print();
 }
 
-void AddAnalysisTasks(const char *cdb_location, Bool_t disableESDtrackQA, Bool_t useEmptyStringForPHOS)
+void AddAnalysisTasks(const char *cdb_location, Bool_t disableESDtrackQA)
 {
   AliAnalysisManager *mgr = AliAnalysisManager::GetAnalysisManager();
   mgr->SetCommonFileName("QAresults.root");
@@ -631,71 +630,58 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t disableESDtrackQA, Bool_t
     AliAnalysisTaskSE *forwardQA = (AliAnalysisTaskSE *)AddTaskForwardQA(kTRUE, (Bool_t)doCentrality);
     // No offline trigger config. needed (see #84077)
   }
-   //     
+
+  //
   // PHOS QA (Boris Polishchuk)
   //
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-useEmptyStringForPHOS = 1; //Other version will not even compile for ROOT 6
-#endif
-  
   if (doPHOS) {
     //AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = AddTaskCaloCellsQA(4, 1, NULL,"PHOSCellsQA_AnyInt");
     AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = 0x0;
-    if(useEmptyStringForPHOS) taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, "","PHOSCellsQA_AnyInt");
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-#else
-    else taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_AnyInt");
-#endif
+    taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, CALOCELLS_NULL,"PHOSCellsQA_AnyInt");
     taskPHOSCellQA1->SelectCollisionCandidates(kTriggerMask);
     taskPHOSCellQA1->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
-    //AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = AddTaskCaloCellsQA(4, 1, NULL,"PHOSCellsQA_PHI7"); 
+    //AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = AddTaskCaloCellsQA(4, 1, NULL,"PHOSCellsQA_PHI7");
     AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = 0x0;
-    if(useEmptyStringForPHOS)  taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, "","PHOSCellsQA_PHI7");
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-#else
-    else taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_PHI7");
-#endif
+    taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, CALOCELLS_NULL,"PHOSCellsQA_PHI7");
     taskPHOSCellQA2->SelectCollisionCandidates(AliVEvent::kPHI7);
     taskPHOSCellQA2->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
     // Pi0 QA fo PbPb
     if (iCollisionType == kPbPb || iCollisionType == kXeXe) {
       AliAnalysisTaskPHOSPbPbQA* phosPbPb = AddTaskPHOSPbPbQA(0);
     }
-  } 
+  }
    if (doPHOSTrig) {
      AliAnalysisTaskPHOSTriggerQA *taskPHOSTrig = 0x0;
-     if(useEmptyStringForPHOS) taskPHOSTrig = AddTaskPHOSTriggerQA("");
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-#else
-     else taskPHOSTrig = AddTaskPHOSTriggerQA(NULL);
-#endif
-  }   
+     taskPHOSTrig = AddTaskPHOSTriggerQA(CALOCELLS_NULL);
+  }
+
   //
   // EMCAL QA (Gustavo Conesa)
   //
   if (doEMCAL) {
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-     //Loading of the corresponding macro is disabled, so we have to disable it here as well!
-#else
-     AliAnalysisTaskEMCALTriggerQA *emctrig = AddTaskEMCALTriggerQA();
-#endif
-  }  
-   //
+    #if ROOT_VERSION_CODE >= ROOT_VERSION(6, 0, 0)
+    // Loading of the corresponding macro is disabled, so we have to disable it here as well!
+    printf("Warning: AliAnalysisTaskEMCALTriggerQA disabled on ROOT 6!\n");
+    #else
+    AliAnalysisTaskEMCALTriggerQA *emctrig = AddTaskEMCALTriggerQA();
+    #endif
+  }
+
+  //
   // EvTrk QA (Zaida)
   //
   if (doEvTrk) {
    AliAnalysisTask *task = AddSingleTrackEfficiencyTaskForAutomaticQA();
- }  
-   //
+  }
+
+  //
   // AD QA (Michal Broz))
   //
   if (doAD) {
    AliAnalysisTaskADQA *task = AddTaskADQA();
- }  
+  }
 
-   
-  //     
+  //
   // FLOW and BF QA (C.Perez && A.Rodriguez)
   //
   if (doFBFqa) {
