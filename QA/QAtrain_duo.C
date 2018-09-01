@@ -96,6 +96,11 @@ void QAtrain_duo(const char *suffix="", Int_t run = 0,
   // loading the libraries (needed for ROOT5)
   gROOT->Macro("$ALIDPG_ROOT/DataProc/Common/LoadLibraries.C");
 
+  // Custom OCDB (used in RelVal, for instance, with results from previous steps)
+  if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists) == 0) {
+    gROOT->LoadMacro("localOCDBaccessConfig.C");
+  }
+
   // running the main macro
 if (gSystem->AccessPathName("main_QAtrain_duo.C", kFileExists)==0) {
     Printf("Using local main_QAtrain_duo.C");
