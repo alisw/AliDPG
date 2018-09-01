@@ -10,7 +10,6 @@ void QAtrainsim(Int_t run = 0,
   // PHOS QA tasks need different arguments starting for AliPhysics >= v5-09-24
   // we expect by default to be using an AliPhysics recent than the two above
   Bool_t disableESDtrackQA=kFALSE;
-  Bool_t useEmptyStringForPHOS=kTRUE;
   if(!gSystem->Getenv("ALIEN_JDL_PACKAGES"))
     if(gSystem->Getenv("ALIEN_PACKAGES"))
     {
@@ -30,10 +29,8 @@ void QAtrainsim(Int_t run = 0,
     sscanf(aliph.Data(),"AliPhysics::v%d-%d-%02d%s",&ver,&n1,&n2,str2);
     if(ver<5){
       disableESDtrackQA=kTRUE;
-      useEmptyStringForPHOS=kFALSE;
     }else if(ver==5){
       if(n1<9 || (n1==9 && n2<14)) disableESDtrackQA=kTRUE; // < v5-09-14
-      if(n1<9 || (n1==9 && n2<24)) useEmptyStringForPHOS=kFALSE;  // < v5-09-24
     }
   }
 
@@ -72,6 +69,21 @@ void QAtrainsim(Int_t run = 0,
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/HMPID/AddTaskHmpidQA.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/T0/AddTaskT0QA.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGLF/FORWARD/analysis2/AddTaskForwardQA.C");
+
+  // The following macro exists across ROOT versions with two different signatures. We need to know
+  // which one we are using. Note that checking the AliRoot version is weak (since we may not have
+  // a variable holding the version, for instance during development). We ask the interpreter to
+  // process a define directive. The directive is processed before we invoke the corresponding
+  // main_QAtrain_duo.C macro, and expanded properly there, in both ROOT 5 and 6
+  if (gSystem->Exec("grep -q 'char* fname' $ALICE_PHYSICS/PWGGA/PHOSTasks/CaloCellQA/macros/AddTaskCaloCellsQA.C") == 0) {
+    // Using the old version (with char* fname, accepting NULL as value)
+    gInterpreter->ProcessLine("#define CALOCELLS_NULL 0x0");
+  }
+  else {
+    // We expect any other version to support "" for empty strings
+    gInterpreter->ProcessLine("#define CALOCELLS_NULL \"\"");
+  }
+
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/PHOSTasks/CaloCellQA/macros/AddTaskCaloCellsQA.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/PHOSTasks/PHOS_PbPbQA/macros/AddTaskPHOSPbPb.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGGA/PHOSTasks/PHOS_TriggerQA/macros/AddTaskPHOSTriggerQA.C");
@@ -85,12 +97,12 @@ void QAtrainsim(Int_t run = 0,
   // running the main macro
   if (gSystem->AccessPathName("main_QAtrainsim.C", kFileExists)==0) {
     Printf("Using local main_QAtrainsim.C");
-    gROOT->Macro(TString::Format("main_QAtrainsim.C(%d, \"%s\", %d, \"%s\", %d, %d)", run, xmlfile, stage, cdb, (Int_t)disableESDtrackQA, (Int_t)useEmptyStringForPHOS));
+    gROOT->Macro(TString::Format("main_QAtrainsim.C(%d, \"%s\", %d, \"%s\", %d, %d)", run, xmlfile, stage, cdb, (Int_t)disableESDtrackQA));
   }
   else {
-    Printf("Using main_QAtrain_duo.C from AliDPG");    
-    gROOT->Macro(TString::Format("$ALIDPG_ROOT/QA/main_QAtrainsim.C(%d, \"%s\", %d, \"%s\", %d, %d)", run, xmlfile, stage, cdb, (Int_t)disableESDtrackQA, (Int_t)useEmptyStringForPHOS));
-  }  
+    Printf("Using main_QAtrain_duo.C from AliDPG");
+    gROOT->Macro(TString::Format("$ALIDPG_ROOT/QA/main_QAtrainsim.C(%d, \"%s\", %d, \"%s\", %d, %d)", run, xmlfile, stage, cdb, (Int_t)disableESDtrackQA));
+  }
 
   return;
 

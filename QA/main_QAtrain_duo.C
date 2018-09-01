@@ -212,7 +212,6 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   // PHOS QA tasks need different arguments starting for AliPhysics >= v5-09-24
   // we expect by default to be using an AliPhysics recent than the two above
   Bool_t disableESDtrackQA=kFALSE;
-  Bool_t useEmptyStringForPHOS=kTRUE;
 
   if(!gSystem->Getenv("ALIEN_JDL_PACKAGES"))
     if(gSystem->Getenv("ALIEN_PACKAGES"))
@@ -234,10 +233,8 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     printf("XXXXXXXXX=> %s\n",aliph.Data());
     if(ver<5){
       disableESDtrackQA=kTRUE;
-      useEmptyStringForPHOS=kFALSE;
     }else if(ver==5){
       if(n1<9 || (n1==9 && n2<14)) disableESDtrackQA=kTRUE;  // < v5-09-14
-      if(n1<9 || (n1==9 && n2<24)) useEmptyStringForPHOS=kFALSE;  // < v5-09-24
     }
   }
 
@@ -600,13 +597,11 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   // 
   if (doPHOS) {
     AliAnalysisTaskCaloCellsQA *taskPHOSCellQA1 = 0x0;
-    if(useEmptyStringForPHOS) taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, "","PHOSCellsQA_AnyInt");
-    else taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_AnyInt");
+    taskPHOSCellQA1 = AddTaskCaloCellsQA(5, 1, CALOCELLS_NULL,"PHOSCellsQA_AnyInt");
     taskPHOSCellQA1->SelectCollisionCandidates(kTriggerMask);
     taskPHOSCellQA1->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
     AliAnalysisTaskCaloCellsQA *taskPHOSCellQA2 = 0x0;
-    if(useEmptyStringForPHOS)  taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, "","PHOSCellsQA_PHI7");
-    else taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, NULL,"PHOSCellsQA_PHI7");
+    taskPHOSCellQA2 = AddTaskCaloCellsQA(5, 1, CALOCELLS_NULL,"PHOSCellsQA_PHI7");
     taskPHOSCellQA2->SelectCollisionCandidates(AliVEvent::kPHI7);
     taskPHOSCellQA2->GetCaloCellsQA()->SetClusterEnergyCuts(0.3,0.3,1.0);
     // Pi0 QA fo PbPb
@@ -623,17 +618,10 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     AliAnalysisTaskPHOSTriggerQA* taskPHOSTrig2 = 0x0;
     AliAnalysisTaskPHOSTriggerQA* taskPHOSTrig3 = 0x0;
     AliAnalysisTaskPHOSTriggerQA* taskPHOSTrig4 = 0x0;
-    if(useEmptyStringForPHOS){
-      taskPHOSTrig1 = AddTaskPHOSTriggerQA("","PHOSTriggerQAResultsL0");
-      taskPHOSTrig2 = AddTaskPHOSTriggerQA("","PHOSTriggerQAResultsL1High");
-      taskPHOSTrig3 = AddTaskPHOSTriggerQA("","PHOSTriggerQAResultsL1Medium");
-      taskPHOSTrig4 = AddTaskPHOSTriggerQA("","PHOSTriggerQAResultsL1Low");
-    }else{
-      taskPHOSTrig1 = AddTaskPHOSTriggerQA(NULL,"PHOSTriggerQAResultsL0");
-      taskPHOSTrig2 = AddTaskPHOSTriggerQA(NULL,"PHOSTriggerQAResultsL1High");
-      taskPHOSTrig3 = AddTaskPHOSTriggerQA(NULL,"PHOSTriggerQAResultsL1Medium");
-      taskPHOSTrig4 = AddTaskPHOSTriggerQA(NULL,"PHOSTriggerQAResultsL1Low");
-    }
+    taskPHOSTrig1 = AddTaskPHOSTriggerQA(CALOCELLS_NULL,"PHOSTriggerQAResultsL0");
+    taskPHOSTrig2 = AddTaskPHOSTriggerQA(CALOCELLS_NULL,"PHOSTriggerQAResultsL1High");
+    taskPHOSTrig3 = AddTaskPHOSTriggerQA(CALOCELLS_NULL,"PHOSTriggerQAResultsL1Medium");
+    taskPHOSTrig4 = AddTaskPHOSTriggerQA(CALOCELLS_NULL,"PHOSTriggerQAResultsL1Low");
     taskPHOSTrig2->SelectL1Threshold(0);
     taskPHOSTrig3->SelectL1Threshold(1);
     taskPHOSTrig4->SelectL1Threshold(2);
