@@ -101,7 +101,7 @@ void QAtrainsim(Int_t run = 0,
   }
   else {
     Printf("Using main_QAtrain_duo.C from AliDPG");
-    gROOT->Macro(TString::Format("$ALIDPG_ROOT/QA/main_QAtrainsim.C(%d, \"%s\", %d, \"%s\", %d, %d)", run, xmlfile, stage, cdb, (Int_t)disableESDtrackQA));
+    gROOT->Macro(TString::Format("$ALIDPG_ROOT/QA/main_QAtrainsim.C(%d, \"%s\", %d, \"%s\", %d)", run, xmlfile, stage, cdb, (Int_t)disableESDtrackQA));
   }
 
   return;
