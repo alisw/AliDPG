@@ -28,7 +28,7 @@ Bool_t AreIdenticalHistos(TH1* hA, TH1* hB);
 Bool_t CompareHistos(TH1* hA, TH1* hB);
 
 
-void CompareAllHistos(TString filename="QAresults_v5-09-35.root", TString filename2="QAresults_v5-09-33.root", TString dirToAnalyse="ITS", Bool_t areIndependentSamples=kFALSE){
+void CompareAllHistos(TString filename="QAresults_v5-09-37.root", TString filename2="QAresults_v5-09-36.root", TString dirToAnalyse="", Bool_t areIndependentSamples=kFALSE){
 
   if(areIndependentSamples) correlationCase=1;
 
@@ -53,12 +53,17 @@ void CompareAllHistos(TString filename="QAresults_v5-09-35.root", TString filena
     if(cname.BeginsWith("TH")){
       TH1* hA=static_cast<TH1*>(fileA->Get(oname.Data()));
       TH1* hB=static_cast<TH1*>(fileB->Get(oname.Data()));
-      Bool_t ok=AreIdenticalHistos(hA,hB);
-      if(ok) printf("%s       ---> IDENTICAL\n",oname.Data());
-      else{
-	Bool_t ok=CompareHistos(hA,hB);
-	if(ok) printf("%s       ---> COMPATIBLE\n",oname.Data());
-	else printf("********  %s     ---> BAD *****\n",hA->GetName());
+      if(hA && hB){
+        Bool_t ok=AreIdenticalHistos(hA,hB);
+        if(ok) printf("%s       ---> IDENTICAL\n",oname.Data());
+        else{
+          Bool_t ok=CompareHistos(hA,hB);
+          if(ok) printf("%s       ---> COMPATIBLE\n",oname.Data());
+          else printf("********  %s     ---> BAD *****\n",hA->GetName());
+        }
+      }else{
+        if(!hA) printf("%s    ---> MISSING in first file\n",hA->GetName());
+        if(!hB) printf("%s    ---> MISSING  in second file\n",hA->GetName());
       }
     }
   }
@@ -217,6 +222,7 @@ void WriteProfile(TObject* obj){
 
 
 Bool_t AreIdenticalHistos(TH1* hA, TH1* hB){
+
   Long_t nEventsA=hA->GetEntries(); //temporary: we should use the number of analyzed events
   Long_t nEventsB=hB->GetEntries(); //temporary: we should use the number of analyzed events
   if(nEventsA!=nEventsB) {
