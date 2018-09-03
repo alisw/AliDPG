@@ -112,6 +112,7 @@ Bool_t doT0           = 1;
 Bool_t doZDC          = 1;
 Bool_t doPIDResponse  = 1;
 Bool_t doPIDqa        = 1; //new
+Bool_t doTPCsplines   = 1; //new
 Bool_t doFMD          = 1; // new
 Bool_t doPHOS         = 1; // new
 Bool_t doPHOSTrig     = 1; // new
@@ -568,6 +569,13 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     AliAnalysisTaskPIDqa *PIDQA = AddTaskPIDqa();
     PIDQA->SelectCollisionCandidates(kTriggerMask);
   }  
+  //
+  // TPC splines (JENS)
+  // 
+  if (doTPCsplines && (ibarrel || iall)) {
+    AliAnalysisTaskSE* taskSplines = AddTaskTPCcalibResidualPID("",kFALSE,kTRUE,kFALSE,kFALSE,kTRUE,kFALSE,kFALSE,kTRUE,kTRUE);
+    taskSplines->SelectCollisionCandidates(kTriggerMask);
+  }
  
   //
   // HMPID QA (Giacomo Volpe)
@@ -929,6 +937,11 @@ void ProcessEnvironmentVars()
     printf("Set doPIDqa=%d according to environment variables\n",doPIDqa);
   }
   //
+  if ( !(envS=gSystem->Getenv("TPCsplines")).IsNull() && CheckEnvS("TPCsplines",envS) ) {
+    doTPCsplines = atoi(envS.Data());
+    printf("Set doTPCsplines=%d according to environment variables\n",doTPCsplines);
+  }
+  //
   if ( !(envS=gSystem->Getenv("FMD")).IsNull() && CheckEnvS("FMD",envS) ) {
     doFMD = atoi(envS.Data());
     printf("Set doFMD=%d according to environment variables\n",doFMD);
@@ -995,6 +1008,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doZDC,         1, "ZDC");
       //      SetDoQA(doPIDResponse, 1, "PIDResponse");
       SetDoQA(doPIDqa,       1, "PIDqa");
+      SetDoQA(doTPCsplines,  0, "TPCsplines");
       SetDoQA(doFMD,         1, "FMD");
       SetDoQA(doPHOS,        1, "PHOS");
       SetDoQA(doPHOSTrig,    1, "PHOSTrig");
@@ -1030,6 +1044,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doZDC,         0, "ZDC");
       //      SetDoQA(doPIDResponse, 0, "PIDResponse");
       SetDoQA(doPIDqa,       0, "PIDqa");
+      SetDoQA(doTPCsplines,  1, "TPCsplines");
       SetDoQA(doFMD,         0, "FMD");
       SetDoQA(doPHOS,        0, "PHOS");
       SetDoQA(doPHOSTrig,    0, "PHOSTrig");
@@ -1064,6 +1079,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doZDC,         0, "ZDC");
       //      SetDoQA(doPIDResponse, 0, "PIDResponse");
       SetDoQA(doPIDqa,       0, "PIDqa");
+      SetDoQA(doTPCsplines,  0, "TPCsplines");
       SetDoQA(doFMD,         0, "FMD");
       SetDoQA(doPHOS,        0, "PHOS");
       SetDoQA(doPHOSTrig,    0, "PHOSTrig");
@@ -1098,6 +1114,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doZDC,         0, "ZDC");
       //      SetDoQA(doPIDResponse, 0, "PIDResponse");
       SetDoQA(doPIDqa,       0, "PIDqa");
+      SetDoQA(doTPCsplines,  0, "TPCsplines");
       SetDoQA(doFMD,         0, "FMD");
       SetDoQA(doPHOS,        0, "PHOS");
       SetDoQA(doPHOSTrig,    0, "PHOSTrig");
@@ -1132,6 +1149,7 @@ void ProcessEnvironmentVars()
       SetDoQA(doZDC,         0, "ZDC");
       //      SetDoQA(doPIDResponse, 0, "PIDResponse");
       SetDoQA(doPIDqa,       0, "PIDqa");
+      SetDoQA(doTPCsplines,  0, "TPCsplines");
       SetDoQA(doFMD,         0, "FMD");
       SetDoQA(doPHOS,        0, "PHOS");
       SetDoQA(doPHOSTrig,    0, "PHOSTrig");
