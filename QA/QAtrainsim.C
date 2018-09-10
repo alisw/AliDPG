@@ -97,7 +97,7 @@ void QAtrainsim(Int_t run = 0,
   // running the main macro
   if (gSystem->AccessPathName("main_QAtrainsim.C", kFileExists)==0) {
     Printf("Using local main_QAtrainsim.C");
-    gROOT->Macro(TString::Format("main_QAtrainsim.C(%d, \"%s\", %d, \"%s\", %d, %d)", run, xmlfile, stage, cdb, (Int_t)disableESDtrackQA));
+    gROOT->Macro(TString::Format("main_QAtrainsim.C(%d, \"%s\", %d, \"%s\", %d)", run, xmlfile, stage, cdb, (Int_t)disableESDtrackQA));
   }
   else {
     Printf("Using main_QAtrain_duo.C from AliDPG");
