@@ -71,12 +71,14 @@ runNum=`echo "$runNumF" |  sed 's/^0*//'`
 # Exporting variable to define that we are in CPass0 to be used in reconstruction
 export CPass='0'
 
-# Set max vmem [kb] even if Grid jobs have it, so that logs are saved on failure
-# ROOT 6+: 4 GB, ROOT 5: 3.5 GB (rootcling n/a on ROOT 5)
-[[ -x $ROOTSYS/bin/rootcling ]] && ALI_ULIMIT_VMEM=4000000 || ALI_ULIMIT_VMEM=3500000
-echo "Capping vmem to $ALI_ULIMIT_VMEM kb: processing will be killed after that threshold!"
-ulimit -S -v $ALI_ULIMIT_VMEM
-unset $ALI_ULIMIT_VMEM
+# Set max vmem [kb] for ROOT 5 processing (no ulimit for ROOT 6)
+if [[ -x $ROOTSYS/bin/rootcling ]]; then
+  echo "ROOT 6+ detected: not capping vmem"
+else
+  echo "Capping vmem to 3.5 GB"
+  ulimit -S -v 3500000
+fi
+ulimit -a
 
 # run TPC clusterization in separate process before reconstruction
 export preclusterizeTPC='0'
