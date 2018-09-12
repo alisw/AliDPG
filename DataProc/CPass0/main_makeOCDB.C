@@ -45,7 +45,7 @@ void main_makeOCDB(Int_t runNumber, TString  targetOCDBstorage="", TString sourc
   // DefaultStorage set already before - in ConfigCalibTrain.C
 
   // Setting the mirror SEs for the default storage
-  TString mirrorsStr("ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::LLNL::SE");
+  TString mirrorsStr("ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::CNAF::SE");
   AliCDBManager::Instance()->SetMirrorSEs(mirrorsStr.Data());
   printf("List of mirror SEs set to: \"%s\"\n",mirrorsStr.Data());
 
