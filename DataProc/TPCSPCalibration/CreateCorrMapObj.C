@@ -59,6 +59,9 @@ Bool_t CreateCorrMapObjRef(TObjArray* mapArr,int firstrun=0,int lastrun=-1, cons
   md->SetResponsible("Ruben Shahoyan");
   md->SetComment(Form("Cheb. %s reference map",isCorrection ? "Correction":"Distortion"));
   AliCDBId id(GetObjPath(isCorrection,kTRUE),firstrun,lastrun<0 ? (AliCDBRunRange::Infinity()) : lastrun);
+  TString mirrorsStr("ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::LLNL::SE");
+  AliCDBManager::Instance()->SetMirrorSEs(mirrorsStr.Data());
+  printf("List of mirror SEs set to: \"%s\"\n",mirrorsStr.Data());
   Bool_t res = man->Put(arr,id,md); 
   if (res) printf("Created an object with single time independent map\n");
   else printf("Failed to put on OCDB an object with single time independent map\n");
@@ -107,6 +110,9 @@ Bool_t CreateCorrMapObjDef(TObjArray* mapArr,int firstrun=0,int lastrun=-1, cons
   md->SetResponsible("Ruben Shahoyan");
   md->SetComment(Form("Cheb. %s default map",isCorrection ? "Correction":"Distortion"));
   AliCDBId id(GetObjPath(isCorrection,kFALSE), firstrun,lastrun<0 ? (AliCDBRunRange::Infinity()) : lastrun);
+  TString mirrorsStr("ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::LLNL::SE");
+  AliCDBManager::Instance()->SetMirrorSEs(mirrorsStr.Data());
+  printf("List of mirror SEs set to: \"%s\"\n",mirrorsStr.Data());
   Bool_t res = man->Put(arr,id,md); 
   if (res) printf("Created an object with single time independent map\n");
   else printf("Failed to put on OCDB an object with single time independent map\n");
@@ -133,6 +139,9 @@ Bool_t CreateCorrMapObjDef(AliTPCChebCorr* map,int firstrun=0,int lastrun=-1, co
   md->SetResponsible("Ruben Shahoyan");
   md->SetComment(Form("Cheb. %s default map",isCorrection ? "Correction":"Distortion"));
   AliCDBId id(GetObjPath(isCorrection,kFALSE),firstrun,lastrun<0 ? (AliCDBRunRange::Infinity()) : lastrun);
+  TString mirrorsStr("ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::LLNL::SE");
+  AliCDBManager::Instance()->SetMirrorSEs(mirrorsStr.Data());
+  printf("List of mirror SEs set to: \"%s\"\n",mirrorsStr.Data());
   Bool_t res = man->Put(arr,id,md); 
   if (res) printf("Created an object with single time independent map\n");
   else printf("Failed to put on OCDB an object with single time independent map\n");
@@ -159,6 +168,9 @@ Bool_t CreateCorrMapObjRef(AliTPCChebCorr* map,int firstrun=0,int lastrun=-1, co
   md->SetResponsible("Ruben Shahoyan");
   md->SetComment(Form("Cheb. %s reference map",isCorrection ? "Correction":"Distortion"));
   AliCDBId id(GetObjPath(isCorrection,kTRUE),firstrun,lastrun<0 ? (AliCDBRunRange::Infinity()) : lastrun);
+  TString mirrorsStr("ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::LLNL::SE");
+  AliCDBManager::Instance()->SetMirrorSEs(mirrorsStr.Data());
+  printf("List of mirror SEs set to: \"%s\"\n",mirrorsStr.Data());
   Bool_t res = man->Put(arr,id,md); 
   if (res) printf("Created an object with single time independent map\n");
   else printf("Failed to put on OCDB an object with single time independent map\n");
@@ -185,6 +197,9 @@ Bool_t CreateCorrMapObj(AliTPCChebCorr* map,int firstrun=0,int lastrun=-1, const
   md->SetResponsible("Ruben Shahoyan");
   md->SetComment(Form("Cheb. %s map",isCorrection ? "Correction":"Distortion"));
   AliCDBId id(GetObjPath(isCorrection,kFALSE),firstrun,lastrun<0 ? (AliCDBRunRange::Infinity()) : lastrun);
+  TString mirrorsStr("ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::LLNL::SE");
+  AliCDBManager::Instance()->SetMirrorSEs(mirrorsStr.Data());
+  printf("List of mirror SEs set to: \"%s\"\n",mirrorsStr.Data());
   Bool_t res = man->Put(arr,id,md); 
   if (res) printf("Created an object with single time independent map\n");
   else printf("Failed to put on OCDB an object with single time independent map\n");
@@ -252,6 +267,9 @@ Bool_t CreateCorrMapObjTime(TObjArray* arrMap,int firstrun=0,int lastrun=-1, con
   md->SetResponsible("Ruben Shahoyan");
   md->SetComment(Form("Cheb. %s maps array",isCorrection ? "Correction":"Distortion"));
   AliCDBId id(GetObjPath(isCorrection,kFALSE),firstrun,lastrun<0 ? (AliCDBRunRange::Infinity()) : lastrun);
+  TString mirrorsStr("ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::LLNL::SE");
+  AliCDBManager::Instance()->SetMirrorSEs(mirrorsStr.Data());
+  printf("List of mirror SEs set to: \"%s\"\n",mirrorsStr.Data());
   Bool_t res = man->Put(arrMap,id,md);
   if (res) printf("Created an object with %d time dependent maps\n",nmap);
   else printf("Failed to put on OCDB an object with %d time dependent maps\n",nmap);
