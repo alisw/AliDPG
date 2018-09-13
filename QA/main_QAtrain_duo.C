@@ -368,6 +368,9 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   if (doSDD && (ibarrel || iall)) {
     AliAnalysisTaskSE* tasksdd = AddSDDPoints();
     tasksdd->SelectCollisionCandidates(kTriggerMask);
+    // second wagon to analyze SDD in ITS standalone tracks (E Botta)
+    AliAnalysisTaskSE* tasksdd2 = AddSDDPoints(kTRUE);
+    tasksdd2->SelectCollisionCandidates(kTriggerMask);
   }
   //
   // SSD dEdx (Marek Chojnacki)
