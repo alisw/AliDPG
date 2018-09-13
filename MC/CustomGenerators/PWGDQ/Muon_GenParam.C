@@ -28,7 +28,6 @@ AliGenerator* GeneratorCustom(TString opt = "")
       if (opt == optNames[iPar]) {
         macro += "$ALIDPG_ROOT/MC/CustomGenerators/PWGDQ/";
         macro += optMacros[iPar];
-        macro += "+";
         setup += optSetups[iPar];
         break;
       }
@@ -60,9 +59,10 @@ AliGenerator* GeneratorCustom(TString opt = "")
   decayer->Init();
   gMC->SetExternalDecayer(decayer);
 
-  // compile the macro (needed to use precompiled functions)
-  //gSystem->AddIncludePath("-I$ALICE_ROOT/include -I$ALICE_PHYSICS/include");
-  if (gROOT->LoadMacro(macro.Data()) != 0) {
+  // compile the macro in the current directory (needed to use precompiled functions)
+  gSystem->Exec(TString::Format("ln -s %s MuonGenerator.C", macro.Data()));
+  gSystem->AddIncludePath("-I$ALICE_ROOT/include");
+  if (gROOT->LoadMacro("MuonGenerator.C+") != 0) {
     Printf("ERROR: cannot find %s\n", macro.Data());
     abort();
     return NULL;
