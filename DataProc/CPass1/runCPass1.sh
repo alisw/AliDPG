@@ -153,6 +153,13 @@ export CPASSMODE=${ALIEN_JDL_LPMCPASSMODE-$CPASSMODE}
 
 echo "CPASSMODE = ${CPASSMODE}" | tee -a calib.log
 
+# Mirror SE for OCDB uploads
+export MIRRORSE="ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::CNAF::SE"
+
+export MIRRORSE=${ALIEN_JDL_MIRRORSE-$MIRRORSE}
+
+echo "MIRRORSE = ${MIRRORSE}" | tee -a calib.log
+
 CHUNKNAME="$1"
 
 if [ "${CHUNKNAME:0:1}" = "/" ]; then
