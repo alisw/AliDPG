@@ -55,6 +55,11 @@ extractEnvVars()
     
     # number of tracks for closure test, hardly will be done of the grid
     export distNTracksClosureTest=${ALIEN_JDL_DISTNTRACKSCLOSURETEST-$distNTracksClosureTest}
+
+    # Mirror SE for OCDB uploads
+    export MIRRORSE="ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::CNAF::SE"
+    export MIRRORSE=${ALIEN_JDL_MIRRORSE-$MIRRORSE}
+
     #
     echo ""
     echo "Listing all env.vars"

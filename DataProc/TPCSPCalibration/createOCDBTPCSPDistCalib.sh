@@ -60,6 +60,10 @@ fi
 # allowing JDL to overwrite the default folder where to store the calibration 
 targetOCDBDir=${ALIEN_JDL_TARGETOCDBDIR-$targetOCDBDir}
 
+# Mirror SE for OCDB uploads
+export MIRRORSE="ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::CNAF::SE"
+export MIRRORSE=${ALIEN_JDL_MIRRORSE-$MIRRORSE}
+
 # check if correction/distortion objects were explicitly requested
 [[ -z $corr || "$corr" == "0" ]] && corr="0" || corr="1"
 [[ -z $dist || "$dist" == "0" ]] && dist="0" || dist="1"
@@ -76,6 +80,7 @@ echo "endRun        = $endRun"
 echo "ocdbStorage   = $ocdbStorage"
 echo "corr          = $corr"
 echo "dist          = $dist"
+echo "mirrorSE      = ${MIRRORSE}"
 
 
 startRun=$(echo "$startRun" | sed 's/^0*//')
