@@ -860,13 +860,16 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
 # ESD tag creation removed on September 2017 after CB and PB discussions
 
-
-    CHECKESDC=$ALIDPG_ROOT/MC/CheckESD.C
-    if [ -f CheckESD.C ]; then
-	CHECKESDC=CheckESD.C
-    fi
-    runcommand "CHECK ESD" $CHECKESDC check.log 60 1
-
+    # Commenting out the CheckESD while we sort out how to configure
+    # the PID response properly. In any case, the output of this check is
+    # neither checked nor stored at present
+#    CHECKESDC=$ALIDPG_ROOT/MC/CheckESD.C
+#    if [ -f CheckESD.C ]; then
+#	CHECKESDC=CheckESD.C
+#    fi
+#    runcommand "CHECK ESD" $CHECKESDC check.log 60 1
+#
+    
     # delete files not needed anymore
     if [[ $CONFIG_SIMULATION == "EmbedBkg" ]]; then
 	rm -f *.RecPoints.root *.Digits.root
