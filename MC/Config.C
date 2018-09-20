@@ -425,7 +425,7 @@ CreateGAlice()
     return;
   }
   rl->SetCompressionLevel(2);
-  rl->SetNumberOfEventsPerFile(1000);
+  rl->SetNumberOfEventsPerFile(neventsConfig);
   gAlice->SetRunLoader(rl);
   // gAlice->SetGeometryFromFile("geometry.root");
   // gAlice->SetGeometryFromCDB();
