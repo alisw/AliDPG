@@ -29,6 +29,6 @@ void runFilteringTask( const char* esdList,
 
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskFilteredTree.C");
 
-    gROOT->Macro(Form("$ALICE_PHYSICS/PWGPP/macros/main_runFilteringTask.C(\"%s\", %f, %f, \"%s\", %d, %d, %d, %d, \"%s\", %d)", esdList, scalingTracks, scalingV0, ocdb, nFiles, firstFile, nEvents, firstEvent, esdFileName, (Int_t)mc));
+    gROOT->Macro(Form("$ALIDPG_ROOT/DataProc/Common/main_runFilteringTask.C(\"%s\", %f, %f, \"%s\", %d, %d, %d, %d, \"%s\", %d)", esdList, scalingTracks, scalingV0, ocdb, nFiles, firstFile, nEvents, firstEvent, esdFileName, (Int_t)mc));
     
 }
