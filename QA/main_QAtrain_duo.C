@@ -576,8 +576,11 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   // TPC splines (JENS)
   // 
   if (doTPCsplines && (ibarrel || iall)) {
-    AliAnalysisTaskSE* taskSplines = AddTaskTPCcalibResidualPID("",kFALSE,kTRUE,kFALSE,kFALSE,kTRUE,kFALSE,kFALSE,kTRUE,kTRUE);
-    taskSplines->SelectCollisionCandidates(kTriggerMask);
+    if(gSystem->Exec("grep -q 'runInQA' $ALICE_PHYSICS/PWGPP/TPC/macros/AddTaskTPCcalibResidualPID.C") == 0) {
+      // TPC splines calibration task should be added only for AliPhysics versions in which the argument runInQA exists
+      AliAnalysisTaskSE* taskSplines = AddTaskTPCcalibResidualPID("",kFALSE,kTRUE,kFALSE,kFALSE,kTRUE,kFALSE,kFALSE,kTRUE,kTRUE);
+      taskSplines->SelectCollisionCandidates(kTriggerMask);
+    }
   }
  
   //
@@ -786,6 +789,14 @@ void ProcessEnvironmentVars()
       printf(">>>>> Unknown year for configuration ALIEN_JDL_LPMANCHORYEAR \n");
       abort();
     }
+
+  //
+  // Disable TPC splines in muon_calo pass
+  //
+  if (gSystem->Getenv("ALIEN_JDL_RAWPRODTYPE")){
+    TString passType = gSystem->Getenv("ALIEN_JDL_RAWPRODTYPE");
+    if (passType.Contains("muon_calo")) doTPCsplines=0;;
+  }
 
   int var=0;
   TString envS;
