@@ -576,8 +576,14 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   // TPC splines (JENS)
   // 
   if (doTPCsplines && (ibarrel || iall)) {
+  // The macro to attach the splines task changed signature: 
+  // one more argument has been 
+  // introduced in order to run it in the QA train. So we 
+  // attach this wagon only if this extra argument exists in the macro.
+  if (gSystem->Exec("grep -q 'Bool_t runInQA = kFALSE' $ALICE_PHYSICS/PWGPP/TPC/macros/AddTaskTPCcalibResidualPID.C") == 0) {
     AliAnalysisTaskSE* taskSplines = AddTaskTPCcalibResidualPID("",kFALSE,kTRUE,kFALSE,kFALSE,kTRUE,kFALSE,kFALSE,kTRUE,kTRUE);
     taskSplines->SelectCollisionCandidates(kTriggerMask);
+    }
   }
  
   //
