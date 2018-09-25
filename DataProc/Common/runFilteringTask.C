@@ -29,6 +29,7 @@ void runFilteringTask( const char* esdList,
 
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskFilteredTree.C");
 
+
   // now running the main macro
   if (gSystem->AccessPathName("main_runFilteringTask.C", kFileExists)==0) {
     Printf("Using local main_runFilteringTask.C");
