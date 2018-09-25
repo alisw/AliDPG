@@ -29,6 +29,12 @@ void runFilteringTask( const char* esdList,
 
     gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskFilteredTree.C");
 
-    gROOT->Macro(Form("$ALIDPG_ROOT/DataProc/Common/main_runFilteringTask.C(\"%s\", %f, %f, \"%s\", %d, %d, %d, %d, \"%s\", %d)", esdList, scalingTracks, scalingV0, ocdb, nFiles, firstFile, nEvents, firstEvent, esdFileName, (Int_t)mc));
+  // now running the main macro
+  if (gSystem->AccessPathName("main_runFilteringTask.C", kFileExists)==0) {
+    Printf("Using local main_runFilteringTask.C");
+    gROOT->Macro(TString::Format("main_runFilteringTask.C(\"%s\", %f, %f, \"%s\", %d, %d, %d, %d, \"%s\", %d)", esdList, scalingTracks, scalingV0, ocdb, nFiles, firstFile, nEvents, firstEvent, esdFileName, (Int_t)mc));
+  }
+  else {
+    gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/Common/main_runFilteringTask.C(\"%s\", %f, %f, \"%s\", %d, %d, %d, %d, \"%s\", %d)", esdList, scalingTracks, scalingV0, ocdb, nFiles, firstFile, nEvents, firstEvent, esdFileName, (Int_t)mc));
     
 }
