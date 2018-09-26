@@ -502,8 +502,12 @@ fi
 ### check for Fluka and configure it if needed
 
 if [[ $CONFIG_FLUKA == "on" ]]; then
-    echo "* Linking files needed for Fluka"
+    echo "* Linking files needed for FLUKA"
     source $ALIDPG_ROOT/MC/FlukaConfig.sh
+    if [[ $FLUKA_CONFIG_ERROR ]]; then
+        echo "FATAL: Errors configuring FLUKA: aborting!"
+        exit 1
+    fi
 fi
 
 ### check whether we are in OCDB generation job
