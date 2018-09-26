@@ -578,7 +578,7 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   if (doTPCsplines && (ibarrel || iall)) {
     if(gSystem->Exec("grep -q 'runInQA' $ALICE_PHYSICS/PWGPP/TPC/macros/AddTaskTPCcalibResidualPID.C") == 0) {
       // TPC splines calibration task should be added only for AliPhysics versions in which the argument runInQA exists
-      AliAnalysisTaskSE* taskSplines = AddTaskTPCcalibResidualPID("",kFALSE,kTRUE,kFALSE,kFALSE,kTRUE,kFALSE,kFALSE,kTRUE,kTRUE);
+      AliAnalysisTaskSE* taskSplines = reinterpret_cast<AliAnalysisTaskSE*>(gInterpreter->ProcessLine(TString::Format("AddTaskTPCcalibResidualPID(\"\",kFALSE,kTRUE,kFALSE,kFALSE,kTRUE,kFALSE,kFALSE,kTRUE,kTRUE)")));
       taskSplines->SelectCollisionCandidates(kTriggerMask);
     }
   }
