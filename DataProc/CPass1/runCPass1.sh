@@ -74,8 +74,14 @@ export CPass='1'
 
 export PRODUCTION_METADATA="$ALIEN_JDL_LPMMETADATA"
 
-# Set memory limits to a value lower than the hard site limits to at least get the logs of failing jobs
-ulimit -S -v 3500000
+# Set max vmem [kb] for ROOT 5 processing (no ulimit for ROOT 6)
+if [[ -x $ROOTSYS/bin/rootcling ]]; then
+  echo "ROOT 6+ detected: not capping vmem"
+else
+  echo "Capping vmem to 3.5 GB"
+  ulimit -S -v 3500000
+fi
+ulimit -a
 
 # skip Outer pass by default
 export skipOuter='1'
@@ -147,6 +153,13 @@ export CPASSMODE=${ALIEN_JDL_LPMCPASSMODE-$CPASSMODE}
 
 echo "CPASSMODE = ${CPASSMODE}" | tee -a calib.log
 
+# Mirror SE for OCDB uploads
+export MIRRORSE="ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::CNAF::SE"
+
+export MIRRORSE=${ALIEN_JDL_MIRRORSE-$MIRRORSE}
+
+echo "MIRRORSE = ${MIRRORSE}" | tee -a calib.log
+
 CHUNKNAME="$1"
 
 if [ "${CHUNKNAME:0:1}" = "/" ]; then
@@ -178,6 +191,27 @@ echo "* ************************"
 echo "* Printing ALL env variables"
 printenv
 echo ""
+
+
+# enable vdt library
+
+$ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
+echo "Let's check if we can enable VDT"
+enablevdt=$?
+if [ $enablevdt == 0 ]; then 
+    echo "According to the package versioning, we can enable VDT; let's check the JDL"
+    if [ -z "$ALIEN_JDL_DISABLEVDT" ]; then
+	if [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+	    echo "Use VDT math library"
+	    export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
+	else
+	    echo "VDT math library requested but not found"
+	fi
+    else
+	echo "VDT math library disabled via ALIEN_JDL_DISABLEVDT"
+    fi
+fi
+
 timeUsed=0
 
 mkdir Barrel OuterDet
@@ -302,6 +336,12 @@ for OUTER_FILE in recCPass1_OuterDet.C; do
     ln -s ../$OUTER_FILE OuterDet/$OUTER_FILE
 done
 
+# Linking AliDPG folder - needed when we use the tarball
+if [ -d AliDPG ]; then
+    ln -s ../AliDPG Barrel/AliDPG;
+    ln -s ../AliDPG OuterDet/AliDPG;
+fi
+
 ####################################   Barrel   #######################################
 
 cd Barrel
@@ -401,7 +441,7 @@ fi
 
 echo "" 
 echo "*  Running filtering task for barrel *"
-filtMacro=$ALICE_PHYSICS/PWGPP/macros/runFilteringTask.C
+filtMacro=$ALIDPG_ROOT/DataProc/Common/runFilteringTask.C
 if [ -f $filtMacro ]; then
     echo "" 
     echo "running the following runFilteringTask.C macro:"

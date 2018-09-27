@@ -19,7 +19,7 @@ void raw2clust(const char *filename="raw.root", Int_t nevents=-1,const char *ocd
 
   if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists)==0) {        
     gROOT->LoadMacro("localOCDBaccessConfig.C");
-    localOCDBaccessConfig();
+    gInterpreter->ProcessLine("localOCDBaccessConfig();");
   }
 
   rec.SetRunReconstruction("");

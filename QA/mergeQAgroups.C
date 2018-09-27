@@ -6,7 +6,7 @@ void mergeQAgroups(const char* lst, const char* out="QAresults.root")
   TString outS = out;
   if (lstS.IsNull()) exit(1);
   if (outS.IsNull()) exit(1);
-  gROOT->Macro("$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/LoadLibraries.C");
+  gROOT->Macro("$ALIDPG_ROOT/DataProc/Common/LoadLibraries.C");
   gSystem->Load("libCORRFW.so");
   AliFileMerger fm;
   fm.IterTXT(lstS.Data(),outS.Data());

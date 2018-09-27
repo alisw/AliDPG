@@ -69,7 +69,8 @@ extractEnvVars()
 [[ $# -lt 3 ]] &&  Usage && exit 1
 echo "Arguments: 1 = $1, 2 = $2, 3 = $3"
 
-source $ALICE_PHYSICS/PWGPP/scripts/alilog4bash.sh  
+
+source "$ALICE_ROOT"/libexec/alilog4bash.sh
 
 prepobj="alitpcdcalibres.root"
 
@@ -85,7 +86,7 @@ export runNumber=$3
 export distNTracksClosureTest
 if [[ $# -gt 3 ]] ; then distNTracksClosureTest=$4 ;fi
 
-loadLibMacro="$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/LoadLibraries.C"
+loadLibMacro="$ALIDPG_ROOT/DataProc/Common/LoadLibraries.C"
 inclMacro="$ALIDPG_ROOT/DataProc/TPCSPCalibration/includeMacro.C"
 macroName="$ALIDPG_ROOT/DataProc/TPCSPCalibration/procResidData.C"
 locMacro=$(basename "$macroName")

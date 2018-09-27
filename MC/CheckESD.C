@@ -1,4 +1,4 @@
-#if !defined( __CINT__) || defined(__MAKECINT__)
+#if !(defined(__CLING__)  || defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__) 
 #include <TROOT.h>
 #include <TFile.h>
 #include <TError.h>
@@ -87,7 +87,7 @@ Bool_t FitHisto(TH1* histo, Double_t& res, Double_t& resError)
     Float_t mean = histo->GetMean();
     Float_t rms = histo->GetRMS();
     fitFunc->SetRange(mean - maxFitRange*rms, mean + maxFitRange*rms);
-    fitFunc->SetParameters(mean, rms);
+    fitFunc->SetParameters(0.,mean, rms);
     histo->Fit(fitFunc, "QRI0");
     histo->GetFunction("fitFunc")->ResetBit(1<<9);
     res = TMath::Abs(fitFunc->GetParameter(2));
@@ -200,9 +200,9 @@ Bool_t CheckESD(const char* gAliceFileName = "galice.root",
   if (gSystem->Getenv("CONFIG_OCDB"))
     ocdbConfig = gSystem->Getenv("CONFIG_OCDB");
   if (ocdbConfig.Contains("alien") || ocdbConfig.Contains("cvmfs")) {
-    // set OCDB 
+    // set OCDB
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
-    OCDBDefault(1);
+    gInterpreter->ProcessLine("OCDBDefault(1);");
   }
   else {
     // set OCDB snapshot mode
@@ -363,7 +363,7 @@ Bool_t CheckESD(const char* gAliceFileName = "galice.root",
     }
 
     // Initialise PID for the current event
-    pidResponse.InitialiseEvent(esd,1,0); //pass=1, run=0
+    // pidResponse.InitialiseEvent(esd, 1, "", runNo); // pass=1 (seems to be unneeded)
 
     // loop over tracks
     for (Int_t iTrack = 0; iTrack < esd->GetNumberOfTracks(); iTrack++) {

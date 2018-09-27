@@ -3,6 +3,11 @@
  * Generator configuration script
  *
  */
+ 
+#if !(defined(__CLING__)  || defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
+#include "AliGenPythia.h"
+#include "AliDecayer.h"
+#endif
 
 enum EGenerator_t {
   kGeneratorDefault,
@@ -34,6 +39,10 @@ enum EGenerator_t {
   kGeneratorDRgen,
   // AMPT
   kGeneratorAMPT, kGeneratorAMPT_v226t7,
+  // Therminator2
+  kGeneratorTherminator2,
+  // QED electrons
+  kGeneratorQED,
   //
   kGeneratorCustom,
   //
@@ -71,6 +80,10 @@ const Char_t *GeneratorName[kNGenerators] = {
   "DRgen",
   // AMPT
   "AMPT", "AMPT_v226t7",
+  // Therminator2
+  "Therminator2",
+  // QED electrons
+  "QED",
   //
   "Custom",
   //
@@ -112,7 +125,8 @@ enum EPythia6HeavyDecay_t {
   kPythia6HeavyDecay_Hadrons,
   kPythia6HeavyDecay_HadronsWithV0,
   kPythia6HeavyDecay_Electron,
-  kPythia6HeavyDecay_All
+  kPythia6HeavyDecay_All,
+  kPythia6HFYellowReport
 };
 
 /*****************************************************************/
@@ -161,6 +175,7 @@ GetCalorimeterAcceptance(Int_t acceptance, Float_t &etaMax, Float_t &phiMin, Flo
 // functions
 AliGenerator *GeneratorCocktail(TString name);
 AliGenerator *GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t ymin, Float_t ymax, Float_t phimin = 0., Float_t phimax = 360.); 
+AliGenParam* GeneratorParam(int n, int pdg, double ptmin, double ptmax, double ymin, double ymax, AliDecayer* dec = 0x0, double phimin = 0., double phimax = 360.);
 AliGenerator *GeneratorPythia6(Int_t tune = 0, Int_t pdgtrig = 0, Float_t etatrig = 1.2);
 AliGenerator *GeneratorPythia6Jets(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
 AliGenerator *GeneratorPythia6JetsGammaTrg(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
@@ -179,6 +194,8 @@ AliGenerator *GeneratorStarlight();
 AliGenerator *GeneratorDRgen();
 AliGenerator *GeneratorAMPT();
 AliGenerator *GeneratorAMPT_v226t7();
+AliGenerator *GeneratorTherminator2();
+AliGenerator *GeneratorQED();
 
 /*****************************************************************/
 
@@ -187,7 +204,9 @@ static TString comment;
 
 /*****************************************************************/
 
-GeneratorConfig(Int_t tag)
+AliGenerator* gg_tmp_gen;
+TString gg_tmp_str;
+void GeneratorConfig(Int_t tag)
 {
 
   AliGenerator *gen = NULL;
@@ -284,6 +303,14 @@ GeneratorConfig(Int_t tag)
     gen = GeneratorAMPT_v226t7();
     break;
 
+ case kGeneratorTherminator2:
+    gen = GeneratorTherminator2();
+    break;
+
+  case kGeneratorQED:
+    gen = GeneratorQED();
+    break;
+
     // Custom
   case kGeneratorCustom:
     if ((gROOT->LoadMacro("GeneratorCustom.C")) != 0) {
@@ -291,16 +318,17 @@ GeneratorConfig(Int_t tag)
       abort();
       return;
     }
-    gen = GeneratorCustom();
+    gROOT->ProcessLine("gg_tmp_gen = GeneratorCustom();");
+    gen = gg_tmp_gen;
     break;
 
     // PWG
   case kGeneratorPWG:
     TString genstr = gSystem->Getenv("CONFIG_GENERATOR");
     TObjArray *oa = genstr.Tokenize(":");
-    TObjString *pwg = oa->At(0);
-    TObjString *pwggen = oa->At(1);
-    TObjString *pwgopt = oa->At(2);
+    TObjString *pwg = (TObjString*) oa->At(0);
+    TObjString *pwggen = (TObjString*) oa->At(1);
+    TObjString *pwgopt = (TObjString*) oa->At(2);
     if (!pwg || !pwggen) {
       printf("ERROR: problem parsing CONFIG_GENERATOR: %s \n", genstr.Data());
       abort();
@@ -318,9 +346,16 @@ GeneratorConfig(Int_t tag)
       return;
     }
     if (pwgopt)
-      gen = GeneratorCustom(pwgopt->String());
+    {
+      gg_tmp_str = pwgopt->String();
+      gROOT->ProcessLine("gg_tmp_gen = GeneratorCustom(gg_tmp_str);");
+      gen = gg_tmp_gen;
+    }
     else
-      gen = GeneratorCustom();
+    {
+      gROOT->ProcessLine("gg_tmp_gen = GeneratorCustom();");
+      gen = gg_tmp_gen;
+    }
     break;
 
   }
@@ -396,15 +431,15 @@ GeneratorPythia6(Int_t tune, Int_t pdgtrig, Float_t etatrig)
     pythia->SetProjectile("P", 1, 1);
     pythia->SetTarget    ("n", 208, 82);
     pythia->SetUseNuclearPDF(kTRUE);
-    pythia->SetUseLorentzBoost(kTRUE);
-    comment = comment.Append(" | p-Pb Boosted");
+    pythia->SetUseLorentzBoost(kFALSE);  // the Lorentz boost should be switched off to avoid biases in the D and B meson decay topology
+    comment = comment.Append(" | p-Pb");
   }
   else if (systemConfig.EqualTo("Pb-p")) {
     pythia->SetProjectile("n", 208, 82);
     pythia->SetTarget    ("P", 1, 1);
     pythia->SetUseNuclearPDF(kTRUE);
-    pythia->SetUseLorentzBoost(kTRUE);
-    comment = comment.Append(" | Pb-p Boosted");
+    pythia->SetUseLorentzBoost(kFALSE);  // the Lorentz boost should be switched off to avoid biases in the D and B meson decay topology
+    comment = comment.Append(" | Pb-p");
   }
   //
   // Tune
@@ -416,7 +451,7 @@ GeneratorPythia6(Int_t tune, Int_t pdgtrig, Float_t etatrig)
   //
   // Trigger particles
   if (pdgtrig != 0) {
-    comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdgtrig)->GetName()));
+//    comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdgtrig)->GetName()));
     pythia->SetTriggerParticle(pdgtrig, etatrig);
   }
   //
@@ -433,7 +468,7 @@ GeneratorPythia6Jets(Int_t tune, Int_t acceptance)
   comment = comment.Append(Form(" | Pythia6 jets (%.1f, %.1f, %d, %.1f)", pthardminConfig, pthardmaxConfig, quenchingConfig, qhatConfig));
   //
   // Pythia
-  AliGenPythia *pythia = GeneratorPythia6(tune);
+  AliGenPythia *pythia = (AliGenPythia*) GeneratorPythia6(tune);
   //
   // jets settings
   pythia->SetProcess(kPyJets);
@@ -447,8 +482,10 @@ GeneratorPythia6Jets(Int_t tune, Int_t acceptance)
   pythia->SetQuench(quenchingConfig);
   switch (quenchingConfig) {
   case 1:
-    Float_t k = 6.e5 * (qhatConfig / 1.7);  //qhat=1.7, k=6e5, default value
-    AliPythia::Instance()->InitQuenching(0., 0.1, k, 0, 0.95, 6);		
+    {
+      Float_t k = 6.e5 * (qhatConfig / 1.7);  //qhat=1.7, k=6e5, default value
+      AliPythia::Instance()->InitQuenching(0., 0.1, k, 0, 0.95, 6);		
+    }
     break;
   case 2:
     pythia->SetPyquenPar(1.,0.1,0,0,1);			
@@ -468,7 +505,7 @@ GeneratorPythia6JetsGammaTrg(Int_t tune, Int_t acceptance)
   comment = comment.Append(Form(" | Pythia6 jets gamma-triggered"));
   //
   // Pythia
-  AliGenPythia *pythia = GeneratorPythia6Jets(tune, kCalorimeterAcceptance_FullDetector);
+  AliGenPythia *pythia = (AliGenPythia*) GeneratorPythia6Jets(tune, kCalorimeterAcceptance_FullDetector);
   //
   //
   // Careful with pT hard limits if triggerParticleInCalo option is on
@@ -510,7 +547,7 @@ GeneratorPythia6GammaJet(Int_t tune, Int_t acceptance)
   comment = comment.Append(Form(" | Pythia6 gamma-jet"));
   //
   // Pythia
-  AliGenPythia *pythia = GeneratorPythia6Jets(tune);
+  AliGenPythia *pythia = (AliGenPythia*) GeneratorPythia6Jets(tune);
   //
   // gamma settings
   pythia->SetProcess(kPyDirectGamma);
@@ -543,7 +580,7 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune, Bool_t HFonly)
   }
   //
   // Pythia
-  AliGenPythia *pythia = GeneratorPythia6(tune);
+  AliGenPythia *pythia = (AliGenPythia*) GeneratorPythia6(tune);
   //
   // heavy process
   switch (process) {
@@ -573,6 +610,10 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune, Bool_t HFonly)
     break;
   case kPythia6HeavyDecay_All:
     pythia->SetHeavyQuarkYRange(-1.5, 1.5);
+    break;
+  case kPythia6HFYellowReport:
+    pythia->SetHeavyQuarkYRange(-1.5, 1.5);
+    pythia->SetForceDecay(kHFYellowReport);
     break;
   }
   //
@@ -638,7 +679,7 @@ GeneratorPythia8(Int_t tune, Int_t pdgtrig, Float_t etatrig)
   // Initialize
   pythia->SetEventListRange(-1, 2); 
   (AliPythia8::Instance())->ReadString("Random:setSeed = on");
-  (AliPythia8::Instance())->ReadString(Form("Random:seed = %ld", seedConfig % 900000000)); 
+  (AliPythia8::Instance())->ReadString(Form("Random:seed = %ld", (long) seedConfig % 900000000)); 
   (AliPythia8::Instance())->ReadString("111:mayDecay = on");
   //
   // Tune
@@ -649,7 +690,7 @@ GeneratorPythia8(Int_t tune, Int_t pdgtrig, Float_t etatrig)
   //
   // Trigger particles
   if (pdgtrig != 0) {
-    comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdgtrig)->GetName()));
+//    comment = comment.Append(Form(" | %s enhanced", TDatabasePDG::Instance()->GetParticle(pdgtrig)->GetName()));
     pythia->SetTriggerParticle(pdgtrig, etatrig);
   }
   //
@@ -666,7 +707,7 @@ GeneratorPythia8Jets(Int_t tune, Int_t acceptance)
   comment = comment.Append(Form(" | Pythia8 jets (%.1f, %.1f, %d, %.1f)", pthardminConfig, pthardmaxConfig, quenchingConfig, qhatConfig));
   //
   // Pythia
-  AliGenPythiaPlus *pythia = GeneratorPythia8(tune);
+  AliGenPythiaPlus *pythia = (AliGenPythiaPlus*) GeneratorPythia8(tune);
   //
   // jets settings
   pythia->SetProcess(kPyJets);
@@ -681,11 +722,13 @@ GeneratorPythia8Jets(Int_t tune, Int_t acceptance)
   pythia->SetQuench(quenchingConfig);
   switch (quenchingConfig) {
   case 1:
-    Float_t k = 6.e5 * (qhatConfig / 1.7);  //qhat=1.7, k=6e5, default value
-    AliPythia8::Instance()->InitQuenching(0., 0.1, k, 0, 0.95, 6);		
+    {
+      Float_t k = 6.e5 * (qhatConfig / 1.7);  //qhat=1.7, k=6e5, default value
+      AliPythia8::Instance()->InitQuenching(0., 0.1, k, 0, 0.95, 6);		
+    }
     break;
   case 2:
-    pythia->SetPyquenPar(1.,0.1,0,0,1);			
+    //pythia->SetPyquenPar(1.,0.1,0,0,1); //TODO: FixMe - This doesn't exist in AliGenPythiaPlus
     break;
   }
   //
@@ -702,7 +745,7 @@ GeneratorPythia8JetsGammaTrg(Int_t tune, Int_t acceptance)
   comment = comment.Append(Form(" | Pythia8 jets gamma-triggered"));
   //
   // Pythia
-  AliGenPythiaPlus *pythia = GeneratorPythia8Jets(tune, kCalorimeterAcceptance_FullDetector);
+  AliGenPythiaPlus *pythia = (AliGenPythiaPlus*) GeneratorPythia8Jets(tune, kCalorimeterAcceptance_FullDetector);
   //
   //
   // Careful with pT hard limits if triggerParticleInCalo option is on
@@ -744,7 +787,7 @@ GeneratorPythia8GammaJet(Int_t tune, Int_t acceptance)
   comment = comment.Append(Form(" | Pythia8 gamma-jet"));
   //
   // Pythia
-  AliGenPythiaPlus *pythia = GeneratorPythia8Jets(tune);
+  AliGenPythiaPlus *pythia = (AliGenPythiaPlus*) GeneratorPythia8Jets(tune);
   //
   // gamma settings
   pythia->SetProcess(kPyDirectGamma);
@@ -764,6 +807,10 @@ GeneratorPythia8GammaJet(Int_t tune, Int_t acceptance)
 AliGenerator *
 GeneratorPhojet()
 {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+  printf("ERROR: DPMJET not yet compatible with ROOT 6\n");
+  return NULL;
+#else
   //
   // Libraries
   //  gSystem->Load("libDPMJET");
@@ -812,6 +859,7 @@ GeneratorPhojet()
   }
 
   return dpmjet;
+#endif
 }
 
 /*** EPOSLHC ****************************************************/
@@ -909,11 +957,13 @@ GeneratorHijing()
     gener->SetProjectile("A", 208, 82);
     gener->SetTarget    ("A", 208, 82);
     gener->SetSpectators(0);
+    gener->SetDataDrivenSpectators();
   }
   else if (systemConfig.EqualTo("Xe-Xe")) {
     gener->SetProjectile("A", 129, 54);
     gener->SetTarget    ("A", 129, 54);
     gener->SetSpectators(0);
+    gener->SetDataDrivenSpectators();
   }
   else if (systemConfig.EqualTo("p-Pb")) {
     gener->SetProjectile("P", 1, 1);
@@ -934,7 +984,7 @@ GeneratorHijing()
   // enable shadowing
   gener->SetShadowing(1);
   // neutral pion and heavy particle decays switched off
-  gener->SetDecaysOff(1);
+  //  gener->SetDecaysOff(1);
   // kinematic selection
   gener->SetSelectAll(0);
   gener->SetPtHardMin (2.3);
@@ -945,6 +995,10 @@ GeneratorHijing()
 
 AliGenerator *
 GeneratorStarlight(){
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+  printf("ERROR: Starlight not yet compatible with ROOT 6!\n");
+  return NULL;
+#else
   gSystem->Load("libStarLight.so");
   gSystem->Load("libAliStarLight.so");
 
@@ -959,6 +1013,7 @@ GeneratorStarlight(){
   // kTwoGammaToRhoRho
   // kTwoGammaToF2
   // kCohRhoToPi
+  // kCohRhoToPiWithCont
   // kCohRhoToPiFlat
   // kCohPhiToKa
   // kCohJpsiToMu
@@ -972,6 +1027,7 @@ GeneratorStarlight(){
   // kCohUpsilonToMu
   // kCohUpsilonToEl
   // kIncohRhoToPi
+  // kIncohRhoToPiWithCont
   // kIncohRhoToPiFlat
   // kIncohPhiToKa
   // kIncohJpsiToMu
@@ -1052,42 +1108,44 @@ GeneratorStarlight(){
     Float_t     wmax;
     Float_t     dy;
   } slConfig[] = {
-    {"kTwoGammaToMuLow",    1,      13,  292,  0.4, 15.0, 0.01 }, // from 0.4 to 15 GeV
-    {"kTwoGammaToElLow",    1,      11,  292,  0.4, 15.0, 0.01 }, // from 0.4 to 15 GeV
-    {"kTwoGammaToMuMedium", 1,      13,  264,  1.8, 15.0, 0.01 }, // from 1.8 to 15 GeV
-    {"kTwoGammaToElMedium", 1,      11,  264,  1.8, 15.0, 0.01 }, // from 1.8 to 15 GeV
-    {"kTwoGammaToMuHigh",   1,      13,  220,  4.0, 15.0, 0.01 }, // from 4.0 to 15 GeV
-    {"kTwoGammaToElHigh",   1,      11,  220,  4.0, 15.0, 0.01 }, // from 4.0 to 15 GeV
-    {"kTwoGammaToRhoRho",   1,      33,   20, -1.0, -1.0, 0.01 }, //
-    {"kTwoGammaToF2",       1,     225,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohRhoToPi",         3,     113, 1200, -1.0, -1.0, 0.02 }, //
-    {"kCohRhoToPiFlat",     3,     113,    1, -1.0,  2.5, 0.02 }, //
-    {"kCohPhiToKa",         2,     333,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohJpsiToMu",        2,  443013,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohJpsiToEl",        2,  443011,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohJpsiToElRad",     2,  443011,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohJpsiToProton",    2, 4432212,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohPsi2sToMu",       2,  444013,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohPsi2sToEl",       2,  444011,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohPsi2sToMuPi",     2,  444013,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohPsi2sToElPi",     2,  444011,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohUpsilonToMu",     2,  553013,   20, -1.0, -1.0, 0.01 }, //
-    {"kCohUpsilonToEl",     2,  553011,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohRhoToPi",       4,     113, 1200, -1.0, -1.0, 0.02 }, //
-    {"kIncohRhoToPiFlat",   4,     113,    1, -1.0,  2.5, 0.02 }, //
-    {"kIncohPhiToKa",       4,     333,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohJpsiToMu",      4,  443013,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohJpsiToEl",      4,  443011,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohJpsiToElRad",   4,  443011,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohJpsiToProton",  4, 4432212,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohPsi2sToMu",     4,  444013,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohPsi2sToEl",     4,  444011,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohPsi2sToMuPi",   4,  444013,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohPsi2sToElPi",   4,  444011,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohUpsilonToMu",   4,  553013,   20, -1.0, -1.0, 0.01 }, //
-    {"kIncohUpsilonToEl",   4,  553011,   20, -1.0, -1.0, 0.01 }, //
- // {"kCohRhoPrime",        3,      0,   20,  -1.0, -1.0, 0.01 }, //
- // {"kIncohRhoPrime",      4,      0,   20,  -1.0, -1.0, 0.01 }, //
+    {"kTwoGammaToMuLow",     1,      13,  292,  0.4, 15.0, 0.01 }, // from 0.4 to 15 GeV
+    {"kTwoGammaToElLow",     1,      11,  292,  0.4, 15.0, 0.01 }, // from 0.4 to 15 GeV
+    {"kTwoGammaToMuMedium",  1,      13,  264,  1.8, 15.0, 0.01 }, // from 1.8 to 15 GeV
+    {"kTwoGammaToElMedium",  1,      11,  264,  1.8, 15.0, 0.01 }, // from 1.8 to 15 GeV
+    {"kTwoGammaToMuHigh",    1,      13,  220,  4.0, 15.0, 0.01 }, // from 4.0 to 15 GeV
+    {"kTwoGammaToElHigh",    1,      11,  220,  4.0, 15.0, 0.01 }, // from 4.0 to 15 GeV
+    {"kTwoGammaToRhoRho",    1,      33,   20, -1.0, -1.0, 0.01 }, //
+    {"kTwoGammaToF2",        1,     225,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohRhoToPi",          3,     113, 1200, -1.0, -1.0, 0.02 }, //
+    {"kCohRhoToPiWithCont",  3,     913, 1200, -1.0, -1.0, 0.02 }, //
+    {"kCohRhoToPiFlat",      3,     113,    1, -1.0,  2.5, 0.02 }, //
+    {"kCohPhiToKa",          2,     333,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToMu",         2,  443013,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToEl",         2,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToElRad",      2,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohJpsiToProton",     2, 4432212,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohPsi2sToMu",        2,  444013,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohPsi2sToEl",        2,  444011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohPsi2sToMuPi",      2,  444013,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohPsi2sToElPi",      2,  444011,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohUpsilonToMu",      2,  553013,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohUpsilonToEl",      2,  553011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohRhoToPi",        4,     113, 1200, -1.0, -1.0, 0.02 }, //
+    {"kIncohRhoToPiWithCont",4,     913, 1200, -1.0, -1.0, 0.02 }, //
+    {"kIncohRhoToPiFlat",    4,     113,    1, -1.0,  2.5, 0.02 }, //
+    {"kIncohPhiToKa",        4,     333,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToMu",       4,  443013,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToEl",       4,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToElRad",    4,  443011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToProton",   4, 4432212,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohPsi2sToMu",      4,  444013,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohPsi2sToEl",      4,  444011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohPsi2sToMuPi",    4,  444013,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohPsi2sToElPi",    4,  444011,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohUpsilonToMu",    4,  553013,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohUpsilonToEl",    4,  553011,   20, -1.0, -1.0, 0.01 }, //
+ // {"kCohRhoPrime",         3,      0,   20,  -1.0, -1.0, 0.01 }, //
+ // {"kIncohRhoPrime",       4,      0,   20,  -1.0, -1.0, 0.01 }, //
   };
   const Int_t nProcess = sizeof(slConfig)/sizeof(SLConfig);
   Int_t idx = -1;
@@ -1155,6 +1213,7 @@ GeneratorStarlight(){
   genCocktail->AddGenerator(genStarLight,"StarLight",1.);
   genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
   return genCocktail;
+#endif
 }
 
 
@@ -1249,7 +1308,7 @@ GeneratorAMPT() {
     
   genHi->SetJetQuenching(0);  // enable jet quenching
   genHi->SetShadowing(1);     // enable shadowing
-  genHi->SetDecaysOff(1);     // neutral pion and heavy particle decays switched off
+  //  genHi->SetDecaysOff(1);     // neutral pion and heavy particle decays switched off
   genHi->SetSpectators(0);    // track spectators
   //Boost into LHC lab frame
   genHi->SetBoostLHC(1);
@@ -1341,6 +1400,32 @@ GeneratorAMPT_v226t7()
   return gener;
 }
 
+
+/*** Therminator2 *************************************************/
+
+AliGenerator *
+GeneratorTherminator2()
+{
+    // All the default model parameters in the Therminator2 .ini files can be changed 
+    // using the THERM2_PARAMS_<param_name> variables
+    // One exception is the XML_PATH variable which is part of the configurator
+    // The .ini files are in the Therminator2 distribution (events.ini and fomodel/ contents)
+    // https://github.com/alisw/therminator/tree/alice/v2.0.3
+
+    // Example of setting a custom model
+    //gSystem->Setenv("THERM2_PARAMS_FreezeOutModel", "BWAVT");
+
+    // Example of setting a local xml path for the hydro model
+    //gSystem->Setenv("THERM2_PARAMS_XML_PATH", "fomodel/lhyquid2dbi/LHCPbPb5500c0005Ti500ti100Tf145.xml");
+
+    // Example of setting a GRID xml path for the hydro model
+    //gSystem->Setenv("THERM2_PARAMS_XML_PATH", "alien:/alice/<rest_of_GRID_PATH>");
+
+    AliGenExtExec* gener = new AliGenExtExec();
+    gener->SetPathScript(gSystem->ExpandPathName("$ALIDPG_ROOT/MC/EXTRA/gen_therm2.sh"));
+    return gener;
+}
+
 /*** COCKTAIL ****************************************************/
 
 AliGenerator * 
@@ -1405,6 +1490,19 @@ GeneratorInjector(Int_t ninj, Int_t pdg, Float_t ptmin, Float_t ptmax, Float_t y
   box->SetPhiRange(phimin, phimax);
   return box;
 }
+
+/*** PARAMETRIC INJECTOR ****************************************/
+AliGenParam* GeneratorParam(int n, int pdg, double ptmin, double ptmax, double ymin, double ymax, AliDecayer* dec, double phimin, double phimax) {
+  comment = comment.Append(Form(" | injected (pdg=%d, %d particles)", pdg, n));
+  AliGenParam* gen = new AliGenParam(Form("%i",pdg), n, pdg);
+  gen->SetYRange(ymin,ymax);
+  gen->SetPtRange(ptmin,ptmax);
+  gen->SetPhiRange(phimin,phimax);
+  if (dec) gen->SetDecayer(dec);
+  return gen;
+}
+
+
 
 /*** JPSI -> EE ****************************************************/
 
@@ -1502,7 +1600,7 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt,
   //Generating a cocktail
   AliGenCocktail *gener = new AliGenCocktail();
 
-  Int_t pdgcodes[19] = {
+  Int_t pdgcodes[21] = {
     1000010020,
     1000020030,
     1000010030,
@@ -1521,10 +1619,12 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt,
     1010020040,
     9322134,
     9322136,
-    900010020
+    900010020,
+    1010020050,
+    1020010040
   };
 
-  const Char_t *names[19] = {
+  const Char_t *names[21] = {
     "Deuteron", // 0x1
     "Helium-3", // 0x2
     "Triton",   // 0x4
@@ -1543,10 +1643,12 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt,
     "Hyper-Helium-4", // 0x8000
     "Ps(2100)", // 0x10000
     "Ps(2500)", // 0x20000
-    "d*(2380)"  //0x40000
+    "d*(2380)",  //0x40000
+    "Hyper-Helium-5", //0x80000
+    "Double-Hyper-Hydrogen-4" //0x100000
   };
 
-  for (Int_t ipart = 0; ipart < 19; ipart++) {
+  for (Int_t ipart = 0; ipart < 21; ipart++) {
     if (injbit & 1 << ipart) {
       AliGenBox *box = new AliGenBox(ninj);
       Int_t pdg = pdgcodes[ipart];
@@ -1561,4 +1663,39 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt,
   }
 
   return gener;
+}
+
+/*** QED electrons ****************************************************/
+
+AliGenerator * 
+GeneratorQED()
+{
+
+  // configure projectile/target
+  TString projN, targN;
+  Int_t projA, projZ, targA, targZ;
+
+  // Pb-Pb (only case so far)
+  if (systemConfig.EqualTo("Pb-Pb")) {
+    projN = "A"; projA = 208; projZ = 82;
+    targN = "A"; targA = 208; targZ = 82;
+  }
+  // not implemented
+  else {
+    printf("QED electrons not implemented for %s system\n", systemConfig.Data());
+    abort();
+  }
+  
+  comment = comment.Append(Form(" | QED electrons "));
+  //
+  AliGenQEDBg *genBg = new AliGenQEDBg();
+  genBg->SetEnergyCMS(energyConfig);
+  genBg->SetProjectile(projN, projA, projZ);
+  genBg->SetTarget    (targN, targA, targZ);
+  genBg->SetYRange(-6.,3);
+  genBg->SetPtRange(0.4e-3,1.0);       // Set pt limits (GeV) for e+-: 1MeV corresponds to max R=13.3mm at 5kGaus
+  genBg->SetLumiIntTime(6.e27,3e-6);  // luminosity and integration time
+  genBg->SetVertexSource(kInternal);
+  
+  return genBg;
 }

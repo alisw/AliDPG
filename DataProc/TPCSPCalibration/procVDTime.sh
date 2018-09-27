@@ -9,7 +9,11 @@ Usage() {
 ##############################################################################
 extractFileNamesFromXMLCollection()
 {
-    egrep turl|sed 's|^.*turl\s*=\s*"\s*\([a-zA-Z]*://.*\.root\).*$|\1|g'
+    if [[ ! $ROOTSYS || ! $ALIDPG_ROOT ]]; then
+        grep turl|sed 's|^.*turl\s*=\s*"\s*\([a-zA-Z]*://.*\.root\).*$|\1|g'
+        return
+    fi
+    "$ALIDPG_ROOT"/DataProc/Common/readAliEnCollection.sh
 }
 
 ##############################################################################
@@ -51,6 +55,11 @@ extractEnvVars()
     
     # number of tracks for closure test, hardly will be done of the grid
     export distNTracksClosureTest=${ALIEN_JDL_DISTNTRACKSCLOSURETEST-$distNTracksClosureTest}
+
+    # Mirror SE for OCDB uploads
+    export MIRRORSE="ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::CNAF::SE"
+    export MIRRORSE=${ALIEN_JDL_MIRRORSE-$MIRRORSE}
+
     #
     echo ""
     echo "Listing all env.vars"
@@ -96,9 +105,9 @@ export autoCacheSize=0
 echo "onGrid=$onGrid, treeCacheSize=$treeCacheSize, autoCacheSize=$autoCacheSize"
 
 echo sourcing alilog4bash.sh
-source $ALICE_PHYSICS/PWGPP/scripts/alilog4bash.sh  
+source "$ALICE_ROOT"/libexec/alilog4bash.sh
 
-loadLibMacro="$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/LoadLibraries.C"
+loadLibMacro="$ALIDPG_ROOT/DataProc/Common/LoadLibraries.C"
 inclMacro="$ALIDPG_ROOT/DataProc/TPCSPCalibration/includeMacro.C"
 macroName="$ALIDPG_ROOT/DataProc/TPCSPCalibration/procResidData.C"
 

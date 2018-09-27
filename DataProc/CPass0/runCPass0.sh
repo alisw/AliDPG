@@ -71,8 +71,14 @@ runNum=`echo "$runNumF" |  sed 's/^0*//'`
 # Exporting variable to define that we are in CPass0 to be used in reconstruction
 export CPass='0'
 
-# Set memory limits to a value lower than the hard site limits to at least get the logs of failing jobs
-ulimit -S -v 3500000
+# Set max vmem [kb] for ROOT 5 processing (no ulimit for ROOT 6)
+if [[ -x $ROOTSYS/bin/rootcling ]]; then
+  echo "ROOT 6+ detected: not capping vmem"
+else
+  echo "Capping vmem to 3.5 GB"
+  ulimit -S -v 3500000
+fi
+ulimit -a
 
 # run TPC clusterization in separate process before reconstruction
 export preclusterizeTPC='0'
@@ -136,6 +142,13 @@ export CPASSMODE=${ALIEN_JDL_LPMCPASSMODE-$CPASSMODE}
 
 echo "CPASSMODE = ${CPASSMODE}" | tee -a calib.log
 
+# Mirror SE for OCDB uploads
+export MIRRORSE="ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::CNAF::SE"
+
+export MIRRORSE=${ALIEN_JDL_MIRRORSE-$MIRRORSE}
+
+echo "MIRRORSE = ${MIRRORSE}" | tee -a calib.log
+
 if [ -f Run0_999999999_v3_s0.root ]; then
     mkdir -p TPC/Calib/Correction
     mv Run0_999999999_v3_s0.root TPC/Calib/Correction/
@@ -184,6 +197,27 @@ echo "* ************************"
 echo "* Printing ALL env variables"
 printenv
 echo ""
+
+
+# enable vdt library
+
+$ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
+echo "Let's check if we can enable VDT"
+enablevdt=$?
+if [ $enablevdt == 0 ]; then 
+    echo "According to the package versioning, we can enable VDT; let's check the JDL"
+    if [ -z "$ALIEN_JDL_DISABLEVDT" ]; then
+	if [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+	    echo "Use VDT math library"
+	    export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
+	else
+	    echo "VDT math library requested but not found"
+	fi
+    else
+	echo "VDT math library disabled via ALIEN_JDL_DISABLEVDT"
+    fi
+fi
+
 
 timeUsed=0
 
@@ -310,7 +344,7 @@ if [ $exitcode -ne 0 ]; then
 fi
 
 echo "*  Running filtering task *"
-filtMacro=$ALICE_PHYSICS/PWGPP/macros/runFilteringTask.C
+filtMacro=$ALIDPG_ROOT/DataProc/Common/runFilteringTask.C
 if [ -f $filtMacro ]; then
     echo ""
     echo "running the following runFilteringTask.C macro:"

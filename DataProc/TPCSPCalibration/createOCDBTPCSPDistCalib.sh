@@ -60,6 +60,10 @@ fi
 # allowing JDL to overwrite the default folder where to store the calibration 
 targetOCDBDir=${ALIEN_JDL_TARGETOCDBDIR-$targetOCDBDir}
 
+# Mirror SE for OCDB uploads
+export MIRRORSE="ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::CNAF::SE"
+export MIRRORSE=${ALIEN_JDL_MIRRORSE-$MIRRORSE}
+
 # check if correction/distortion objects were explicitly requested
 [[ -z $corr || "$corr" == "0" ]] && corr="0" || corr="1"
 [[ -z $dist || "$dist" == "0" ]] && dist="0" || dist="1"
@@ -76,6 +80,7 @@ echo "endRun        = $endRun"
 echo "ocdbStorage   = $ocdbStorage"
 echo "corr          = $corr"
 echo "dist          = $dist"
+echo "mirrorSE      = ${MIRRORSE}"
 
 
 startRun=$(echo "$startRun" | sed 's/^0*//')
@@ -88,6 +93,36 @@ if [[ ! -f "$locMacro" ]] ; then cp $macroName ./ ; fi
 [ -e ocdb.log ] && rm ocdb.log
 
 time aliroot -b -q "${locMacro}(\"$inputFileList\", $startRun, $endRun, \"$targetOCDBDir\",$corr ,$dist)" >> ocdb.log
+
+if [[ $ALIEN_JDL_CREATEOCDBARCHIVE ]]; then
+  # Creates OCDB archive and macro to access it in the same archive, upon request
+  cat > localOCDBaccessConfig.C <<EOF
+void localOCDBaccessConfig() {
+  std::cout << "Using localOCDBaccessConfig to set various specific storages" << std::endl;
+  const TString ocdbPaths[2] = { "./OCDB", "../OCDB" };
+  TString ocdbPath;
+  for (int i=0; i<2; i++) {
+    if (gSystem->AccessPathName(ocdbPaths[i].Data(), kFileExists) == 0) {
+      ocdbPath = "local://";
+      ocdbPath += ocdbPaths[i];
+      break;
+    }
+  }
+  if (ocdbPath.IsNull()) {
+    std::cout << "FATAL: cannot find local OCDB anywhere" << std::endl;
+    gSystem->Exit(1);
+  }
+  AliCDBManager *cdb = AliCDBManager::Instance();
+  if (!cdb->IsDefaultStorageSet()) {
+    std::cout << "FATAL: cannot set specific storages if no default storage was set before!" << std::endl;
+    gSystem->Exit(1);
+  }
+$(cd ${targetOCDBDir//local:\/\/} && ls -1 */*/*/*.root 2> /dev/null | sed -e 's!^\([^/]*/[^/]*/[^/]*\).*$!\1!' | sort -u | xargs -n1 -IXXX echo '  cdb->SetSpecificStorage("/XXX", ocdbPath.Data());')
+}
+EOF
+  rsync -a ${targetOCDBDir//local:\/\/}/ OCDB/
+  tar cjvvf "$ALIEN_JDL_CREATEOCDBARCHIVE" localOCDBaccessConfig.C OCDB/
+fi
 
 #if [ "$corr" == "1" ]; then
 #    time aliroot -b -q "${locMacro}(\"$inputFileList\", $startRun, $endRun, \"$targetOCDBDir\",1)" >> ocdb.log

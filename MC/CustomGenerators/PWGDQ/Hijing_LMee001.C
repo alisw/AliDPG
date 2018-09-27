@@ -1,5 +1,5 @@
 AliGenerator *
-GeneratorCustom()
+GeneratorCustom(TString opt = "")
 {
 
   AliGenCocktail *ctl   = GeneratorCocktail("Hijing_LMee001");
@@ -9,12 +9,9 @@ GeneratorCustom()
   ctl->AddGenerator(hij,  "Hijing", 1.);
 
   // LMee cocktail settings:
-  // number of particles per event is calculated from formula
-  TFormula* formula = new TFormula("formula", "20.+ 80.*exp(- 0.5 * x * x / 5.12 / 5.12)");
-  TFormula* one     = new TFormula("one", "1");
   Int_t   nPart  = 1;
   Float_t minPt  = 0;
-  Float_t maxPt  = 50;
+  Float_t maxPt  = 25;
   Float_t minRap = -1.2;
   Float_t maxRap = 1.2;
   Float_t phiMin = 0.;
@@ -24,14 +21,24 @@ GeneratorCustom()
   Weighting_t weightMode = kNonAnalog;
   AliGenEMlib *emlib = new AliGenEMlib();
 
-  // set external decayer
-  AliDecayerPythia* decayer = new AliDecayerPythia();
-  decayer->SetDecayerExodus();
-  decayer->SetForceDecay(kDiElectronEM);
-  decayer->Init();
-  gMC->SetExternalDecayer(decayer);
-  cout<<"MW: "<<gMC->GetDecayer()->GetName()<<endl;
+  AliDecayerPythia* decayerInt = NULL; 
+  AliDecayerPythia* decayerExt = NULL;
+    
+  // set internal decayer (for AliGenParam with Exodus only)
+  if(opt.Contains("Exodus")){
+    decayerInt = new AliDecayerPythia();
+    Printf("Use Exodus decayer for cocktail");
+    decayerInt->SetDecayerExodus();
+    decayerInt->SetForceDecay(kDiElectronEM);
+    decayerInt->Init();
+  }
   
+  // set external decayer (if Exodus not used, to initialize AliGen Param properly)
+  decayerExt = new AliDecayerPythia();
+  decayerExt->SetForceDecay(kDiElectronEM);
+  decayerExt->Init();
+  gMC->SetExternalDecayer(decayerExt);
+    
   // Pi0
   AliGenParam *pizero = new AliGenParam(nPart, emlib, AliGenEMlib::kPizero,"pizero");
 
@@ -40,6 +47,8 @@ GeneratorCustom()
   pizero->SetPhiRange(phiMin, phiMax);
   pizero->SetWeighting(weightMode);  // flat pt 
   pizero->SetForceDecay(kDiElectronEM);
+  if(decayerInt)
+    pizero->SetDecayer(decayerInt);
   pizero->Init();
     
   // Eta
@@ -49,6 +58,8 @@ GeneratorCustom()
   eta->SetPhiRange(phiMin, phiMax);
   eta->SetWeighting(weightMode);  // flat pt 
   eta->SetForceDecay(kDiElectronEM);
+  if(decayerInt)
+    eta->SetDecayer(decayerInt);
   eta->Init();
 
   // Etaprime
@@ -58,6 +69,8 @@ GeneratorCustom()
   etaprime->SetPhiRange(phiMin, phiMax);
   etaprime->SetWeighting(weightMode);  // flat pt 
   etaprime->SetForceDecay(kDiElectronEM);
+  if(decayerInt)
+    etaprime->SetDecayer(decayerInt);
   etaprime->Init();
 
   // Rho 
@@ -67,6 +80,8 @@ GeneratorCustom()
   rho->SetPhiRange(phiMin, phiMax);
   rho->SetWeighting(weightMode);  // flat pt 
   rho->SetForceDecay(kDiElectronEM);
+  if(decayerInt)
+    rho->SetDecayer(decayerInt);
   rho->Init();
   
   // Omega
@@ -76,6 +91,8 @@ GeneratorCustom()
   omega->SetPhiRange(phiMin, phiMax);
   omega->SetWeighting(weightMode);  // flat pt 
   omega->SetForceDecay(kDiElectronEM);
+  if(decayerInt)
+    omega->SetDecayer(decayerInt);
   omega->Init();
 
   //Phi
@@ -85,31 +102,116 @@ GeneratorCustom()
   phi->SetPhiRange(phiMin, phiMax);
   phi->SetWeighting(weightMode);  // flat pt 
   phi->SetForceDecay(kDiElectronEM);
+  if(decayerInt)
+    phi->SetDecayer(decayerInt);
   phi->Init();
 
   // J/psi 
-  AliGenParam * jpsi = new AliGenParam(nPart, emlib, AliGenMUONlib::kJpsi, "Flat");//, "jpsi");
+  AliGenParam * jpsi = new AliGenParam(nPart, emlib, AliGenEMlib::kJpsi, "Flat");//, "jpsi");
   jpsi->SetPtRange(minPt, maxPt);
   jpsi->SetYRange(minRap, maxRap);
   jpsi->SetPhiRange(phiMin, phiMax);
   jpsi->SetWeighting(weightMode);  // flat pt 
   jpsi->SetForceDecay(kDiElectron);
+  // if(decayerInt) // not working in current implementation ((TDatabasePDG::Instance()->GetParticle(443))->Width() = 0) 
+  //   jpsi->SetDecayer(decayerInt); 
   jpsi->Init();
 
-  // gamma
-  AliGenBox* gamma = new AliGenBox(1); 
-  gamma->SetPart(22);
-  gamma->SetPtRange(minPt, maxPt);
-  gamma->SetThetaRange(thmin, thmax);
 
-  // add LMee cocktail
-  ctl->AddGenerator(pizero,"pizero", nPart, formula);
-  ctl->AddGenerator(eta,"eta", nPart, formula);
-  ctl->AddGenerator(etaprime,"etaprime", nPart, formula);
-  ctl->AddGenerator(rho,"rho", nPart, formula);
-  ctl->AddGenerator(omega,"omega", nPart, formula);
-  ctl->AddGenerator(phi,"phi", nPart, formula);
-  ctl->AddGenerator(jpsi,"jpsi", nPart, formula);
-  ctl->AddGenerator(gamma, "gamma",  nPart, formula);
+  ////////////////////////////////////////////
+  //    Pythia cc->ee
+  ////////////////////////////////////////////
+  AliGenPythia* pythiaCC = new AliGenPythia(-1);
+  pythiaCC->SetTitle("PYTHIA-HF-Cdiele");
+  pythiaCC->SetMomentumRange(0, 999999.);
+  pythiaCC->SetThetaRange(0., 180.);
+  pythiaCC->SetPtRange(0,1000.);
+  pythiaCC->SetProcess(kPyCharmppMNRwmi);
+  pythiaCC->SetEnergyCMS(energyConfig);
+  pythiaCC->SetForceDecay(kSemiElectronic);
+  //    Tune                                                                
+  //    320     Perugia 0 
+  //    350     Perugia 2011
+  pythiaCC->SetTune(350);
+  pythiaCC->UseNewMultipleInteractionsScenario();
+  //
+  //    decays 
+  pythiaCC->SetCutOnChild(2);
+  pythiaCC->SetPdgCodeParticleforAcceptanceCut(11);
+  pythiaCC->SetChildYRange(-1.2,1.2);
+  pythiaCC->SetChildPtRange(0,10000.);
+  pythiaCC->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
+
+  ////////////////////////////////////////////
+  //    Pythia bb->ee
+  ////////////////////////////////////////////
+  AliGenPythia* pythiaBB = new AliGenPythia(-1);
+  pythiaBB->SetTitle("PYTHIA-HF-Bdiele");
+  pythiaBB->SetMomentumRange(0, 999999.);
+  pythiaBB->SetThetaRange(0., 180.);
+  pythiaBB->SetPtRange(0,1000.);
+  pythiaBB->SetProcess(kPyBeautyppMNRwmi);
+  pythiaBB->SetEnergyCMS(energyConfig);
+  pythiaBB->SetForceDecay(kSemiElectronic);
+  //    Tune                                                                
+  //    320     Perugia 0 
+  //    350     Perugia 2011
+  pythiaBB->SetTune(350);
+  pythiaBB->UseNewMultipleInteractionsScenario();
+  //
+  //    decays 
+  pythiaBB->SetCutOnChild(2);
+  pythiaBB->SetPdgCodeParticleforAcceptanceCut(11);
+  pythiaBB->SetChildYRange(-1.2,1.2);
+  pythiaBB->SetChildPtRange(0,10000.);
+  pythiaBB->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
+
+
+  ////////////////////////////////////////////
+  //    Pythia b,c->e
+  ////////////////////////////////////////////
+  AliGenPythia* pythiaB= new AliGenPythia(-1);
+  pythiaB->SetTitle("PYTHIA-HF-Bele");
+  pythiaB->SetMomentumRange(0, 999999.);
+  pythiaB->SetThetaRange(0., 180.);
+  pythiaB->SetPtRange(0,1000.);
+  pythiaB->SetProcess(kPyBeautyppMNRwmi);
+  pythiaB->SetEnergyCMS(energyConfig);
+  //    Tune                                                                
+  //    320     Perugia 0 
+  //    350     Perugia 2011
+  pythiaB->SetTune(350);
+  pythiaB->UseNewMultipleInteractionsScenario();
+  //
+  //    decays 
+  pythiaB->SetCutOnChild(1);
+  pythiaB->SetPdgCodeParticleforAcceptanceCut(11);
+  pythiaB->SetChildYRange(-1.2,1.2);
+  pythiaB->SetChildPtRange(0,10000.);
+  pythiaB->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
+
+
+  ////////////////////////////////////////////
+  //  Create cocktail
+  ////////////////////////////////////////////
+  
+  ctl->AddGenerator(pizero,"pizero", 1.);
+  ctl->AddGenerator(eta,"eta", 1.);
+  ctl->AddGenerator(etaprime,"etaprime", 1.);
+  ctl->AddGenerator(rho,"rho", 1.);
+  ctl->AddGenerator(omega,"omega", 1.);
+  ctl->AddGenerator(phi,"phi", 1.);
+  ctl->AddGenerator(jpsi,"jpsi", 1.);
+
+  // HF part
+  Int_t flag = (Int_t)gRandom->Uniform(0,100);
+   if(flag>=0 && flag<20){ 
+    ctl->AddGenerator(pythiaCC,"Pythia CC",1.);
+  }else if(flag>=20 && flag<40){ 
+    ctl->AddGenerator(pythiaBB,"Pythia BB",1.);
+  }else if(flag>=40 && flag<100){ 
+    ctl->AddGenerator(pythiaB,"Pythia B",1.);
+  }
+  
   return ctl;
 }

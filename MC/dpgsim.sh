@@ -6,14 +6,19 @@ if [ -z "$ALIDPG_ROOT" ]; then
     exit 1
 fi
 
-# check ALICER_ROOT is set
+# check ALICE_ROOT is set
 if [ -z "$ALICE_ROOT" ]; then
     echo "ALICE_ROOT not set, abort."
     exit 1
 fi
 
+# enable vdt library
+
+$ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
+###################
+
 # set job and simulation variables as :
-COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig>"
+COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig> --keepTrackRefsFraction <percentage> --ocdbCustom --purifyKineOff --fluka --geant4"
 
 function runcommand(){
     echo -e "\n"
@@ -113,6 +118,7 @@ CONFIG_BGEVDIR=""
 CONFIG_SEED="0"
 CONFIG_GENERATOR=""
 CONFIG_BACKGROUND=""
+OVERRIDE_BKG_PATH_RECORD=""
 CONFIG_PROCESS=""
 CONFIG_PROCESSBIN=""
 CONFIG_MAGNET=""
@@ -150,20 +156,20 @@ CONFIG_QA=""
 CONFIG_AOD=""
 CONFIG_MODE="ocdb,full"
 CONFIG_OCDB="snapshot"
+CONFIG_OCDBCUSTOM=""
+CONFIG_OCDBRUN3=""
+CONFIG_PURIFYKINEOFF=""
 CONFIG_HLT=""
 CONFIG_GEANT4=""
+CONFIG_FLUKA=""
 CONFIG_FASTB=""
-CONFIG_VDT=""
+CONFIG_VDT="on"
 CONFIG_MATERIAL=""
-CONFIG_REMOVETRACKREFS=""
+CONFIG_KEEPTRACKREFSFRACTION="0"
+CONFIG_REMOVETRACKREFS="off"
+CONFIG_OCDBTIMESTAMP=""
 
 RUNMODE=""
-
-# detect VDT math library
-if [[ $LD_PRELOAD == *"libalivdtwrapper.so"* ]]; then
-    CONFIG_VDT="on"
-    export CONFIG_VDT
-fi
 
 while [ ! -z "$1" ]; do
     option="$1"
@@ -327,6 +333,12 @@ while [ ! -z "$1" ]; do
         fi
         export CONFIG_OCDB
         shift
+    elif [ "$option" = "--ocdbCustom" ]; then
+	CONFIG_OCDBCUSTOM="1"
+	export CONFIG_OCDBCUSTOM
+    elif [ "$option" = "--purifyKineOff" ]; then
+	CONFIG_PURIFYKINEOFF="1"
+	export CONFIG_PURIFYKINEOFF
     elif [ "$option" = "--hlt" ]; then
         CONFIG_HLT="$1"
 	export CONFIG_HLT
@@ -338,22 +350,53 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
 	export CONFIG_GEANT4
-    elif [ "$option" = "--fastB" ]; then
-        CONFIG_FASTB="on"
-	export CONFIG_FASTB
-    elif [ "$option" = "--vdt" ] && [[ $CONFIG_VDT == "" ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
-        CONFIG_VDT="on"
-	export CONFIG_VDT
-	export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
-    elif [ "$option" = "--removeTrackRefs" ]; then
-        CONFIG_REMOVETRACKREFS="on"
-	export CONFIG_REMOVETRACKREFS
+    elif [ "$option" = "--fluka" ]; then
+        CONFIG_FLUKA="on"
+	export CONFIG_FLUKA
+    elif [ "$option" = "--nofastB" ]; then
+        CONFIG_FASTB=""
+    elif [ "$option" = "--novdt" ]; then
+        CONFIG_VDT=""
+#    elif [ "$option" = "--removeTrackRefs" ]; then
+#        CONFIG_REMOVETRACKREFS="on"
+#	export CONFIG_REMOVETRACKREFS
+    elif [ "$option" = "--keepTrackRefsFraction" ]; then
+	CONFIG_KEEPTRACKREFSFRACTION="$1"
+	export CONFIG_KEEPTRACKREFSFRACTION
+        shift
+    elif [ "$option" = "--OCDBTimeStamp" ]; then
+        CONFIG_OCDBTIMESTAMP="$1"
+        export CONFIG_OCDBTIMESTAMP
 #    elif [ "$option" = "--sdd" ]; then
 #        RUNMODE="SDD"
 #	export RUNMODE
 #	shift
     fi
 done
+
+# export settings (needed, since some arte set to on by default)
+if [ "$CONFIG_FASTB" = "on" ]; then
+    export CONFIG_FASTB
+fi
+
+if [ "$CONFIG_REMOVETRACKREFS" = "on" ]; then
+    export CONFIG_REMOVETRACKREFS
+fi
+
+if [[ $CONFIG_VDT == "on" ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+    export LD_PRELOAD=$LD_PRELOAD:$ALICE_ROOT/lib/libalivdtwrapper.so
+fi
+
+# detect VDT math library (if set elsewhere)
+if [[ $LD_PRELOAD == *"libalivdtwrapper.so"* ]] && [ -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+    CONFIG_VDT="on"
+    export CONFIG_VDT
+fi
+
+# if VDT library not available, VDT cannot be used
+if [ ! -f $ALICE_ROOT/lib/libalivdtwrapper.so ]; then
+    CONFIG_VDT=""
+fi
 
 DC_RUN=$CONFIG_RUN
 DC_EVENT=$CONFIG_UID
@@ -409,6 +452,25 @@ if [ ! -z "$CONFIG_PROCESSBIN" ]; then
 
 fi
 
+# >>>------------------ decide if TrackRefs.root should be removed ----------------->>>
+
+if [[ -z $ALIEN_PROC_ID ]] ; then
+    export CONFIG_PROCID=$RANDOM
+    echo "*!  WARNING! ALIEN_PROC_ID is not set, will use random number"
+else
+    export CONFIG_PROCID=$ALIEN_PROC_ID
+fi
+# check consistency of provided (if any) TrackRefs fraction to keep
+if [[ ! $CONFIG_KEEPTRACKREFSFRACTION =~ ^[0-9]+$ ]] ; then
+    echo "Invalid value $CONFIG_KEEPTRACKREFSFRACTION provided for keepTrackRefsFraction"
+    exit 1
+fi
+[[ $CONFIG_KEEPTRACKREFSFRACTION -gt 100 ]] && CONFIG_KEEPTRACKREFSFRACTION="100"
+[[ $((CONFIG_PROCID%100)) -ge $CONFIG_KEEPTRACKREFSFRACTION ]] && CONFIG_REMOVETRACKREFS="on" || CONFIG_REMOVETRACKREFS="off"
+export CONFIG_REMOVETRACKREFS
+
+# <<<------------------ decide if TrackRefs.root should be removed -----------------<<<
+
 # mkdir input
 # mv galice.root ./input/galice.root
 # mv Kinematics.root ./input/Kinematics.root
@@ -428,12 +490,29 @@ if [ -f "$G4INSTALL/bin/geant4.sh" ]; then
     source $G4INSTALL/bin/geant4.sh
 fi
 
+### check if Run 3 (needed for snapshot creation)
+
+if [[ $CONFIG_MODE == *"Run3"* ]]; then
+    if [[ $CONFIG_OCDBRUN3 == "" ]]; then
+	CONFIG_OCDBRUN3="1"
+	export CONFIG_OCDBRUN3
+    fi
+fi
+
+### check for Fluka and configure it if needed
+
+if [[ $CONFIG_FLUKA == "on" ]]; then
+    echo "* Linking files needed for Fluka"
+    source $ALIDPG_ROOT/MC/FlukaConfig.sh
+fi
+
 ### check whether we are in OCDB generation job
 
 if [[ $ALIEN_JDL_LPMOCDBJOB == "true" ]]; then
     echo ">>>>> OCDB generation: force MODE to 'ocdb'"
     export CONFIG_MODE="ocdb"
 fi
+
 
 ### createSnapshot.C
 
@@ -549,11 +628,48 @@ elif [[ $CONFIG_MODE == *"Muon"* ]]; then
         export CONFIG_AOD
     fi
 
+elif [[ $CONFIG_MODE == *"Run3"* ]]; then
+
+    if [[ $CONFIG_DETECTOR == "" ]]; then
+        CONFIG_DETECTOR="Run3"
+        export CONFIG_DETECTOR
+    fi
+
+    if [[ $CONFIG_SIMULATION == "" ]]; then
+        CONFIG_SIMULATION="Run3"
+        export CONFIG_SIMULATION
+    fi
+
+    if [[ $CONFIG_RECONSTRUCTION == "" ]]; then
+        CONFIG_RECONSTRUCTION="Run3"
+        export CONFIG_RECONSTRUCTION
+    fi
+
 fi
 
 ### automatic settings from GRP info
 
 aliroot -b -q $ALIDPG_ROOT/MC/ExportGRPinfo.C\($CONFIG_RUN\) 2>/dev/null | grep export > grpdump.sh && source grpdump.sh # && rm grpdump.sh
+
+### background from .xml collection
+if [[ $CONFIG_BACKGROUND == *.xml ]]; then
+    aliroot -b -q $ALIDPG_ROOT/MC/ExportXMLbackground.C\(\"$CONFIG_BACKGROUND\"\) 2>/dev/null | grep export > xmldump.sh && source xmldump.sh # && rm xmldump.sh    
+fi
+
+### background from AliEn file, copy files locally
+if [[ $CONFIG_BACKGROUND == alien://* ]]; then
+    echo "Copying background files from AliEn to local cache..."
+    mkdir -p BKG
+    alien_cp ${CONFIG_BACKGROUND%galice.root}/*.zip BKG/.
+    for I in BKG/*.zip; do
+	unzip $I -d BKG && rm $I
+    done
+    export OVERRIDE_BKG_PATH_RECORD=$CONFIG_BACKGROUND
+    export CONFIG_BACKGROUND="BKG/galice.root"
+    echo "Content of background local cache:"
+    ls BKG/*
+    echo "================================="
+fi
 
 ### override automatic settings from GRP info if requested
 
@@ -570,9 +686,18 @@ if [[ $OVERRIDE_TRIGGER != "" ]]; then
 fi
 
 ### check if custom trigger configuration file Custom.cfg is present
-if [ $CONFIG_TRIGGER = "Custom.cfg" ] && [ ! -f Custom.cfg ]; then
+if [ "$CONFIG_TRIGGER" == "Custom.cfg" ] && [ ! -f Custom.cfg ]; then
     echo "Custom.cfg trigger configuration requested, file not present"
     exit 1
+elif [[ $OVERRIDE_TRIGGER == "" ]]; then
+    aliroot -b -q "$ALIDPG_ROOT/MC/CheckTOF.C($CONFIG_RUN)"
+    checkTOF=$?
+    if [ $checkTOF == 1 ]; then
+	#echo "TOF was triggering but not in data acquisition --> Using custom trigger from AliDPG"
+	echo "TOF was not in data acquisition --> Using custom trigger from AliDPG"
+	cp $ALIDPG_ROOT/Utils/Custom.cfg .
+	CONFIG_TRIGGER="Custom.cfg"
+    fi
 fi
 
 ##########################################
@@ -597,22 +722,29 @@ echo "Process.......... $CONFIG_PROCESS"
 echo "No. Events....... $CONFIG_NEVENTS"
 echo "Unique-ID........ $CONFIG_UID"
 echo "MC seed.......... $CONFIG_SEED"
+echo "PROCID........... $CONFIG_PROCID"
 echo "============================================"
 echo "Background....... $CONFIG_BACKGROUND"
+echo "Override record.. $OVERRIDE_BKG_PATH_RECORD"
 echo "No. Events....... $CONFIG_NBKG"
 #echo "MC seed.......... $CONFIG_SEED (based on $CONFIG_SEED_BASED)"
 echo "============================================"
 echo "Detector......... $CONFIG_DETECTOR"
 echo "GEANT4........... $CONFIG_GEANT4"
+echo "FLUKA............ $CONFIG_FLUKA"
+echo "PurifyKineOff.... $CONFIG_PURIFYKINEOFF"
 echo "Fast-B........... $CONFIG_FASTB"
 echo "VDT math......... $CONFIG_VDT"
 echo "Material Budget.. $CONFIG_MATERIAL"
-echo "Remove TrackRefs. $CONFIG_REMOVETRACKREFS"
+echo "TrackRefs to keep ${CONFIG_KEEPTRACKREFSFRACTION}%"
+echo "Remove TrackRefs. ${CONFIG_REMOVETRACKREFS} (in this job)"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
 echo "System........... $CONFIG_SYSTEM"
 echo "Trigger.......... $CONFIG_TRIGGER"
 echo "OCDB............. $CONFIG_OCDB"
+echo "OCDBCustom....... $CONFIG_OCDBCUSTOM"
+echo "OCDBRun3......... $CONFIG_OCDBRUN3"
 echo "HLT.............. $CONFIG_HLT"
 echo "============================================"
 #echo "B-field.......... $CONFIG_MAGNET"
@@ -728,25 +860,55 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
 # ESD tag creation removed on September 2017 after CB and PB discussions
 
-
-    CHECKESDC=$ALIDPG_ROOT/MC/CheckESD.C
-    if [ -f CheckESD.C ]; then
-	CHECKESDC=CheckESD.C
-    fi
-    runcommand "CHECK ESD" $CHECKESDC check.log 60 1
-
+    # Commenting out the CheckESD while we sort out how to configure
+    # the PID response properly. In any case, the output of this check is
+    # neither checked nor stored at present
+#    CHECKESDC=$ALIDPG_ROOT/MC/CheckESD.C
+#    if [ -f CheckESD.C ]; then
+#	CHECKESDC=CheckESD.C
+#    fi
+#    runcommand "CHECK ESD" $CHECKESDC check.log 60 1
+#
+    
     # delete files not needed anymore
     if [[ $CONFIG_SIMULATION == "EmbedBkg" ]]; then
 	rm -f *.RecPoints.root *.Digits.root
 	ls *.Hits.root | grep -v T0.Hits.root | xargs rm
-    elif [[ $CONFIG_REMOVETRACKREFS == "on" ]]; then
-	 rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root TrackRefs.root
     else
 	rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
     fi
 
 fi
 
+### Embedded signal filtering (only upon request and in embedded mode)
+
+if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"EmbedSig"* ]]; then
+
+    if [[ $CONFIG_MODE == *"extractembeddedmixed"* ]]; then
+	EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C\(kTRUE\)
+    else
+	EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C\(kFALSE\)
+    fi
+	
+    runcommand "EXTRACTEMBEDDED" $EXTRACTEMBEDDEDC extractembedded.log 10
+    
+    if [ ! -f AliESDs_EMB.root ]; then
+	echo "*! Could not find AliESDs_EMB.root, the embedded signal filtering failed!"
+	echo "Could not find AliESDs_EMB.root, the embedded signal filtering failed!" >> validation_error.message
+	exit 2
+    fi
+
+    if [ ! -f galice_EMB.root ]; then
+	echo "*! Could not find galice_EMB.root, the embedded signal filtering failed!"
+	echo "Could not find galice_EMB.root, the embedded signal filtering failed!" >> validation_error.message
+	exit 2
+    fi
+
+    mv "AliESDs_EMB.root" "AliESDs.root"
+    mv "galice_EMB.root" "galice.root"
+
+fi
+    
 ### QAtrainsim.C
 
 if [[ $CONFIG_MODE == *"qa"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
@@ -767,15 +929,15 @@ if [[ $CONFIG_MODE == *"qa"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
 fi
 
-### AODtrainsim.C
+### AODtrainRawAndMC.C
 
 if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
     echo "AliAOD.root" >> validation_extrafiles.list
 
-    AODTRAINSIMC=$ALIDPG_ROOT/AOD/AODtrainsim.C
-    if [ -f AODtrainsim.C ]; then
-	AODTRAINSIMC=AODtrainsim.C
+    AODTRAINSIMC=$ALIDPG_ROOT/AOD/AODtrainRawAndMC.C\(0,kTRUE\)
+    if [ -f AODtrainRawAndMC.C ]; then
+	AODTRAINSIMC=AODtrainRawAndMC.C\(0,kTRUE\)
     fi
 
     rm -f outputs_valid &>/dev/null
@@ -804,6 +966,11 @@ if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
     fi
 
+fi
+
+if [ $CONFIG_REMOVETRACKREFS == "on" ] && [ -f TrackRefs.root ] ; then
+    echo "Removing TrackRefs.root"
+    rm -f TrackRefs.root
 fi
 
 

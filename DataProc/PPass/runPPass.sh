@@ -54,6 +54,7 @@ export GRID_TOKEN=OK
 export XRD_TRANSACTIONTIMEOUT=300
 
 export PRODUCTION_METADATA="$ALIEN_JDL_LPMMETADATA"
+export triggerSelection=${ALIEN_JDL_TRIGGERSELECTION-$triggerSelection}
 
 echo "* PATH: $PATH"
 echo "* LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
@@ -115,6 +116,8 @@ RECO_ARGS=""
 if [ "$1" == "SPLIT" ]; then
     RECO_ARGS=",$2,$3"
     shift 3
+else
+    RECO_ARGS=",-1,\"raw://\""
 fi
 
 if [ "${CHUNKNAME:0:1}" = "/" ]; then
@@ -184,11 +187,11 @@ else
     echo "Cosmics type, not using mergeQAgroups"
 fi
 
-if [ -f AODtrain.C ]; then
-    echo "Use AODtrain.C macro passed as input"
+if [ -f AODtrainRawAndMC.C ]; then
+    echo "Use AODtrainRawAndMC.C macro passed as input"
 elif [ "$pass_type" != "cosmics" ]; then
-    echo "Use AODtrain.C macro from AliDPG"
-    cp $ALIDPG_ROOT/AOD/AODtrain.C .
+    echo "Use AODtrainRawAndMC.C macro from AliDPG"
+    cp $ALIDPG_ROOT/AOD/AODtrainRawAndMC.C .
 else 
     echo "Cosmics type, not using AODtrain"
 fi
@@ -200,6 +203,10 @@ elif [ "$pass_type" != "cosmics" ]; then
     cp $ALIDPG_ROOT/QA/QAtrainAOD.C .
 fi
 
+# enable vdt library
+
+$ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
+####################
 
 # Extraction of TPC clusters
 if [ "$pass_type" == "ppass" ] && [ "$preclusterizeTPC" = "1" ] && [ "$OCDB_SNAPSHOT_CREATE" != "kTRUE" ] && [ -f raw2clust.C ]; then
@@ -209,9 +216,9 @@ if [ "$pass_type" == "ppass" ] && [ "$preclusterizeTPC" = "1" ] && [ "$OCDB_SNAP
     echo ""
     echo "" >&2
     echo "raw2clust.C" >&2
-    echo executing aliroot -l -b -q -x "raw2clust.C(\"$CHUNKNAME\"$RECO_ARGS)"
+    echo executing aliroot -l -b -q -x "raw2clust.C(\"$CHUNKNAME\"$RECO_ARGS, \"$triggerSelection\")"
     timeStart=`date +%s`
-    time aliroot -l -b -q -x "raw2clust.C(\"$CHUNKNAME\"$RECO_ARGS)" &> clust.log
+    time aliroot -l -b -q -x "raw2clust.C(\"$CHUNKNAME\"$RECO_ARGS, \"$triggerSelection\")" &> clust.log
     exitcode=$?
     timeEnd=`date +%s`
     timeUsed=$(( $timeUsed+$timeEnd-$timeStart ))
@@ -228,16 +235,16 @@ if [ "$pass_type" == "ppass" ] && [ "$preclusterizeTPC" = "1" ] && [ "$OCDB_SNAP
 fi
 
 
-echo "* Running AliRoot to reconstruct '$CHUNKNAME', extra arguments are '$RECO_ARGS' and run number is $runnum ..."
+echo "* Running AliRoot to reconstruct '$CHUNKNAME', triggerSelection is '$triggerSelection', extra arguments are '$RECO_ARGS' and run number is $runnum ..."
 echo ""
 echo "running the following rec.C macro:"
 cat rec.C
 echo ""
-echo executing aliroot -l -b -q -x "rec.C(\"$CHUNKNAME\"$RECO_ARGS)"
+echo executing aliroot -l -b -q -x "rec.C(\"$CHUNKNAME\", \"$triggerSelection\")"
 echo "" >&2
 echo "rec.C" >&2
 timeStart=`date +%s`
-time aliroot -l -b -q -x "rec.C(\"$CHUNKNAME\"$RECO_ARGS)" &> rec.log
+time aliroot -l -b -q -x "rec.C(\"$CHUNKNAME\", \"$triggerSelection\")" &> rec.log
 
 exitcode=$?
 timeEnd=`date +%s`
@@ -368,20 +375,20 @@ if [ -f QAtrain_duo.C ]; then
     fi
 fi
 
-if [ -f AODtrain.C ]; then
+if [ -f AODtrainRawAndMC.C ]; then
     rm -f outputs_valid &>/dev/null
     echo "AliAOD.root" >> validation_extrafiles.list
 
     echo "* Running the FILTERING train..."
     echo ""
-    echo "running the following AODtrain.C macro:"
-    cat AODtrain.C
+    echo "running the following AODtrainRawAndMC.C macro:"
+    cat AODtrainRawAndMC.C
     echo ""
-    echo executing aliroot -b -q  -x AODtrain.C\(\)
+    echo executing aliroot -b -q  -x AODtrainRawAndMC.C\(\)
     echo "" >&2
-    echo "AODtrain.C" >&2
+    echo "AODtrainRawAndMC.C" >&2
     timeStart=`date +%s`
-    time aliroot -b -q  -x AODtrain.C\(\) &> aod.log
+    time aliroot -b -q  -x AODtrainRawAndMC.C\(\) &> aod.log
 
     exitcode=$?
     timeEnd=`date +%s`
@@ -392,7 +399,7 @@ if [ -f AODtrain.C ]; then
     echo "Exit code: $exitcode"
     
     if [ $exitcode -ne 0 ]; then
-        echo "AODtrain.C exited with code $exitcode" > validation_error.message
+        echo "AODtrainRawAndMC.C exited with code $exitcode" > validation_error.message
         exit 200
     fi
 
