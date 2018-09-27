@@ -52,11 +52,6 @@ Int_t       iPWGGAgammaconv     = 1;       // Gamma conversion analysis (PWG4)
 Bool_t      doPIDResponse       = kTRUE;
 Bool_t      doPIDqa             = kTRUE;
 
-//
-Int_t       iMUONRefit          = 0;
-Int_t       iPWGHFd2h           = 1;      // D0->2 hadrons (PWG3)
-Bool_t      saveTrain           = kTRUE;  // save train configuration as: 
-
 // ### Configuration macros used for each module
 //==============================================================================
 // TString configPWGHFd2h = (iCollision==0)?"$ALICE_PHYSICS/PWGHF/vertexingHF/ConfigVertexingHF.C"
@@ -101,75 +96,8 @@ Bool_t LoadAnalysisLibraries();
 Bool_t LoadLibrary(const char *);
 TChain *CreateChain();
 const char *cdbPath = "raw://";
-
 TString train_name = ".";
 
-
-/**************************************************
- *            Refiltering settings                *
- **************************************************/
-
-TString     aliphysics_version = "v5-09-17c-01-1"; // *CHANGE ME IF MORE RECENT IN GRID*
-
-Int_t       iAODanalysis        = 0;      // AOD based analysis 
-// Maximum number of files per job (gives size of AOD)
-Int_t       nFilesPerJob       = 20;
-// Int_t       nFilesPerJob       = 1; (AOD->delta AOD production case)
-
-
-const char *analysis_mode ="grid";
-const char *plugin_mode   ="full";
-const char *config_file   ="";
-Bool_t useProductionMode  = kTRUE;    // use the plugin in production mode
-Bool_t useDATE            = kFALSE;   // use date in train name
-// Number of files merged in a chunk
-Int_t       maxMergeFiles      = 30;
-// Files that should not be merged
-TString     mergeExclude       = "AliAOD.root AliAOD.VertexingHF.root FilterEvents_Trees.root AliAOD.Jets.root AliAOD.Muons.root AliAODGammaConversion.root";
-TString     mergeDirName       = "AOD$2";
-// Make replicas on the storages below
-TString     outputStorages      = "disk=4";
-Int_t       outputReplicas      = 2;
-// Number of runs per master job
-Int_t       nRunsPerMaster     = 10;
-// ### Other flags to steer the analysis
-//==============================================================================
-Bool_t      useMergeViaJDL      = kTRUE;  // merge via JDL
-Bool_t      useOverwriteMode    = kTRUE;  // overwrite existing collections
-Bool_t      useFastReadOption   = kFALSE;  // use xrootd tweaks
-Bool_t      saveCanvases        = kFALSE;  // save canvases created in Terminate
-// ### Analysis modules to be included. Some may not be yet fully implemented.
-//==============================================================================
-
-TString train_tag         = "_p-p_";  // Train special tag appended to, updated later based on actual system
-TString visible_name;
-TString job_comment;
-TString job_tag;
-
-/****************** JUST FOR TEST MODE **************************/
-// Change production base directory here (test mode)
-TString     alien_datadir      = "/alice/sim/2016/LHC16c2";
-// AliEn output directory. If blank will become output_<train_name>
-// Output directory (DON'T CHANGE)
-TString     alien_outdir       = "$1/AOD$2";
-
-TString     data_collection    = "$1/qa1.xml";
-TString     outputSingleFolder = "";
-// Number of test files
-Int_t       nTestFiles         = 1;
-// Work directory in GRID (DON'T CHANGE)
-TString     grid_workdir       = "/alice/cern.ch/user/a/alidaq/AOD/AOD$2";
-TString     data_pattern       = "*ESDs.root";
-
-
-const Char_t* TrainTag[kNSystem] =
-{
-  "_p-p_",
-  "_Pb-Pb_",
-  "_p-Pb_",
-  "_Pb-p_",
-  "_Xe_Xe"
-};
 
 //______________________________________________________________________________
 void UpdateFlags()
@@ -204,7 +132,7 @@ void UpdateFlags()
 }
 
 //______________________________________________________________________________
-void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refilteringMode=kFALSE)
+void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE)
 {
   // Main analysis train macro.
 
@@ -257,44 +185,13 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
 
   PrintSettings();
 
-  TString smode(analysis_mode);
-  smode.ToUpper();  
-  if(refilteringMode)
-  {
-    //==================   TRAIN NAME   ============================================  
-    //
-    // Name in train page (DON'T CHANGE)
-
-    if(isMC)
-      train_name ="FILTERsim";
-    else
-      train_name = "FILTERpass2";
-      
-    visible_name       = Form("FILTER%s$2_$3", train_tag.Data()); //# FIXED #
-    // Add train composition and other comments
-    job_comment        = "Standard AODs + deltas";
-    job_tag            = Form("%s: %s", visible_name.Data(), job_comment.Data());
-
-    // Main analysis train macro. If a configuration file is provided, all parameters
-    // are taken from there but may be altered by CheckModuleFlags.
-    //if (strlen(config_file) && !LoadConfig(config_file)) return;
-    TString spmode(plugin_mode);
-    spmode.ToLower();
-    if (spmode == "test") 
-      useProductionMode = kFALSE;
-    if(saveTrain)
-      WriteConfig();
-  }
-  
   Bool_t needGrid=kFALSE;
   if(merge || doCDBconnect) needGrid=kTRUE;
   if(gSystem->Getenv("OCDB_PATH")) needGrid=kFALSE;
 
-  if (needGrid) 
-  {
+  if (needGrid) {
     TGrid::Connect("alien://");
-    if (!gGrid || !gGrid->IsConnected()) 
-    {
+    if (!gGrid || !gGrid->IsConnected()) {
       ::Error("AODtrainRawAndMC", "No grid connection");
       return;
     }
@@ -320,8 +217,7 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
   // Make the analysis manager and connect event handlers
   AliAnalysisManager *mgr  = new AliAnalysisManager("Analysis Train", "Production train");
   if(!isMC) mgr->SetCacheSize(0);
-  if (useSysInfo) 
-  {
+  if (useSysInfo) {
     //mgr->SetNSysInfo(100);
     AliSysInfo::SetVerbose(kTRUE);
   }   
@@ -329,10 +225,8 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
   // ESD input handler
   AliESDInputHandler *esdHandler = new AliESDInputHandler();
   mgr->SetInputEventHandler(esdHandler);       
-
   // Monte Carlo handler
-  if (useMC) 
-  {
+  if (useMC) {
     AliMCEventHandler* mcHandler = new AliMCEventHandler();
     mgr->SetMCtruthEventHandler(mcHandler);
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
@@ -343,27 +237,17 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
     mcHandler->SetReadTR(useTR); 
   }   
   // AOD output container, created automatically when setting an AOD handler
-  if (iAODhandler) 
-  {
+  if (iAODhandler) {
     // AOD output handler
     AliAODHandler* aodHandler   = new AliAODHandler();
     aodHandler->SetOutputFileName("AliAOD.root");
     mgr->SetOutputEventHandler(aodHandler);
-    
-    if (refilteringMode && iAODanalysis) 
-    {
-      aodHandler->SetFillAOD(kFALSE);
-      aodHandler->SetCreateNonStandardAOD();
-    } 
   }
   // Debugging if needed
   if (useDBG) mgr->SetDebugLevel(3);
-  if (refilteringMode && saveCanvases) mgr->SetSaveCanvases(kTRUE);
 
   AddAnalysisTasks(cdbPath,isMC);
-  
-  if (merge) 
-  {
+  if (merge) {
     AODmerge();
     mgr->InitAnalysis();
     mgr->SetGridHandler(new AliAnalysisAlien);
@@ -373,43 +257,15 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
   }   
   // Run the analysis                                                                                                                     
   //
-  TChain *chain;
-  if(!refilteringMode) 
-  {
-    chain = CreateChain();
-    if (!chain) 
-      return;
-    mgr->SetSkipTerminate(kTRUE);
-  } 
-  else
-  {
-    chain = CreateChain(smode, plugin_mode);
-    AliAnalysisGrid *alienHandler = CreateAlienHandler(plugin_mode);
-    AliAnalysisManager::GetAnalysisManager()->SetGridHandler(alienHandler);
-  }
-
+  TChain *chain = CreateChain();
+  if (!chain) return;
+                                                                                                                                                   
   TStopwatch timer;
   timer.Start();
-
-  if (mgr->InitAnalysis()) 
-  {
+  mgr->SetSkipTerminate(kTRUE);
+  if (mgr->InitAnalysis()) {
     mgr->PrintStatus();
-    
-    if(refilteringMode)
-    {
-      if (saveTrain || strlen(config_file))
-        gSystem->ChangeDirectory(train_name);
-    }
-    else
-      smode ="local";
-
-    mgr->StartAnalysis(smode.Data(), chain);
-    
-    // Replace custom validation script with standard validation from production environment
-    //
-//     if(refilteringMode)
-//       if(!TFile::Cp("alien:///alice/validation/validation.sh", ((AliAnalysisAlien*)alienHandler)->GetValidationScript()))
-//         Error("Connect", "Did not managed to copy production validation script.");
+    mgr->StartAnalysis("local", chain);
   }
   timer.Print();
 }                                                                                                                                          
@@ -710,67 +566,6 @@ TChain *CreateChain()
 }   
 
 //______________________________________________________________________________
-TChain *CreateChain(const char *mode, const char *plugin_mode)
-{
-// Create the input chain
-   Int_t imode = -1;
-   if (!strcmp(mode, "LOCAL")) imode = 0;
-   if (!strcmp(mode, "GRID"))  imode = 1;
-   TChain *chain = NULL;
-   // Local chain
-   switch (imode)
-   {
-      case 0:
-         if (iAODanalysis)
-         {
-            if (!local_xmldataset.Length())
-            {
-               // Local AOD
-               chain = new TChain("aodTree");
-               if (gSystem->AccessPathName("data/AliAOD.root")) 
-                  ::Error("AnalysisTrainNew.C::CreateChain", "File: AliAOD.root not in ./data dir");
-               else
-               {
-                  if (!saveTrain) chain->Add("data/AliAOD.root");
-                  else            chain->Add("../data/AliAOD.root");
-               }   
-            } 
-            else
-            {
-               // Interactive AOD
-               chain = CreateChainSingle(local_xmldataset, "aodTree");
-            }
-         } 
-         else
-         {      
-            if (!local_xmldataset.Length())
-            {
-               // Local ESD
-               chain = new TChain("esdTree");
-               if (gSystem->AccessPathName("data/AliESDs.root")) 
-                  ::Error("AnalysisTrainNew.C::CreateChain", "File: AliESDs.root not in ./data dir");
-               else
-               {
-                  if (!saveTrain) chain->Add("data/AliESDs.root");
-                  else            chain->Add("../data/AliESDs.root");
-               }   
-            } 
-            else
-            {
-               // Interactive ESD
-               chain = CreateChainSingle(local_xmldataset, "esdTree");
-            }   
-         }
-         break;
-      case 1:
-         break;      
-      default:   
-   }
-   if (chain && chain->GetNtrees()) return chain;
-   return NULL;
-}   
-
-//______________________________________________________________________________
 void AODmerge()
 {
   // Merging method. No staging and no terminate phase.
@@ -817,7 +612,6 @@ void ProcessEnvironment()
   // Collision system configuration
   //
   iCollision = kpp;
-  train_tag = TrainTag[kpp];
   if(gSystem->Getenv("ALIEN_JDL_LPMINTERACTIONTYPE"))
     {
       Bool_t valid = kFALSE;
@@ -825,7 +619,6 @@ void ProcessEnvironment()
 	if (strcmp(gSystem->Getenv("ALIEN_JDL_LPMINTERACTIONTYPE"), CollisionSystem[icoll]) == 0) 
 	  {
 	    iCollision = icoll;
-        train_tag = TrainTag[icoll];
 	    valid = kTRUE;
 	    break;
 	  }
@@ -1002,249 +795,4 @@ void PrintSettings()
   printf("   **********************************\n");
   gSystem->Exec("set");
   printf("   **********************************\n\n");
-}
-
-//______________________________________________________________________________
-void WriteConfig()
-{
-// Write train configuration in a file. The file name has the format:
-// train_[trainName]_ddMonthyyyy_time.C
-   if (useDATE)
-   {
-      gSystem->Exec("date +%d%b%Y_%Hh%M > date.tmp");
-      ifstream fdate("date.tmp");
-      if (!fdate.is_open())
-      {
-         ::Error("AnalysisTrainNew.C::Export","Could not generate file name");
-         return;
-      }
-      const char date[64];
-      fdate.getline(date,64);
-      fdate.close();
-      gSystem->Exec("rm date.tmp");
-      train_name = Form("%s_%s", train_name.Data(), date);
-   }   
-   TString cdir = gSystem->WorkingDirectory();
-   gSystem->MakeDirectory(train_name);
-   gSystem->ChangeDirectory(train_name);
-   ofstream out;
-   out.open(Form("%sConfig.C",train_name.Data()), ios::out); 
-   if (out.bad())
-   {
-      ::Error("AnalysisTrainNew.C::Export", "Cannot open ConfigTrain.C for writing");
-      return;
-   }
-   out << "{" << endl;
-   out << "   train_name      = " << "\"" << train_name.Data() << "\";" << endl;
-   //***out << "   root_version    = " << "\"" << root_version.Data() << "\";" << endl;
-   //***out << "   aliroot_version = " << "\"" << aliroot_version.Data() << "\";" << endl;
-   out << "   alien_datadir   = " << "\"" << alien_datadir.Data() << "\";" << endl;
-   if (!alien_outdir.Length()) alien_outdir = Form("output_%s",train_name.Data());
-   out << "   alien_outdir    = " << "\"" << alien_outdir.Data() << "\";" << endl;
-   out << "   maxMergeFiles   = " << maxMergeFiles << ";" << endl;
-   out << "   mergeExclude    = " << "\"" << mergeExclude.Data() << "\";" << endl;
-   out << "   nRunsPerMaster  = " << nRunsPerMaster << ";" << endl;
-   out << "   nFilesPerJob    = " << nFilesPerJob << ";" << endl;
-//   for (Int_t i=0; i<10; i++) {
-//      if (run_numbers[i]) 
-//         out << "   run_numbers[" << i << "]  = " << run_numbers[i] << ";" << endl;
-//   }
-//   out << "   run_range[0]    = " << run_range[0] << ";" << endl;
-//   out << "   run_range[1]    = " << run_range[1] << ";" << endl;
-   out << "   usePhysicsSelection = " << usePhysicsSelection << ";" << endl;
-   out << "   useTender       = " << useTender << ";" << endl;
-   out << "   useMergeViaJDL  = " << useMergeViaJDL << ";" << endl;
-   out << "   useOverwriteMode  = " << useOverwriteMode << ";" << endl;
-   out << "   useFastReadOption = " << useFastReadOption << ";" << endl;
-   out << "   useDBG          = " << useDBG << ";" << endl;
-   out << "   useMC           = " << useMC << ";" << endl;
-   out << "   useKFILTER      = " << useKFILTER << ";" << endl;
-   out << "   useTR           = " << useTR << ";" << endl;
-   out << "   saveTrain       = " << "kFALSE;" << endl << endl;
-   out << "   // Analysis modules" << endl;
-   out << "   iAODanalysis    = " << iAODanalysis << ";" << endl;
-   out << "   iAODhandler     = " << iAODhandler << ";" << endl;
-   out << "   iESDfilter      = " << iESDfilter << ";" << endl;
-   out << "   iMUONcopyAOD    = " << iMUONcopyAOD << ";" << endl;
-   out << "   iJETAN          = " << iJETAN << ";" << endl;
-   out << "   iJETANdelta     = " << iJETANdelta << ";" << endl;
-   out << "   iPWGHFvertexing  = " << iPWGHFvertexing << ";" << endl;   
-   out << "   iPWGLFForward    = " << iPWGLFForward << ";" << endl;
-   out << endl;
-   out << "   iCollision      = \"" << CollisionSystem[iCollision] << "\";" << endl;
-   out << "   periodName      = \"" << periodName.Data() << "\";" << endl;
-   out << "   run_number      = " << run_number << ";" << endl;
-   out << "   run_flag        = " << run_flag << ";" << endl;
-   out << "   isMuonCaloPass  = " << isMuonCaloPass << ";" << endl;
-   out << "   useCentrality   = " << useCentrality << ";" << endl;
-   out << "// Configuration for the wagons" << endl;
-   out << "}" << endl;
-   ::Info("AnalysisTrainNew.C::WriteConfig", "Train configuration wrote to file %s", Form("config_%s.C", train_name.Data()));
-   gSystem->ChangeDirectory(cdir);
-}   
-
-//______________________________________________________________________________
-AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode)
-{
-// Check if user has a valid token, otherwise make one. This has limitations.
-// One can always follow the standard procedure of calling alien-token-init then
-   AliAnalysisAlien *plugin = new AliAnalysisAlien();
-// Set the run mode (can be "full", "test", "offline", "submit" or "terminate")
-   plugin->SetRunMode(plugin_mode);
-   if (useProductionMode)
-   {
-      plugin->SetProductionMode();
-      plugin->AddDataFile(data_collection);
-   }   
-      
-   if (!outputSingleFolder.IsNull())
-   {
-      plugin->SetOutputSingleFolder(outputSingleFolder);
-      plugin->SetOutputToRunNo();
-   }
-   plugin->SetJobTag(job_tag);
-   plugin->SetNtestFiles(nTestFiles);
-   plugin->SetCheckCopy(kFALSE);
-   plugin->SetMergeDirName(mergeDirName);
-// Set versions of used packages
-   //***plugin->SetAPIVersion("V1.1x");
-   //***plugin->SetROOTVersion(root_version);
-   //***plugin->SetAliROOTVersion(aliroot_version);
-   plugin->SetAliPhysicsVersion(aliphysics_version);
-// Declare input data to be processed.
-// Method 1: Create automatically XML collections using alien 'find' command.
-// Define production directory LFN
-   plugin->SetGridDataDir(alien_datadir);
-// Set data search pattern
-   plugin->SetDataPattern(data_pattern);
-   if (!useProductionMode)
-   {
-      if (runOnData)
-      {
-         plugin->SetRunPrefix("000");
-      }   
-//   if (!iAODanalysis) plugin->SetRunRange(run_range[0], run_range[1]);
-      for (Int_t i=0; i<10; i++)
-      {
-         if (run_numbers[i]==0) break;
-         plugin->AddRunNumber(run_numbers[i]);
-      }   
-   }   
-// Define alien work directory where all files will be copied. Relative to alien $HOME.
-   plugin->SetGridWorkingDir(grid_workdir);
-// Declare alien output directory. Relative to working directory.
-   if (alien_outdir.IsNull()) alien_outdir = Form("output_%s",train_name.Data());
-   plugin->SetGridOutputDir(alien_outdir);
-
-// Add external packages
-   if (iJETAN || iJETANdelta)
-   {
-      plugin->AddExternalPackage("boost::v1_43_0");
-      plugin->AddExternalPackage("cgal::v3.6");
-      plugin->AddExternalPackage("fastjet::v2.4.2");
-   }   
-   
-// Declare the output file names separated by blancs.
-// (can be like: file.root or file.root@ALICE::Niham::File)
-   plugin->SetDefaultOutputs();
-   plugin->SetMergeExcludes(mergeExclude);
-   plugin->SetMaxMergeFiles(maxMergeFiles);
-   plugin->SetNrunsPerMaster(nRunsPerMaster);
-// Optionally define the files to be archived.
-//   plugin->SetOutputArchive("log_archive.zip:stdout,stderr@ALICE::NIHAM::File root_archive.zip:AliAOD.root,AOD.tag.root@ALICE::NIHAM::File");
-   
-   
-   // Put default output files to archive
-   TString listhists = "";
-   TString listaods  = "";
-   AliAnalysisManager *mgr = AliAnalysisManager::GetAnalysisManager();
-   TIter next(mgr->GetOutputs());
-   AliAnalysisDataContainer *output;
-   while ((output=(AliAnalysisDataContainer*)next()))
-   {
-      const char *filename = output->GetFileName();
-      if (!(strcmp(filename, "default")))
-      {
-         if (!mgr->GetOutputEventHandler()) continue;
-         filename = mgr->GetOutputEventHandler()->GetOutputFileName();
-         if (listaods.Length()) listaods += ",";
-         listaods += filename;
-         listaods += ",";
-         listaods += "pyxsec_hists.root";
-      } 
-      else
-      {
-         if (!strcmp(filename, "pyxsec_hists.root")) continue;
-         if (listhists.Contains(filename)) continue;
-         if (listhists.Length()) listhists += ",";
-         listhists += filename;
-      }
-   }
-   if (mgr->GetExtraFiles().Length())
-   {
-      if (listaods.Length()) listaods += ",";
-      listaods += mgr->GetExtraFiles();
-      listaods.ReplaceAll(" ", ",");
-   }
-   if (listhists.Length()) listhists = Form("hist_archive.zip:%s@%s", listhists.Data(), outputStorages.Data());
-   if (listaods.Length())  listaods  = Form("aod_archive.zip:%s@%s", listaods.Data(), outputStorages.Data());
-   if (!listhists.Length() && !listaods.Length())
-   {
-      ::Fatal("AnalysisTrainNew", "No task output !");
-   }
-   TString outputArchive = Form("log_archive.zip:stderr@%s", outputStorages.Data());
-   if (listaods.Length())
-   {
-      outputArchive += " ";
-      outputArchive += listaods;
-   }   
-   if (listhists.Length())
-   {
-      outputArchive += " ";
-      outputArchive += listhists;
-   }   
-   
-// Set friends
-//   if (iAODanalysis && iPWG3d2h) 
-//      plugin->SetFriendChainName("AliAOD.VertexingHF.root");
-//   plugin->SetOutputArchive(outputArchive);
-// Optionally set a name for the generated analysis macro (default MyAnalysis.C)
-   plugin->SetAnalysisMacro(Form("%s.C", train_name.Data()));
-// Optionally set a name for the generated validation script
-   //*********************************plugin->SetValidationScript("FILTERvalidation.sh");
-// Optionally set maximum number of input files/subjob (default 100, put 0 to ignore)
-   plugin->SetSplitMaxInputFileNumber(nFilesPerJob);
-// Optionally set number of failed jobs that will trigger killing waiting sub-jobs.
-//   plugin->SetMaxInitFailed(5);
-// Optionally modify the number of replicas
-   plugin->SetNumberOfReplicas(outputReplicas);
-// Optionally resubmit threshold.
-//   plugin->SetMasterResubmitThreshold(90);
-// Optionally set time to live (default 30000 sec)
-   plugin->SetTTL(70000);
-// Optionally set input format (default xml-single)
-   plugin->SetInputFormat("xml-single");
-// Optionally modify the name of the generated JDL (default analysis.jdl)
-   plugin->SetJDLName(Form("%s.jdl", train_name.Data()));
-// Optionally modify the executable name (default analysis.sh)
-   plugin->SetExecutable(Form("%s.sh", train_name.Data()));
-// Optionally modify job price (default 1)
-   plugin->SetPrice(1);      
-// Merge via JDL
-   plugin->SetMergeViaJDL(useMergeViaJDL);
-// Use fastread option
-   plugin->SetFastReadOption(useFastReadOption);
-// UseOverwrite mode
-   plugin->SetOverwriteMode(useOverwriteMode);   
-   plugin->SetExecutableCommand("aliroot -b -q");
-// Optionally modify split mode (default 'se')    
-   plugin->SetSplitMode("se");
-   plugin->SetNumberOfReplicas(outputReplicas);
-   
-   ((TGridJDL*)plugin->GetGridJDL())->AddToInputSandbox("LF:/alice/validation/aodmerge/extraValidation.sh");
-   // This may be added as custom file, iterating over the actual file list to be merged in this macro
-   //
-   ((TGridJDL*)plugin->GetGridJDL())->AddToInputSandbox("LF:/alice/validation/aodmerge/validation.rc");
-
-   return plugin;
 }
