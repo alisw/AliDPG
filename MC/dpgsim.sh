@@ -880,6 +880,35 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
 fi
 
+### Embedded signal filtering (only upon request and in embedded mode)
+
+if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"EmbedSig"* ]]; then
+
+    if [[ $CONFIG_MODE == *"extractembeddedmixed"* ]]; then
+	EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C\(kTRUE\)
+    else
+	EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C\(kFALSE\)
+    fi
+	
+    runcommand "EXTRACTEMBEDDED" $EXTRACTEMBEDDEDC extractembedded.log 10
+    
+    if [ ! -f AliESDs_EMB.root ]; then
+	echo "*! Could not find AliESDs_EMB.root, the embedded signal filtering failed!"
+	echo "Could not find AliESDs_EMB.root, the embedded signal filtering failed!" >> validation_error.message
+	exit 2
+    fi
+
+    if [ ! -f galice_EMB.root ]; then
+	echo "*! Could not find galice_EMB.root, the embedded signal filtering failed!"
+	echo "Could not find galice_EMB.root, the embedded signal filtering failed!" >> validation_error.message
+	exit 2
+    fi
+
+    mv "AliESDs_EMB.root" "AliESDs.root"
+    mv "galice_EMB.root" "galice.root"
+
+fi
+    
 ### QAtrainsim.C
 
 if [[ $CONFIG_MODE == *"qa"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
