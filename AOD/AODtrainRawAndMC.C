@@ -1,4 +1,4 @@
-void AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE)
+void AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refilteringMode=kFALSE)
 {
   // Steering main analysis train macro.
 
@@ -30,11 +30,11 @@ void AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE)
   // main AOD macro
   if (gSystem->AccessPathName("main_AODtrainRawAndMC.C", kFileExists)==0) {
     Printf("Using local main_AODtrainRawAndMC.C");
-    gROOT->Macro(TString::Format("main_AODtrainRawAndMC.C(%d, %d)", merge, isMC));
+    gROOT->Macro(TString::Format("main_AODtrainRawAndMC.C(%d, %d, %d)", merge, isMC, refilteringMode));
   }
   else {
     Printf("Using main_AODtrainRawAndMC.C from AliDPG");    
-    gROOT->Macro(TString::Format("$ALIDPG_ROOT/AOD/main_AODtrainRawAndMC.C(%d, %d)", merge, isMC));
+    gROOT->Macro(TString::Format("$ALIDPG_ROOT/AOD/main_AODtrainRawAndMC.C(%d, %d, %d)", merge, isMC, refilteringMode));
   }
   
 }                                                                                                                                          
