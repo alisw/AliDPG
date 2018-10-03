@@ -17,13 +17,35 @@ void Geant4Config()
   //  
   TGeant4 *geant4 = 0;
   if ( ! gMC ) {
-    TG4RunConfiguration* runConfiguration = new TG4RunConfiguration("geomRoot",
-								    "FTFP_INCLXX_EMV+optical",
-								    "specialCuts+stackPopper+stepLimiter",
-								    true);
-    geant4 = new TGeant4("TGeant4", 
-			 "The Geant4 Monte Carlo : FTFP_INCLXX_EMV+optical", 
-			 runConfiguration);
+    TG4RunConfiguration* runConfiguration = NULL;
+
+    // check if monopole injection requested
+    if(pdgConfig!=60000000){
+      runConfiguration = new TG4RunConfiguration("geomRoot",
+						 "FTFP_INCLXX_EMV+optical",
+						 "specialCuts+stackPopper+stepLimiter",
+						 true);
+      geant4 = new TGeant4("TGeant4", 
+			   "The Geant4 Monte Carlo : FTFP_INCLXX_EMV+optical", 
+			   runConfiguration);
+    }
+    else{
+      Printf("\n\nSET UP GEANT4 for magnetic monopoles\n\n");
+      // Magnetic monopole settings
+      runConfiguration = new TG4RunConfiguration("geomRoot",
+						 "FTFP_INCLXX_EMV+optical+monopole",
+						 "specialCuts+stackPopper+stepLimiter",
+						 true);
+      
+      runConfiguration->SetParameter("monopoleMass", 10.);
+      runConfiguration->SetParameter("monopoleElCharge", 0.);
+      runConfiguration->SetParameter("monopoleMagCharge", 1.);
+      
+      geant4 = new TGeant4("TGeant4", 
+			   "The Geant4 Monte Carlo : FTFP_INCLXX_EMV+optical+monopole", 
+			   runConfiguration);
+    }
+    
     cout << "Geant4 has been created." << endl;
   } 
   else {
@@ -84,5 +106,10 @@ void Geant4Config()
   //geant4->ProcessGeantCommand("/mcVerbose/physicsEmModel 2"); 
   //geant4->ProcessGeantCommand("/mcVerbose/regionsManager 2"); 
   
+  // Magnetic monopole settings
+  if(pdgConfig==60000000){
+    geant4->ProcessGeantCommand("/mcMagField/setConstDistance 1 mm");
+    geant4->ProcessGeantCommand("/mcMagField/setIsMonopole true");
+  }
 }
 
