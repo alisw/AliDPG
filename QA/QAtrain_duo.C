@@ -94,9 +94,6 @@ void QAtrain_duo(const char *suffix="", Int_t run = 0,
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/macros/AddTaskFilteredTree.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/AD/AddTaskADQA.C");
 
-  // loading the libraries (needed for ROOT5)
-  gROOT->Macro("$ALIDPG_ROOT/DataProc/Common/LoadLibraries.C");
-
   // Custom OCDB (used in RelVal, for instance, with results from previous steps)
   if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists) == 0) {
     gROOT->LoadMacro("localOCDBaccessConfig.C");

@@ -159,8 +159,6 @@ void main_QAtrain_duo(const char *suffix="", Int_t run = 0,
   gSystem->Setenv("TMPDIR", gSystem->pwd());
   // Set temporary compilation directory to current one
   gSystem->SetBuildDir(gSystem->pwd(), kTRUE);
-  // Load libraries
-//  LoadLibraries();
   gSystem->AddIncludePath("-I$ALICE_PHYSICS/include -I$ALICE_ROOT/include");
 //   gSystem->Load("libOADB");
   printf("Include path: %s\n", gSystem->GetIncludePath());

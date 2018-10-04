@@ -3,7 +3,7 @@
   - requires AliESDs.root and AliESDfriend.root
   - requires OCDB access (default set to "raw://")
   - requires run number as argument to init OCDB
-  - calls LoadLibraries.C, ConfigCalibTrain.C and AddTaskTPCCalib.C macros
+  - calls ConfigCalibTrain.C and AddTaskTPCCalib.C macros
   - output CalibObjects.root with TPC and TRD calibration objects are created
 
   Example:
@@ -18,9 +18,6 @@ void runCalibTrain(Int_t runNumber, const char *inFileName = "AliESDs.root", con
   // macro that starts the runCalibTrain
   // needed to work with ROOT6
   //
-
-  // needed libraries
-  //  gROOT->Macro("$ALIDPG_ROOT/DataProc/Common/LoadLibraries.C");
 
   // include path (still needed for ROOT5 but not for ROOT6)
   gSystem->SetIncludePath("-I$ALICE_PHYSICS/include -I$ALICE_ROOT/include"); 

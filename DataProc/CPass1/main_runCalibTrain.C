@@ -3,7 +3,7 @@
   - requires AliESDs.root and AliESDfriend.root
   - requires OCDB access (default set to "raw://")
   - requires run number as argument to init OCDB
-  - calls LoadLibraries.C, ConfigCalibTrain.C and AddTaskTPCCalib.C macros
+  - calls ConfigCalibTrain.C and AddTaskTPCCalib.C macros
   - output CalibObjects.root with TPC and TRD calibration objects are created
 
   Example:
