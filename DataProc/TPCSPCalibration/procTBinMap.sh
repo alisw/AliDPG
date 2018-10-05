@@ -86,7 +86,6 @@ export runNumber=$3
 export distNTracksClosureTest
 if [[ $# -gt 3 ]] ; then distNTracksClosureTest=$4 ;fi
 
-loadLibMacro="$ALIDPG_ROOT/DataProc/Common/LoadLibraries.C"
 inclMacro="$ALIDPG_ROOT/DataProc/TPCSPCalibration/includeMacro.C"
 macroName="$ALIDPG_ROOT/DataProc/TPCSPCalibration/procResidData.C"
 locMacro=$(basename "$macroName")
@@ -98,7 +97,7 @@ extractEnvVars
 run=$(echo "$runNumber" | sed 's/^0*//')
 alilog_info "BEGIN Processing for time bin $mapStartTime : $mapStopTime in run $runNumber"
 mode=2
-time aliroot -b -q  $inclMacro $loadLibMacro ${locMacro}+g\($mode,$run,$mapStartTime,$mapStopTime,\"\"\) >& out_${mapStartTime}_${mapStopTime}.log
+time aliroot -b -q  $inclMacro ${locMacro}+g\($mode,$run,$mapStartTime,$mapStopTime,\"\"\) >& out_${mapStartTime}_${mapStopTime}.log
 alilog_info "END: Processing"
 [[ -f syswatch.log ]] && mv syswatch.log syswatch_${mapStartTime}_${mapStopTime}.log 
 rm tmpDeltaSect*.root
@@ -106,7 +105,7 @@ rm tmpDeltaSect*.root
 if [ -n "$ntcloseTest" ] ; then
     alilog_info "BEGIN Closure test with $ntcloseTest tracks for time bin $mapStartTime : $mapStopTime in run $runNumber"
     mode=3
-    time aliroot -b -q  $inclMacro $loadLibMacro ${locMacro}+g\($mode,$run,$mapStartTime,$mapStopTime,\"\"\) >& closure_${mapStartTime}_${mapStopTime}.log
+    time aliroot -b -q  $inclMacro ${locMacro}+g\($mode,$run,$mapStartTime,$mapStopTime,\"\"\) >& closure_${mapStartTime}_${mapStopTime}.log
     alilog_info "END: Processing"
 fi
 

@@ -1,5 +1,4 @@
 #include "Riostream.h"
-void LoadLibraries();
 void AddAnalysisTasks(const char *cdb_location, Bool_t disableESDtrackQA);
 void QAmerge(const char *, Int_t);
 void ProcessEnvironment();
@@ -213,7 +212,6 @@ void main_QAtrainsim(Int_t run = 0,
   // Set temporary compilation directory to current one
   gSystem->SetBuildDir(gSystem->pwd(), kTRUE);
   // Load libraries
-  // LoadLibraries();
   printf("Include path: %s\n", gSystem->GetIncludePath());
   // Create manager
   AliAnalysisManager *mgr  = new AliAnalysisManager("PilotAnalysis_sim", "Production train");
