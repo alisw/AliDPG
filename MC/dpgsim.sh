@@ -18,7 +18,63 @@ $ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
 ###################
 
 # set job and simulation variables as :
-COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig> --keepTrackRefsFraction <percentage> --ocdbCustom --purifyKineOff --fluka --geant4"
+function COMMAND_HELP(){
+    echo ""
+    echo "More help can be found here: https://twiki.cern.ch/twiki/bin/view/ALICE/AliDPGMonteCarloTutorial"
+    echo "How to use: ./dpgsim.sh"
+    echo ""
+    echo "--help                                    Print this help"
+    echo "--mode <mode>                 (mandatory) Running mode (ocdb,sim,rec,qa,aod,full,Muon,MuonOnly,Run3,extractembedded)" 
+    echo "--run <run>                   (mandatory) Anchor run number"    
+    echo "--generator <generatorConfig>             Mandatory for sim mode, choose: general purpose, PWG specific, or Custom (see TWiki)"
+    echo ""
+    echo "Monte Carle generation control:"
+    echo "--nevents <numberOfEvents>                Number of events to be generated in the simulation stage"
+    echo "--uid <uniqueID>                          Unique identifier of the process"
+    echo "--pdg <pdgcode>                           PDG value of particle. Specific use may vary according to generator configuration"
+    echo "--bmin <bmin> --bmax <bmax>               Impact parameter range. Specific use may vary according to generator configuration"
+    echo "--ymin <min> --ymax <max>                 Rapidity range. Specific use may vary according to generator configuration"
+    echo "--phimin <min> --phimax <max>             Azimuthal angle range (in degree). Specific use may vary according to generator configuration"
+    echo "--ptmin <min> --ptmax <max>               Transverse momentum range. Specific use may vary according to generator configuration"
+    echo "--pthardmin <min> --pthardmax <max>       Range of pT hard bins (if applicable)" 
+    echo "--pthardbin <bin number>                  For selection of predefined pT hard bins (see MC/dpgsim.sh for definition)"
+    echo "--pttrigmin <min> --pttrigmax <max>       Range of pT for trigger particles (if applicable)"
+    echo "--process <name>                          Process tag name. Specific use may vary according to generator configuration"
+    echo "--processbin <bin                         Process bin for predefined process tag names. Specific use may vary according to generator configuration"
+    echo "--seed <seed>                             Seed for MC (0: use alien ID if alien job or run ID and uid)"
+    echo "--background <generatorConfig>            Generator used for background events in MC-to-MC embedding"
+    echo "--nbkg <numberOfEvents>                   Number of background events to be generated in the simulation stag in MC-to-MC embedding mode"
+    echo "--quenching <quenching>                   Switch on quenching for Pythia: --quenching 1"
+    echo "--qhat <qhat>                             Modify qhat for Pythia: --quenching qhat (default = 1.7)"
+    echo ""
+    echo "Detector, simulation, reconstruction and other settings:"
+    echo "--detector <detectorConfig>               tag name of the detector configuration, as defined in MC/DetectorConfig.C" 
+    #echo "--magnet <magnetConfig>                  NOT USED AT THE MOMENT" 
+    echo "--simulation <simulationConfig>           tag name of the simulation configuration, as defined in MC/SimulationConfig.C" 
+    echo "--reconstruction <reconstructionConfig>   tag name of the reconstruction configuration, as defined in MC/ReconstructionConfig.C" 
+    echo "--qa <qaConfig>                           tag name of the QA configuration to be used" 
+    echo "--aod <aodConfig>                         tag name of the AOD configuration to be used" 
+    echo "--hlt <hltConfig>                         HLT configuration" 
+    echo "--ocdb <ocdbConfig>                       OCDB configuration: <snapshot> for OCDB from snapshots, <alien>for OCDB from AliEn" 
+    echo "--OCDBTimeStamp <timeStamp>               Use time stamp in OCDB snapshot creation"
+    echo "--ocdbCustom                              Use custom OCDB, OCDBCustom.C to be provided"
+    echo "--keepTrackRefsFraction <percentage>      Percentage of subjobs that keeps the TrackRefs file"
+    echo "--material <densityFactor>                Modify material budget by a density factor"
+    echo "--purifyKineOff                           Switch off the PurifyKine step in simulation" 
+    echo "--fluka                                   Use FLUKA instead of GEANT3" 
+    echo "--geant4                                  Use GEANT4 instead of GEANT3"
+    echo "--nofastB                                 Switch off usage of fast B field"
+    echo "--novdt                                   Switch off usage of VDT library"
+    echo ""
+    echo "Override automatic settings:"
+    echo "--energy <energy>                         Centre-of-mass energy" 
+    echo "--system <system>             (mandatory) Collision system"
+    echo "--trigger <triggerconfig>                 Configuration of trigger inputs: ocdb, Pb-Pb (dummy configuration), p-p (dummy configuration), MUON or Custom.cfg configuration (needs Custom.cfg file)"
+    echo ""
+    echo "More help can be found here: https://twiki.cern.ch/twiki/bin/view/ALICE/AliDPGMonteCarloTutorial"
+    echo ""
+
+}
 
 function runcommand(){
     echo -e "\n"
@@ -154,7 +210,7 @@ CONFIG_SIMULATION=""
 CONFIG_RECONSTRUCTION=""
 CONFIG_QA=""
 CONFIG_AOD=""
-CONFIG_MODE="ocdb,full"
+CONFIG_MODE=""
 CONFIG_OCDB="snapshot"
 CONFIG_OCDBCUSTOM=""
 CONFIG_OCDBRUN3=""
@@ -175,7 +231,10 @@ while [ ! -z "$1" ]; do
     option="$1"
     shift
 
-    if [ "$option" = "--mode" ]; then
+    if [ "$option" = "--help" ]; then
+	COMMAND_HELP
+	exit 0
+    elif [ "$option" = "--mode" ]; then
 	CONFIG_MODE="$1"
 	export CONFIG_MODE
         shift
@@ -555,13 +614,13 @@ fi
 
     if [[ $CONFIG_MODE == "" ]]; then
 	echo ">>>>> ERROR: mode is required!"
-	echo $COMMAND_HELP
+	COMMAND_HELP
 	exit 2
     fi
 
 if [[ $CONFIG_RUN == "" ]]; then
     echo ">>>>> ERROR: run number is required!"
-    echo $COMMAND_HELP
+    COMMAND_HELP
     exit 2
 fi
 
@@ -780,13 +839,13 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
     if [[ $CONFIG_GENERATOR == "" ]]; then
 	echo ">>>>> ERROR: generator is required for full production mode!"
-	echo $COMMAND_HELP
+	COMMAND_HELP
 	exit 2
     fi
 
     if [[ $CONFIG_SYSTEM == "" ]]; then
 	echo ">>>>> ERROR: system is required for full production mode!"
-	echo $COMMAND_HELP
+	COMMAND_HELP
 	exit 2
     fi
 
