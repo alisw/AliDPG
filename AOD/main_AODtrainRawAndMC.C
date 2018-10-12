@@ -519,7 +519,7 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
     Int_t dataset=iCollision;
     if( iCollision == kXeXe) dataset=kPbPb;
     if( iCollision == kPbp || iCollision == kpPb ) dataset=2;
-    AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(dataset, kFALSE, periodName);
+    AliAnalysisTask *taskconv = AddTask_ConversionAODProduction(dataset, isMC, periodName);
     mgr->RegisterExtraFile("AliAODGammaConversion.root");
   }   
 
