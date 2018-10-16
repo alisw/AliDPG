@@ -104,6 +104,13 @@ const char *cdbPath = "raw://";
 
 TString train_name = ".";
 
+void WriteConfig();
+TChain* CreateChain(const char *mode, const char *plugin_mode);
+TChain* CreateChainSingle(const char* xmlfile, const char *treeName);
+AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode);
+TString local_xmldataset   = "";
+Int_t runOnData = 0;       // Set to 1 if processing real data
+Int_t run_numbers[10] = {177580}; // Set the run range, for testing
 
 /**************************************************
  *            Refiltering settings                *
@@ -764,7 +771,8 @@ TChain *CreateChain(const char *mode, const char *plugin_mode)
          break;
       case 1:
          break;      
-      default:   
+      default:
+          break;
    }
    if (chain && chain->GetNtrees()) return chain;
    return NULL;
@@ -912,6 +920,27 @@ void ProcessEnvironment()
 }
 
 //______________________________________________________________________________
+TChain* CreateChainSingle(const char* xmlfile, const char *treeName)
+{
+   printf("*******************************\n");
+   printf("*** Getting the ESD Chain   ***\n");
+   printf("*******************************\n");
+   TGridCollection * myCollection  = TAlienCollection::Open(xmlfile);
+
+   if (!myCollection)
+   {
+      ::Error("AnalysisTrainNew.C::CreateChainSingle", "Cannot create an AliEn collection from %s", xmlfile) ;
+      return NULL ;
+   }
+
+   TChain* chain = new TChain(treeName);
+   myCollection->Reset() ;
+   while ( myCollection->Next() ) chain->Add(myCollection->GetTURL("")) ;
+   chain->ls();
+   return chain;
+}
+
+//______________________________________________________________________________
 void ProcessEnvironmentMC()
 {
   //
@@ -1018,7 +1047,7 @@ void WriteConfig()
          ::Error("AnalysisTrainNew.C::Export","Could not generate file name");
          return;
       }
-      const char date[64];
+      /*const*/ char date[64];
       fdate.getline(date,64);
       fdate.close();
       gSystem->Exec("rm date.tmp");
@@ -1146,7 +1175,7 @@ AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode)
    
 // Declare the output file names separated by blancs.
 // (can be like: file.root or file.root@ALICE::Niham::File)
-   plugin->SetDefaultOutputs();
+   plugin->SetDefaultOutputs(kTRUE);
    plugin->SetMergeExcludes(mergeExclude);
    plugin->SetMaxMergeFiles(maxMergeFiles);
    plugin->SetNrunsPerMaster(nRunsPerMaster);
