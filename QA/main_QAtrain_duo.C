@@ -402,7 +402,11 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
         itsQACent3050 = AddTaskPerformanceITS(kFALSE,kFALSE,kFALSE,350,1000);
         itsQACent6080 = AddTaskPerformanceITS(kFALSE,kFALSE,kFALSE,40,200);
       }
-
+      if(gSystem->Exec("grep -q 'suffix' $ALICE_PHYSICS/PWGPP/macros/AddTaskPerformanceITS.C") == 0) {
+	// sencond instance of ITS track QA should be added only for AliPhysics versions in which the argument suffix exists
+	AliAnalysisTaskITSTrackingCheck *itsQAint7 = AddTaskPerformanceITS(kFALSE,kFALSE,kFALSE,0,1000000,1,"TrigMask");
+	itsQAint7->SelectCollisionCandidates(kTriggerMask);
+      }
   }
   //
   // ITS saTracks, align (F.Prino)
