@@ -205,8 +205,8 @@ void main_makeOCDB(Int_t runNumber, TString  targetOCDBstorage="", TString sourc
     procesTRD->SetMinStatsVdriftT0PH(600*10);
     procesTRD->SetMinStatsVdriftLinear(50);
     procesTRD->SetMinStatsGain(600);
-    procesTRD->SetLimitValidateNoData(130);
-    procesTRD->SetLimitValidateBadCalib(130);
+    procesTRD->SetLimitValidateNoData(140);
+    procesTRD->SetLimitValidateBadCalib(140);
     procesTRD->SetMinTimeOffsetValidate(-2.1);
     procesTRD->SetAlternativeDriftVelocityFit(kTRUE);
     if((!isLHC10) && (!isLHC11) && (!isLHC12) && (!isLHC13)) {
