@@ -626,12 +626,17 @@ fi
 
 if [[ $CONFIG_OCDB == *"snapshot"* ]]; then
 
-    if [ ! -f OCDBsim.root ]; then
-	echo ">>>>> ERROR: Could not find OCDBsim.root"
+    if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
+	if [ ! -f OCDBsim.root ]; then
+	    echo ">>>>> ERROR: Could not find OCDBsim.root"
+	    exit 2
+	fi
     fi
-    if [ ! -f OCDBrec.root ]; then
-	echo ">>>>> ERROR: Could not find OCDBrec.root"
-	exit 2
+    if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
+	if [ ! -f OCDBrec.root ]; then
+	    echo ">>>>> ERROR: Could not find OCDBrec.root"
+	    exit 2
+	fi
     fi
 fi
 
