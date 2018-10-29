@@ -247,7 +247,18 @@ void SimulationDefault(AliSimulation &sim)
 
   //
   //
-  sim.UseVertexFromCDB();
+  // use vertex from CDB, only if not generator only simulation
+  if(gSystem->Getenv("CONFIG_SIMULATION")){
+    if(strcmp(gSystem->Getenv("CONFIG_SIMULATION"), "GeneratorOnly") == 0){
+      Printf("Generator only simulation => Don't use the vertex from the CDB");
+    }
+    else{
+      sim.UseVertexFromCDB();
+    }
+  }
+  else{
+    sim.UseVertexFromCDB();
+  }
   sim.UseMagFieldFromGRP();
 
   //
