@@ -398,9 +398,24 @@ void GeneratorConfig(Int_t tag)
   printf(">>>>> Diamond sigma-xy: %f \n", sigmaxy);
 
   gen->SetOrigin(0., 0., 0.);
-  gen->SetSigma(sigmaxy, sigmaxy, 5.);
+
+  if(gSystem->Getenv("CONFIG_SIMULATION")){
+    if(strcmp(gSystem->Getenv("CONFIG_SIMULATION"), "GeneratorOnly") == 0){
+      Printf("Generator only simulation => ideal vertex at (0,0,0)");
+      gen->SetSigma(0.,0.,0.);
+      gen->SetVertexSmear(kNoSmear);
+    }
+    else{
+      gen->SetSigma(sigmaxy, sigmaxy, 5.);
+      gen->SetVertexSmear(kPerEvent);
+    }
+  }
+  else{
+    gen->SetSigma(sigmaxy, sigmaxy, 5.);
+    gen->SetVertexSmear(kPerEvent);
+  }
   
-  gen->SetVertexSmear(kPerEvent);
+ 
   gen->Init();
   printf(">>>>> Generator Configuration: %s \n", comment.Data());
   // Set the trigger configuration: proton-proton
