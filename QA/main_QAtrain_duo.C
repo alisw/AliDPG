@@ -800,7 +800,7 @@ void ProcessEnvironmentVars()
   if (passType.Contains("cpass1")){
     if(iCollisionType == kPbPb || iCollisionType == kXeXe){
       // for A-A use all events from CPass1 for the QA train
-      kTriggerInt = AliVEvent::kAnyINT;
+      kTriggerInt = AliVEvent::kAny;
       printf("ALIEN_JDL_LPMPASSNAME= %s, A-A collisions: use all triggers in CPass1\n",passType.Data());
     }
   }
