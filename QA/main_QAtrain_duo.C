@@ -792,12 +792,24 @@ void ProcessEnvironmentVars()
       abort();
     }
 
-  //
-  // Disable TPC splines in muon_calo pass
-  //
-  if (gSystem->Getenv("ALIEN_JDL_RAWPRODTYPE")){
-    TString passType = gSystem->Getenv("ALIEN_JDL_RAWPRODTYPE");
-    if (passType.Contains("muon_calo")) doTPCsplines=0;;
+  TString passType="";
+  if (gSystem->Getenv("ALIEN_JDL_LPMPASSNAME")){
+    // passType could be cpass0_pass1, cpass1_pass1, pass1, muon_calo_pass1
+    passType = gSystem->Getenv("ALIEN_JDL_LPMPASSNAME");
+  }
+  if (passType.Contains("cpass1")){
+    if(iCollisionType == kPbPb || iCollisionType == kXeXe){
+      // for A-A use all events from CPass1 for the QA train
+      kTriggerInt = AliVEvent::kAny;
+      printf("ALIEN_JDL_LPMPASSNAME= %s, A-A collisions: use all triggers in CPass1\n",passType.Data());
+    }
+  }
+  if (passType.Contains("muon_calo")){
+    //
+    // Disable TPC splines in muon_calo pass
+    //
+    doTPCsplines=0;
+    printf("ALIEN_JDL_LPMPASSNAME= %s: disable TPC splines\n",passType.Data());
   }
 
   int var=0;
