@@ -43,6 +43,8 @@ enum EGenerator_t {
   kGeneratorTherminator2,
   // QED electrons
   kGeneratorQED,
+  // RELDIS
+  kGeneratorRELDIS,
   //
   kGeneratorCustom,
   //
@@ -84,6 +86,8 @@ const Char_t *GeneratorName[kNGenerators] = {
   "Therminator2",
   // QED electrons
   "QED",
+  // RELDIS
+  "RELDIS",
   //
   "Custom",
   //
@@ -198,6 +202,7 @@ AliGenerator *GeneratorAMPT();
 AliGenerator *GeneratorAMPT_v226t7();
 AliGenerator *GeneratorTherminator2();
 AliGenerator *GeneratorQED();
+ALiGenerator *GeneratorRELDIS();
 
 /*****************************************************************/
 
@@ -311,6 +316,10 @@ void GeneratorConfig(Int_t tag)
 
   case kGeneratorQED:
     gen = GeneratorQED();
+    break;
+
+  case kGeneratorRELDIS:
+    gen = GeneratorRELDIS();
     break;
 
     // Custom
@@ -1724,3 +1733,27 @@ GeneratorQED()
   
   return genBg;
 }
+
+/*** QED electrons ****************************************************/
+
+AliGenerator *
+GeneratorRELDIS
+{
+
+  comment = comment.Append(Form(" | RELDIS-LHC (%s)", systemConfig.Data()));
+  Int_t firstev = 0;
+
+  AliGenExtFile *gener = new AliGenExtFile(-1);
+
+  AliGenReadersEMD *reader = new AliGenReadersEMD();
+  reader->SetFileName("epbpb2510nt_na50.root"); // put the location of the input file
+  reader->SetNtupleName("h2034"); // name of the tree inside the input file
+  reader->SetStartEvent(firstev); // # of event to start with
+  reader->TrackOnlyNeutrons(); // include this if you want to track only neutrons
+
+  gener->SetReader(reader); 
+  
+  return gener;
+}
+
+
