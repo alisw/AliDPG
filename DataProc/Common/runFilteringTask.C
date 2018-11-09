@@ -37,5 +37,5 @@ void runFilteringTask( const char* esdList,
   }
   else {
     gROOT->Macro(TString::Format("$ALIDPG_ROOT/DataProc/Common/main_runFilteringTask.C(\"%s\", %f, %f, \"%s\", %d, %d, %d, %d, \"%s\", %d)", esdList, scalingTracks, scalingV0, ocdb, nFiles, firstFile, nEvents, firstEvent, esdFileName, (Int_t)mc));
-    
+  }
 }
