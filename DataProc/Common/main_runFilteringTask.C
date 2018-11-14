@@ -43,6 +43,13 @@ void main_runFilteringTask( const char* esdList,
     //handler->SetReadTR(kFALSE);
     mgr->SetMCtruthEventHandler(handlerMC);
 
+    if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {
+      AliCDBManager * man = AliCDBManager::Instance();
+      man->SetDefaultStorage("local://");
+      man->SetRaw(kFALSE);
+      man->SetSnapshotMode("OCDB.root");
+    }
+    
     AddTaskCDBconnect(ocdb);
 
     // Create input chain

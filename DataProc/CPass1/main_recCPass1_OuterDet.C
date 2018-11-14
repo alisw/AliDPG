@@ -38,8 +38,9 @@ void main_recCPass1_OuterDet(const char *filename="raw.root",Int_t nevents=-1, c
   AliReconstruction rec;
   // Upload CDB entries from the snapshot (local root file) if snapshot exist
   if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {        
-    //rec.SetFromCDBSnapshot("OCDB.root");
-    rec.SetCDBSnapshotMode("OCDB.root");
+    man->SetDefaultStorage("local://");
+    man->SetRaw(kFALSE);
+    man->SetSnapshotMode("OCDB.root");
   }
   if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists)==0) {        
     gInterpreter->ProcessLine("localOCDBaccessConfig();");

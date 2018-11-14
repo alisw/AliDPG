@@ -81,7 +81,9 @@ void main_recCPass1(const char *filename="raw.root",Int_t nevents=-1, const char
 
   // Upload CDB entries from the snapshot (local root file) if snapshot exist
   if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {        
-    rec.SetCDBSnapshotMode("OCDB.root");
+    man->SetDefaultStorage("local://");
+    man->SetRaw(kFALSE);
+    man->SetSnapshotMode("OCDB.root");
   }
   else {
     // setup ocdb by custom (if any) or default settings

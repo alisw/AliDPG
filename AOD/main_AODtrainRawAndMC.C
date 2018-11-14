@@ -254,6 +254,7 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
     else {
       // set OCDB snapshot mode
       AliCDBManager *cdbm = AliCDBManager::Instance();
+      cdbm->SetDefaultStorage("local://");
       cdbm->SetSnapshotMode("OCDBrec.root");
     }
   }else{
@@ -294,7 +295,7 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
   }
   
   Bool_t needGrid=kFALSE;
-  if(merge || doCDBconnect) needGrid=kTRUE;
+  if(merge) needGrid=kTRUE;
   if(gSystem->Getenv("OCDB_PATH")) needGrid=kFALSE;
 
   if (needGrid) 
