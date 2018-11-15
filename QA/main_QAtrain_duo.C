@@ -147,6 +147,15 @@ void main_QAtrain_duo(const char *suffix="", Int_t run = 0,
   PrintSettings();
 
   TString cdbString(cdb);
+  if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {
+    AliCDBManager * man = AliCDBManager::Instance();
+    cdbString = "local://";
+    printf("Will use OCDB snaphot, set default storage to local\n");
+    man->SetDefaultStorage(cdbString.Data());
+    man->SetRaw(kFALSE);
+    man->SetSnapshotMode("OCDB.root");
+  }
+
   if (cdbString.Contains("raw://") && !gSystem->Getenv("OCDB_PATH"))
   {
     TGrid::Connect("alien://");

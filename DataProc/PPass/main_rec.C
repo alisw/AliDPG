@@ -51,12 +51,14 @@ void main_rec(const char *filename="raw.root", const char* options="")
   }
 
   // Upload CDB entries from the snapshot (local root file) if snapshot exist
+  AliCDBManager* man = AliCDBManager::Instance();
+
   if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {        
-    rec.SetDefaultStorage("local://");
-    rec.SetCDBSnapshotMode("OCDB.root");
+    man->SetDefaultStorage("local://");
+    man->SetRaw(kFALSE);
+    man->SetSnapshotMode("OCDB.root");
   }
   else {
-    AliCDBManager* man = AliCDBManager::Instance();
     // setup ocdb by custom (if any) or default settings
     if (gSystem->AccessPathName("OCDBconfig.C", kFileExists)==0) {
       gROOT->ProcessLine("OCDBconfig.C");
@@ -75,6 +77,7 @@ void main_rec(const char *filename="raw.root", const char* options="")
     //
     TString cdbMode = gSystem->Getenv("OCDB_SNAPSHOT_CREATE");
     if (cdbMode == "kTRUE") {
+      if (!man->IsDefaultStorageSet()) man->SetRaw(kTRUE);
       gROOT->ProcessLine(TString::Format("CreateSnapshot(\"OCDB.root\", \"%s\")", filename));
       return;
     }

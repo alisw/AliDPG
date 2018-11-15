@@ -14,7 +14,9 @@ void raw2clust(const char *filename="raw.root", Int_t nevents=-1,const char *ocd
   man->SetDefaultStorage(ocdb);
   // Upload CDB entries from the snapshot (local root file) if snapshot exist
   if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {        
-    rec.SetCDBSnapshotMode("OCDB.root");
+    man->SetDefaultStorage("local://");
+    man->SetRaw(kFALSE);
+    man->SetSnapshotMode("OCDB.root");
   }
 
   if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists)==0) {        

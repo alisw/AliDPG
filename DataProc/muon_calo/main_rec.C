@@ -10,8 +10,10 @@ void main_rec(const char *filename="raw.root", const char* options="")
 
   // Upload CDB entries from the snapshot (local root file) if snapshot exist
   if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {        
-    rec.SetDefaultStorage("local://");
-    rec.SetCDBSnapshotMode("OCDB.root");
+    AliCDBManager * man = AliCDBManager::Instance();
+    man->SetDefaultStorage("local://");
+    man->SetRaw(kFALSE);
+    man->SetSnapshotMode("OCDB.root");
   }
   else {
     // setup ocdb by custom (if any) or default settings
@@ -61,11 +63,6 @@ void main_rec(const char *filename="raw.root", const char* options="")
   if(useFast){
       printf(">>>>> Using fast magnetic field \n");
       AliMagF::SetFastFieldDefault(kTRUE);
-  }
-
-  // Upload CDB entries from the snapshot (local root file) if snapshot exist
-  if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {
-    rec.SetCDBSnapshotMode("OCDB.root");
   }
 
   // switch off cleanESD
