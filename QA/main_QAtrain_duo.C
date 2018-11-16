@@ -326,7 +326,7 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
 
   if (doVZEROPbPb /*&& iCollisionType==0*/) {
     AliAnaVZEROPbPb* taskV0PbPb = AddTaskVZEROPbPb(run_number);
-    taskV0PbPb->SetClassesNames("CINT7ZAC-","CV0H7-","CMID7-");
+    taskV0PbPb->SetClassesNames("CINT7ZAC-,CV0H7-,CMID7-");
 //    taskV0PbPb->SetClassesNames("CTRUE-,C0HWU-,CPBI2WU_B1-,CPBI2_B1-,CPBI1WU-,CPBI1-,CVHNWU-,CVHN-,CVLNWU-,CVLN-");
 //    taskV0PbPb->SetClassesNames("CTRUE-,C0HWU-,CPBI2WU,CPBI2,CPBI1WU-,CPBI1-,CVHNWU,CVHN,CVLNWU,CVLN");
 //    taskV0PbPb->SetClassesNames("CTRUE-,C0HWU-,CPBI2WU-,CPBI2-,CPBI2WU_B1-,CPBI2_B1-,CPBI1WU-,CPBI1-,CVHNWU-,CVHN-,CVHN_R2-,CVHNWU_R2-,CVLNWU-,CVLN-,CVLN_B2-,CVLNWU_B2-");
