@@ -20,7 +20,7 @@ void Geant4Config()
     TG4RunConfiguration* runConfiguration = NULL;
 
     // check if monopole injection requested
-    if(pdgConfig!=60000000){
+    if(abs(pdgConfig)<60000000 || abs(pdgConfig)>=70000000){
       runConfiguration = new TG4RunConfiguration("geomRoot",
 						 "FTFP_INCLXX_EMV+optical",
 						 "specialCuts+stackPopper+stepLimiter",
@@ -31,15 +31,21 @@ void Geant4Config()
     }
     else{
       Printf("\n\nSET UP GEANT4 for magnetic monopoles\n\n");
-      // Magnetic monopole settings
+      //decode mass, electric charge and magnetic charge:  pdgConfig= sign 6abcdefg -> mass= c.defg*10^g; el charge=sign a; mag. charge= sign b
+      Double_t mass=Double_t (int(abs(pdgConfig)%(int(1e5))/10)/1000.)*pow(10,(int(abs(pdgConfig)%10)));
+      Double_t eCh=(abs(pdgConfig)/pdgConfig)*abs(pdgConfig)/(int(1e6))%10;
+      Double_t mCh=(abs(pdgConfig)/pdgConfig)*abs(pdgConfig)/(int(1e5))%10;
+      Printf("\n PDG Code: %d, mass: %3.3f, el. charge: %d; mag. charge: %d",pdgConfig,mass,eCh,mCh);
+
+      
       runConfiguration = new TG4RunConfiguration("geomRoot",
 						 "FTFP_INCLXX_EMV+optical+monopole",
 						 "specialCuts+stackPopper+stepLimiter",
 						 true);
       
-      runConfiguration->SetParameter("monopoleMass", 10.);
-      runConfiguration->SetParameter("monopoleElCharge", 0.);
-      runConfiguration->SetParameter("monopoleMagCharge", 1.);
+      runConfiguration->SetParameter("monopoleMass", mass);
+      runConfiguration->SetParameter("monopoleElCharge", eCh);
+      runConfiguration->SetParameter("monopoleMagCharge", mCh);
       
       geant4 = new TGeant4("TGeant4", 
 			   "The Geant4 Monte Carlo : FTFP_INCLXX_EMV+optical+monopole", 
@@ -107,7 +113,7 @@ void Geant4Config()
   //geant4->ProcessGeantCommand("/mcVerbose/regionsManager 2"); 
   
   // Magnetic monopole settings
-  if(pdgConfig==60000000){
+  if(!(abs(pdgConfig)<60000000 || abs(pdgConfig)>=70000000)){
     geant4->ProcessGeantCommand("/mcMagField/setConstDistance 1 mm");
     geant4->ProcessGeantCommand("/mcMagField/setIsMonopole true");
   }
