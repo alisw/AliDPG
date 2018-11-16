@@ -74,13 +74,6 @@ export CPass='1'
 
 export PRODUCTION_METADATA="$ALIEN_JDL_LPMMETADATA"
 
-# Set max vmem [kb] for ROOT 5 processing (no ulimit for ROOT 6)
-if [[ -x $ROOTSYS/bin/rootcling ]]; then
-  echo "ROOT 6+ detected: not capping vmem"
-else
-  echo "Capping vmem to 3.5 GB"
-  ulimit -S -v 3500000
-fi
 ulimit -a
 
 # skip Outer pass by default
