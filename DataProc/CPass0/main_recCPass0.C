@@ -18,18 +18,41 @@ void main_recCPass0(const char *filename="raw.root",Int_t nevents=-1, const char
     gSystem->ResetSignal(kSigFloatingException);
     gSystem->ResetSignal(kSigSegmentationViolation);
   }
+
+  TString envRunNumBuf = gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER");
+  Int_t envRunNum = envRunNumBuf.Atoi();
+  Bool_t isLHC18q = kFALSE;
+  if (envRunNum>0) {
+    printf("Run Number %d is provied via env.var\n",envRunNum);
+    if (envRunNum>295580) {
+      isLHC18q = kTRUE;
+      printf("LHC18q is detected, will used tighter tolerances\n");
+    }
+    else {
+      printf("Standard cpass0 tolerances will be used\n");
+    }
+  }
+
   // addopt errors to account for calibration imprefection before cpass0
   // 1) For TPC
   Double_t tpcSystematicErrors[5]={1,1.5,1./100.,1./100.,0.1};
   Double_t tpcSystematicErrorClusters[2]={1.5,1.5};
   Double_t tpcExtendedRoads[2]={2.5,2.5};
   Double_t tpcPrimDCACuts[2] = {10.,30.}; // Y,Z
+  
+  if (isLHC18q) {
+    // The distortions are smaller in LHC18q, can live with tighter cuts
+    tpcSystematicErrorClusters[0] = tpcSystematicErrorClusters[1] = 0.7;
+    tpcExtendedRoads[0] = tpcExtendedRoads[1] = 1.2;
+  }
+
   TVectorD *vectpcSystematicErrors=new TVectorD(5, tpcSystematicErrors);
   TVectorD *vectpcSystematicErrorClusters=new TVectorD(2, tpcSystematicErrorClusters);
   TVectorD *vectpcExtendedRoads= new TVectorD(2, tpcExtendedRoads);
   TVectorD *vectpcPrimDCACuts = new TVectorD(2, tpcPrimDCACuts);
   const double kZOutSectorCut = 3.; // cut on clusters on wrong side of CE (added to extendedRoadZ)
   const double kPrimaryZ2XCut = 1.2; // cut on clusters Z/X (large eta)
+
   AliTPCReconstructor::SetSystematicError(vectpcSystematicErrors);
   AliTPCReconstructor::SetSystematicErrorCluster(vectpcSystematicErrorClusters);
   AliTPCReconstructor::SetExtendedRoads(vectpcExtendedRoads);
@@ -48,8 +71,8 @@ void main_recCPass0(const char *filename="raw.root",Int_t nevents=-1, const char
   // 4) For TRD
   AliTRDReconstructor::SetExtraMaxClPerLayer(3); // to allow >6 cluster candidates per layer
   AliTRDReconstructor::SetExtraBoundaryTolerance(3); // relax boundary check
-  AliTRDReconstructor::SetExtraRoadY(4); // extra road in Y
-  AliTRDReconstructor::SetExtraRoadZ(6); // extra road in Z
+  AliTRDReconstructor::SetExtraRoadY(3); // extra road in Y
+  AliTRDReconstructor::SetExtraRoadZ(3); // extra road in Z
   AliTRDReconstructor::SetExtraChi2Out(25); // extra chi2 tolerance on backpropagation
   //
   // Load some system libs for Grid and monitoring
@@ -110,8 +133,6 @@ void main_recCPass0(const char *filename="raw.root",Int_t nevents=-1, const char
   else {
     // setup ocdb by custom (if any) or default settings
     if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists)==0) {        
-      TString envRunNumBuf = gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER");
-      Int_t envRunNum = envRunNumBuf.Atoi();
       if (envRunNum > 0) man->SetRun(envRunNum);
       gInterpreter->ProcessLine("localOCDBaccessConfig();");
     }
