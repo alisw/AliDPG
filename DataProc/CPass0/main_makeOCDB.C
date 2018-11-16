@@ -39,6 +39,8 @@ void main_makeOCDB(Int_t runNumber, TString  targetOCDBstorage="", TString sourc
   Bool_t isLHC13 =  LHCperiod.Contains("LHC13");
   Bool_t isLHC13b =  LHCperiod.Contains("LHC13b");
   Bool_t isLHC13c =  LHCperiod.Contains("LHC13c");
+  Bool_t isLHC15o =  LHCperiod.Contains("LHC15o");
+  Bool_t isLHC18q =  LHCperiod.Contains("LHC18q");
   printf("LHCperiod:%s\n isLHC10:%d isLHC11:%d isLHC12:%d isLHC13:%d isLHC13b:%d isLHC13c:%d\n",LHCperiod.Data(),(Int_t)isLHC10,(Int_t)isLHC11,(Int_t)isLHC12,(Int_t)isLHC13,(Int_t)isLHC13b,(Int_t)isLHC13c);
 
   // Steering Tasks - set output storage
@@ -228,13 +230,13 @@ void main_makeOCDB(Int_t runNumber, TString  targetOCDBstorage="", TString sourc
   
   //Mean Vertex
   AliMeanVertexPreprocessorOffline * procesMeanVtx=0;
-  if (detStr.Contains("ITSSPD") && SPD_qf) {
+  if (detStr.Contains("ITSSPD") && SPD_qf && !isLHC15o && !isLHC18q) {
     Printf("\n******* Calibrating MeanVertex *******");
     procesMeanVtx = new AliMeanVertexPreprocessorOffline;
     procesMeanVtx->ProcessOutput("CalibObjects.root", targetStorage, runNumber);
   }
   else {
-    Printf("\n******* NOT Calibrating MeanVertex: detStr = %s, SPD_qf = %d *******", detStr.Data(), (Int_t)SPD_qf);
+    Printf("\n******* NOT Calibrating MeanVertex: detStr = %s, SPD_qf = %d, isLHC15o = %d, isLHC18q = %d *******", detStr.Data(), (Int_t)SPD_qf, (Int_t)isLHC15o, (Int_t)isLHC18q);
   }
 
   //
