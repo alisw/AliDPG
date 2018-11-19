@@ -71,8 +71,12 @@ void main_recCPass0(const char *filename="raw.root",Int_t nevents=-1, const char
   // 4) For TRD
   AliTRDReconstructor::SetExtraMaxClPerLayer(3); // to allow >6 cluster candidates per layer
   AliTRDReconstructor::SetExtraBoundaryTolerance(3); // relax boundary check
-  AliTRDReconstructor::SetExtraRoadY(3); // extra road in Y
-  AliTRDReconstructor::SetExtraRoadZ(3); // extra road in Z
+  AliTRDReconstructor::SetExtraRoadY(4); // extra road in Y
+  AliTRDReconstructor::SetExtraRoadZ(6); // extra road in Z
+  if (isLHC18q) {
+    AliTRDReconstructor::SetExtraRoadY(3); // extra road in Y
+    AliTRDReconstructor::SetExtraRoadZ(3); // extra road in Z
+  }
   AliTRDReconstructor::SetExtraChi2Out(25); // extra chi2 tolerance on backpropagation
   //
   // Load some system libs for Grid and monitoring
