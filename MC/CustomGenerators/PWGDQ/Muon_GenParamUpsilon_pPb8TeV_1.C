@@ -154,10 +154,10 @@ Double_t PtUpsilon(const Double_t *x, const Double_t */*dummy*/)
 
   Double_t pT = *x;
 
-  Double_t p0 = 2.23922e+02;
-  Double_t p1 = 4.18539e+02;
-  Double_t p2 = 1.46128e+00;
-  Double_t p3 = 6.85462e+02;
+  Double_t p0 = 2.10726e+02;
+  Double_t p1 = 1.60314e+01;
+  Double_t p2 = 1.70315e+00;
+  Double_t p3 = 7.73504e+00;
 
   return p0 * pT / TMath::Power(1. + TMath::Power(pT/p1,p2), p3);
 }
