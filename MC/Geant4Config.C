@@ -35,6 +35,7 @@ void Geant4Config()
       Double_t mass=Double_t (int(abs(pdgConfig)%(int(1e5))/10)/1000.)*pow(10,(int(abs(pdgConfig)%10)));
       Double_t eCh=(abs(pdgConfig)/pdgConfig)*abs(pdgConfig)/(int(1e6))%10;
       Double_t mCh=(abs(pdgConfig)/pdgConfig)*abs(pdgConfig)/(int(1e5))%10;
+      pdgConfig=60000000;
       Printf("\n PDG Code: %d, mass: %3.3f, el. charge: %d; mag. charge: %d",pdgConfig,mass,eCh,mCh);
 
       
