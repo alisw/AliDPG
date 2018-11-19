@@ -336,6 +336,38 @@ if [ $exitcode -ne 0 ]; then
     exit 40
 fi
 
+echo "* Checking the integrity of the residual trees..."
+if [ -f checkResTree.C ]; then
+    echo "Use checkResTree.C macro passed as input"
+else
+    echo "Use checkResTree.C macro from AliDPG"
+    cp $ALIDPG_ROOT/DataProc/CPass0/checkResTree.C .
+fi
+
+echo ""
+echo "running the following checkResTree.C macro:"
+cat checkResTree.C
+echo ""
+echo executing aliroot -l -b -q -x "checkResTree.C()"
+echo "" >&2
+echo "checkResTree.C" >&2
+timeStart=`date +%s`
+time aliroot -l -b -q -x "checkResTree.C" &>> integrity.log
+exitcode=$?
+
+if [ $exitcode != 0 ];  then
+    echo "ResidualTree.root is corrupted, moving it to ResidualTreesBAD.root"
+    mv ResidualTrees.root ResidualTreesBAD.root
+fi
+
+timeEnd=`date +%s`
+timeUsed=$(( $timeUsed+$timeEnd-$timeStart ))
+delta=$(( $timeEnd-$timeStart ))
+echo "checkResTree: delta = $delta, timeUsed so far = $timeUsed"
+echo "checkResTree: delta = $delta, timeUsed so far = $timeUsed" >&2
+
+echo "*! Exit code of checkResTree.C: $exitcode"
+
 echo "*  Running filtering task *"
 filtMacro=$ALIDPG_ROOT/DataProc/Common/runFilteringTask.C
 if [ -f $filtMacro ]; then
