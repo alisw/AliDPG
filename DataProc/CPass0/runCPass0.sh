@@ -354,6 +354,12 @@ echo "checkResTree.C" >&2
 timeStart=`date +%s`
 time aliroot -l -b -q -x "checkResTree.C" &>> integrity.log
 exitcode=$?
+
+if [ $exitcode != 0 ];  then
+    echo "ResidualTree.root is corrupted, moving it to ResidualTreesBAD.root"
+    mv ResidualTrees.root ResidualTreesBAD.root
+fi
+
 timeEnd=`date +%s`
 timeUsed=$(( $timeUsed+$timeEnd-$timeStart ))
 delta=$(( $timeEnd-$timeStart ))

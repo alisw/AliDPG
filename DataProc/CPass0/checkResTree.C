@@ -13,15 +13,10 @@ void checkResTree(const char* fname = "ResidualTrees.root", const char* tname = 
   for (int i=0;i<nev;i++) {
     rdb = tr->GetEntry(i);
     if (rdb<=0 || rdb>10000) {
-      printf("CORRUPTED Residuals file, ev %d got %d bytes, job to be Killed\n",i,rdb);
-      corrupted = kTRUE;
-      break;
+      printf("CORRUPTED Residuals file, ev %d got %d bytes\n",i,rdb);
+      exit(1);
     } 
   }
-  if (corrupted) {
-    printf("The residual tree file is corrupted\n");
-  }
-  else {
     printf("The residual tree file is OK\n");
-  }
+    exit(0);
 }
