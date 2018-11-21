@@ -8,18 +8,21 @@ AliGenerator* GeneratorCustom(TString opt = "")
   // lists of available options and corresponding macros (to be updated each time a new macro is committed)
   // the third list is to activate whatever special setup this option might needed. Currently implemented:
   // - EvtGen --> load the libraries needed to use EvtGen (needed for J/psi radiative decay, ...)
-  const Int_t nParametrizations = 3;
+  const Int_t nParametrizations = 4;
   TString optNames[nParametrizations] = {
     "single_pp13TeV_1",
+    "single_PbPb5TeV_1",
     "upsilon_pPb8TeV_1",
     "upsilon_Pbp8TeV_1"
   };
   TString optMacros[nParametrizations] = {
     "Muon_GenParamSingle_pp13TeV_1.C",
+    "Muon_GenParamSingle_PbPb5TeV_1.C",
     "Muon_GenParamUpsilon_pPb8TeV_1.C",
     "Muon_GenParamUpsilon_Pbp8TeV_1.C"
   };
   TString optSetups[nParametrizations] = {
+    "",
     "",
     "EvtGen",
     "EvtGen"
