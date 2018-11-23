@@ -118,5 +118,9 @@ void Geant4Config()
     geant4->ProcessGeantCommand("/mcMagField/setConstDistance 1 mm");
     geant4->ProcessGeantCommand("/mcMagField/setIsMonopole true");
   }
+
+  geant4->ProcessGeantCommand("/mcMagField/setDeltaIntersection 1.0e-05 mm");
+  geant4->ProcessGeantCommand("/mcMagField/setMinimumEpsilonStep 0.5e-05");
+  geant4->ProcessGeantCommand("/mcMagField/setMaximumEpsilonStep 1.0e-05");
 }
 
