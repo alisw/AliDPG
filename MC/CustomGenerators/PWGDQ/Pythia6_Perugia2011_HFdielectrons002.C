@@ -108,30 +108,15 @@ AliGenerator* MbPythiaTunePerugia2011bcforcele(Int_t flag)
   pythiaB->SetChildYRange(-1.2,1.2);
   pythiaB->SetChildPtRange(0,10000.);
   pythiaB->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
-
-
-  ////////////////////////////////////////////
-  //    Jpsi ->ee 
-  ////////////////////////////////////////////
-  AliGenerator *jpsi  = Generator_Jpsiee("pp 8", 1.0, 0.0, 0.0, 0.0);
-
-  ////////////////////////////////////////////
-  //    B->Jpsi ->ee 
-  ////////////////////////////////////////////
-  AliGenerator *bjpsi = Generator_Jpsiee("Pythia BBar", 0.0, 0.0, 0.0, 1.0);
   
   gener->AddGenerator(pythiaMB,"Pythia MB",1.);
-
-  if(flag>=0 && flag<8){ //  0.08 x 36 M = 3.6M
+  
+  if(flag>=0 && flag<10){ 
     gener->AddGenerator(pythiaCC,"Pythia CC",1.);
-  }else if(flag>=8 && flag<16){ //  0.08 x 36 M = 3.6M
+  }else if(flag>=10 && flag<20){ 
     gener->AddGenerator(pythiaBB,"Pythia BB",1.);
-  }else if(flag>=16 && flag<83){ //  0.66 x 36 M = 24.12M
+  }else if(flag>=20 && flag<100){ 
     gener->AddGenerator(pythiaB,"Pythia B",1.);
-  }else if(flag>=83 && flag<95){ //  0.12 x 36M = 4.32M
-    gener->AddGenerator(jpsi, "Jpsi2ee", 1., NULL, 1);
-  }else if(flag>=95 && flag<100){ // 0.05 x 36M = 1.80M
-    gener->AddGenerator(bjpsi, "B2JPsi2ee", 1., NULL, 1);
   }
 
   return gener;
