@@ -24,6 +24,7 @@ function COMMAND_HELP(){
     echo "How to use: ./dpgsim.sh"
     echo ""
     echo "--help                                    Print this help"
+    echo "--debug                                   Debug option (has different implications, see dpgsim.sh for details)"
     echo "--mode <mode>                 (mandatory) Running mode (ocdb,sim,rec,qa,aod,full,Muon,MuonOnly,Run3,extractembedded)" 
     echo "--run <run>                   (mandatory) Anchor run number"    
     echo "--generator <generatorConfig>             Mandatory for sim mode, choose: general purpose, PWG specific, or Custom (see TWiki)"
@@ -224,6 +225,7 @@ CONFIG_MATERIAL=""
 CONFIG_KEEPTRACKREFSFRACTION="0"
 CONFIG_REMOVETRACKREFS="off"
 CONFIG_OCDBTIMESTAMP=""
+CONFIG_DEBUG=""
 
 RUNMODE=""
 
@@ -234,6 +236,10 @@ while [ ! -z "$1" ]; do
     if [ "$option" = "--help" ]; then
 	COMMAND_HELP
 	exit 0
+    elif [ "$option" = "--debug" ]; then
+	CONFIG_DEBUG="on"
+	export CONFIG_DEBUG
+        shift
     elif [ "$option" = "--mode" ]; then
 	CONFIG_MODE="$1"
 	export CONFIG_MODE
@@ -433,7 +439,7 @@ while [ ! -z "$1" ]; do
     fi
 done
 
-# export settings (needed, since some arte set to on by default)
+# export settings (needed, since some are set to on by default)
 if [ "$CONFIG_FASTB" = "on" ]; then
     export CONFIG_FASTB
 fi
@@ -836,6 +842,8 @@ echo "pT-trigger max... $CONFIG_PTTRIGMAX"
 echo "quenching........ $CONFIG_QUENCHING"
 echo "q-hat............ $CONFIG_QHAT"
 echo "============================================"
+echo "Debug mode....... $CONFIG_DEBUG"
+echo "============================================"
 echo
 
 ### sim.C
@@ -972,9 +980,15 @@ if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"Embed
 	exit 2
     fi
 
-    mv "AliESDs_EMB.root" "AliESDs.root"
-    mv "galice_EMB.root" "galice.root"
-
+    if [ "$CONFIG_DEBUG" = "on" ]; then
+	mv "AliESDs.root" "AliESDs_ORIG.root"
+	mv "galice.root" "galice_ORIG.root"
+	mv "AliESDs_EMB.root" "AliESDs.root"
+	mv "galice_EMB.root" "galice.root"
+    else
+	mv "AliESDs_EMB.root" "AliESDs.root"
+	mv "galice_EMB.root" "galice.root"
+    fi
 fi
     
 ### QAtrainsim.C
