@@ -112,8 +112,9 @@ void main_rec(const char *filename="raw.root", const char* options="")
   // Specific AD storage, see https://alice.its.cern.ch/jira/browse/ALIROOT-6056
   //  rec.SetSpecificStorage("AD/Calib/TimeSlewing", "alien://Folder=/alice/simulation/2008/v4-15-Release/Ideal");
 
-  // switch off cleanESD
-  rec.SetCleanESD(kFALSE);
+  // switch off cleanESD if LPMESDCLEANOFF is set to 1 in the JDL (default now is ON)
+  TString envClean = gSystem->Getenv("ALIEN_JDL_LPMESDCLEANOFF");
+  rec.SetCleanESD( envClean.Atoi() == 1 ? kFALSE : kTRUE );
 
   //Ignore SetStopOnError
   rec.SetStopOnError(kFALSE);
