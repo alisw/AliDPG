@@ -24,6 +24,14 @@ void raw2clust(const char *filename="raw.root", Int_t nevents=-1,const char *ocd
     gInterpreter->ProcessLine("localOCDBaccessConfig();");
   }
 
+  TString passtype = gSystem->Getenv("ALIEN_JDL_LPMCPASSMODE");
+  if (passtype == "0") {
+    printf("CPass0 detected: signal special reconstruction mode\n");
+    Double_t tpcPrimDCACuts[2] = {10.,30.}; // Y,Z
+    TVectorD *vectpcPrimDCACuts = new TVectorD(2, tpcPrimDCACuts);
+    AliTPCReconstructor::SetPrimaryDCACut(vectpcPrimDCACuts);
+  }
+  
   rec.SetRunReconstruction("");
   rec.SetRunLocalReconstruction("TPC HLT");
 
