@@ -202,7 +202,7 @@ AliGenerator *GeneratorAMPT();
 AliGenerator *GeneratorAMPT_v226t7();
 AliGenerator *GeneratorTherminator2();
 AliGenerator *GeneratorQED();
-ALiGenerator *GeneratorRELDIS();
+AliGenerator *GeneratorRELDIS();
 
 /*****************************************************************/
 
