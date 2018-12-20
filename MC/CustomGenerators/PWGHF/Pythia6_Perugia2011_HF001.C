@@ -47,6 +47,7 @@ GeneratorCustom(TString opt = "")
     pi0->SetPtRange(0., ptMaxInjected);
     if(idecay == 3){
       //select electrons from decay
+      pi0->SetKeepIfOneChildSelected(kTRUE);
       pi0->SetCutOnChild(1);
       pi0->SetPdgCodeParticleforAcceptanceCut(11);
       pi0->SetChildYRange(-1.2, 1.2);
@@ -60,6 +61,7 @@ GeneratorCustom(TString opt = "")
     eta->SetPtRange(0., ptMaxInjected);
     if(idecay == 3){
       //select electrons from decay
+      eta->SetKeepIfOneChildSelected(kTRUE);
       eta->SetCutOnChild(1);
       eta->SetPdgCodeParticleforAcceptanceCut(11);
       eta->SetChildYRange(-1.2, 1.2);
