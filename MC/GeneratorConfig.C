@@ -126,7 +126,9 @@ enum EPythia6HeavyDecay_t {
   kPythia6HeavyDecay_HadronsWithV0,
   kPythia6HeavyDecay_Electron,
   kPythia6HeavyDecay_All,
-  kPythia6HFYellowReport
+  kPythia6HFYellowReport,
+  kPythia6HeavyDecay_Hadrons_D0pionic,
+  kPythia6HeavyDecay_HadronsWithV0_D0pionic,
 };
 
 /*****************************************************************/
@@ -629,6 +631,14 @@ GeneratorPythia6Heavy(Int_t process, Int_t decay, Int_t tune, Bool_t HFonly)
   case kPythia6HFYellowReport:
     pythia->SetHeavyQuarkYRange(-1.5, 1.5);
     pythia->SetForceDecay(kHFYellowReport);
+    break;
+  case kPythia6HeavyDecay_Hadrons_D0pionic:
+    pythia->SetHeavyQuarkYRange(-1.5, 1.5);
+    pythia->SetForceDecay(kHadronicDWithout4BodiesPionicD0);
+    break;
+  case kPythia6HeavyDecay_HadronsWithV0_D0pionic:
+    pythia->SetHeavyQuarkYRange(-1.5, 1.5);
+    pythia->SetForceDecay(kHadronicDWithout4BodiesWithV0PionicD0);
     break;
   }
   //
