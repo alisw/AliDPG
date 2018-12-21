@@ -9,14 +9,14 @@ GeneratorCustom(TString opt = "")
   Int_t process[2] = {kPythia6HeavyProcess_Charm, kPythia6HeavyProcess_Beauty};
   Int_t iprocess = uidConfig % 2;
   //
-  Int_t decay[4]   = {kPythia6HeavyDecay_Hadrons, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Electron, kPythia6HeavyDecay_Electron};
-  TString optList[4] = {"had", "hv0", "ele","eleTrig"};
+  Int_t decay[6]   = {kPythia6HeavyDecay_Hadrons, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Hadrons_D0pionic, kPythia6HeavyDecay_HadronsWithV0_D0pionic, kPythia6HeavyDecay_Electron, kPythia6HeavyDecay_Electron};
+  TString optList[6] = {"had", "hv0", "hdpi", "hdpiv0", "ele","eleTrig"};
   Int_t idecay = 0;
-  for (Int_t iopt = 0; iopt < 4; iopt++)
+  for (Int_t iopt = 0; iopt < 6; iopt++)
     if (opt.EqualTo(optList[iopt]))
       idecay = iopt;
   //
-  AliGenCocktail *ctl  = GeneratorCocktail("Perugia2011_HF");
+  AliGenCocktail *ctl  = static_cast<AliGenCocktail *>(GeneratorCocktail("Perugia2011_HF"));
   //
   AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], kPythia6Tune_Perugia2011, kFALSE);
   ctl->AddGenerator(phf, label[iprocess][idecay], 1.);
@@ -26,7 +26,7 @@ GeneratorCustom(TString opt = "")
     ptMaxInjected = ptmaxConfig;
   }
 
-  if(idecay == 3){ //apply cut on pte (steered by pttrigminConfig)
+  if(idecay == 5){ //apply cut on pte (steered by pttrigminConfig)
     ((AliGenPythia *)phf)->SetChildPtRange(pttrigminConfig, 10000.);
     printf(">>>>> added HF generator %s with pT cut = %.2f and ptMaxInjected = %.2f\n", label[iprocess][idecay], pttrigminConfig,ptMaxInjected);
   }
@@ -45,7 +45,7 @@ GeneratorCustom(TString opt = "")
     pi0->SetPhiRange(0., 360.) ;
     pi0->SetYRange(-1.2, 1.2) ;
     pi0->SetPtRange(0., ptMaxInjected);
-    if(idecay == 3){
+    if(idecay == 5){
       //select electrons from decay
       pi0->SetKeepIfOneChildSelected(kTRUE);
       pi0->SetCutOnChild(1);
@@ -59,7 +59,7 @@ GeneratorCustom(TString opt = "")
     eta->SetPhiRange(0., 360.) ;
     eta->SetYRange(-1.2, 1.2) ;
     eta->SetPtRange(0., ptMaxInjected);
-    if(idecay == 3){
+    if(idecay == 5){
       //select electrons from decay
       eta->SetKeepIfOneChildSelected(kTRUE);
       eta->SetCutOnChild(1);
