@@ -1748,7 +1748,7 @@ GeneratorRELDIS
   AliGenReadersEMD *reader = new AliGenReadersEMD();
   // need to resolve files from grid, make sure we have a valid connection
   if (!gGrid) TGrid::Connect("alien");
-  reader->SetFileName("alien:///alice/cern.ch/user/p/pwg_mm/pbpb2510nt_na50.root"); // put the location of the input file
+  reader->SetFileName(Form("alien:///alice/cern.ch/user/p/pwg_mm/%s", processConfig.Data())); // put the location of the input file
   reader->SetNtupleName("h2034"); // name of the tree inside the input file
   reader->SetStartEvent(firstev); // # of event to start with
   reader->TrackOnlyNeutrons(); // include this if you want to track only neutrons
