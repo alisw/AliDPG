@@ -1734,10 +1734,10 @@ GeneratorQED()
   return genBg;
 }
 
-/*** QED electrons ****************************************************/
+/*** RELDIS ****************************************************/
 
 AliGenerator *
-GeneratorRELDIS
+GeneratorRELDIS()
 {
 
   comment = comment.Append(Form(" | RELDIS-LHC (%s)", systemConfig.Data()));
