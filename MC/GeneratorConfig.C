@@ -1741,17 +1741,44 @@ GeneratorRELDIS()
 {
 
   comment = comment.Append(Form(" | RELDIS-LHC (%s)", systemConfig.Data()));
-  Int_t firstev = 0;
 
-  AliGenExtFile *gener = new AliGenExtFile(-1);
-
+  AliGenExtFile *gener     = new AliGenExtFile(-1);
   AliGenReadersEMD *reader = new AliGenReadersEMD();
+
   // need to resolve files from grid, make sure we have a valid connection
   if (!gGrid) TGrid::Connect("alien");
-  reader->SetFileName(Form("alien:///alice/cern.ch/user/p/pwg_mm/%s", processConfig.Data())); // put the location of the input file
+
+  // RELDIS configuration via process string
+  Int_t firstev          = 0;
+  TObjArray*  oa         = processConfig.Tokenize(":");
+  TObjString* inputfile  = (TObjString*) oa->At(0);
+  TObjString* startevent = (TObjString*) oa->At(1);
+  TObjString* options    = (TObjString*) oa->At(2);
+  if(startevent)
+    firstev = atoi(startevent->GetName());
+  
+  printf("RELDIS configuration: Input file = %s, startevent = %d\n",inputfile->GetString().Data(),firstev);
+  
+  reader->SetFileName(Form("alien:///alice/cern.ch/user/p/pwg_mm/%s", inputfile->GetString().Data())); // put the location of the input file
   reader->SetNtupleName("h2034"); // name of the tree inside the input file
   reader->SetStartEvent(firstev); // # of event to start with
-  reader->TrackOnlyNeutrons(); // include this if you want to track only neutrons
+
+  if(!options){
+    printf("RELDIS configuration: no optional arguments, track all particles\n");
+  }
+  else{
+    if(options->GetString().Contains("TrackOnlyNeutrons")){
+      reader->TrackOnlyNeutrons(); // include this if you want to track only neutrons
+      printf("RELDIS configuration: Track only neutrons\n");
+    }
+    else if(options->GetString().Contains("TrackOnlySpectators")){
+      reader->TrackNucleons(); // include this if you want to track only spectators
+      printf("RELDIS configuration: Track only spectators\n");
+    }
+    else{
+      printf("RELDIS configuration: Track all particles\n");
+    }
+  }
 
   gener->SetReader(reader); 
   
