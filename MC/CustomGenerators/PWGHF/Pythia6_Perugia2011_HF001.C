@@ -1,9 +1,9 @@
 AliGenerator *
 GeneratorCustom(TString opt = "")
 {
-  const Char_t *label[2][4] = {
-    "chadr PYTHIA", "chadr PYTHIA", "cele PYTHIA", "cele PYTHIA eleTrig",
-    "bchadr PYTHIA", "bchadr PYTHIA", "bele PYTHIA", "bele PYTHIA eleTrig"
+  const Char_t *label[2][6] = {
+    "chadr PYTHIA", "chadr PYTHIA (V0)", "chadr PYTHIA D0pionic", "chadr PYTHIA D0pionic (V0)", "cele PYTHIA", "cele PYTHIA eleTrig",
+    "bhadr PYTHIA", "bhadr PYTHIA (V0)", "bhadr PYTHIA D0pionic", "bhadr PYTHIA D0pionic (V0)", "bele PYTHIA", "bele PYTHIA eleTrig"
   };
   //
   Int_t process[2] = {kPythia6HeavyProcess_Charm, kPythia6HeavyProcess_Beauty};
