@@ -1754,8 +1754,10 @@ GeneratorRELDIS()
   TObjString* inputfile  = (TObjString*) oa->At(0);
   TObjString* startevent = (TObjString*) oa->At(1);
   TObjString* options    = (TObjString*) oa->At(2);
-  if(startevent)
-    firstev = atoi(startevent->GetName());
+
+  // the first event number is calculated from the input here (startevent) and the number of events (CONFIG_NEVENTS)
+  if(startevent) 
+    firstev = atoi(startevent->GetName()) * atoi(gSystem->Getenv("CONFIG_NEVENTS"));
   
   printf("RELDIS configuration: Input file = %s, startevent = %d\n",inputfile->GetString().Data(),firstev);
   
