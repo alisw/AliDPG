@@ -1773,12 +1773,12 @@ GeneratorRELDIS()
       reader->TrackOnlyNeutrons(); // include this if you want to track only neutrons
       printf("RELDIS configuration: Track only neutrons\n");
     }
-    else if(options->GetString().Contains("TrackOnlySpectators")){
-      reader->TrackNucleons(); // include this if you want to track only spectators
-      printf("RELDIS configuration: Track only spectators\n");
+    else if(options->GetString().Contains("TrackOnlyNucleons")){
+      reader->TrackNucleons(); // include this if you want to track only nucleons
+      printf("RELDIS configuration: Track all nucleons\n");
     }
     else{
-      printf("RELDIS configuration: Track all particles\n");
+      printf("RELDIS configuration: Track all (n, p and fragments)\n");
     }
   }
 
