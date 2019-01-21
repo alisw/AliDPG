@@ -60,6 +60,7 @@ function COMMAND_HELP(){
     echo "--OCDBTimeStamp <timeStamp>               Use time stamp in OCDB snapshot creation"
     echo "--ocdbCustom                              Use custom OCDB, OCDBCustom.C to be provided"
     echo "--keepTrackRefsFraction <percentage>      Percentage of subjobs that keeps the TrackRefs file"
+    echo "--signalFilteringFraction <percentage>    Percentage of subjobs that use signal filtering (for embedding only)"
     echo "--material <densityFactor>                Modify material budget by a density factor"
     echo "--purifyKineOff                           Switch off the PurifyKine step in simulation" 
     echo "--fluka                                   Use FLUKA instead of GEANT3" 
@@ -224,6 +225,8 @@ CONFIG_VDT="on"
 CONFIG_MATERIAL=""
 CONFIG_KEEPTRACKREFSFRACTION="0"
 CONFIG_REMOVETRACKREFS="off"
+CONFIG_SIGNALFILTERINGFRACTION="100"
+CONFIG_SIGNALFILTERING="on"
 CONFIG_OCDBTIMESTAMP=""
 CONFIG_DEBUG=""
 
@@ -429,6 +432,10 @@ while [ ! -z "$1" ]; do
 	CONFIG_KEEPTRACKREFSFRACTION="$1"
 	export CONFIG_KEEPTRACKREFSFRACTION
         shift
+    elif [ "$option" = "--signalFilteringFraction" ]; then
+	CONFIG_SIGNALFILTERINGFRACTION="$1"
+	export CONFIG_SIGNALFILTERINGFRACTION
+        shift
     elif [ "$option" = "--OCDBTimeStamp" ]; then
         CONFIG_OCDBTIMESTAMP="$1"
         export CONFIG_OCDBTIMESTAMP
@@ -535,6 +542,20 @@ fi
 export CONFIG_REMOVETRACKREFS
 
 # <<<------------------ decide if TrackRefs.root should be removed -----------------<<<
+
+# >>>------------------ decide if signal should be filtered (for embedding) -------->>>
+
+# check consistency of provided (if any) fraction of subjobs where signal filtering is used
+if [[ ! $CONFIG_SIGNALFILTERINGFRACTION =~ ^[0-9]+$ ]] ; then
+    echo "Invalid value $CONFIG_SIGNALFILTERINGFRACTION provided for signalFilteringFraction"
+    exit 1
+fi
+
+[[ $CONFIG_SIGNALFILTERINGFRACTION -gt 100 ]] && CONFIG_SIGNALFILTERINGFRACTION="100"
+[[ $((CONFIG_PROCID%100)) -ge $CONFIG_SIGNALFILTERINGFRACTION ]] && CONFIG_SIGNALFILTERING="on" || CONFIG_SIGNALFILTERING="off"
+export CONFIG_SIGNALFILTERING
+
+# <<<------------------ decide if signal should be filtered (for embedding) --------<<<
 
 # mkdir input
 # mv galice.root ./input/galice.root
@@ -812,6 +833,8 @@ echo "VDT math......... $CONFIG_VDT"
 echo "Material Budget.. $CONFIG_MATERIAL"
 echo "TrackRefs to keep ${CONFIG_KEEPTRACKREFSFRACTION}%"
 echo "Remove TrackRefs. ${CONFIG_REMOVETRACKREFS} (in this job)"
+echo "Filter fraction.. ${CONFIG_SIGNALFILTERINGFRACTION}%"
+echo "Filter signal.... ${CONFIG_SIGNALFILTERING} (in this job)"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
 echo "System........... $CONFIG_SYSTEM"
@@ -956,9 +979,9 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
 fi
 
-### Embedded signal filtering (only upon request and in embedded mode)
+### Embedded signal filtering (only upon request and in embedded mode and for given fraction)
 
-if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"EmbedSig"* ]]; then
+if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"EmbedSig"* ]] && [ $CONFIG_SIGNALFILTERING == "on" ]; then
 
     if [[ $CONFIG_MODE == *"extractembeddedmixed"* ]]; then
 	EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C\(kTRUE\)
