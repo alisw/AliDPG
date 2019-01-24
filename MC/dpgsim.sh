@@ -225,8 +225,8 @@ CONFIG_VDT="on"
 CONFIG_MATERIAL=""
 CONFIG_KEEPTRACKREFSFRACTION="0"
 CONFIG_REMOVETRACKREFS="off"
-CONFIG_SIGNALFILTERINGFRACTION="100"
-CONFIG_SIGNALFILTERING="on"
+CONFIG_SIGNALFILTERINGFRACTION="0"
+CONFIG_SIGNALFILTERING="off"
 CONFIG_OCDBTIMESTAMP=""
 CONFIG_DEBUG=""
 
@@ -432,10 +432,10 @@ while [ ! -z "$1" ]; do
 	CONFIG_KEEPTRACKREFSFRACTION="$1"
 	export CONFIG_KEEPTRACKREFSFRACTION
         shift
-    elif [ "$option" = "--signalFilteringFraction" ]; then
+    elif [ "$option" = "--signalFilteringFraction" ] && [[ $CONFIG_MODE == *"extractembedded"* ]]; then
 	CONFIG_SIGNALFILTERINGFRACTION="$1"
 	export CONFIG_SIGNALFILTERINGFRACTION
-        shift
+	shift
     elif [ "$option" = "--OCDBTimeStamp" ]; then
         CONFIG_OCDBTIMESTAMP="$1"
         export CONFIG_OCDBTIMESTAMP
