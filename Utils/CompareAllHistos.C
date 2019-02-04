@@ -59,7 +59,7 @@ void CompareAllHistos(TString filename="QAresults_v5-09-37.root", TString filena
         else{
           Bool_t ok=CompareHistos(hA,hB);
           if(ok) printf("%s       ---> COMPATIBLE\n",oname.Data());
-          else printf("********  %s     ---> BAD *****\n",hA->GetName());
+          else printf("********  %s     ---> BAD *****\n",oname.Data());
         }
       }else{
         if(!hA) printf("%s    ---> MISSING in first file\n",hA->GetName());
