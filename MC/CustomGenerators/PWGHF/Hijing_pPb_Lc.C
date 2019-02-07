@@ -1,11 +1,11 @@
 AliGenerator * GeneratorCustom(TString opt = "")
 {
-  Decay_t decay[3] = {AliDecayer::kLcpKpi,AliDecayer::kLcpK0S,AliDecayer::kLcpK0SBDTsig};
+  Decay_t decay[2] = {AliDecayer::kLcpKpi,AliDecayer::kLcpK0S};
   Int_t idecay=0;
-  const Char_t *label[3] = { "LcpKpi PYTHIA", "LcpK0S PYTHIA", "LcpK0S PYTHIA (forced kaon decay)" } ;
+  const Char_t *label[2] = { "LcpKpi PYTHIA", "LcpK0S PYTHIA" } ;
   
-  TString optList[3] = {"LcpKpi","LcpK0S","LcpK0SBDTsig"};
-  for (Int_t iopt = 0; iopt < 3; iopt++){
+  TString optList[2] = {"LcpKpi","LcpK0S"};
+  for (Int_t iopt = 0; iopt < 2; iopt++){
     if (opt.EqualTo(optList[iopt])) idecay = iopt;
   }
 
