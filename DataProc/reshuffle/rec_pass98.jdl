@@ -1,0 +1,68 @@
+# This is the startup script
+Executable = "/alice/cern.ch/user/a/alidaq/bin/aliroot_dpgReshuffle.sh";
+
+Jobtag = 
+{
+   "comment:LHC period LHC18r - Reshuffle EMCAL raw data production, ALIROOT-8064"
+};
+
+# List of requested packages
+Packages = 
+{
+    "VO_ALICE@AliPhysics::v5-09-45a-01-1",
+    "VO_ALICE@jemalloc::latest"
+};
+
+# List of input files to be uploaded to workers
+InputFile = 
+{
+   "LF:/alice/cern.ch/user/a/alidaq/LHC18r/reshuffle/validation.rc",
+   "LF:/alice/cern.ch/user/a/alidaq/LHC18r/reshuffle/alidpg.tgz",
+   "LF:/alice/cern.ch/user/a/alidaq/LHC18r/reshuffle/objects_new/AliReshuffleRawTreeHelper_$1.root"
+};
+
+Requirements = member(other.GridPartitions,"quickreco");
+
+# Input xml collections
+InputDataCollection = 
+{
+   "LF:/alice/data/2018/LHC18r/$1/collection,nodownload"
+};
+
+# Output directory
+OutputDir = "/alice/data/2018/LHC18r/$1/raw_emc_reshuffle/#alienfilename/.root//#";
+
+# We split per SE or file
+Split = "file";
+
+SplitArguments = 
+{
+  "alien:///alice/data/2018/LHC18r/$1/raw/#alienfilename#"
+};
+
+# Time after which the job is killed (466 min.)
+TTL = "28000";
+
+# List of output files and archivesList of output files and archives
+Output =
+{
+  "log_archive:*.log,stdout,stderr@disk=1",
+  "1*.root@ALICE::CERN::EOSALICEDAQ,ALICE::CERN::T0ALICE",
+  "Run*.ESD.tag.root@disk=1"
+};
+
+# AliEn price for this job
+
+# Validation script to be run for each subjob
+Validationcommand = "/alice/validation/validation.sh"; 
+
+FilesToCheck = "ReshuffleRawTree.log";
+
+# JDL variables
+JDLVariables = 
+{
+   "Packages",
+   "OutputDir",
+   "FilesToCheck"
+};
+Workdirectorysize = {"5000MB"};
