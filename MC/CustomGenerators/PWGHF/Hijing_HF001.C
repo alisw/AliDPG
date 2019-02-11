@@ -5,18 +5,18 @@ GeneratorCustom(TString opt = "")
   AliGenerator   *hij  = GeneratorHijing();
   ctl->AddGenerator(hij, "Hijing", 1.);
 
-  const Char_t *label[2][3] = {
-    "chadr PYTHIA", "chadr PYTHIA", "cele PYTHIA",
-    "bchadr PYTHIA", "bchadr PYTHIA", "bele PYTHIA"
+  const Char_t *label[2][4] = {
+    "chadr PYTHIA", "chadr PYTHIA", "cele PYTHIA", "chadr PYTHIA", 
+    "bchadr PYTHIA", "bchadr PYTHIA", "bele PYTHIA", "bchadr PYTHIA"
   };
   //
   Int_t process[2] = {kPythia6HeavyProcess_Charm, kPythia6HeavyProcess_Beauty};
   Int_t iprocess = uidConfig % 2;
   //
-  Int_t decay[3]   = {kPythia6HeavyDecay_Hadrons, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Electron};
-  TString optList[3] = {"had", "hv0", "ele"};
+  Int_t decay[6]   = {kPythia6HeavyDecay_Hadrons, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Electron, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Hadrons};
+  TString optList[6] = {"had", "hv0", "ele", "LcK0Sp", "LcK0SpBDTsig", "LcpKpi"};
   Int_t idecay = 0;
-  for (Int_t iopt = 0; iopt < 3; iopt++)
+  for (Int_t iopt = 0; iopt < 6; iopt++)
     if (opt.EqualTo(optList[iopt]))
       idecay = iopt;
   //
@@ -30,6 +30,24 @@ GeneratorCustom(TString opt = "")
   else if ((uidConfig / 2) % 10 < 9) ipt = 1;
   else                               ipt = 2;
   ((AliGenPythia *)phf)->SetPtHard(pth[ipt], pth[ipt + 1]);
+  if(opt.EqualTo(optList[3])) {// Lc --> K0sp
+    ((AliGenPythia *)phf)->SetTriggerParticle(4122, 999, 999, -1, 1000);
+    ((AliGenPythia *)phf)->SetTriggerY(1.6);
+    ((AliGenPythia *)phf)->SetHeavyQuarkYRange(-1.5,1.5);
+    ((AliGenPythia *)phf)->SetForceDecay(AliDecayer::kLcpK0S);  //Force Lc decay mode in PYTHIA to Kc --> K0s+p
+  }
+  if(opt.EqualTo(optList[4])) {// Lc --> K0sp (modified for BDT signal)
+    ((AliGenPythia *)phf)->SetTriggerParticle(4122, 999, 999, -1, 1000);
+    ((AliGenPythia *)phf)->SetTriggerY(1.6);
+    ((AliGenPythia *)phf)->SetHeavyQuarkYRange(-1.5,1.5);
+    ((AliGenPythia *)phf)->SetForceDecay(AliDecayer::kLcpK0SBDTsig);  //Force Lc decay mode in PYTHIA to Kc --> K0s+p with forced K0->K0S->pi+pi-
+  }
+  if(opt.EqualTo(optList[5])) {// Lc --> pKpi
+    ((AliGenPythia *)phf)->SetTriggerParticle(4122, 999, 999, -1, 1000);
+    ((AliGenPythia *)phf)->SetTriggerY(1.6);
+    ((AliGenPythia *)phf)->SetHeavyQuarkYRange(-1.5,1.5);
+    ((AliGenPythia *)phf)->SetForceDecay(AliDecayer::kLcpKpi);  //Force Lc decay mode in PYTHIA to Kc --> K0s+p with forced K0->K0S->pi+pi-
+  }
   ctl->AddGenerator(phf, label[iprocess][idecay], 1., formula);
   printf(">>>>> added HF generator %s \n", label[iprocess][idecay]);
   // add pi0 and eta enhancement
