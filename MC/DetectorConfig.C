@@ -540,7 +540,6 @@ DetectorInit(Int_t tag)
      if (!isFluka){ // does not work for now with Fluka
         //=================== AD parameters ============================
         AliAD *AD = new AliADv1("AD", "normal AD");
-	if(year<2017) ((AliADv1*) AD)->EnablePmtShieldingADA(kFALSE);
         if( tag == kDetectorPhosOnly)
         AD->DisableStepManager();
      }
