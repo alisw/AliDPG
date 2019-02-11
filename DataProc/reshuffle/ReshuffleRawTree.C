@@ -15,8 +15,9 @@
 // 26.01.2019 - MP               - correction map added, (minor) changes + cosmetics 
 // 29.01.2019 - MP               - changes for adapting with the "final" JDL 
 // 30.01.2019 - MP               - use AliReshuffleRawTreeHelper (instead of AliEMCALLHC18rHelper)
-// 09.02.2019 - MP               - replace if(emcInReadout) with if(emcInReadout && igld>=0)
-// verison 1.8
+// 09.02.2019 - MP               - replace if(emcInReadout) with if(emcInReadout && igld>=0 )
+// 11.02.2019 - MP               - use if(emcInReadout && igld>=0 && (igld+3)<gLHC18rH->GetASize())
+// verison 1.9
 
 
 //#define MODE_LOCAL
@@ -285,7 +286,7 @@ const string rootFileNameOut = GetFileName(rawTree->GetFile()->GetName());
 			printf("igld=%d <0!!! %s, event=%d",igld, rawTree->GetFile()->GetName(), iEvent);
 
 
-	if(emcInReadout && igld>=0)
+	if(emcInReadout && igld>=0 && (igld+3)<gLHC18rH->GetASize())
 	{
         TRefTable* tabSav1[2];
 #ifdef MODE_LOCAL
@@ -487,7 +488,7 @@ const string rootFileNameOut = GetFileName(rawTree->GetFile()->GetName());
   gSystem->Exec("ls ./");
   printf("Done\n");
 
-
+  
   newfile.cd();
   newtree->Write();
   if (newtree) delete newtree;
