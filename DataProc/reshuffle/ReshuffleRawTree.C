@@ -15,7 +15,8 @@
 // 26.01.2019 - MP               - correction map added, (minor) changes + cosmetics 
 // 29.01.2019 - MP               - changes for adapting with the "final" JDL 
 // 30.01.2019 - MP               - use AliReshuffleRawTreeHelper (instead of AliEMCALLHC18rHelper)
-// verison 1.7
+// 09.02.2019 - MP               - replace if(emcInReadout) with if(emcInReadout && igld>=0)
+// verison 1.8
 
 
 //#define MODE_LOCAL
@@ -275,8 +276,16 @@ const string rootFileNameOut = GetFileName(rawTree->GetFile()->GetName());
       DBG_VERBOSE
        for (int ib=0;ib<brNames.GetEntriesFast();ib++) { printf("Ev%4d br %2d %s | %ld\n",iEvent,ib,brNames[ib]->GetName(),bread);}
 
+      	const UInt_t *id = rawEventHeader->GetP("Id");
+	    const UInt_t period =  (((id)[0]>>4)&0x0fffffff);
+    	const UInt_t orbit  =  ((((id)[0]<<20)&0xf00000)|(((id)[1]>>12)&0xfffff));
+	    const UInt_t bc     =  ((id)[1]&0x00000fff);
+		Int_t igld=gLHC18rH->GetGlobIDIndex(period, orbit, bc);
+		if(igld<0)
+			printf("igld=%d <0!!! %s, event=%d",igld, rawTree->GetFile()->GetName(), iEvent);
 
-	if(emcInReadout)
+
+	if(emcInReadout && igld>=0)
 	{
         TRefTable* tabSav1[2];
 #ifdef MODE_LOCAL
@@ -287,13 +296,6 @@ const string rootFileNameOut = GetFileName(rawTree->GetFile()->GetName());
 		rawReader1[0]->Select("EMCAL", 0, 40);
         tabSav1[1] = TRefTable::GetRefTable();
 #else
-      	const UInt_t *id = rawEventHeader->GetP("Id");
-	    const UInt_t period =  (((id)[0]>>4)&0x0fffffff);
-    	const UInt_t orbit  =  ((((id)[0]<<20)&0xf00000)|(((id)[1]>>12)&0xfffff));
-	    const UInt_t bc     =  ((id)[1]&0x00000fff);
-		Int_t igld=gLHC18rH->GetGlobIDIndex(period, orbit, bc);
-		if(igld<0)
-			 ::Fatal( "ReshuffleRawTree", Form("igld=%d <0!!! %s",igld));
 
      	for(Int_t iF=0; iF<gLHC18rH->GetNoffsets()-1; iF++)
      		{
@@ -485,7 +487,7 @@ const string rootFileNameOut = GetFileName(rawTree->GetFile()->GetName());
   gSystem->Exec("ls ./");
   printf("Done\n");
 
-  
+
   newfile.cd();
   newtree->Write();
   if (newtree) delete newtree;
