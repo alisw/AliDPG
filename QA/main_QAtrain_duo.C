@@ -84,7 +84,7 @@ Bool_t localRunning = kFALSE; // Missing environment vars will cause a crash; ch
 Bool_t doStatistics   = 1;
 Bool_t doCDBconnect   = 1;
 Bool_t doEventStat    = 1;
-Bool_t doCentrality   = 0;
+Bool_t doCentrality   = 1;
 Bool_t doQAsym        = 0;
 Bool_t doVZERO        = 1;   // there is a 2nd file
 Bool_t doVZEROPbPb    = 0; 
@@ -505,11 +505,32 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   
     AliAnalysisTaskCaloTrackCorrelation *taskCaloQA = AddTaskCalorimeterQA("default");
     taskCaloQA->SetDebugLevel(0);
+
+   // settings for PbPb
+    // needed to check the correlation between centrality/V0 and cell energy per SM
+    AliAnaCalorimeterQA * emcalQA = (AliAnaCalorimeterQA *)taskCaloQA->GetAnalysisMaker()->GetListOfAnalysisContainers()->At(0);
+    emcalQA->SwitchCorrelationPerSM(2);
+    emcalQA->GetHistogramRanges()->SetHistoV0SignalRangeAndNBins(0,50000,1000);
+    emcalQA->GetHistogramRanges()->SetHistoTrackMultiplicityRangeAndNBins(0,10000,100);
+    emcalQA->GetHistogramRanges()->SetHistoNClustersRangeAndNBins(0,250,250);
+    emcalQA->GetHistogramRanges()->SetHistoNCellsRangeAndNBins(0,5000,1000);
+    emcalQA->GetHistogramRanges()->SetHistoPtRangeAndNBins(0, 300, 300) ;
+
     // offline mask set in AddTask to kMB
     //taskCaloQA->SelectCollisionCandidates(0);
     taskCaloQA->SelectCollisionCandidates(kTriggerMask);
     // Add a new calo task with EMC1 trigger only
     taskCaloQA = AddTaskCalorimeterQA("trigEMC");        // for 2011 data, not 2010
+
+   AliAnaCalorimeterQA * emcalQA = (AliAnaCalorimeterQA *)taskCaloQA->GetAnalysisMaker()->GetListOfAnalysisContainers()->At(0);
+   // settings for PbPb
+   emcalQA->SwitchCorrelationPerSM(2);
+   emcalQA->GetHistogramRanges()->SetHistoV0SignalRangeAndNBins(0,50000,1000);
+   emcalQA->GetHistogramRanges()->SetHistoTrackMultiplicityRangeAndNBins(0,10000,100);
+   emcalQA->GetHistogramRanges()->SetHistoNClustersRangeAndNBins(0,250,250);
+   emcalQA->GetHistogramRanges()->SetHistoNCellsRangeAndNBins(0,5000,1000);
+   emcalQA->GetHistogramRanges()->SetHistoPtRangeAndNBins(0, 300, 300) ;
+
     taskCaloQA->SelectCollisionCandidates(kTriggerEMC);  // for 2011 data, not 2010
     taskCaloQA->SetDebugLevel(0);
   }
