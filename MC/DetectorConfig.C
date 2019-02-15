@@ -539,7 +539,11 @@ DetectorInit(Int_t tag)
   if (iAD){
      if (!isFluka){ // does not work for now with Fluka
         //=================== AD parameters ============================
-        AliAD *AD = new AliADv1("AD", "normal AD");
+        
+	// AliAD *AD = new AliADv1("AD", "normal AD");
+        AliAD *AD = NULL;
+        if (year>0) AD = new AliADv1("AD", Form("normal AD year=%d", year));
+        else        AD = new AliADv1("AD", "normal AD");
         if( tag == kDetectorPhosOnly)
         AD->DisableStepManager();
      }
