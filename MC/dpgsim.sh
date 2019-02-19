@@ -242,7 +242,6 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--debug" ]; then
 	CONFIG_DEBUG="on"
 	export CONFIG_DEBUG
-        shift
     elif [ "$option" = "--mode" ]; then
 	CONFIG_MODE="$1"
 	export CONFIG_MODE
