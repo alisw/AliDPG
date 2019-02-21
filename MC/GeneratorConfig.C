@@ -38,7 +38,7 @@ enum EGenerator_t {
   // DRgen
   kGeneratorDRgen,
   // AMPT
-  kGeneratorAMPT, kGeneratorAMPT_v226t7,
+  kGeneratorAMPT, kGeneratorAMPT_v2,
   // Therminator2
   kGeneratorTherminator2,
   // QED electrons
@@ -81,7 +81,7 @@ const Char_t *GeneratorName[kNGenerators] = {
   // DRgen
   "DRgen",
   // AMPT
-  "AMPT", "AMPT_v226t7",
+  "AMPT", "AMPT_v2",
   // Therminator2
   "Therminator2",
   // QED electrons
@@ -199,7 +199,7 @@ AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, F
 AliGenerator *GeneratorStarlight();
 AliGenerator *GeneratorDRgen();
 AliGenerator *GeneratorAMPT();
-AliGenerator *GeneratorAMPT_v226t7();
+AliGenerator *GeneratorAMPT_v2();
 AliGenerator *GeneratorTherminator2();
 AliGenerator *GeneratorQED();
 AliGenerator *GeneratorRELDIS();
@@ -306,8 +306,8 @@ void GeneratorConfig(Int_t tag)
     gen = GeneratorAMPT();
     break;
 
- case kGeneratorAMPT_v226t7:
-    gen = GeneratorAMPT_v226t7();
+ case kGeneratorAMPT_v2:
+    gen = GeneratorAMPT_v2();
     break;
 
  case kGeneratorTherminator2:
@@ -1355,10 +1355,10 @@ GeneratorAMPT() {
 }
 
 
-/*** AMPT_v226t7 ****************************************************/
+/*** AMPT_v226t7 onwards ****************************************************/
 
 AliGenerator *
-GeneratorAMPT_v226t7()
+GeneratorAMPT_v2()
 {
 
   // connect HepMC reader
