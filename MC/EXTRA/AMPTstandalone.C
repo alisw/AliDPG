@@ -9,7 +9,7 @@ void AMPTstandalone(){
   static Float_t bminConfigAMPT      = 0.;        // impact parameter min
   static Float_t bmaxConfigAMPT      = 20.;       // impact parameter max
   static Float_t energyConfigAMPT    = 0.;        // CMS energy
-  static Int_t   neventsConfig   = 1;       // number of events
+  static Int_t   neventsConfigAMPT   = 1;       // number of events
 
   
   if (gSystem->Getenv("CONFIG_PROCESS")) {
@@ -41,7 +41,7 @@ void AMPTstandalone(){
   }
   
   if (gSystem->Getenv("CONFIG_NEVENTS"))
-    neventsConfig = atoi(gSystem->Getenv("CONFIG_NEVENTS"));
+    neventsConfigAMPT = atoi(gSystem->Getenv("CONFIG_NEVENTS"));
 
 
   // AMPT settings
@@ -98,7 +98,7 @@ void AMPTstandalone(){
   printf(">>>>>            b-min: %f \n", bminConfigAMPT);
   printf(">>>>>            b-max: %f \n", bmaxConfigAMPT);
   printf(">>>>>       CMS energy: %f \n", energyConfigAMPT);
-  printf(">>>>> number of events: %d \n", neventsConfig);
+  printf(">>>>> number of events: %d \n", neventsConfigAMPT);
 
   //configuration reading done
   //====================================================================
@@ -116,7 +116,7 @@ void AMPTstandalone(){
 	 bminConfigAMPT,
 	 bmaxConfigAMPT,
 	 energyConfigAMPT,
-	 neventsConfig,
+	 neventsConfigAMPT,
 	 isoft,
 	 ntmax);
 
@@ -130,7 +130,7 @@ void AMPTstandalone(){
               bminConfigAMPT,
               bmaxConfigAMPT,
               energyConfigAMPT,
-              neventsConfig,
+              neventsConfigAMPT,
               isoft,
               ntmax));
 
