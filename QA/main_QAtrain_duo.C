@@ -680,7 +680,7 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     //AliAnalysisTaskEMCALTriggerQA *emctrig = AddTaskEMCALTriggerQA();
 //     emctrig->GetRecoUtils()->SwitchOffBadChannelsRemoval();
     AliEmcalTriggerMakerTask *emctrigmaker = AddTaskEmcalTriggerMakerNew("EmcalTriggers");
-    AliEmcalTriggerQATask *emctrig = AddTaskEmcalTriggerQA_QAtrain(run_number);
+    AddTaskEmcalTriggerQA_QAtrain(run_number);
   }
   //     
   // FLOW and BF QA (C.Perez && A.Rodriguez)
