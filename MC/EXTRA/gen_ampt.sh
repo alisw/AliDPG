@@ -11,6 +11,14 @@ echo "running in `pwd`, writing HepMC to $1"
 # prepare environment
 eval $(/cvmfs/alice.cern.ch/bin/alienv printenv AMPT::v1.26t7b-v2.26t7b-alice1-1)
 
+if [ -x "$(command -v ampt)" ]; then
+    echo "AMPT environment loaded";
+else
+    echo "AMPT environment not loaded -> abort";
+    exit -1
+fi 
+
+
 # run generator
 
 # generate random seed
@@ -74,9 +82,7 @@ echo "1               ! Flag for random orientation of reaction plane (D=0,no; 1
 
 cp input.ampt ana/
 
-mkfifo ana/ampt.dat
-
-ampt < nseed_runtime &
+ampt < nseed_runtime
 parser ana/ampt.dat $1
 
 rm -rf ana/
