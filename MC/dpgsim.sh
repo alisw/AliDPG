@@ -870,7 +870,7 @@ echo
 
 ### sim.C
 
-if [[ $CONFIG_GENERATOR == *"AMPT_v226t7"* ]]; then
+if [[ $CONFIG_GENERATOR == *"AMPT_v2"* ]]; then
 
     AMPTC=$ALIDPG_ROOT/MC/EXTRA/AMPTstandalone.C
     runcommand "AMPT" $AMPTC ampt.log 10
