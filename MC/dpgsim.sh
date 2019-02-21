@@ -870,6 +870,20 @@ echo
 
 ### sim.C
 
+if [[ $CONFIG_GENERATOR == *"AMPT_v226t7"* ]]; then
+
+    AMPTC=$ALIDPG_ROOT/MC/EXTRA/AMPTstandalone.C
+    runcommand "AMPT" $AMPTC ampt.log 10
+
+    if [ ! -f ampteventfifo ]; then
+	echo "*! Could not find ampteventfifo, the AMPT simulation failed!"
+	echo "Could not find ampteventfifo, the AMPT simulation failed!" >> validation_error.message
+	exit 2
+    fi
+    
+fi
+
+
 if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
     if [[ $CONFIG_GENERATOR == "" ]]; then
