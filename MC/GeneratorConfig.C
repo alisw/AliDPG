@@ -1021,7 +1021,7 @@ GeneratorHijing()
   //  gener->SetDecaysOff(1);
   // kinematic selection
   gener->SetSelectAll(0);
-  gener->SetPtHardMin (2.3);
+  gener->SetPtHardMin(ptHardMinHijing);
   return gener;
 }
 

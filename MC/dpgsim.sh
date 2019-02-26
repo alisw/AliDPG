@@ -34,6 +34,7 @@ function COMMAND_HELP(){
     echo "--uid <uniqueID>                          Unique identifier of the process"
     echo "--pdg <pdgcode>                           PDG value of particle. Specific use may vary according to generator configuration"
     echo "--bmin <bmin> --bmax <bmax>               Impact parameter range. Specific use may vary according to generator configuration"
+    echo "--ptHardMinHijing <ptHardMinHijing>       Lower cut on ptHard for HIJING simulation"
     echo "--ymin <min> --ymax <max>                 Rapidity range. Specific use may vary according to generator configuration"
     echo "--phimin <min> --phimax <max>             Azimuthal angle range (in degree). Specific use may vary according to generator configuration"
     echo "--ptmin <min> --ptmax <max>               Transverse momentum range. Specific use may vary according to generator configuration"
@@ -192,6 +193,7 @@ CONFIG_PHYSICSLIST=""
 CONFIG_PDG=""
 CONFIG_BMIN=""
 CONFIG_BMAX=""
+CONFIG_PTHARDMINHIJING=""
 CONFIG_YMIN=""
 CONFIG_YMAX=""
 CONFIG_PHIMIN=""
@@ -325,6 +327,13 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--bmax" ]; then
         CONFIG_BMAX="$1"
 	export CONFIG_BMAX
+        shift
+    elif [ "$option" = "--ptHardMinHijing" ]; then
+        CONFIG_PTHARDMINHIJING="$1"
+	export CONFIG_PTHARDMINHIJING
+	if [ "$CONFIG_GENERATOR" != "Hijing" ]; then
+	    echo "Setting the ptHardMin cut for Hijing generator won't have any effect as the generator is $CONFIG_GENERATOR"
+	fi
         shift
     elif [ "$option" = "--ymin" ]; then
         CONFIG_YMIN="$1"
@@ -848,6 +857,7 @@ echo "============================================"
 echo "PDG code......... $CONFIG_PDG"
 echo "b-min............ $CONFIG_BMIN"
 echo "b-max............ $CONFIG_BMAX"
+echo "ptHardMinHijing.. $CONFIG_PTHARDMINHIJING"
 echo "y-min............ $CONFIG_YMIN"
 echo "y-max............ $CONFIG_YMAX"
 echo "phi-min (in deg.) $CONFIG_PHIMIN"
