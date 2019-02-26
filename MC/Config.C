@@ -24,6 +24,7 @@ static Int_t triggerConfig   = 0.;        // trigger
 static Int_t   pdgConfig       = 0;         // PDG value 
 static Float_t bminConfig      = 0.;        // impact parameter min
 static Float_t bmaxConfig      = 20.;       // impact parameter max
+static Float_t ptHardMinHijing = 3.;        // min cut on ptHard for Hijing simulations
 static Float_t yminConfig      = -1.e6;     // rapidity min
 static Float_t ymaxConfig      =  1.e6;     // rapidity max
 static Float_t phiminConfig    = 0.;        // phi min
@@ -83,6 +84,7 @@ Config()
   printf(">>>>>              PDG: %d \n", pdgConfig);
   printf(">>>>>            b-min: %f \n", bminConfig);
   printf(">>>>>            b-max: %f \n", bmaxConfig);
+  printf(">>>>>  ptHardMinHijing: %f \n", ptHardMinHijing);
   printf(">>>>>            y-min: %f \n", yminConfig);
   printf(">>>>>            y-max: %f \n", ymaxConfig);
   printf(">>>>>   phi-min (deg.): %f \n", phiminConfig);
@@ -278,6 +280,11 @@ ProcessEnvironment()
     printf(">>>>> Invalid max impact parameter: %f \n", bmaxConfig);
     abort();
   }
+
+  // ptHardMin for HIJING simulation
+  ptHardMinHijing = 3.;
+  if (gSystem->Getenv("CONFIG_PTHARDMINHIJING"))
+     ptHardMinHijing= atof(gSystem->Getenv("CONFIG_PTHARDMINHIJING"));
 
   // rapidity, phi, pT configuration
   yminConfig = -1.e6;
