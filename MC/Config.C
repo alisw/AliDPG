@@ -24,7 +24,7 @@ static Int_t triggerConfig   = 0.;        // trigger
 static Int_t   pdgConfig       = 0;         // PDG value 
 static Float_t bminConfig      = 0.;        // impact parameter min
 static Float_t bmaxConfig      = 20.;       // impact parameter max
-static Float_t ptHardMinHijing = 2.3;       // min cut on ptHard for Hijing simulations
+static Float_t ptHardMinHijing = 2.9;       // min cut on ptHard for Hijing simulations
 static Float_t yminConfig      = -1.e6;     // rapidity min
 static Float_t ymaxConfig      =  1.e6;     // rapidity max
 static Float_t phiminConfig    = 0.;        // phi min
@@ -282,7 +282,7 @@ ProcessEnvironment()
   }
 
   // ptHardMin for HIJING simulation
-  ptHardMinHijing = 2.3;
+  ptHardMinHijing = 2.9;
   if (gSystem->Getenv("CONFIG_PTHARDMINHIJING"))
      ptHardMinHijing= atof(gSystem->Getenv("CONFIG_PTHARDMINHIJING"));
 
