@@ -55,7 +55,7 @@ Double_t PtMuon(const Double_t *px, const Double_t */*dummy*/)
   Double_t x=*px;
 
   Double_t p0 = 797.446;
-  Double_t p1 = 0.830278,;
+  Double_t p1 = 0.830278;
   Double_t p2 = 0.632177;
   Double_t p3 = 10.2202;
   Double_t p4 = -0.000614809;
