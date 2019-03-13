@@ -2,9 +2,13 @@ AliGenerator *
 GeneratorCustom(TString opt = "")
 {
 	
-  AliGenCocktail *ctl  = GeneratorCocktail("Hijing_HF");  
-  AliGenerator   *hij  = GeneratorHijing();
-  ctl->AddGenerator(hij, "Hijing", 1.);
+  AliGenCocktail *ctl  = GeneratorCocktail("Hijing_HF");
+  TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
+
+  if(!simulation.Contains("Embed")){
+    AliGenerator *hij = GeneratorHijing();
+    ctl->AddGenerator(hij, "Hijing", 1.);
+  }
 
   Int_t process[2] = {kPythia6HeavyProcess_Charm, kPythia6HeavyProcess_Beauty};
   Int_t decay[4]   = {kPythia6HeavyDecay_Hadrons, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Electron, kPythia6HeavyDecay_All};
