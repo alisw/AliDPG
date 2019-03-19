@@ -41,7 +41,7 @@ Bool_t IsAliPhysicsMoreRecentThan(TString version){
   }else{
     printf("ALIEN_PACKAGES and ALIEN_JDL_PACKAGES not defined\n");
     printf("  --> Cannot check AliPhysics version\n");
-    return kTRUE;
+    return kFALSE;
   }
 }
 
