@@ -2,12 +2,13 @@
 ///   (extracted from ALIEN_JDL_PACKAGES ot ALIEN_PACKAGES)
 /// against the version passed as argument
 /// Example:  IsAliPhysicsMoreRecentThan("v5-09-20")
+/// with  ALIEN_JDL_PACKAGES=VO_ALICE@AliPhysics::v5-09-41a-01-1
 
 
 Bool_t IsAliPhysicsMoreRecentThan(TString version){
 
   Int_t vvv,nnn1,nnn2;
-  sscanf(version,"v%d-%d-%d",&vvv,&nnn1,&nnn2);
+  sscanf(version.Data(),"v%d-%d-%d",&vvv,&nnn1,&nnn2);
   
   // check if ALIEN_JDL_PACKAGES exists
   // if not, try with ALIEN_PACKAGES
@@ -47,7 +48,7 @@ Bool_t IsAliPhysicsMoreRecentThan(TString version){
 Bool_t IsAliPhysicsMoreRecentThanOrEqualTo(TString version){
 
   Int_t vvv,nnn1,nnn2;
-  sscanf(version,"v%d-%d-%d",&vvv,&nnn1,&nnn2);
+  sscanf(version.Data(),"v%d-%d-%d",&vvv,&nnn1,&nnn2);
   
   // check if ALIEN_JDL_PACKAGES exists
   // if not, try with ALIEN_PACKAGES
@@ -67,14 +68,13 @@ Bool_t IsAliPhysicsMoreRecentThanOrEqualTo(TString version){
     Int_t ver,n1,n2;
     Char_t str2[20];
     sscanf(aliph.Data(),"AliPhysics::v%d-%d-%02d%s",&ver,&n1,&n2,str2);
-    if(ver==vvv && n1==nnn1 && n2==nnn2) return kTRUE;
     if(ver<vvv) return kFALSE;
     else if(ver>vvv) return kTRUE;
     else if(ver==vvv){
       if(n1<nnn1) return kFALSE;
       else if(n1>nnn1) return kTRUE;
       else if(n1==nnn1){
-	if(n2<=nnn2) return kFALSE;
+	if (n2 < nnn2) return kFALSE; // we check if it is "<=" (here is the difference wrt line 37
 	else return kTRUE;
       }
     }
@@ -87,7 +87,7 @@ Bool_t IsAliPhysicsMoreRecentThanOrEqualTo(TString version){
 
 Bool_t IsAliPhysicsEqualTo(TString version){
   Int_t vvv,nnn1,nnn2;
-  sscanf(version,"v%d-%d-%d",&vvv,&nnn1,&nnn2);
+  sscanf(version.Data(),"v%d-%d-%d",&vvv,&nnn1,&nnn2);
   
   // check if ALIEN_JDL_PACKAGES exists
   // if not, try with ALIEN_PACKAGES
