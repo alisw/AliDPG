@@ -17,6 +17,8 @@
 #include "TROOT.h"
 #endif
 
+#include "../Utils/CheckAliRootVersion.C"
+
 enum ESimulation_t {
   kSimulationDefault,
   kSimulationMuon,
@@ -230,6 +232,7 @@ void SimulationDefault(AliSimulation &sim)
   //
   // HLT settings
   TString hltConfig = "auto";
+  if (IsAliPhysicsMoreRecentThanOrEqualTo("v5-09-46")) hltConfig = "auto chains=TPC-compression-only";
   if (gSystem->Getenv("CONFIG_HLT"))
     hltConfig = gSystem->Getenv("CONFIG_HLT");
   sim.SetRunHLT(hltConfig.Data());
