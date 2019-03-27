@@ -5,6 +5,7 @@ GeneratorCustom(TString opt = "")
   AliGenCocktail *ctl   = GeneratorCocktail("Hijing_LMee001");
 
   // Background events: HIJING (only if non-embedded)
+  TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
   if(!simulation.Contains("Embed")){
     AliGenerator   *hij   = GeneratorHijing();
     ctl->AddGenerator(hij,  "Hijing", 1.);
