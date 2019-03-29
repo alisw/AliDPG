@@ -116,7 +116,7 @@ Int_t run_numbers[10] = {177580}; // Set the run range, for testing
  *            Refiltering settings                *
  **************************************************/
 
-TString     aliphysics_version = "v5-09-17c-01-1"; // *CHANGE ME IF MORE RECENT IN GRID*
+TString     aliphysics_version = "v5-09-46-01-1"; // *CHANGE ME IF MORE RECENT IN GRID*
 
 Int_t       iAODanalysis        = 0;      // AOD based analysis 
 // Maximum number of files per job (gives size of AOD)
@@ -1275,6 +1275,9 @@ AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode)
    // This may be added as custom file, iterating over the actual file list to be merged in this macro
    //
    ((TGridJDL*)plugin->GetGridJDL())->AddToInputSandbox("LF:/alice/validation/aodmerge/validation.rc");
+
+   // save the logs for standard central refiltering productions
+   plugin->SetKeepLogs();
 
    return plugin;
 }
