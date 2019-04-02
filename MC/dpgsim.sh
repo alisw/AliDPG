@@ -946,7 +946,9 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
 	runcommand "BACKGROUND" $SIMC sim.log 5
 	mv -f syswatch.log simwatch.log
-
+	echo "Doing ls on background folder" >> sim.log
+	ls -altr >> sim.log
+	
 	cd ..
 
 	export CONFIG_GENERATOR=$SAVE_CONFIG_GENERATOR
