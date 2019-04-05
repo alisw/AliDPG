@@ -6,6 +6,9 @@
 #include <TList.h>
 #include <TMath.h>
 #include <TFolder.h>
+#include <TLatex.h>
+#include <TString.h>
+#include <TPaveStats.h>
 #include "AliPerformanceObject.h"
 #endif
 
@@ -95,7 +98,7 @@ void ProcessFile(TString fname, TString dirToAnalyse){
       if(dirToAnalyse.Length()>0 && !lsName.Contains(dirToAnalyse.Data())){
 	printf("Skip TList %s\n",lsName.Data());
       }else{
-	prefix.Append(Form("%s_",ls->GetName()));	
+	prefix.Append(Form("%s_",ls->GetName()));
 	ProcessList(ls);
       }
     }
@@ -115,7 +118,7 @@ void ProcessDirectory(TDirectoryFile* df){
     TString cname=k->GetClassName();
     TString oname=k->GetName();
     Int_t oSize=k->GetObjlen();
-    if(cname=="TList"){
+    if(cname=="TList" || cname=="THashList"){
       TList* ls=(TList*)df->Get(oname.Data());
       prefix.Append(Form("%s_",ls->GetName()));	
       ProcessList(ls);
@@ -283,34 +286,65 @@ Bool_t CompareHistos(TH1* hA, TH1* hB){
   }
   if(nBins>1){
     printf(" -> Different contents: %s  chi2/nBins=%f   meanreldiff=%f \n",hA->GetName(),chi2/nBins,meandiff);
-    if(chi2/nBins<1.5 && TMath::Abs(meandiff)<0.01) return kTRUE;
-    else{
-      TCanvas* c=new TCanvas(hA->GetName(),hA->GetName(),1200,600);
-      c->Divide(2,1);
-      c->cd(1);
-      TString hcln=hA->ClassName();
-      TString optD="";
-      if(hcln.Contains("TH2")) optD="box";
-      hA->SetLineColor(1);
-      hA->SetMarkerColor(1);
-      hA->DrawClone(optD.Data());
-      hB->SetLineColor(2);
-      hB->SetMarkerColor(2);
-      hB->DrawClone(Form("%ssame",optD.Data()));
-      c->cd(2);
-      hA->Divide(hB);
-      for(Int_t k=1;k<=hA->GetNbinsX();k++) hA->SetBinError(k,0.000000001);
-      hA->SetMinimum(TMath::Max(0.98,hA->GetBinContent(hA->GetMinimumBin())-hA->GetBinError(hA->GetMinimumBin())));
-      hA->SetMaximum(TMath::Min(1.02,hA->GetBinContent(hA->GetMaximumBin())+hA->GetBinError(hA->GetMaximumBin())));
-      if(hcln.Contains("TH2")) hA->Draw("colz");
-      else{
-	hA->Draw();
-	hA->GetYaxis()->SetTitle("Ratio");
-      }
-      c->SaveAs(Form("%s.png",hA->GetName()));
-      delete c;
-      return kFALSE;
+    TCanvas* c=new TCanvas(hA->GetName(),hA->GetName(),1200,600);
+    c->Divide(2,1);
+    c->cd(1);
+    TString hcln=hA->ClassName();
+    TString optD="";
+    if(hcln.Contains("TH2")) optD="box";
+    hA->SetLineColor(1);
+    hA->SetMarkerColor(1);
+    TH1* hAc=(TH1*)hA->DrawClone(optD.Data());
+    hB->SetLineColor(2);
+    hB->SetMarkerColor(2);
+    TH1* hBc=(TH1*)hB->DrawClone(Form("%ssames",optD.Data()));
+    c->Update();
+    TPaveStats* stA=(TPaveStats*)hAc->GetListOfFunctions()->FindObject("stats");
+    if(stA){
+      stA->SetLineColor(1);
+      stA->SetTextColor(1);
+      stA->SetY1NDC(0.68);
+      stA->SetY2NDC(0.88);
     }
+    TPaveStats* stB=(TPaveStats*)hBc->GetListOfFunctions()->FindObject("stats");
+    if(stB){
+      stB->SetLineColor(2);
+      stB->SetTextColor(2);
+      stB->SetY1NDC(0.45);
+      stB->SetY2NDC(0.65);
+    }
+    
+    c->cd(2);
+    hA->Divide(hB);
+    for(Int_t k=1;k<=hA->GetNbinsX();k++) hA->SetBinError(k,0.000000001);
+    hA->SetMinimum(TMath::Max(0.98,0.95*hA->GetBinContent(hA->GetMinimumBin())-hA->GetBinError(hA->GetMinimumBin())));
+    hA->SetMaximum(TMath::Min(1.02,1.05*hA->GetBinContent(hA->GetMaximumBin())+hA->GetBinError(hA->GetMaximumBin())));
+    hA->SetStats(0);
+    if(hcln.Contains("TH2")) hA->Draw("colz");
+    else{
+      hA->Draw();
+      hA->GetYaxis()->SetTitle("Ratio");
+    }
+    c->cd(1);
+    TString outc="";
+    Int_t colt=1;
+    Bool_t retVal=kTRUE;
+    if(chi2/nBins<1.5 && TMath::Abs(meandiff)<0.01){
+      outc="Compatible";
+      colt=kGreen+1;
+    }else{
+      outc="BAD";
+      colt=2;
+      retVal=kFALSE;
+    }
+    TLatex* toutc=new TLatex(0.2,0.85,outc.Data());
+    toutc->SetNDC();
+    toutc->SetTextColor(colt);
+    toutc->SetTextFont(62);
+    toutc->Draw();
+    c->SaveAs(Form("%s.png",hA->GetName()));
+    delete c;
+    return retVal;
   }
   return kTRUE;
 }
