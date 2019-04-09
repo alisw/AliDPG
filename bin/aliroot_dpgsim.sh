@@ -8,7 +8,7 @@ if [ "$ALIDPG_ROOT" = "" ]; then
 
 	echo "Using AliDPG from tarball"
 	tar zxvf alidpg.tgz
-	export ALIDPG_ROOT=AliDPG
+	export ALIDPG_ROOT=`pwd`/AliDPG
 	
     else
 	
