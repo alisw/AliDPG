@@ -20,18 +20,18 @@ AliGenerator *GeneratorCustom(TString opt = "")
     bEvalFormula=(bmaxConfig+bminConfig)/2.;
   }
 
-  const Char_t *label[2][6] = {
-    "chadr PYTHIA", "chadr PYTHIA", "cele PYTHIA", "chadr PYTHIA", "chadr PYTHIA", "chadr PYTHIA", 
-    "bchadr PYTHIA", "bchadr PYTHIA", "bele PYTHIA", "bchadr PYTHIA", "bchadr PYTHIA", "bchadr PYTHIA"
+  const Char_t *label[2][7] = {
+    "chadr PYTHIA", "chadr PYTHIA", "cele PYTHIA", "chadr PYTHIA", "chadr PYTHIA", "chadr PYTHIA", "chadr PYTHIA",
+    "bchadr PYTHIA", "bchadr PYTHIA", "bele PYTHIA", "bchadr PYTHIA", "bchadr PYTHIA", "bchadr PYTHIA", "bchadr PYTHIA"
   };
   //
   Int_t process[2] = {kPythia6HeavyProcess_Charm, kPythia6HeavyProcess_Beauty};
   Int_t iprocess = uidConfig % 2;
   //
-  Int_t decay[6]   = {kPythia6HeavyDecay_Hadrons, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Electron, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Hadrons};
-  TString optList[6] = {"had", "hv0", "ele", "LcK0Sp", "LcK0SpBDTsig", "LcpKpi"};
+  Int_t decay[7]   = {kPythia6HeavyDecay_Hadrons, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Electron, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Hadrons, kPythia6HeavyDecay_Hadrons};
+  TString optList[7] = {"had", "hv0", "ele", "LcK0Sp", "LcK0SpBDTsig", "LcpKpi", "DsKKpi"};
   Int_t idecay = 0;
-  for (Int_t iopt = 0; iopt < 6; iopt++)
+  for (Int_t iopt = 0; iopt < 7; iopt++)
     if (opt.EqualTo(optList[iopt]))
       idecay = iopt;
   //
@@ -67,6 +67,11 @@ AliGenerator *GeneratorCustom(TString opt = "")
     ((AliGenPythia *)phf)->SetTriggerY(1.0);
     ((AliGenPythia *)phf)->SetHeavyQuarkYRange(-1.5,1.5);
     ((AliGenPythia *)phf)->SetForceDecay(AliDecayer::kLcpKpi);  //Force Lc decay mode in PYTHIA to Lc->pKpi
+  }
+  if(opt.EqualTo(optList[6])){//Ds --> KKpi
+    ((AliGenPythia *)phf)->SetTriggerParticle(431, -999., 999., -1, 1000);
+    ((AliGenPythia *)phf)->SetTriggerY(1.0);
+    ((AliGenPythia *)phf)->SetHeavyQuarkYRange(-1.5,1.5);
   }
   ctl->AddGenerator(phf, label[iprocess][idecay], 1., formula,ntimes);
   printf(">>>>> added HF generator %s \n", label[iprocess][idecay]);
