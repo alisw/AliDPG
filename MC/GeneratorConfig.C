@@ -1539,17 +1539,14 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
   pythia->SetEnergyCMS(energyConfig);
   pythia->SetTune(kPythia6Tune_Perugia0);
   pythia->UseNewMultipleInteractionsScenario();
-  pythia->SetCutOnChild(1);
-  pythia->SetPdgCodeParticleforAcceptanceCut(443);
-  pythia->SetChildYRange(-2, 2);
-  pythia->SetChildPtRange(0, 10000.);
-  pythia->SetForceDecay(kBJpsiUndecayed);
-  pythia->SetStackFillOpt(AliGenPythia::kHeavyFlavor);  
+  pythia->SetForceDecay(kNoDecayBeauty);
+  pythia->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
   //
   // 
   AliGenEvtGen *gene = new AliGenEvtGen();
   gene->SetForceDecay(kBJpsiDiElectron);
-  gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);
+  gene->SetParticleSwitchedOff(AliGenEvtGen::kHFPart);
+
   if (jpsifrac > 0.) gener->AddGenerator(jpsi,           "JPsi",           jpsifrac);
   if (lowfrac  > 0.) gener->AddGenerator(jpsiLowPt,      "jpsiLowPt",      lowfrac);
   if (highfrac > 0.) gener->AddGenerator(jpsiHighPtFlat, "jpsiHighPtFlat", highfrac);
