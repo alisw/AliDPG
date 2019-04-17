@@ -29,12 +29,13 @@ void ExtractEmbeddedWrapper(Bool_t keepMixed = kFALSE)
     abort();
     return;
   }
-  
-  if(RemoveBKGFromGalice("galice_EMB.root","galice.root") == kFALSE){
-    Printf("ERROR: Problem when running RemoveBKGFromGalice");
-    abort();
-    return;
-  }
+
+  //// Remove for proper handling of AliMultSelection task
+  // if(RemoveBKGFromGalice("galice_EMB.root","galice.root") == kFALSE){
+  //   Printf("ERROR: Problem when running RemoveBKGFromGalice");
+  //   abort();
+  //   return;
+  // }
 
   gSystem->Exec("rm ExtractEmbedded.C ExtractEmbedded_C.*");
   
