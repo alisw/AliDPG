@@ -1008,6 +1008,7 @@ fi
 
 if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"EmbedSig"* ]] && [ $CONFIG_SIGNALFILTERING == "on" ]; then
 
+    ## Modify also for proper handling of AliMultSelection task???
     if [[ $CONFIG_MODE == *"extractembeddedmixed"* ]]; then
 	EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C\(kTRUE\)
     else
@@ -1028,6 +1029,8 @@ if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"Embed
 	exit 2
     fi
 
+    
+    ## Modify also for proper handling of AliMultSelection task???
     if [ "$CONFIG_DEBUG" = "on" ]; then
 	mv "AliESDs.root" "AliESDs_ORIG.root"
 	mv "galice.root" "galice_ORIG.root"
