@@ -1023,11 +1023,12 @@ if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"Embed
 	exit 2
     fi
 
-    if [ ! -f galice_EMB.root ]; then
-	echo "*! Could not find galice_EMB.root, the embedded signal filtering failed!"
-	echo "Could not find galice_EMB.root, the embedded signal filtering failed!" >> validation_error.message
-	exit 2
-    fi
+    ## Removed for proper handling of AliMultSelection task
+    #if [ ! -f galice_EMB.root ]; then
+    #	echo "*! Could not find galice_EMB.root, the embedded signal filtering failed!"
+    #	echo "Could not find galice_EMB.root, the embedded signal filtering failed!" >> validation_error.message
+    #	exit 2
+    #fi
 
     if [ "$CONFIG_DEBUG" = "on" ]; then
 	mv "AliESDs.root" "AliESDs_ORIG.root"
