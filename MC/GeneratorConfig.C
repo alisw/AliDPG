@@ -194,7 +194,7 @@ AliGenerator *GeneratorPythia8GammaJet(Int_t tune = 0, Int_t acceptance = kCalor
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
-AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac);
+AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Bool_t useEvtGenForB=kFALSE);
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
 AliGenerator *GeneratorStarlight();
 AliGenerator *GeneratorDRgen();
@@ -1478,7 +1478,7 @@ AliGenParam* GeneratorParam(int n, int pdg, double ptmin, double ptmax, double y
 /*** JPSI -> EE ****************************************************/
 
 AliGenerator *
-Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac)
+Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Bool_t useEvtGenForB)
 {
 
   /*
@@ -1539,13 +1539,21 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
   pythia->SetEnergyCMS(energyConfig);
   pythia->SetTune(kPythia6Tune_Perugia0);
   pythia->UseNewMultipleInteractionsScenario();
-  pythia->SetForceDecay(kNoDecayBeauty);
+  if(useEvtGenForB) pythia->SetForceDecay(kNoDecayBeauty);
+  else {
+  pythia->SetCutOnChild(1);
+  pythia->SetPdgCodeParticleforAcceptanceCut(443);
+  pythia->SetChildYRange(-2, 2);
+  pythia->SetChildPtRange(0, 10000.);
+  pythia->SetForceDecay(kBJpsiUndecayed);
+  }
   pythia->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
   //
   // 
   AliGenEvtGen *gene = new AliGenEvtGen();
   gene->SetForceDecay(kBJpsiDiElectron);
-  gene->SetParticleSwitchedOff(AliGenEvtGen::kHFPart);
+  if(useEvtGenForB) gene->SetParticleSwitchedOff(AliGenEvtGen::kHFPart);
+  else gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);
 
   if (jpsifrac > 0.) gener->AddGenerator(jpsi,           "JPsi",           jpsifrac);
   if (lowfrac  > 0.) gener->AddGenerator(jpsiLowPt,      "jpsiLowPt",      lowfrac);
