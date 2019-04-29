@@ -1,4 +1,4 @@
-Geant4Config()
+void Geant4Config()
 {
 
   if (gClassTable->GetID("TGeant4") == -1) {
@@ -17,13 +17,42 @@ Geant4Config()
   //  
   TGeant4 *geant4 = 0;
   if ( ! gMC ) {
-    TG4RunConfiguration* runConfiguration = new TG4RunConfiguration("geomRoot",
-								    "FTFP_BERT_EMV+optical",
-								    "specialCuts+stackPopper+stepLimiter",
-								    true);
-    geant4 = new TGeant4("TGeant4", 
-			 "The Geant4 Monte Carlo : FTFP_BERT_EMV-EMCAL", 
-			 runConfiguration);
+    TG4RunConfiguration* runConfiguration = NULL;
+
+    // check if monopole injection requested
+    if(abs(pdgConfig)<60000000 || abs(pdgConfig)>=70000000){
+      runConfiguration = new TG4RunConfiguration("geomRoot",
+						 "FTFP_INCLXX_EMV+optical",
+						 "specialCuts+stackPopper+stepLimiter",
+						 true);
+      geant4 = new TGeant4("TGeant4", 
+			   "The Geant4 Monte Carlo : FTFP_INCLXX_EMV+optical", 
+			   runConfiguration);
+    }
+    else{
+      Printf("\n\nSET UP GEANT4 for magnetic monopoles\n\n");
+      //decode mass, electric charge and magnetic charge:  pdgConfig= sign 6abcdefg -> mass= c.defg*10^g; el charge=sign a; mag. charge= sign b
+      Double_t mass=Double_t (int(abs(pdgConfig)%(int(1e5))/10)/1000.)*pow(10,(int(abs(pdgConfig)%10)));
+      Double_t eCh=(abs(pdgConfig)/pdgConfig)*abs(pdgConfig)/(int(1e6))%10;
+      Double_t mCh=(abs(pdgConfig)/pdgConfig)*abs(pdgConfig)/(int(1e5))%10;
+      pdgConfig=60000000;
+      Printf("\n PDG Code: %d, mass: %3.3f, el. charge: %d; mag. charge: %d",pdgConfig,mass,eCh,mCh);
+
+      
+      runConfiguration = new TG4RunConfiguration("geomRoot",
+						 "FTFP_INCLXX_EMV+optical+monopole",
+						 "specialCuts+stackPopper+stepLimiter",
+						 true);
+      
+      runConfiguration->SetParameter("monopoleMass", mass);
+      runConfiguration->SetParameter("monopoleElCharge", eCh);
+      runConfiguration->SetParameter("monopoleMagCharge", mCh);
+      
+      geant4 = new TGeant4("TGeant4", 
+			   "The Geant4 Monte Carlo : FTFP_INCLXX_EMV+optical+monopole", 
+			   runConfiguration);
+    }
+    
     cout << "Geant4 has been created." << endl;
   } 
   else {
@@ -54,7 +83,7 @@ Geant4Config()
   geant4->ProcessGeantCommand("/process/optical/processActivation OpWLS 0");
   geant4->ProcessGeantCommand("/process/optical/processActivation OpMieHG 0");
   geant4->ProcessGeantCommand("/process/optical/setTrackSecondariesFirst Cerenkov 0");
-  // [use default stepper until issue with Nystrom fixed]  geant4->ProcessGeantCommand("/mcMagField/stepperType NystromRK4");
+  geant4->ProcessGeantCommand("/mcMagField/stepperType NystromRK4");
   
   //
   // PAI for TRD
@@ -84,5 +113,14 @@ Geant4Config()
   //geant4->ProcessGeantCommand("/mcVerbose/physicsEmModel 2"); 
   //geant4->ProcessGeantCommand("/mcVerbose/regionsManager 2"); 
   
+  // Magnetic monopole settings
+  if(!(abs(pdgConfig)<60000000 || abs(pdgConfig)>=70000000)){
+    geant4->ProcessGeantCommand("/mcMagField/setConstDistance 1 mm");
+    geant4->ProcessGeantCommand("/mcMagField/setIsMonopole true");
+  }
+
+  geant4->ProcessGeantCommand("/mcMagField/setDeltaIntersection 1.0e-05 mm");
+  geant4->ProcessGeantCommand("/mcMagField/setMinimumEpsilonStep 0.5e-05");
+  geant4->ProcessGeantCommand("/mcMagField/setMaximumEpsilonStep 1.0e-05");
 }
 

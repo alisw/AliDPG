@@ -6,14 +6,78 @@ if [ -z "$ALIDPG_ROOT" ]; then
     exit 1
 fi
 
-# check ALICER_ROOT is set
+# check ALICE_ROOT is set
 if [ -z "$ALICE_ROOT" ]; then
     echo "ALICE_ROOT not set, abort."
     exit 1
 fi
 
+# enable vdt library
+
+$ALIDPG_ROOT/DataProc/Common/EnableVDTUponPackageVersion.sh
+###################
+
 # set job and simulation variables as :
-COMMAND_HELP="./dpgsim.sh --mode <mode> --run <run> --generator <generatorConfig> --energy <energy> --system <system> --detector <detectorConfig> --magnet <magnetConfig> --simulation <simulationConfig> --reconstruction <reconstructionConfig> --uid <uniqueID> --nevents <numberOfEvents> --qa <qaConfig> --aod <aodConfig> --ocdb <ocdbConfig> --hlt <hltConfig> --keepTrackRefsFraction <percentage>"
+function COMMAND_HELP(){
+    echo ""
+    echo "More help can be found here: https://twiki.cern.ch/twiki/bin/view/ALICE/AliDPGMonteCarloTutorial"
+    echo "How to use: ./dpgsim.sh"
+    echo ""
+    echo "--help                                    Print this help"
+    echo "--debug                                   Debug option (has different implications, see dpgsim.sh for details)"
+    echo "--mode <mode>                 (mandatory) Running mode (ocdb,sim,rec,qa,aod,full,Muon,MuonOnly,Run3,extractembedded)" 
+    echo "--run <run>                   (mandatory) Anchor run number"    
+    echo "--generator <generatorConfig>             Mandatory for sim mode, choose: general purpose, PWG specific, or Custom (see TWiki)"
+    echo ""
+    echo "Monte Carle generation control:"
+    echo "--nevents <numberOfEvents>                Number of events to be generated in the simulation stage"
+    echo "--uid <uniqueID>                          Unique identifier of the process"
+    echo "--pdg <pdgcode>                           PDG value of particle. Specific use may vary according to generator configuration"
+    echo "--bmin <bmin> --bmax <bmax>               Impact parameter range. Specific use may vary according to generator configuration"
+    echo "--ptHardMinHijing <ptHardMinHijing>       Lower cut on ptHard for HIJING simulation"
+    echo "--ymin <min> --ymax <max>                 Rapidity range. Specific use may vary according to generator configuration"
+    echo "--phimin <min> --phimax <max>             Azimuthal angle range (in degree). Specific use may vary according to generator configuration"
+    echo "--ptmin <min> --ptmax <max>               Transverse momentum range. Specific use may vary according to generator configuration"
+    echo "--pthardmin <min> --pthardmax <max>       Range of pT hard bins (if applicable)" 
+    echo "--pthardbin <bin number>                  For selection of predefined pT hard bins (see MC/dpgsim.sh for definition)"
+    echo "--pttrigmin <min> --pttrigmax <max>       Range of pT for trigger particles (if applicable)"
+    echo "--process <name>                          Process tag name. Specific use may vary according to generator configuration"
+    echo "--processbin <bin                         Process bin for predefined process tag names. Specific use may vary according to generator configuration"
+    echo "--seed <seed>                             Seed for MC (0: use alien ID if alien job or run ID and uid)"
+    echo "--background <generatorConfig>            Generator used for background events in MC-to-MC embedding"
+    echo "--nbkg <numberOfEvents>                   Number of background events to be generated in the simulation stag in MC-to-MC embedding mode"
+    echo "--quenching <quenching>                   Switch on quenching for Pythia: --quenching 1"
+    echo "--qhat <qhat>                             Modify qhat for Pythia: --quenching qhat (default = 1.7)"
+    echo ""
+    echo "Detector, simulation, reconstruction and other settings:"
+    echo "--detector <detectorConfig>               tag name of the detector configuration, as defined in MC/DetectorConfig.C" 
+    #echo "--magnet <magnetConfig>                  NOT USED AT THE MOMENT" 
+    echo "--simulation <simulationConfig>           tag name of the simulation configuration, as defined in MC/SimulationConfig.C" 
+    echo "--reconstruction <reconstructionConfig>   tag name of the reconstruction configuration, as defined in MC/ReconstructionConfig.C" 
+    echo "--qa <qaConfig>                           tag name of the QA configuration to be used" 
+    echo "--aod <aodConfig>                         tag name of the AOD configuration to be used" 
+    echo "--hlt <hltConfig>                         HLT configuration" 
+    echo "--ocdb <ocdbConfig>                       OCDB configuration: <snapshot> for OCDB from snapshots, <alien>for OCDB from AliEn" 
+    echo "--OCDBTimeStamp <timeStamp>               Use time stamp in OCDB snapshot creation"
+    echo "--ocdbCustom                              Use custom OCDB, OCDBCustom.C to be provided"
+    echo "--keepTrackRefsFraction <percentage>      Percentage of subjobs that keeps the TrackRefs file"
+    echo "--signalFilteringFraction <percentage>    Percentage of subjobs that use signal filtering (for embedding only)"
+    echo "--material <densityFactor>                Modify material budget by a density factor"
+    echo "--purifyKineOff                           Switch off the PurifyKine step in simulation" 
+    echo "--fluka                                   Use FLUKA instead of GEANT3" 
+    echo "--geant4                                  Use GEANT4 instead of GEANT3"
+    echo "--nofastB                                 Switch off usage of fast B field"
+    echo "--novdt                                   Switch off usage of VDT library"
+    echo ""
+    echo "Override automatic settings:"
+    echo "--energy <energy>                         Centre-of-mass energy" 
+    echo "--system <system>             (mandatory) Collision system"
+    echo "--trigger <triggerconfig>                 Configuration of trigger inputs: ocdb, Pb-Pb (dummy configuration), p-p (dummy configuration), MUON or Custom.cfg configuration (needs Custom.cfg file)"
+    echo ""
+    echo "More help can be found here: https://twiki.cern.ch/twiki/bin/view/ALICE/AliDPGMonteCarloTutorial"
+    echo ""
+
+}
 
 function runcommand(){
     echo -e "\n"
@@ -129,6 +193,7 @@ CONFIG_PHYSICSLIST=""
 CONFIG_PDG=""
 CONFIG_BMIN=""
 CONFIG_BMAX=""
+CONFIG_PTHARDMINHIJING=""
 CONFIG_YMIN=""
 CONFIG_YMAX=""
 CONFIG_PHIMIN=""
@@ -149,16 +214,23 @@ CONFIG_SIMULATION=""
 CONFIG_RECONSTRUCTION=""
 CONFIG_QA=""
 CONFIG_AOD=""
-CONFIG_MODE="ocdb,full"
+CONFIG_MODE=""
 CONFIG_OCDB="snapshot"
+CONFIG_OCDBCUSTOM=""
+CONFIG_OCDBRUN3=""
+CONFIG_PURIFYKINEOFF=""
 CONFIG_HLT=""
 CONFIG_GEANT4=""
-CONFIG_FASTB="on"
+CONFIG_FLUKA=""
+CONFIG_FASTB=""
 CONFIG_VDT="on"
 CONFIG_MATERIAL=""
 CONFIG_KEEPTRACKREFSFRACTION="0"
 CONFIG_REMOVETRACKREFS="off"
+CONFIG_SIGNALFILTERINGFRACTION="100"
+CONFIG_SIGNALFILTERING="off"
 CONFIG_OCDBTIMESTAMP=""
+CONFIG_DEBUG=""
 
 RUNMODE=""
 
@@ -166,7 +238,13 @@ while [ ! -z "$1" ]; do
     option="$1"
     shift
 
-    if [ "$option" = "--mode" ]; then
+    if [ "$option" = "--help" ]; then
+	COMMAND_HELP
+	exit 0
+    elif [ "$option" = "--debug" ]; then
+	CONFIG_DEBUG="on"
+	export CONFIG_DEBUG
+    elif [ "$option" = "--mode" ]; then
 	CONFIG_MODE="$1"
 	export CONFIG_MODE
         shift
@@ -250,6 +328,13 @@ while [ ! -z "$1" ]; do
         CONFIG_BMAX="$1"
 	export CONFIG_BMAX
         shift
+    elif [ "$option" = "--ptHardMinHijing" ]; then
+        CONFIG_PTHARDMINHIJING="$1"
+	export CONFIG_PTHARDMINHIJING
+	if [ "$CONFIG_GENERATOR" != "Hijing" ]; then
+	    echo "Setting the ptHardMin cut for Hijing generator won't have any effect as the generator is $CONFIG_GENERATOR"
+	fi
+        shift
     elif [ "$option" = "--ymin" ]; then
         CONFIG_YMIN="$1"
 	export CONFIG_YMIN
@@ -324,6 +409,12 @@ while [ ! -z "$1" ]; do
         fi
         export CONFIG_OCDB
         shift
+    elif [ "$option" = "--ocdbCustom" ]; then
+	CONFIG_OCDBCUSTOM="1"
+	export CONFIG_OCDBCUSTOM
+    elif [ "$option" = "--purifyKineOff" ]; then
+	CONFIG_PURIFYKINEOFF="1"
+	export CONFIG_PURIFYKINEOFF
     elif [ "$option" = "--hlt" ]; then
         CONFIG_HLT="$1"
 	export CONFIG_HLT
@@ -335,6 +426,9 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
 	export CONFIG_GEANT4
+    elif [ "$option" = "--fluka" ]; then
+        CONFIG_FLUKA="on"
+	export CONFIG_FLUKA
     elif [ "$option" = "--nofastB" ]; then
         CONFIG_FASTB=""
     elif [ "$option" = "--novdt" ]; then
@@ -346,6 +440,10 @@ while [ ! -z "$1" ]; do
 	CONFIG_KEEPTRACKREFSFRACTION="$1"
 	export CONFIG_KEEPTRACKREFSFRACTION
         shift
+    elif [ "$option" = "--signalFilteringFraction" ] && [[ $CONFIG_MODE == *"extractembedded"* ]]; then
+	CONFIG_SIGNALFILTERINGFRACTION="$1"
+	export CONFIG_SIGNALFILTERINGFRACTION
+	shift
     elif [ "$option" = "--OCDBTimeStamp" ]; then
         CONFIG_OCDBTIMESTAMP="$1"
         export CONFIG_OCDBTIMESTAMP
@@ -356,7 +454,7 @@ while [ ! -z "$1" ]; do
     fi
 done
 
-# export settings (needed, since some arte set to on by default)
+# export settings (needed, since some are set to on by default)
 if [ "$CONFIG_FASTB" = "on" ]; then
     export CONFIG_FASTB
 fi
@@ -453,6 +551,20 @@ export CONFIG_REMOVETRACKREFS
 
 # <<<------------------ decide if TrackRefs.root should be removed -----------------<<<
 
+# >>>------------------ decide if signal should be filtered (for embedding) -------->>>
+
+# check consistency of provided (if any) fraction of subjobs where signal filtering is used
+if [[ ! $CONFIG_SIGNALFILTERINGFRACTION =~ ^[0-9]+$ ]] ; then
+    echo "Invalid value $CONFIG_SIGNALFILTERINGFRACTION provided for signalFilteringFraction"
+    exit 1
+fi
+
+[[ $CONFIG_SIGNALFILTERINGFRACTION -gt 100 ]] && CONFIG_SIGNALFILTERINGFRACTION="100"
+[[ $((CONFIG_PROCID%100)) -ge $CONFIG_SIGNALFILTERINGFRACTION ]] && CONFIG_SIGNALFILTERING="off" || CONFIG_SIGNALFILTERING="on"
+export CONFIG_SIGNALFILTERING
+
+# <<<------------------ decide if signal should be filtered (for embedding) --------<<<
+
 # mkdir input
 # mv galice.root ./input/galice.root
 # mv Kinematics.root ./input/Kinematics.root
@@ -472,12 +584,33 @@ if [ -f "$G4INSTALL/bin/geant4.sh" ]; then
     source $G4INSTALL/bin/geant4.sh
 fi
 
+### check if Run 3 (needed for snapshot creation)
+
+if [[ $CONFIG_MODE == *"Run3"* ]]; then
+    if [[ $CONFIG_OCDBRUN3 == "" ]]; then
+	CONFIG_OCDBRUN3="1"
+	export CONFIG_OCDBRUN3
+    fi
+fi
+
+### check for Fluka and configure it if needed
+
+if [[ $CONFIG_FLUKA == "on" ]]; then
+    echo "* Linking files needed for FLUKA"
+    source $ALIDPG_ROOT/MC/FlukaConfig.sh
+    if [[ $FLUKA_CONFIG_ERROR ]]; then
+        echo "FATAL: Errors configuring FLUKA: aborting!"
+        exit 1
+    fi
+fi
+
 ### check whether we are in OCDB generation job
 
 if [[ $ALIEN_JDL_LPMOCDBJOB == "true" ]]; then
     echo ">>>>> OCDB generation: force MODE to 'ocdb'"
     export CONFIG_MODE="ocdb"
 fi
+
 
 ### createSnapshot.C
 
@@ -516,24 +649,29 @@ fi
 
     if [[ $CONFIG_MODE == "" ]]; then
 	echo ">>>>> ERROR: mode is required!"
-	echo $COMMAND_HELP
+	COMMAND_HELP
 	exit 2
     fi
 
 if [[ $CONFIG_RUN == "" ]]; then
     echo ">>>>> ERROR: run number is required!"
-    echo $COMMAND_HELP
+    COMMAND_HELP
     exit 2
 fi
 
 if [[ $CONFIG_OCDB == *"snapshot"* ]]; then
 
-    if [ ! -f OCDBsim.root ]; then
-	echo ">>>>> ERROR: Could not find OCDBsim.root"
+    if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
+	if [ ! -f OCDBsim.root ]; then
+	    echo ">>>>> ERROR: Could not find OCDBsim.root"
+	    exit 2
+	fi
     fi
-    if [ ! -f OCDBrec.root ]; then
-	echo ">>>>> ERROR: Could not find OCDBrec.root"
-	exit 2
+    if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
+	if [ ! -f OCDBrec.root ]; then
+	    echo ">>>>> ERROR: Could not find OCDBrec.root"
+	    exit 2
+	fi
     fi
 fi
 
@@ -593,6 +731,23 @@ elif [[ $CONFIG_MODE == *"Muon"* ]]; then
         export CONFIG_AOD
     fi
 
+elif [[ $CONFIG_MODE == *"Run3"* ]]; then
+
+    if [[ $CONFIG_DETECTOR == "" ]]; then
+        CONFIG_DETECTOR="Run3"
+        export CONFIG_DETECTOR
+    fi
+
+    if [[ $CONFIG_SIMULATION == "" ]]; then
+        CONFIG_SIMULATION="Run3"
+        export CONFIG_SIMULATION
+    fi
+
+    if [[ $CONFIG_RECONSTRUCTION == "" ]]; then
+        CONFIG_RECONSTRUCTION="Run3"
+        export CONFIG_RECONSTRUCTION
+    fi
+
 fi
 
 ### automatic settings from GRP info
@@ -634,9 +789,18 @@ if [[ $OVERRIDE_TRIGGER != "" ]]; then
 fi
 
 ### check if custom trigger configuration file Custom.cfg is present
-if [ $CONFIG_TRIGGER = "Custom.cfg" ] && [ ! -f Custom.cfg ]; then
+if [ "$CONFIG_TRIGGER" == "Custom.cfg" ] && [ ! -f Custom.cfg ]; then
     echo "Custom.cfg trigger configuration requested, file not present"
     exit 1
+elif [[ $OVERRIDE_TRIGGER == "" ]]; then
+    aliroot -b -q "$ALIDPG_ROOT/MC/CheckTOF.C($CONFIG_RUN)"
+    checkTOF=$?
+    if [ $checkTOF == 1 ]; then
+	#echo "TOF was triggering but not in data acquisition --> Using custom trigger from AliDPG"
+	echo "TOF was not in data acquisition --> Using custom trigger from AliDPG"
+	cp $ALIDPG_ROOT/Utils/Custom.cfg .
+	CONFIG_TRIGGER="Custom.cfg"
+    fi
 fi
 
 ##########################################
@@ -670,16 +834,22 @@ echo "No. Events....... $CONFIG_NBKG"
 echo "============================================"
 echo "Detector......... $CONFIG_DETECTOR"
 echo "GEANT4........... $CONFIG_GEANT4"
+echo "FLUKA............ $CONFIG_FLUKA"
+echo "PurifyKineOff.... $CONFIG_PURIFYKINEOFF"
 echo "Fast-B........... $CONFIG_FASTB"
 echo "VDT math......... $CONFIG_VDT"
 echo "Material Budget.. $CONFIG_MATERIAL"
 echo "TrackRefs to keep ${CONFIG_KEEPTRACKREFSFRACTION}%"
 echo "Remove TrackRefs. ${CONFIG_REMOVETRACKREFS} (in this job)"
+echo "Filter fraction.. ${CONFIG_SIGNALFILTERINGFRACTION}%"
+echo "Filter signal.... ${CONFIG_SIGNALFILTERING} (in this job)"
 echo "Simulation....... $CONFIG_SIMULATION"
 echo "Reconstruction... $CONFIG_RECONSTRUCTION"
 echo "System........... $CONFIG_SYSTEM"
 echo "Trigger.......... $CONFIG_TRIGGER"
 echo "OCDB............. $CONFIG_OCDB"
+echo "OCDBCustom....... $CONFIG_OCDBCUSTOM"
+echo "OCDBRun3......... $CONFIG_OCDBRUN3"
 echo "HLT.............. $CONFIG_HLT"
 echo "============================================"
 #echo "B-field.......... $CONFIG_MAGNET"
@@ -687,6 +857,7 @@ echo "============================================"
 echo "PDG code......... $CONFIG_PDG"
 echo "b-min............ $CONFIG_BMIN"
 echo "b-max............ $CONFIG_BMAX"
+echo "ptHardMinHijing.. $CONFIG_PTHARDMINHIJING"
 echo "y-min............ $CONFIG_YMIN"
 echo "y-max............ $CONFIG_YMAX"
 echo "phi-min (in deg.) $CONFIG_PHIMIN"
@@ -703,21 +874,37 @@ echo "pT-trigger max... $CONFIG_PTTRIGMAX"
 echo "quenching........ $CONFIG_QUENCHING"
 echo "q-hat............ $CONFIG_QHAT"
 echo "============================================"
+echo "Debug mode....... $CONFIG_DEBUG"
+echo "============================================"
 echo
 
 ### sim.C
+
+if [[ $CONFIG_GENERATOR == *"AMPT_v2"* ]]; then
+
+    AMPTC=$ALIDPG_ROOT/MC/EXTRA/AMPTstandalone.C
+    runcommand "AMPT" $AMPTC ampt.log 10
+
+    if [ ! -f ampteventfifo ]; then
+	echo "*! Could not find ampteventfifo, the AMPT simulation failed!"
+	echo "Could not find ampteventfifo, the AMPT simulation failed!" >> validation_error.message
+	exit 2
+    fi
+    
+fi
+
 
 if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
     if [[ $CONFIG_GENERATOR == "" ]]; then
 	echo ">>>>> ERROR: generator is required for full production mode!"
-	echo $COMMAND_HELP
+	COMMAND_HELP
 	exit 2
     fi
 
     if [[ $CONFIG_SYSTEM == "" ]]; then
 	echo ">>>>> ERROR: system is required for full production mode!"
-	echo $COMMAND_HELP
+	COMMAND_HELP
 	exit 2
     fi
 
@@ -759,7 +946,9 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
 	runcommand "BACKGROUND" $SIMC sim.log 5
 	mv -f syswatch.log simwatch.log
-
+	echo "Doing ls on background folder" >> sim.log
+	ls -altr >> sim.log
+	
 	cd ..
 
 	export CONFIG_GENERATOR=$SAVE_CONFIG_GENERATOR
@@ -795,13 +984,16 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
 # ESD tag creation removed on September 2017 after CB and PB discussions
 
-
-    CHECKESDC=$ALIDPG_ROOT/MC/CheckESD.C
-    if [ -f CheckESD.C ]; then
-	CHECKESDC=CheckESD.C
-    fi
-    runcommand "CHECK ESD" $CHECKESDC check.log 60 1
-
+    # Commenting out the CheckESD while we sort out how to configure
+    # the PID response properly. In any case, the output of this check is
+    # neither checked nor stored at present
+#    CHECKESDC=$ALIDPG_ROOT/MC/CheckESD.C
+#    if [ -f CheckESD.C ]; then
+#	CHECKESDC=CheckESD.C
+#    fi
+#    runcommand "CHECK ESD" $CHECKESDC check.log 60 1
+#
+    
     # delete files not needed anymore
     if [[ $CONFIG_SIMULATION == "EmbedBkg" ]]; then
 	rm -f *.RecPoints.root *.Digits.root
@@ -812,6 +1004,45 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
 fi
 
+### Embedded signal filtering (only upon request and in embedded mode and for given fraction)
+
+if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"EmbedSig"* ]] && [ $CONFIG_SIGNALFILTERING == "on" ]; then
+
+    ## Modify also for proper handling of AliMultSelection task???
+    if [[ $CONFIG_MODE == *"extractembeddedmixed"* ]]; then
+	EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C\(kTRUE\)
+    else
+	EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C\(kFALSE\)
+    fi
+	
+    runcommand "EXTRACTEMBEDDED" $EXTRACTEMBEDDEDC extractembedded.log 10
+    
+    if [ ! -f AliESDs_EMB.root ]; then
+	echo "*! Could not find AliESDs_EMB.root, the embedded signal filtering failed!"
+	echo "Could not find AliESDs_EMB.root, the embedded signal filtering failed!" >> validation_error.message
+	exit 2
+    fi
+
+    ## Removed for proper handling of AliMultSelection task
+    #if [ ! -f galice_EMB.root ]; then
+    #	echo "*! Could not find galice_EMB.root, the embedded signal filtering failed!"
+    #	echo "Could not find galice_EMB.root, the embedded signal filtering failed!" >> validation_error.message
+    #	exit 2
+    #fi
+
+    if [ "$CONFIG_DEBUG" = "on" ]; then
+	mv "AliESDs.root" "AliESDs_ORIG.root"
+	mv "AliESDs_EMB.root" "AliESDs.root"
+	## Removed for proper handling of AliMultSelection task
+	#mv "galice.root" "galice_ORIG.root"
+	#mv "galice_EMB.root" "galice.root"
+    else
+	mv "AliESDs_EMB.root" "AliESDs.root"
+       	## Removed for proper handling of AliMultSelection task
+	#mv "galice_EMB.root" "galice.root"
+    fi
+fi
+    
 ### QAtrainsim.C
 
 if [[ $CONFIG_MODE == *"qa"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
@@ -832,15 +1063,15 @@ if [[ $CONFIG_MODE == *"qa"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
 fi
 
-### AODtrainsim.C
+### AODtrainRawAndMC.C
 
 if [[ $CONFIG_MODE == *"aod"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 
     echo "AliAOD.root" >> validation_extrafiles.list
 
-    AODTRAINSIMC=$ALIDPG_ROOT/AOD/AODtrainsim.C
-    if [ -f AODtrainsim.C ]; then
-	AODTRAINSIMC=AODtrainsim.C
+    AODTRAINSIMC=$ALIDPG_ROOT/AOD/AODtrainRawAndMC.C\(0,kTRUE\)
+    if [ -f AODtrainRawAndMC.C ]; then
+	AODTRAINSIMC=AODtrainRawAndMC.C\(0,kTRUE\)
     fi
 
     rm -f outputs_valid &>/dev/null

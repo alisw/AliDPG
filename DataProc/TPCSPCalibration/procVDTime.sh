@@ -9,7 +9,11 @@ Usage() {
 ##############################################################################
 extractFileNamesFromXMLCollection()
 {
-    egrep turl|sed 's|^.*turl\s*=\s*"\s*\([a-zA-Z]*://.*\.root\).*$|\1|g'
+    if [[ ! $ROOTSYS || ! $ALIDPG_ROOT ]]; then
+        grep turl|sed 's|^.*turl\s*=\s*"\s*\([a-zA-Z]*://.*\.root\).*$|\1|g'
+        return
+    fi
+    "$ALIDPG_ROOT"/DataProc/Common/readAliEnCollection.sh
 }
 
 ##############################################################################
@@ -51,6 +55,11 @@ extractEnvVars()
     
     # number of tracks for closure test, hardly will be done of the grid
     export distNTracksClosureTest=${ALIEN_JDL_DISTNTRACKSCLOSURETEST-$distNTracksClosureTest}
+
+    # Mirror SE for OCDB uploads
+    export MIRRORSE="ALICE::CERN::OCDB,ALICE::FZK::SE,ALICE::CNAF::SE"
+    export MIRRORSE=${ALIEN_JDL_MIRRORSE-$MIRRORSE}
+
     #
     echo ""
     echo "Listing all env.vars"
@@ -96,9 +105,8 @@ export autoCacheSize=0
 echo "onGrid=$onGrid, treeCacheSize=$treeCacheSize, autoCacheSize=$autoCacheSize"
 
 echo sourcing alilog4bash.sh
-source $ALICE_PHYSICS/PWGPP/scripts/alilog4bash.sh  
+source "$ALICE_ROOT"/libexec/alilog4bash.sh
 
-loadLibMacro="$ALICE_PHYSICS/PWGPP/CalibMacros/CPass1/LoadLibraries.C"
 inclMacro="$ALIDPG_ROOT/DataProc/TPCSPCalibration/includeMacro.C"
 macroName="$ALIDPG_ROOT/DataProc/TPCSPCalibration/procResidData.C"
 
@@ -144,13 +152,13 @@ for arun in `cat $runList`; do
     logFileVDT="submitTimeDrift_$arun.log"
     mode=0; 
     alilog_info "BEGIN: 0.) Submit in mode $mode to get time/drift info"
-    time aliroot -b -q $inclMacro $loadLibMacro $curdir/${locMacro}+g\("$mode","$run",0,-1,\""$residFilesRun"\"\) >& $logFileVDT
+    time aliroot -b -q $inclMacro $curdir/${locMacro}+g\("$mode","$run",0,-1,\""$residFilesRun"\"\) >& $logFileVDT
     rm tmpDriftTree.root
     alilog_info "END: 0.) Submit int mode $mode to get time/vdrift info"
     #
     mode=1
     alilog_info "BEGIN: 1.) Submit in mode $mode to create OCDB entry for drift velocity"
-    time aliroot -b -q $inclMacro $loadLibMacro $curdir/${locMacro}+g\("$mode","$run"\) >& ocdb_vdrift_$arun.log
+    time aliroot -b -q $inclMacro $curdir/${locMacro}+g\("$mode","$run"\) >& ocdb_vdrift_$arun.log
     alilog_info "END: 1.)  Submit in mode $mode to create OCDB entry for drift velocity"
     alilog_info "END: Processing run $arun"
     #

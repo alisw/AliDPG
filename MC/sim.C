@@ -8,6 +8,16 @@
 /*****************************************************************/
 /*****************************************************************/
 
+#if (!defined(__CLING__) && !defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
+#include "TSystem.h"
+#include "TROOT.h"
+#include "AliSimulation.h"
+#endif
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#include "SimulationConfig.C"
+#endif
+
 void sim() 
 {
 
@@ -15,15 +25,20 @@ void sim()
   Int_t nev = 200;
   if (gSystem->Getenv("CONFIG_NEVENTS"))
     nev = atoi(gSystem->Getenv("CONFIG_NEVENTS"));
-
-  // simulation configuration
+  
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/SimulationConfig.C");
-  Int_t simulationConfig = kSimulationDefault;
+#endif
+  
+  // simulation configuration
+  ESimulation_t simulationConfig = kSimulationDefault;
   if (gSystem->Getenv("CONFIG_SIMULATION")) {
     Bool_t valid = kFALSE;
     for (Int_t isim = 0; isim < kNSimulations; isim++)
       if (strcmp(gSystem->Getenv("CONFIG_SIMULATION"), SimulationName[isim]) == 0) {
-        simulationConfig = isim;
+        simulationConfig = (ESimulation_t) isim;
         valid = kTRUE;
         break;
       }
@@ -40,6 +55,8 @@ void sim()
     printf(">>>>> Config.C macro detected in CWD, using that one \n");
     config_macro = Form("%s/Config.C", gSystem->pwd());
   }
+  gROOT->LoadMacro("$ALIDPG_ROOT/MC/Config_LoadLibraries.C");
+  gROOT->ProcessLine("Config_LoadLibraries();");
   AliSimulation sim(config_macro.Data());
 
   /* configuration */

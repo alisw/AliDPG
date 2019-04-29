@@ -4,10 +4,13 @@ GeneratorCustom(TString opt = "")
 
   AliGenCocktail *ctl   = GeneratorCocktail("Hijing_LMee001");
 
-  // Background events: HIJING
-  AliGenerator   *hij   = GeneratorHijing();
-  ctl->AddGenerator(hij,  "Hijing", 1.);
-
+  // Background events: HIJING (only if non-embedded)
+  TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
+  if(!simulation.Contains("Embed")){
+    AliGenerator   *hij   = GeneratorHijing();
+    ctl->AddGenerator(hij,  "Hijing", 1.);
+  }
+  
   // LMee cocktail settings:
   Int_t   nPart  = 1;
   Float_t minPt  = 0;
@@ -203,14 +206,17 @@ GeneratorCustom(TString opt = "")
   ctl->AddGenerator(phi,"phi", 1.);
   ctl->AddGenerator(jpsi,"jpsi", 1.);
 
-  // HF part
-  Int_t flag = (Int_t)gRandom->Uniform(0,100);
-   if(flag>=0 && flag<20){ 
-    ctl->AddGenerator(pythiaCC,"Pythia CC",1.);
-  }else if(flag>=20 && flag<40){ 
-    ctl->AddGenerator(pythiaBB,"Pythia BB",1.);
-  }else if(flag>=40 && flag<100){ 
-    ctl->AddGenerator(pythiaB,"Pythia B",1.);
+  // HF part (only if requested)
+  if(!opt.Contains("LF")){
+
+    Int_t flag = (Int_t)gRandom->Uniform(0,100);
+    if(flag>=0 && flag<20){ 
+      ctl->AddGenerator(pythiaCC,"Pythia CC",1.);
+    }else if(flag>=20 && flag<40){ 
+      ctl->AddGenerator(pythiaBB,"Pythia BB",1.);
+    }else if(flag>=40 && flag<100){ 
+      ctl->AddGenerator(pythiaB,"Pythia B",1.);
+    }
   }
   
   return ctl;

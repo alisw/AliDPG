@@ -9,7 +9,7 @@ ExportGRPinfo(Int_t run)
   if (ocdbConfig.Contains("alien") || ocdbConfig.Contains("cvmfs")) {
     // set OCDB 
     gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
-    OCDBDefault(0);
+    gROOT->ProcessLine("OCDBDefault(0);");
   }
   else {
     // set OCDB snapshot mode

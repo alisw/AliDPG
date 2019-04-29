@@ -46,7 +46,6 @@ AliGenerator* MbPythiaTunePerugia2011bcforcele(Int_t flag)
   pythiaCC->SetPdgCodeParticleforAcceptanceCut(11);
   pythiaCC->SetChildYRange(-1.2,1.2);
   pythiaCC->SetChildPtRange(0,10000.);
-  pythiaCC->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
 
   ////////////////////////////////////////////
   //    Pythia bb->ee
@@ -70,7 +69,6 @@ AliGenerator* MbPythiaTunePerugia2011bcforcele(Int_t flag)
   pythiaBB->SetPdgCodeParticleforAcceptanceCut(11);
   pythiaBB->SetChildYRange(-1.2,1.2);
   pythiaBB->SetChildPtRange(0,10000.);
-  pythiaBB->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
 
 
   ////////////////////////////////////////////
@@ -94,18 +92,17 @@ AliGenerator* MbPythiaTunePerugia2011bcforcele(Int_t flag)
   pythiaB->SetPdgCodeParticleforAcceptanceCut(11);
   pythiaB->SetChildYRange(-1.2,1.2);
   pythiaB->SetChildPtRange(0,10000.);
-  pythiaB->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
 
 
   ////////////////////////////////////////////
   //  Create cocktail
   ////////////////////////////////////////////
   
-  if(flag>=0 && flag<10){ //  0.1 x 30 M = 3 M
+  if(flag>=0 && flag<10){
     gener->AddGenerator(pythiaCC,"Pythia CC",1.);
-  }else if(flag>=10 && flag<20){ //  0.1 x 30 M = 3 M
+  }else if(flag>=10 && flag<20){ 
     gener->AddGenerator(pythiaBB,"Pythia BB",1.);
-  }else if(flag>=20 && flag<100){ //  0.8 x 30 M = 24 M
+  }else if(flag>=20 && flag<100){ 
     gener->AddGenerator(pythiaB,"Pythia B",1.);
   }
 

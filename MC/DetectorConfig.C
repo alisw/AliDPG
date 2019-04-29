@@ -13,6 +13,7 @@ enum EDetector_t {
   kDetectorMuon,
   kDetectorPhosOnly,
   kDetectorNoZDC,
+  kDetectorRun3,
   kDetectorCustom,
   kNDetectors
 };
@@ -22,6 +23,7 @@ const Char_t *DetectorName[kNDetectors] = {
   "Muon",
   "PhosOnly",
   "NoZDC",
+  "Run3",
   "Custom"
 };
 
@@ -68,7 +70,15 @@ Int_t iTPC    = 1;
 Int_t iTRD    = 1;
 Int_t iVZERO  = 1;
 Int_t iZDC    = 1;
+Int_t iMFT    = 0;
+Int_t iFIT    = 0;
   
+void DetectorDefault();
+void DetectorMuon();
+void DetectorRun3();
+void DetectorInit(Int_t tag);
+void DetectorInitRun3(Int_t tag);
+
 /*****************************************************************/
 
 void
@@ -95,6 +105,11 @@ DetectorConfig(Int_t tag)
     DetectorDefault();
     iZDC = 0;
     break;
+
+    // kDetectorRun3
+  case kDetectorRun3:
+    DetectorRun3();
+    break;
     
     // kDetectorCustom
   case kDetectorCustom:
@@ -103,13 +118,15 @@ DetectorConfig(Int_t tag)
       abort();
       return;
     }
-    DetectorCustom();
+    gROOT->ProcessLine("DetectorCustom();");
     break;
     
   }
 
-  DetectorInit(tag);
-  
+  if( tag == kDetectorRun3 )
+    DetectorInitRun3(tag);
+  else
+    DetectorInit(tag);
 }
 
 /*****************************************************************/
@@ -191,6 +208,45 @@ DetectorMuon()
 
 }
   
+/*****************************************************************/
+
+void DetectorRun3()
+{
+  /*
+   * Detector configuration for Run3 MC
+   *
+   */
+  
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
+  UInt_t mask = strtol(gSystem->Getenv("CONFIG_DETECTORMASK"), 0, 16);
+
+  iABSO   = 1;
+  iACORDE = 0;
+  iAD     = 0;
+  iDIPO   = 1;
+  iEMCAL  = 1;
+  iFMD    = 0;
+  iFRAME  = 1;
+  iHALL   = 1;
+  iITS    = 1;
+  iMAG    = 1;
+  iMUON   = 1;
+  iPHOS   = 1;
+  iPIPE   = 1;
+  iPMD    = 0;
+  iHMPID  = 1;
+  iSHIL   = 1;
+  iT0     = 0;
+  iTOF    = 1;
+  iTPC    = 1;
+  iTRD    = 1;
+  iVZERO  = 0;
+  iZDC    = 1;
+  iMFT    = 0; // removed MFT for the time being
+  iFIT    = 1;
+
+}
+
 /*****************************************************************/
 
 void
@@ -283,7 +339,7 @@ DetectorInit(Int_t tag)
       //============================ TPC parameters =====================
 
       AliTPC *TPC = new AliTPCv2("TPC", "Default");
-      if (isGeant4) 
+      if (isGeant4 || isFluka) 
 	TPC->SetPrimaryIonisation(1);
       if( tag == kDetectorPhosOnly)
 	TPC->DisableStepManager();
@@ -313,13 +369,14 @@ DetectorInit(Int_t tag)
     {
       //=================== ZDC parameters ============================
 
+      AliZDC *ZDC;
       if (year == 2010) {
-	AliZDC *ZDC = new AliZDCv3("ZDC", "normal ZDC");
+	ZDC = new AliZDCv3("ZDC", "normal ZDC");
 	ZDC->SetSpectatorsTrack();
         ZDC->SetLumiLength(0.);
       }
       else if (year < 2015) {
-	AliZDC *ZDC = new AliZDCv3("ZDC", "normal ZDC");
+	ZDC = new AliZDCv3("ZDC", "normal ZDC");
 	//Collimators aperture
 	ZDC->SetVCollSideCAperture(0.85);
 	ZDC->SetVCollSideCCentre(0.);
@@ -332,7 +389,7 @@ DetectorInit(Int_t tag)
 	ZDC->SetYZPA(1.6);
       }
       else {
-	AliZDC *ZDC = new AliZDCv4("ZDC", "normal ZDC");
+	ZDC = new AliZDCv4("ZDC", "normal ZDC");
 	ZDC->SetLumiLength(0.);
 	ZDC->SetVCollSideCAperture(2.8);
 	ZDC->SetVCollSideCApertureNeg(2.8);
@@ -345,13 +402,20 @@ DetectorInit(Int_t tag)
     {
       //=================== TRD parameters ============================
 
+      AliTRDgeometry *geoTRD;
       if (isGeant4) {
 	AliTRDtestG4 *TRD = new AliTRDtestG4("TRD", "TRD slow simulator");
 	TRD->SetScaleG4(1.11);
+	if( tag == kDetectorPhosOnly) TRD->DisableStepManager();
+	geoTRD = TRD->GetGeometry();
       }
       else 
+      {
 	AliTRD *TRD = new AliTRDv1("TRD", "TRD slow simulator");
-      AliTRDgeometry *geoTRD = TRD->GetGeometry();
+	if( tag == kDetectorPhosOnly) TRD->DisableStepManager();
+	geoTRD = TRD->GetGeometry();
+      }
+      
       // Partial geometry: modules at 0,1,7,8,9,16,17
       // starting at 3h in positive direction
 
@@ -385,8 +449,6 @@ DetectorInit(Int_t tag)
 	geoTRD->SetSMstatus(13,0);
 	geoTRD->SetSMstatus(14,0);
       }
-      if( tag == kDetectorPhosOnly)
-	TRD->DisableStepManager();
     }
   
   if (iFMD)
@@ -445,13 +507,14 @@ DetectorInit(Int_t tag)
     {
       //=================== EMCAL parameters ============================
 
-      AliEMCAL *EMCAL = new AliEMCALv2("EMCAL", "EMCAL_COMPLETE12SMV1_DCAL_8SM");
+      //Cannot use EMCAL as name since it collides with EMCAL namespace definition
+      AliEMCAL *EMCAL_DET = new AliEMCALv2("EMCAL", "EMCAL_COMPLETE12SMV1_DCAL_8SM");
       // by default Run2 configuration name but the proper geometry name is taken 
       // automatically depending on the anchor run 
       // 2010 - 4 SM, 2011 - 10 SM, 2012 - 12 SM, >2014 - 20 SM
       
       if( tag == kDetectorPhosOnly)
-	EMCAL->DisableStepManager();
+	EMCAL_DET->DisableStepManager();
       
     }
 
@@ -474,12 +537,231 @@ DetectorInit(Int_t tag)
     }  
 
   if (iAD){
-    //=================== AD parameters ============================
-
-    AliAD *AD = new AliADv1("AD", "normal AD");
-    if( tag == kDetectorPhosOnly)
-      AD->DisableStepManager();
+     if (!isFluka){ // does not work for now with Fluka
+        //=================== AD parameters ============================
+        
+	// AliAD *AD = new AliADv1("AD", "normal AD");
+        AliAD *AD = NULL;
+        if (year>0) AD = new AliADv1("AD", Form("normal AD year=%d", year));
+        else        AD = new AliADv1("AD", "normal AD");
+        if( tag == kDetectorPhosOnly)
+        AD->DisableStepManager();
+     }
+     else {
+	    Printf("AD is disabled, as we are using Fluka");
+     }
   }
 
 }
 
+/*****************************************************************/
+
+void DetectorInitRun3(Int_t tag)
+{
+  /*
+   * DetectorInit
+   * initialise the detectors to the default 
+   * configuration automatically according to year/period
+   *
+   */
+  
+  Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
+
+
+  //=================== Alice BODY parameters =============================
+  AliBODY *BODY = new AliBODY("BODY", "Alice envelop");
+  
+  
+  if (iMAG)
+    {
+      //=================== MAG parameters ============================
+      // --- Start with Magnet since detector layouts may be depending ---
+      // --- on the selected Magnet dimensions ---
+      AliMAG *MAG = new AliMAG("MAG", "Magnet");
+    }
+  
+
+  if (iABSO)
+    {
+      //=================== ABSO parameters ============================
+      AliABSO *ABSO = new AliABSOv3("ABSO", "Muon Absorber");
+    }
+
+  if (iDIPO)
+    {
+      //=================== DIPO parameters ============================
+
+      AliDIPO *DIPO = new AliDIPOv3("DIPO", "Dipole version 3");
+    }
+
+  if (iHALL)
+    {
+      //=================== HALL parameters ============================
+
+      AliHALL *HALL = new AliHALLv3("HALL", "Alice Hall");
+    }
+
+
+  if (iFRAME)
+    {
+      //=================== FRAME parameters ============================
+
+      if (year < 2015) {
+ 	AliFRAMEv2 *FRAME = new AliFRAMEv2("FRAME", "Space Frame");
+	FRAME->SetHoles(1);
+      }
+      else {
+ 	AliFRAMEv3 *FRAME = new AliFRAMEv3("FRAME", "Space Frame");
+	FRAME->SetHoles(1);
+      }
+    }
+
+  if (iSHIL)
+    {
+      //=================== SHIL parameters ============================
+
+      AliSHIL *SHIL = new AliSHILv3("SHIL", "Shielding Version 3");
+    }
+
+
+  if (iPIPE)
+    {
+      //=================== PIPE parameters ============================
+
+      // AliPIPE *PIPE = new AliPIPEv3("PIPE", "Beam Pipe");
+      AliPIPE *PIPE = new AliPIPEupgrade("PIPE", "Beam Pipe");
+    }
+ 
+  if (iITS)
+    {
+      //=================== ITS parameters ============================
+      //      CreateITSUv2ALP3();
+      gROOT->ProcessLine(".x $ALICE_ROOT/ITSMFT/ITS/itsuTestBench/CreateITSUv2ALP3.C");
+    }
+
+  if (iTPC)
+    {
+      //============================ TPC parameters =====================
+
+      AliTPC *TPC = new AliTPCv2("TPC", "Default");
+      if (isGeant4) TPC->SetPrimaryIonisation(1);
+    }
+
+
+  if (iTOF)
+    {
+    //=================== TOF parameters ============================
+
+    AliTOF *TOF = new AliTOFv6T0("TOF", "normal TOF");
+    }
+
+
+  if (iHMPID)
+    {
+      //=================== HMPID parameters ===========================
+
+      AliHMPID *HMPID = new AliHMPIDv3("HMPID", "normal HMPID");
+    }
+
+
+  if (iZDC)
+    {
+      //=================== ZDC parameters ============================
+
+      AliZDC *ZDC;
+      if (year == 2010) {
+	ZDC = new AliZDCv3("ZDC", "normal ZDC");
+	ZDC->SetSpectatorsTrack();
+        ZDC->SetLumiLength(0.);
+      }
+      else if (year < 2015) {
+	ZDC = new AliZDCv3("ZDC", "normal ZDC");
+	//Collimators aperture
+	ZDC->SetVCollSideCAperture(0.85);
+	ZDC->SetVCollSideCCentre(0.);
+	ZDC->SetVCollSideAAperture(0.75);
+	ZDC->SetVCollSideACentre(0.);
+	//Detector position
+	ZDC->SetYZNC(1.6);
+	ZDC->SetYZNA(1.6);
+	ZDC->SetYZPC(1.6);
+	ZDC->SetYZPA(1.6);
+      }
+      else {
+	ZDC = new AliZDCv4("ZDC", "normal ZDC");
+	ZDC->SetLumiLength(0.);
+	ZDC->SetVCollSideCAperture(2.8);
+	ZDC->SetVCollSideCApertureNeg(2.8);
+      }
+    }
+
+  if (iTRD)
+    {
+      //=================== TRD parameters ============================
+
+      AliTRDgeometry *geoTRD;
+      if (isGeant4) {
+	AliTRDtestG4 *TRD = new AliTRDtestG4("TRD", "TRD slow simulator");
+	TRD->SetScaleG4(1.11);
+	geoTRD = TRD->GetGeometry();
+      }
+      else 
+      {
+	AliTRD *TRD = new AliTRDv1("TRD", "TRD slow simulator");
+	geoTRD = TRD->GetGeometry();
+      }
+    }
+  
+  if (iMUON)
+    {
+      //=================== MUON parameters ===========================
+      // New MUONv1 version (geometry defined via builders)
+      AliMUON *MUON = new AliMUONv1("MUON", "default");
+      // activate trigger efficiency by cells
+      MUON->SetTriggerEffCells(1); // backward compatibility
+      MUON->SetTriggerResponseV1(2); // backward compatibility
+    }
+
+  if (iPHOS)
+    {
+      //=================== PHOS parameters ===========================
+
+      if (year < 2015) {
+	AliPHOS *PHOS = new AliPHOSv1("PHOS", "noCPV_Modules123");
+      }
+      else {
+	AliPHOS *PHOS = new AliPHOSv1("PHOS", "Run2");
+      }
+	
+    }
+
+  if (iEMCAL)
+    {
+      //=================== EMCAL parameters ============================
+
+      //Cannot use EMCAL as name since it collides with EMCAL namespace definition
+      AliEMCAL *EMCAL_DET = new AliEMCALv2("EMCAL", "EMCAL_COMPLETE12SMV1_DCAL_8SM");
+      // by default Run2 configuration name but the proper geometry name is taken 
+      // automatically depending on the anchor run 
+      // 2010 - 4 SM, 2011 - 10 SM, 2012 - 12 SM, >2014 - 20 SM
+      
+    }
+
+  if (iACORDE)
+    {
+      //=================== ACORDE parameters ============================
+
+      AliACORDE *ACORDE = new AliACORDEv1("ACORDE", "normal ACORDE");
+    }
+
+  if (iMFT)
+    {
+      AliMFT *MFT = new AliMFT("MFT", "normal MFT");
+    }
+
+  if(iFIT)
+    {
+      AliFIT *fit = new AliFITv7("FIT","FIT");
+    } 
+
+}

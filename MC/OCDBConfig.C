@@ -15,9 +15,14 @@ const Char_t *OCDBName[kNOCDBs] = {
   "Custom"
 };
 
+void OCDBDefault(Int_t mode);
+void DefaultSpecificStorage(AliCDBManager *man, Int_t mode);
+Bool_t RecoParamWithTPCDistortions(AliCDBManager *man);
+void NoDistortionSpecificStorage(AliCDBManager *man, Int_t mode);
+
 /*****************************************************************/
 
-OCDBConfig(Int_t tag, Int_t type)
+void OCDBConfig(Int_t tag, Int_t type)
 {
 
   switch (tag) {
@@ -34,7 +39,7 @@ OCDBConfig(Int_t tag, Int_t type)
       abort();
       return;
     }
-    OCDBCustom();
+    gROOT->ProcessLine(Form("OCDBCustom(%d);",type));
     break;
     
   }
@@ -43,7 +48,7 @@ OCDBConfig(Int_t tag, Int_t type)
 
 /*****************************************************************/
 
-OCDBDefault(Int_t mode)
+void OCDBDefault(Int_t mode)
 {
 
   Int_t run  = atoi(gSystem->Getenv("CONFIG_RUN"));  
@@ -57,7 +62,7 @@ OCDBDefault(Int_t mode)
     UInt_t tU[6];
     for(Int_t i=0; i<list->GetEntries(); i++)
     {
-      TString st = ((TObjString)list->At(i)).GetString();
+      TString st = ((TObjString*)list->At(i))->GetString();
       tU[i] =(UInt_t)atoi(st.Data());
     }
     man->SetMaxDate(TTimeStamp(tU[0], tU[1], tU[2], tU[3], tU[4], tU[5]));
@@ -73,7 +78,7 @@ OCDBDefault(Int_t mode)
 
 /*****************************************************************/
 
-DefaultSpecificStorage(AliCDBManager *man, Int_t mode)
+void DefaultSpecificStorage(AliCDBManager *man, Int_t mode)
 {
 
   AliCDBEntry *cdbe = man->Get("GRP/GRP/Data");
@@ -134,7 +139,7 @@ DefaultSpecificStorage(AliCDBManager *man, Int_t mode)
 
 /*****************************************************************/
 
-NoDistortionSpecificStorage(AliCDBManager *man, Int_t mode) {
+void NoDistortionSpecificStorage(AliCDBManager *man, Int_t mode) {
 
   const Char_t *Ideal    = "alien://Folder=/alice/simulation/2008/v4-15-Release/Ideal/";
   const Char_t *Residual = "alien://Folder=/alice/simulation/2008/v4-15-Release/Residual/";

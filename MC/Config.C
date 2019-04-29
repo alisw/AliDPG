@@ -8,6 +8,10 @@
 /*****************************************************************/
 /*****************************************************************/
 
+#if !(defined(__CLING__)  || defined(__CINT__)) || defined(__ROOTCLING__) || defined(__ROOTCINT__)
+#include "TGeant3TGeo.h"
+#endif
+
 // global variables
 
 static Int_t   runNumber       = 0;         // run number
@@ -16,10 +20,11 @@ static Int_t   magnetConfig    = 0;         // magnetic field
 static Int_t   detectorConfig  = 0;         // detector
 static Int_t   generatorConfig = 0;         // MC generator
 static Float_t energyConfig    = 0.;        // CMS energy
-static Float_t triggerConfig   = 0.;        // trigger
+static Int_t triggerConfig   = 0.;        // trigger
 static Int_t   pdgConfig       = 0;         // PDG value 
 static Float_t bminConfig      = 0.;        // impact parameter min
 static Float_t bmaxConfig      = 20.;       // impact parameter max
+static Float_t ptHardMinHijing = 2.9;       // min cut on ptHard for Hijing simulations
 static Float_t yminConfig      = -1.e6;     // rapidity min
 static Float_t ymaxConfig      =  1.e6;     // rapidity max
 static Float_t phiminConfig    = 0.;        // phi min
@@ -38,6 +43,17 @@ static Float_t pttrigmaxConfig = -1.;       // pt-trigger max
 static Int_t   quenchingConfig = 0;         // quenching
 static Float_t qhatConfig      = 1.7;       // q-hat
 static Bool_t  isGeant4        = kFALSE;    // geant4 flag
+static Bool_t  purifyKine      = kTRUE;     // purifyKine flag
+static Bool_t  isFluka         = kFALSE;    // fluka flag
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#include "DetectorConfig.C"
+#include "GeneratorConfig.C"
+#endif
+
+void ProcessEnvironment();
+void CreateGAlice();
+void GeneratorOptions();
 
 /*****************************************************************/
 
@@ -46,8 +62,12 @@ Config()
 {
 
   /* initialise */
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else  
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/DetectorConfig.C");
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/GeneratorConfig.C");
+#endif
   ProcessEnvironment();
 
   /* verbose */
@@ -64,6 +84,7 @@ Config()
   printf(">>>>>              PDG: %d \n", pdgConfig);
   printf(">>>>>            b-min: %f \n", bminConfig);
   printf(">>>>>            b-max: %f \n", bmaxConfig);
+  printf(">>>>>  ptHardMinHijing: %f \n", ptHardMinHijing);
   printf(">>>>>            y-min: %f \n", yminConfig);
   printf(">>>>>            y-max: %f \n", ymaxConfig);
   printf(">>>>>   phi-min (deg.): %f \n", phiminConfig);
@@ -79,13 +100,24 @@ Config()
   printf(">>>>>   crossing angle: %f \n", crossingConfig);
   printf(">>>>>      random seed: %d \n", seedConfig);
   printf(">>>>>           geant4: %d \n", isGeant4);
+  printf(">>>>>       purifyKine: %d \n", purifyKine);
+  printf(">>>>>            fluka: %d \n", isFluka);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
 
-  /* load libraries */
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else  
   LoadLibraries();
+#endif
+
+  /* Check that it is not set both Geant4 and Fluka */
+  if (isGeant4 && isFluka) {
+     printf(">>>>> You cannot have in your parameters both Geant4 and Fluka set!: isGeant4 = %d, isFluka = %d \n", (Int_t)isGeant4, (Int_t)isFluka);
+     abort();
+  }
 
   /* setup geant3 */
-  if (!isGeant4) new TGeant3TGeo("C++ Interface to Geant3");
+  if (!isGeant4 && !isFluka) new TGeant3TGeo("C++ Interface to Geant3");
 
   /* create galice.root */
   CreateGAlice();
@@ -102,12 +134,21 @@ Config()
       geant4config_macro = Form("%s/Geant4Config.C", gSystem->pwd());
     }
     gROOT->LoadMacro(geant4config_macro.Data());
-    Geant4Config();
+    gROOT->ProcessLine("Geant4Config();");
+  }
+
+  /* configure Fluka if requested */
+  if (isFluka) {
+     gSystem->Load("libfluka.so");
+     gROOT->ProcessLine("new TFluka(\"C++ Interface to Fluka\", 0/*verbositylevel*/);");
+     gROOT->ProcessLine("((TFluka*) gMC)->SetLowEnergyNeutronTransport(1);");
   }
 
   /* configure MC generator */
   GeneratorConfig(generatorConfig);
   GeneratorOptions();
+
+  if (!purifyKine) gAlice->GetMCApp()->PurifyLimits(80., 80.);
 }
 
 /*****************************************************************/
@@ -240,6 +281,11 @@ ProcessEnvironment()
     abort();
   }
 
+  // ptHardMin for HIJING simulation
+  ptHardMinHijing = 2.9;
+  if (gSystem->Getenv("CONFIG_PTHARDMINHIJING"))
+     ptHardMinHijing= atof(gSystem->Getenv("CONFIG_PTHARDMINHIJING"));
+
   // rapidity, phi, pT configuration
   yminConfig = -1.e6;
   if (gSystem->Getenv("CONFIG_YMIN"))
@@ -318,12 +364,22 @@ ProcessEnvironment()
   isGeant4 = kFALSE;
   if (gSystem->Getenv("CONFIG_GEANT4"))
     isGeant4 = kTRUE;
-  
+
+  // PurifyKine OFF
+  purifyKine = kTRUE;
+  if (gSystem->Getenv("CONFIG_PURIFYKINEOFF"))
+    purifyKine = kFALSE;
+
+  // Fluka configuration
+  isFluka = kFALSE;
+  if (gSystem->Getenv("CONFIG_FLUKA"))
+    isFluka = kTRUE;
+
 }
 
-/*****************************************************************/
-
-void
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+  // in root5 the ROOT_VERSION_CODE is defined only in ACLic mode
+#else
 LoadLibraries()
 {
 
@@ -351,9 +407,11 @@ LoadLibraries()
     gSystem->Load("libDPMJET");
     gSystem->Load("libTDPMjet");    
   } 
-  gSystem->Load("libgeant321");
+  if (!isFluka)  gSystem->Load("libgeant321");
 
 }
+#endif
+
 
 /*****************************************************************/
 
@@ -374,7 +432,7 @@ CreateGAlice()
     return;
   }
   rl->SetCompressionLevel(2);
-  rl->SetNumberOfEventsPerFile(1000);
+  rl->SetNumberOfEventsPerFile(neventsConfig);
   gAlice->SetRunLoader(rl);
   // gAlice->SetGeometryFromFile("geometry.root");
   // gAlice->SetGeometryFromCDB();

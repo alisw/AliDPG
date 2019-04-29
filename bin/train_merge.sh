@@ -51,7 +51,7 @@ fi
 
 if [ -f "QAtrain_duo.C" ]; then
     echo "QAtrain_duo macro found"
-    if grep -q -E -e "/cpass1|cpass1/" *.xml; then
+    if grep -q -E -e "/cpass1|cpass1/" *.xml || grep -q -E -e "/cpass1|cpass1/" "$1"; then
         echo "* Running QA duo on _barrel" >&2
         time aliroot -b -q -x QAtrain_duo.C\(\"_barrel\",$runNum,\"$1\",$2\) >stdout.barrel.log 2>stderr.barrel.log
 
@@ -95,9 +95,22 @@ if [ -f "QAtrain_duo.C" ]; then
         
         if [ $exitcode -ne 0 ]; then
              echo "QAtrain_duo.C / empty exited with code $exitcode" > validation_error.message
+             exit $exitcode
         fi
 
-        exit $exitcode
+        echo "* Running QA duo on _AOD" >&2
+        time aliroot -b -q -x QAtrain_duo.C\(\"_AOD\",$runNum,\"$1\",$2\) >stdout.AOD.log 2>stderr.AOD.log
+
+        exitcode=$?
+
+        echo "* QAtrain_duo.C(_AOD) finished with exit code: $exitcode"
+
+        if [ $exitcode -ne 0 ]; then
+            echo "QAtrain_duo.C / AOD exited with code $exitcode" > validation_error.message
+            exit $exitcode
+        fi
+
+        exit 0
     fi
 else 
     echo "No QAtrain_duo.C macro found"
