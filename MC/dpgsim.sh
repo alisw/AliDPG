@@ -447,6 +447,12 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--OCDBTimeStamp" ]; then
         CONFIG_OCDBTIMESTAMP="$1"
         export CONFIG_OCDBTIMESTAMP
+    elif [ "$option" = "--genpkg" ]; then
+	export ALIGENMC_PACKAGES="$1"
+    elif [ "$option" = "--genmc" ]; then
+	export ALIGENMC_GENERATOR="$1"
+    elif [ "$option" = "--genopt" ]; then
+	export ALIGENMC_OPTIONS="$1"
 #    elif [ "$option" = "--sdd" ]; then
 #        RUNMODE="SDD"
 #	export RUNMODE
