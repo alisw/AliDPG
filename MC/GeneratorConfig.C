@@ -1529,7 +1529,13 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
   gener->UsePerEventRates();
   //
   // J/psi
-  AliGenParam *jpsi = new AliGenParam(1, AliGenMUONlib::kJpsi, params, "Jpsi");
+  TString stringParams = params;
+  if(stringParams.Contains("UserParam")){ 
+   // use private parametrization for y / pT instead of AliGenMUONlib
+   gROOT->LoadMacro("$ALIDPG_ROOT/MC/CustomGenerators/PWGDQ/GenJPsiParaSet.C++");
+   jpsi = GenJPsiParaSet(stringParams);
+  }
+  else jpsi = new AliGenParam(1, AliGenMUONlib::kJpsi, params, "Jpsi");
   jpsi->SetPtRange(0., 1000.);
   jpsi->SetYRange(-1.0, 1.0);
   jpsi->SetPhiRange(0., 360.);
