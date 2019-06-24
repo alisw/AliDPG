@@ -708,6 +708,12 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
 void QAmerge(const char *suffix, const char *dir, Int_t stage)
 {
 // Merging method
+
+  // we need to check if we already have an event_stat.root from a previous merging, as we might not want to overwrite it (in case suffix is empty)
+  if (gSystem->AccessPathName("event_stat.root", kFileExists)==0) { // the event_stat.root file exists
+    gSystem->Exec("cp event_stat.root event_stat_Bkp.root");
+  }
+    
   TStopwatch timer;
   timer.Start();
   TString outputDir = dir;
@@ -758,6 +764,10 @@ void QAmerge(const char *suffix, const char *dir, Int_t stage)
     }
     if (gSystem->Exec(Form("mv event_stat.root event_stat%s.root", suffix)))
       ::Error("QAmerge", "File event_stat.root was not produced");
+    // now we restore the original event_stat.root that was overwritten when calling terminate
+    if (gSystem->AccessPathName("event_stat_Bkp.root", kFileExists)==0) { 
+      gSystem->Exec("cp event_stat_Bkp.root event_stat.root");
+    }
   }   
   ofstream out;
   out.open("outputs_valid", ios::out);

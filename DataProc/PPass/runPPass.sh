@@ -375,6 +375,8 @@ if [ -f QAtrain_duo.C ]; then
     fi
 fi
 
+cp EventStat_temp_grp0.root EventStat_temp.root
+
 if [ -f AODtrainRawAndMC.C ]; then
     rm -f outputs_valid &>/dev/null
     echo "AliAOD.root" >> validation_extrafiles.list
