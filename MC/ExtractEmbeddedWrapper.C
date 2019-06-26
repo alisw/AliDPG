@@ -24,7 +24,7 @@ void ExtractEmbeddedWrapper(Bool_t keepMixed = kFALSE)
     return;
   }
 
-  if(ExtractEmbedded(keepMixed,"AliESDs_EMB.root","AliESDs.root") == kFALSE){
+  if(ExtractEmbedded(keepMixed,"AliESDs_EMB.root","AliESDs.root", "AliESDfriends_EMB.root", "AliESDfriends.root") == kFALSE){
     Printf("ERROR: Problem when running ExtractEmbedded");
     abort();
     return;
