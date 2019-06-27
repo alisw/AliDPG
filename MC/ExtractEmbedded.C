@@ -32,17 +32,27 @@
 #include "TTree.h"
 #include "TClonesArray.h"
 #include "TString.h"
+
+#include "AliESDfriend.h"
+#include "AliESDVZEROfriend.h"
+#include "AliESDTZEROfriend.h"
+#include "AliESDADfriend.h"
+#include "AliESDCalofriend.h"
+#include "AliESDfriendTrack.h"
+
 #endif
 
-void FilterEvent(AliESDEvent *evIn, AliESDEvent *evOut, Bool_t keepMixed=kFALSE);
+void FilterEvent(AliESDEvent *evIn, AliESDfriend* evInF, AliESDEvent *evOut, AliESDfriend *evOutF, Bool_t keepMixed=kFALSE);
 Bool_t RemoveBKGFromGalice(const char* outgaliceFName="galice_EMB.root",const char* inpgaliceFName="galice.root");
-Bool_t ExtractEmbedded(Bool_t keepMixed = kFALSE, const char* outESDFName="AliESDs_EMB.root", const char* inpESDFName="AliESDs.root");
+Bool_t ExtractEmbedded(Bool_t keepMixed = kFALSE, const char* outESDFName="AliESDs_EMB.root", const char* inpESDFName="AliESDs.root",
+		       const char* outESDFriendName="AliESDfriends_EMB.root", const char* inpESDFriendName="AliESDfriends.root");
 Bool_t KeepTrack(int lbl);
 Bool_t KeepTrack(AliESDtrack* trc);
 
 
 //_______________________________________________________________________________
-Bool_t ExtractEmbedded(Bool_t keepMixed,const char* outESDFName, const char* inpESDFName)
+Bool_t ExtractEmbedded(Bool_t keepMixed,const char* outESDFName, const char* inpESDFName,
+		       const char* outESDFriendName, const char* inpESDFriendName)
 {
   TFile* flIn = TFile::Open(inpESDFName);
   if (!flIn || flIn->IsZombie()) {
@@ -57,6 +67,19 @@ Bool_t ExtractEmbedded(Bool_t keepMixed,const char* outESDFName, const char* inp
   AliESDEvent* esdIn = new AliESDEvent();
   esdIn->ReadFromTree(esdTreeIn);
 
+  TFile* flInF = TFile::Open(inpESDFriendName);
+  if (!flInF || flInF->IsZombie()) {
+    printf("Error: failed to open input friends file %s\n",inpESDFriendName);
+    return kFALSE;
+  }
+  TTree* esdTreeInF = (TTree*)flInF->Get("esdFriendTree");
+  if (!esdTreeInF) {
+    printf("Error: no esdFriendTree in the input file %s\n",inpESDFriendName);
+    return kFALSE;
+  }
+  AliESDfriend* esdInF = new AliESDfriend();
+  esdTreeInF->SetBranchAddress("ESDfriend.", &esdInF);
+  
   TFile* flOut = TFile::Open(outESDFName,"recreate");
   if (!flOut || flOut->IsZombie()) {
     printf("Error: failed to open output file %s\n",outESDFName);
@@ -66,15 +89,27 @@ Bool_t ExtractEmbedded(Bool_t keepMixed,const char* outESDFName, const char* inp
   AliESDEvent* esdOut = new AliESDEvent();
   esdOut->CreateStdContent();
   esdOut->AddObject(new AliESDHLTDecision);
-  esdTreeOut->GetUserInfo()->Add(esdOut);
+  esdTreeOut->GetUserInfo()->Add(esdIn);
   esdOut->WriteToTree(esdTreeOut);
+  
+
+  TFile* flOutF = TFile::Open(outESDFriendName,"recreate");
+  TTree* esdTreeOutF = new TTree("esdFriendTree", "Tree with ESD Friend objects");
+  AliESDfriend* esdOutF  = new AliESDfriend();
+  esdOutF->SetESDIndicesStored(kTRUE); // new sparse format
+  esdTreeOutF->Branch("ESDfriend.","AliESDfriend", &esdOutF);
   
   int nev = esdTreeIn->GetEntries();
 
   for (int iev=0;iev<nev;iev++) {
     esdTreeIn->GetEntry(iev);
-    FilterEvent(esdIn, esdOut, keepMixed);
+    esdTreeInF->GetEntry(iev);
+    FilterEvent(esdIn, esdInF, esdOut, esdOutF, keepMixed);
     esdTreeOut->Fill();
+    esdTreeOutF->Fill();
+
+    esdOutF->ResetSoft(); // shallow copy was used
+    esdInF->Reset();
     printf("Event#%2d %3d tracks -> %3d tracks\n",iev,
 	   esdIn->GetNumberOfTracks(), esdOut->GetNumberOfTracks());
   }
@@ -97,6 +132,13 @@ Bool_t ExtractEmbedded(Bool_t keepMixed,const char* outESDFName, const char* inp
   flOut->Close();
   delete flOut;
   //
+  flOutF->cd();
+  esdTreeOutF->Write(esdTreeOutF->GetName(),TObject::kOverwrite);
+  delete esdTreeOutF;
+  flOutF->Close();
+  delete flOutF;
+  // 
+  //
   delete esdTreeIn;
   flIn->Close();
   delete flIn;
@@ -104,7 +146,7 @@ Bool_t ExtractEmbedded(Bool_t keepMixed,const char* outESDFName, const char* inp
   return kTRUE;
 }
 
-void FilterEvent(AliESDEvent *evIn, AliESDEvent *evOut, Bool_t keepMixed)
+void FilterEvent(AliESDEvent *evIn, AliESDfriend* evInF, AliESDEvent *evOut, AliESDfriend *evOutF, Bool_t keepMixed)
 {
   // copy wanted tracks and remember their indices
   evOut->Reset();
@@ -184,15 +226,28 @@ void FilterEvent(AliESDEvent *evIn, AliESDEvent *evOut, Bool_t keepMixed)
       
   // filter tracks
   //
-  int ntrAdd = 0;
+  int ntrAdd = 0, ntrAddF = 0;
   for (int itr=0;itr<ntr;itr++) {
     if (trStatus[itr]==-1) continue; // discarded
     const AliESDtrack* trcIn = evIn->GetTrack(itr);
     evOut->AddTrack(trcIn);
     trStatus[itr] = ntrAdd; // memorrise added track ID
     AliESDtrack* trcOut = evOut->GetTrack(ntrAdd);
-    trcOut->SetFriendNotStored(kTRUE);
-    trcOut->SetFriendTrackID(-1);
+    //
+    int frId = trcIn->GetFriendTrackID();
+    const AliESDfriendTrack* trcInF = frId<0 ? 0 : evInF->GetTrack(frId);
+
+    if (trcInF) {
+      AliESDfriendTrack *fcopy = evOutF->AddTrack(trcInF,kTRUE); // create shallow copy
+      fcopy->SetESDtrackID(ntrAdd);
+      trcOut->SetFriendTrackID(ntrAddF++);
+      trcOut->SetFriendNotStored(kFALSE);
+    }
+    else {
+      trcOut->SetFriendNotStored(kTRUE);
+      trcOut->SetFriendTrackID(-1);
+    }
+
     trcOut->SetEMCALcluster(AliESDtrack::kEMCALNoMatch);
     int kinkID[3]={0}, kAdd = 0;
     for (int ik=0;ik<3;ik++) {
@@ -370,6 +425,15 @@ void FilterEvent(AliESDEvent *evIn, AliESDEvent *evOut, Bool_t keepMixed)
   evOut->SetEventNumberInFile(evIn->GetEventNumberInFile());
   evOut->SetEventSpecie(evIn->GetEventNumberInFile());
 
+  // copy friend data
+  if (evInF->GetVZEROfriend()) evOutF->SetVZEROfriend( evInF->GetVZEROfriend() );
+  if (evInF->GetTZEROfriend()) evOutF->SetTZEROfriend( evInF->GetTZEROfriend() );
+  if (evInF->GetADfriend()) evOutF->SetADfriend( evInF->GetADfriend() );
+  for (int i=72;i--;) {
+    evOutF->SetNclustersTPC(i,  evInF->GetNclustersTPC(i) );
+    evOutF->SetNclustersTPCused(i, evInF->GetNclustersTPCused(i) );
+  }
+  evOutF->SetSkipBit( evInF->TestSkipBit() );
 }
 
 //_______________________________________________________________________________
