@@ -483,6 +483,8 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
     mgr->RegisterExtraFile("event_stat.root");
     AliPhysicsSelectionTask *physSelTask = AddTaskPhysicsSelection(useMC);
     mgr->AddStatisticsTask(AliVEvent::kAny);
+    AliAnalysisDataContainer *cstatsout = (AliAnalysisDataContainer*)mgr->GetOutputs()->FindObject("cstatsout");
+    cstatsout->SetFileName("EventStat_temp_AODFiltering.root");
   }
    
 

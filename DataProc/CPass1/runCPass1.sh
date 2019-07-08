@@ -530,7 +530,7 @@ done
 
 # cleanup of barrel
 cd ../
-mv EventStat_temp_barrel_grp0.root EventStat_temp_barrel.root
+mv EventStat_temp_barrel_grp0.root EventStat_temp.root
 rm EventStat_temp_*_grp*.root
 
 echo "The time spent in aliroot sessions is $timeUsed"
