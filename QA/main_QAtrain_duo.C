@@ -680,7 +680,12 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     //AliAnalysisTaskEMCALTriggerQA *emctrig = AddTaskEMCALTriggerQA();
 //     emctrig->GetRecoUtils()->SwitchOffBadChannelsRemoval();
     AliEmcalTriggerMakerTask *emctrigmaker = AddTaskEmcalTriggerMakerNew("EmcalTriggers");
-    AddTaskEmcalTriggerQA_QAtrain(run_number);
+    emctrigmaker->SetUseBuiltinEventSelection(true);
+    TObjArray triggerqatasks = AddTaskEmcalTriggerQA_QAtrain(run_number);
+    for(TIter taskiter = triggerqatasks.Begin(); taskiter != TIter::End(); ++taskiter) {
+      AliEmcalTriggerQATask *triggerqatask = static_cast<AliEmcalTriggerQATask *>(taskiter());
+      triggerqatask->SetUseBuiltinEventSelection(true);
+    }
   }
   //     
   // FLOW and BF QA (C.Perez && A.Rodriguez)
