@@ -522,14 +522,14 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     // Add a new calo task with EMC1 trigger only
     taskCaloQA = AddTaskCalorimeterQA("trigEMC");        // for 2011 data, not 2010
 
-   AliAnaCalorimeterQA * emcalQA = (AliAnaCalorimeterQA *)taskCaloQA->GetAnalysisMaker()->GetListOfAnalysisContainers()->At(0);
+   AliAnaCalorimeterQA * emcalQA1 = (AliAnaCalorimeterQA *)taskCaloQA->GetAnalysisMaker()->GetListOfAnalysisContainers()->At(0);
    // settings for PbPb
-   emcalQA->SwitchCorrelationPerSM(2);
-   emcalQA->GetHistogramRanges()->SetHistoV0SignalRangeAndNBins(0,50000,1000);
-   emcalQA->GetHistogramRanges()->SetHistoTrackMultiplicityRangeAndNBins(0,10000,100);
-   emcalQA->GetHistogramRanges()->SetHistoNClustersRangeAndNBins(0,250,250);
-   emcalQA->GetHistogramRanges()->SetHistoNCellsRangeAndNBins(0,5000,1000);
-   emcalQA->GetHistogramRanges()->SetHistoPtRangeAndNBins(0, 300, 300) ;
+   emcalQA1->SwitchCorrelationPerSM(2);
+   emcalQA1->GetHistogramRanges()->SetHistoV0SignalRangeAndNBins(0,50000,1000);
+   emcalQA1->GetHistogramRanges()->SetHistoTrackMultiplicityRangeAndNBins(0,10000,100);
+   emcalQA1->GetHistogramRanges()->SetHistoNClustersRangeAndNBins(0,250,250);
+   emcalQA1->GetHistogramRanges()->SetHistoNCellsRangeAndNBins(0,5000,1000);
+   emcalQA1->GetHistogramRanges()->SetHistoPtRangeAndNBins(0, 300, 300) ;
 
     taskCaloQA->SelectCollisionCandidates(kTriggerEMC);  // for 2011 data, not 2010
     taskCaloQA->SetDebugLevel(0);
