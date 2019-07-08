@@ -2,6 +2,13 @@ AliGenerator *
 GeneratorCustom()
 {
   AliGenCocktail* cocktail = GeneratorCocktail("Hijing_Starlight");
+
+  // Background events: HIJING (only if non-embedded)
+  TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
+  if(!simulation.Contains("Embed")){
+    AliGenerator* hijing = GeneratorHijing();
+    cocktail->AddGenerator(hijing, "Hijing", 1.);
+  }
   
   AliGenerator* starlight = GeneratorStarlight();
   if (processConfig == TString("kTwoGammaToElMedium")) {
@@ -9,10 +16,7 @@ GeneratorCustom()
      genStarLight->SetParameter("W_MIN        =   1.5    #Min value of w");
      genStarLight->SetParameter("RAP_MAX      =   1.00    #max y");
   }
-  cocktail->AddGenerator(starlight, "Starlight", 1.);
-  
-  AliGenerator* hijing = GeneratorHijing();
-  cocktail->AddGenerator(hijing, "Hijing", 1.);    
+  cocktail->AddGenerator(starlight, "Starlight", 1.);   
   
   return cocktail;
 }
