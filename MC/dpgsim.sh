@@ -1017,13 +1017,8 @@ fi
 
 if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"EmbedSig"* ]] && [ $CONFIG_SIGNALFILTERING == "on" ]; then
 
-    ## Modify also for proper handling of AliMultSelection task???
-    if [[ $CONFIG_MODE == *"extractembeddedmixed"* ]]; then
-	EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C\(kTRUE\)
-    else
-	EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C\(kFALSE\)
-    fi
-	
+    EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C
+    
     runcommand "EXTRACTEMBEDDED" $EXTRACTEMBEDDEDC extractembedded.log 10
     
     if [ ! -f AliESDs_EMB.root ]; then
