@@ -1,7 +1,12 @@
 AliGenerator *
 GeneratorCustom(TString opt = "")
 {
-
+  // load libraries to use Evtgen
+  gSystem->Load("libPhotos");
+  gSystem->Load("libEvtGen");
+  gSystem->Load("libEvtGenExternal");
+  gSystem->Load("libTEvtGen");
+ 
   AliGenCocktail *ctl   = GeneratorCocktail("Hijing_LMee001");
 
   // Background events: HIJING (only if non-embedded)
