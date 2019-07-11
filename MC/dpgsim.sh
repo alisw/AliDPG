@@ -66,6 +66,7 @@ function COMMAND_HELP(){
     echo "--purifyKineOff                           Switch off the PurifyKine step in simulation" 
     echo "--fluka                                   Use FLUKA instead of GEANT3" 
     echo "--geant4                                  Use GEANT4 instead of GEANT3"
+    echo "--geant4PhysList <g4PhysList>             Which Physics List in case of GEANT4"
     echo "--nofastB                                 Switch off usage of fast B field"
     echo "--novdt                                   Switch off usage of VDT library"
     echo "--genpkg                                  if using ALIGENMC as generator: package version"
@@ -224,6 +225,7 @@ CONFIG_OCDBRUN3=""
 CONFIG_PURIFYKINEOFF=""
 CONFIG_HLT=""
 CONFIG_GEANT4=""
+CONFIG_GEANT4PHYSLIST=""
 CONFIG_FLUKA=""
 CONFIG_FASTB=""
 CONFIG_VDT="on"
@@ -429,6 +431,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
 	export CONFIG_GEANT4
+    elif [ "$option" = "--geant4PhysList" ] && [[ CONFIG_GEANT4 == "on" ]]; then
+        CONFIG_GEANT4PHYSLIST="$1"
+	export CONFIG_GEANT4PHYSLIST
+	shift
     elif [ "$option" = "--fluka" ]; then
         CONFIG_FLUKA="on"
 	export CONFIG_FLUKA
@@ -843,6 +849,7 @@ echo "No. Events....... $CONFIG_NBKG"
 echo "============================================"
 echo "Detector......... $CONFIG_DETECTOR"
 echo "GEANT4........... $CONFIG_GEANT4"
+echo "GEANT4 Phy List...$CONFIG_GEANT4PHYSLIST"
 echo "FLUKA............ $CONFIG_FLUKA"
 echo "PurifyKineOff.... $CONFIG_PURIFYKINEOFF"
 echo "Fast-B........... $CONFIG_FASTB"

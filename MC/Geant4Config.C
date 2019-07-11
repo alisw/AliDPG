@@ -18,15 +18,18 @@ void Geant4Config()
   TGeant4 *geant4 = 0;
   if ( ! gMC ) {
     TG4RunConfiguration* runConfiguration = NULL;
-
+    TString configPhysList = "FTFP_INCLXX_EMV+optical";
+    if (g4PhysList == "BERT") configPhysList = "FTFP_BERT_EMV+optical";
+    else if (g4PhysList == "BERT+biasing") configPhyList = "FTFP_BERT_EMV+optical+biasing";
     // check if monopole injection requested
     if(abs(pdgConfig)<60000000 || abs(pdgConfig)>=70000000){
+      
       runConfiguration = new TG4RunConfiguration("geomRoot",
-						 "FTFP_INCLXX_EMV+optical",
+						 Form("%s", configPhysList.Data()),
 						 "specialCuts+stackPopper+stepLimiter",
 						 true);
       geant4 = new TGeant4("TGeant4", 
-			   "The Geant4 Monte Carlo : FTFP_INCLXX_EMV+optical", 
+			   Form("The Geant4 Monte Carlo : %s", configPhysList.Data()), 
 			   runConfiguration);
     }
     else{
@@ -40,7 +43,7 @@ void Geant4Config()
 
       
       runConfiguration = new TG4RunConfiguration("geomRoot",
-						 "FTFP_INCLXX_EMV+optical+monopole",
+						 Form("%s+monopole", configPhysList.Data()),
 						 "specialCuts+stackPopper+stepLimiter",
 						 true);
       
@@ -49,7 +52,7 @@ void Geant4Config()
       runConfiguration->SetParameter("monopoleMagCharge", mCh);
       
       geant4 = new TGeant4("TGeant4", 
-			   "The Geant4 Monte Carlo : FTFP_INCLXX_EMV+optical+monopole", 
+			   Form("The Geant4 Monte Carlo : %s+monopole", configPhysList.Data()), 
 			   runConfiguration);
     }
     
@@ -122,5 +125,13 @@ void Geant4Config()
   geant4->ProcessGeantCommand("/mcMagField/setDeltaIntersection 1.0e-05 mm");
   geant4->ProcessGeantCommand("/mcMagField/setMinimumEpsilonStep 0.5e-05");
   geant4->ProcessGeantCommand("/mcMagField/setMaximumEpsilonStep 1.0e-05");
+
+  if (g4PhysList == "BERT+biasing") {
+    geant4->ProcessGeantCommand("/mcVerbose/biasingConfigurationManager 1");
+    geant4->ProcessGeantCommand("/mcPhysics/biasing/setModel inclxx");
+    geant4->ProcessGeantCommand("/mcPhysics/biasing/setRegions ITS_AIR$ ITS_WATER$ ITS_COPPER$ ITS_KAPTON(POLYCH2)$ ITS_GLUE_IBFPC$ ITS_CERAMIC$ ITS_K13D2U2k$ ITS_K13D2U120$ ITS_F6151B05M$ ITS_M60J3K$ ITS_M55J6K$ ITS_FGS003$ ITS_CarbonFleece$ ITS_PEEKCF30$ ITS_GLUE$ ITS_ALUMINUM$ ITS_INOX304$ ALPIDE_METALSTACK$ ALPIDE_SI$");
+    geant4->ProcessGeantCommand("/mcPhysics/biasing/setParticles proton neutron pi+ pi-");
+  }
+  
 }
 
