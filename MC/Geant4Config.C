@@ -34,6 +34,12 @@ void Geant4Config()
     }
     else{
       Printf("\n\nSET UP GEANT4 for magnetic monopoles\n\n");
+      if (g4PhysList == "BERT+biasing") {
+	Printf("We cannot use the BERT+biasing with the monopoles, we will unset the pointer to geant4");
+	delete geant4;
+	geant4 = 0;
+	return;
+      }
       //decode mass, electric charge and magnetic charge:  pdgConfig= sign 6abcdefg -> mass= c.defg*10^g; el charge=sign a; mag. charge= sign b
       Double_t mass=Double_t (int(abs(pdgConfig)%(int(1e5))/10)/1000.)*pow(10,(int(abs(pdgConfig)%10)));
       Double_t eCh=(abs(pdgConfig)/pdgConfig)*abs(pdgConfig)/(int(1e6))%10;
