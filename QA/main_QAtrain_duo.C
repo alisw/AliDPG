@@ -522,14 +522,14 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     // Add a new calo task with EMC1 trigger only
     taskCaloQA = AddTaskCalorimeterQA("trigEMC");        // for 2011 data, not 2010
 
-   AliAnaCalorimeterQA * emcalQA = (AliAnaCalorimeterQA *)taskCaloQA->GetAnalysisMaker()->GetListOfAnalysisContainers()->At(0);
+   AliAnaCalorimeterQA * emcalQA1 = (AliAnaCalorimeterQA *)taskCaloQA->GetAnalysisMaker()->GetListOfAnalysisContainers()->At(0);
    // settings for PbPb
-   emcalQA->SwitchCorrelationPerSM(2);
-   emcalQA->GetHistogramRanges()->SetHistoV0SignalRangeAndNBins(0,50000,1000);
-   emcalQA->GetHistogramRanges()->SetHistoTrackMultiplicityRangeAndNBins(0,10000,100);
-   emcalQA->GetHistogramRanges()->SetHistoNClustersRangeAndNBins(0,250,250);
-   emcalQA->GetHistogramRanges()->SetHistoNCellsRangeAndNBins(0,5000,1000);
-   emcalQA->GetHistogramRanges()->SetHistoPtRangeAndNBins(0, 300, 300) ;
+   emcalQA1->SwitchCorrelationPerSM(2);
+   emcalQA1->GetHistogramRanges()->SetHistoV0SignalRangeAndNBins(0,50000,1000);
+   emcalQA1->GetHistogramRanges()->SetHistoTrackMultiplicityRangeAndNBins(0,10000,100);
+   emcalQA1->GetHistogramRanges()->SetHistoNClustersRangeAndNBins(0,250,250);
+   emcalQA1->GetHistogramRanges()->SetHistoNCellsRangeAndNBins(0,5000,1000);
+   emcalQA1->GetHistogramRanges()->SetHistoPtRangeAndNBins(0, 300, 300) ;
 
     taskCaloQA->SelectCollisionCandidates(kTriggerEMC);  // for 2011 data, not 2010
     taskCaloQA->SetDebugLevel(0);
@@ -680,7 +680,12 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     //AliAnalysisTaskEMCALTriggerQA *emctrig = AddTaskEMCALTriggerQA();
 //     emctrig->GetRecoUtils()->SwitchOffBadChannelsRemoval();
     AliEmcalTriggerMakerTask *emctrigmaker = AddTaskEmcalTriggerMakerNew("EmcalTriggers");
-    AddTaskEmcalTriggerQA_QAtrain(run_number);
+    emctrigmaker->SetUseBuiltinEventSelection(true);
+    TObjArray triggerqatasks = AddTaskEmcalTriggerQA_QAtrain(run_number);
+    for(TIter taskiter = triggerqatasks.Begin(); taskiter != TIter::End(); ++taskiter) {
+      AliEmcalTriggerQATask *triggerqatask = static_cast<AliEmcalTriggerQATask *>(taskiter());
+      triggerqatask->SetUseBuiltinEventSelection(true);
+    }
   }
   //     
   // FLOW and BF QA (C.Perez && A.Rodriguez)
@@ -708,6 +713,12 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
 void QAmerge(const char *suffix, const char *dir, Int_t stage)
 {
 // Merging method
+
+  // we need to check if we already have an event_stat.root from a previous merging, as we might not want to overwrite it (in case suffix is empty)
+  if (gSystem->AccessPathName("event_stat.root", kFileExists)==0) { // the event_stat.root file exists
+    gSystem->Exec("cp event_stat.root event_stat_Bkp.root");
+  }
+    
   TStopwatch timer;
   timer.Start();
   TString outputDir = dir;
@@ -758,6 +769,10 @@ void QAmerge(const char *suffix, const char *dir, Int_t stage)
     }
     if (gSystem->Exec(Form("mv event_stat.root event_stat%s.root", suffix)))
       ::Error("QAmerge", "File event_stat.root was not produced");
+    // now we restore the original event_stat.root that was overwritten when calling terminate
+    if (gSystem->AccessPathName("event_stat_Bkp.root", kFileExists)==0) { 
+      gSystem->Exec("cp event_stat_Bkp.root event_stat.root");
+    }
   }   
   ofstream out;
   out.open("outputs_valid", ios::out);

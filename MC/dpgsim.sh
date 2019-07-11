@@ -1017,13 +1017,8 @@ fi
 
 if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"EmbedSig"* ]] && [ $CONFIG_SIGNALFILTERING == "on" ]; then
 
-    ## Modify also for proper handling of AliMultSelection task???
-    if [[ $CONFIG_MODE == *"extractembeddedmixed"* ]]; then
-	EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C\(kTRUE\)
-    else
-	EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C\(kFALSE\)
-    fi
-	
+    EXTRACTEMBEDDEDC=$ALIDPG_ROOT/MC/ExtractEmbeddedWrapper.C
+    
     runcommand "EXTRACTEMBEDDED" $EXTRACTEMBEDDEDC extractembedded.log 10
     
     if [ ! -f AliESDs_EMB.root ]; then
@@ -1042,11 +1037,14 @@ if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"Embed
     if [ "$CONFIG_DEBUG" = "on" ]; then
 	mv "AliESDs.root" "AliESDs_ORIG.root"
 	mv "AliESDs_EMB.root" "AliESDs.root"
+	mv "AliESDfriends.root" "AliESDfriends_ORIG.root"
+	mv "AliESDfriends_EMB.root" "AliESDfriends.root"
 	## Removed for proper handling of AliMultSelection task
 	#mv "galice.root" "galice_ORIG.root"
 	#mv "galice_EMB.root" "galice.root"
     else
 	mv "AliESDs_EMB.root" "AliESDs.root"
+	mv "AliESDfriends_EMB.root" "AliESDfriends.root"
        	## Removed for proper handling of AliMultSelection task
 	#mv "galice_EMB.root" "galice.root"
     fi
