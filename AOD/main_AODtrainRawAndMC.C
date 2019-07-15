@@ -53,7 +53,7 @@ Bool_t      doPIDResponse       = kTRUE;
 Bool_t      doPIDqa             = kTRUE;
 
 //
-Int_t       iMUONRefit          = 0;
+Int_t       iMUONRefit          = 1;
 Int_t       iPWGHFd2h           = 1;      // D0->2 hadrons (PWG3)
 Bool_t      saveTrain           = kTRUE;  // save train configuration as: 
 
@@ -492,7 +492,14 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
   if (iPWGPP) {
     AddTaskFilteredTree("FilterEvents_Trees.root");
   }   
-   
+
+  // Muon refit
+  if (iMUONRefit) {
+    AliAnalysisTaskMuonRefit* refit = AddTaskMuonRefit(-1., -1., kTRUE, -1., -1.);
+    refit->ReAlignFromDefaultStorage();
+    refit->RemoveMonoCathodClusters(kTRUE, kFALSE);
+  }
+
   // Centrality 
   if (useCentrality) {
     if ( run_flag >= 1500 )
