@@ -43,6 +43,7 @@ static Float_t pttrigmaxConfig = -1.;       // pt-trigger max
 static Int_t   quenchingConfig = 0;         // quenching
 static Float_t qhatConfig      = 1.7;       // q-hat
 static Bool_t  isGeant4        = kFALSE;    // geant4 flag
+static TString g4PhysList      = "";        // geant4 Phys List 
 static Bool_t  purifyKine      = kTRUE;     // purifyKine flag
 static Bool_t  isFluka         = kFALSE;    // fluka flag
 
@@ -100,6 +101,7 @@ Config()
   printf(">>>>>   crossing angle: %f \n", crossingConfig);
   printf(">>>>>      random seed: %d \n", seedConfig);
   printf(">>>>>           geant4: %d \n", isGeant4);
+  printf(">>>>>       g4PhysList: %s \n", g4PhysList);
   printf(">>>>>       purifyKine: %d \n", purifyKine);
   printf(">>>>>            fluka: %d \n", isFluka);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
@@ -364,6 +366,9 @@ ProcessEnvironment()
   isGeant4 = kFALSE;
   if (gSystem->Getenv("CONFIG_GEANT4"))
     isGeant4 = kTRUE;
+  g4PhysList = "";
+  if (gSystem->Getenv("CONFIG_GEANT4PHYSLIST"))
+    g4PhysList = gSystem->Getenv("CONFIG_GEANT4PHYSLIST");
 
   // PurifyKine OFF
   purifyKine = kTRUE;
