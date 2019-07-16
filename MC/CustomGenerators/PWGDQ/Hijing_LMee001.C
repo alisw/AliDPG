@@ -1,7 +1,12 @@
 AliGenerator *
 GeneratorCustom(TString opt = "")
 {
-
+  // load libraries to use Evtgen
+  gSystem->Load("libPhotos");
+  gSystem->Load("libEvtGen");
+  gSystem->Load("libEvtGenExternal");
+  gSystem->Load("libTEvtGen");
+ 
   AliGenCocktail *ctl   = GeneratorCocktail("Hijing_LMee001");
 
   // Background events: HIJING (only if non-embedded)
@@ -115,11 +120,15 @@ GeneratorCustom(TString opt = "")
   jpsi->SetYRange(minRap, maxRap);
   jpsi->SetPhiRange(phiMin, phiMax);
   jpsi->SetWeighting(weightMode);  // flat pt 
-  jpsi->SetForceDecay(kDiElectron);
+  jpsi->SetForceDecay(kNoDecay);
   // if(decayerInt) // not working in current implementation ((TDatabasePDG::Instance()->GetParticle(443))->Width() = 0) 
   //   jpsi->SetDecayer(decayerInt); 
   jpsi->Init();
 
+  AliGenEvtGen *gene = new AliGenEvtGen();
+  gene->SetForceDecay(kBJpsiDiElectron);
+  gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);
+  
 
   ////////////////////////////////////////////
   //    Pythia cc->ee
@@ -205,6 +214,9 @@ GeneratorCustom(TString opt = "")
   ctl->AddGenerator(omega,"omega", 1.);
   ctl->AddGenerator(phi,"phi", 1.);
   ctl->AddGenerator(jpsi,"jpsi", 1.);
+  ctl->AddGenerator(gene,"EvtGen", 1.);
+
+
 
   // HF part (only if requested)
   if(!opt.Contains("LF")){
