@@ -492,7 +492,14 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
   if (iPWGPP) {
     AddTaskFilteredTree("FilterEvents_Trees.root");
   }   
-   
+
+  // Muon refit
+  if (iMUONRefit) {
+    AliAnalysisTaskMuonRefit* refit = AddTaskMuonRefit(-1., -1., kTRUE, -1., -1.);
+    refit->ReAlignFromDefaultStorage();
+    refit->RemoveMonoCathodClusters(kTRUE, kFALSE);
+  }
+
   // Centrality 
   if (useCentrality) {
     if ( run_flag >= 1500 )
