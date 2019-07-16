@@ -53,7 +53,7 @@ Bool_t      doPIDResponse       = kTRUE;
 Bool_t      doPIDqa             = kTRUE;
 
 //
-Int_t       iMUONRefit          = 1;
+Int_t       iMUONRefit          = 0;
 Int_t       iPWGHFd2h           = 1;      // D0->2 hadrons (PWG3)
 Bool_t      saveTrain           = kTRUE;  // save train configuration as: 
 
