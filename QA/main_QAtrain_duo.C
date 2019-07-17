@@ -682,7 +682,7 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
     AliEmcalTriggerMakerTask *emctrigmaker = AddTaskEmcalTriggerMakerNew("EmcalTriggers");
     emctrigmaker->SetUseBuiltinEventSelection(true);
     TObjArray triggerqatasks = AddTaskEmcalTriggerQA_QAtrain(run_number);
-    for(TIter &taskiter = TIter(triggerqatasks).Begin(); taskiter != TIter::End(); ++taskiter) {
+    for(TIter &taskiter = TIter(&triggerqatasks).Begin(); taskiter != TIter::End(); ++taskiter) {
       AliEmcalTriggerQATask *triggerqatask = static_cast<AliEmcalTriggerQATask *>(taskiter());
       triggerqatask->SetUseBuiltinEventSelection(true);
     }
