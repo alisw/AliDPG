@@ -14,18 +14,26 @@ AliGenerator* GeneratorCustom()
   ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
 
   // randomly injected particles
-  const int nParticles = 10;
-  particle_inj particleList[10] = { // {name,pdgcode,maxpt,maxy},
+  const int nParticles = 18;
+  particle_inj particleList[18] = { // {name,pdgcode,maxpt,maxy},
     {1,"f2(1270)",225,15.,0.6},
     {1,"Lambda(1520)",3124,15.,0.6},
     {1,"Lambda_bar(1520)",-3124,15.,0.6},
     {1,"f0(980)",9010221,15.,0.6},
+    {1,"K(1430)0",315,15.,0.6},
+    {1,"K(1430)0_bar",-315,15.,0.6},
+    {1,"K(1430)+",325,15.,0.6},
+    {1,"K(1430)+_Bar",-325,15.,0.6},
     {1,"Xi*0(1530)",3324,15.,0.6},
     {1,"Xi*0_bar(1530)",-3324,15.,0.6},
     {1,"Xi0(1820)",123324,15.,0.6},
     {1,"Xi0_bar(1820)",-123324,15.,0.6},
     {1,"Xi-(1820)",123314,15.,0.6},
-    {1,"Xi+(1820)",-123314,15.,0.6}
+    {1,"Xi+(1820)",-123314,15.,0.6},
+    {1,"Sigma*+(1385)",3224,15.,0.6},
+    {1,"Sigma*+_bar(1385)",-3224,15.,0.6},
+    {1,"Sigma*-(1385)",3114,15.,0.6},
+    {1,"Sigma*-_bar(1385)",-3114,15.,0.6}
   };
 
   AliDecayerPythia *dec = new AliDecayerPythia;
