@@ -1047,13 +1047,13 @@ if [[ $CONFIG_MODE == *"extractembedded"* ]] && [[ $CONFIG_SIMULATION == *"Embed
 	mv "AliESDfriends.root" "AliESDfriends_ORIG.root"
 	mv "AliESDfriends_EMB.root" "AliESDfriends.root"
 	## Removed for proper handling of AliMultSelection task
-	#mv "galice.root" "galice_ORIG.root"
-	#mv "galice_EMB.root" "galice.root"
+	mv "galice.root" "galice_ORIG.root"
+	mv "galice_EMB.root" "galice.root"
     else
 	mv "AliESDs_EMB.root" "AliESDs.root"
 	mv "AliESDfriends_EMB.root" "AliESDfriends.root"
-       	## Removed for proper handling of AliMultSelection task
-	#mv "galice_EMB.root" "galice.root"
+       	# Removed for proper handling of AliMultSelection task
+	mv "galice_EMB.root" "galice.root"
     fi
 fi
     

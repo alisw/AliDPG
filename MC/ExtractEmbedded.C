@@ -32,7 +32,8 @@
 #include "TTree.h"
 #include "TClonesArray.h"
 #include "TString.h"
-
+#include "AliGenCocktailEventHeader.h"
+#include "AliHeader.h"
 #include "AliESDfriend.h"
 #include "AliESDVZEROfriend.h"
 #include "AliESDTZEROfriend.h"
@@ -45,14 +46,16 @@
 void FilterEvent(AliESDEvent *evIn, AliESDfriend* evInF, AliESDEvent *evOut, AliESDfriend *evOutF, Bool_t keepMixed=kFALSE);
 Bool_t RemoveBKGFromGalice(const char* outgaliceFName="galice_EMB.root",const char* inpgaliceFName="galice.root");
 Bool_t ExtractEmbedded(Bool_t keepMixed = kFALSE, const char* outESDFName="AliESDs_EMB.root", const char* inpESDFName="AliESDs.root",
-		       const char* outESDFriendName="AliESDfriends_EMB.root", const char* inpESDFriendName="AliESDfriends.root");
+		       const char* outESDFriendName="AliESDfriends_EMB.root", const char* inpESDFriendName="AliESDfriends.root",
+		       const char* outgaliceFName="galice_EMB.root",const char* inpgaliceFName="galice.root");
 Bool_t KeepTrack(int lbl);
 Bool_t KeepTrack(AliESDtrack* trc);
 
 
 //_______________________________________________________________________________
 Bool_t ExtractEmbedded(Bool_t keepMixed,const char* outESDFName, const char* inpESDFName,
-		       const char* outESDFriendName, const char* inpESDFriendName)
+		       const char* outESDFriendName, const char* inpESDFriendName,
+		       const char* outgaliceFName, const char* inpgaliceFName)
 {
   TFile* flIn = TFile::Open(inpESDFName);
   if (!flIn || flIn->IsZombie()) {
@@ -143,6 +146,8 @@ Bool_t ExtractEmbedded(Bool_t keepMixed,const char* outESDFName, const char* inp
   flIn->Close();
   delete flIn;
 
+  if (!keepMixed) RemoveBKGFromGalice(outgaliceFName, inpgaliceFName);
+  
   return kTRUE;
 }
 
@@ -452,26 +457,90 @@ Bool_t KeepTrack(int lbl)
 //_______________________________________________________________________________
 Bool_t RemoveBKGFromGalice(const char* outgaliceFName,const char* inpgaliceFName)
 {
-  TFile* fl = TFile::Open(inpgaliceFName);
-  if (!fl || fl->IsZombie()) {
+  TFile* flOrig = TFile::Open(inpgaliceFName);
+  if (!flOrig || flOrig->IsZombie()) {
     printf("Error: failed to open input file %s\n",inpgaliceFName);
     return kFALSE;
   }
-  if (!fl->Cp(outgaliceFName)) {
+  if (!flOrig->Cp(outgaliceFName)) {
     printf("Error: failed to open output file %s\n",outgaliceFName);
     return kFALSE;
   }
-  fl->Close();
-  delete fl;
   
   TString bgObjName = "embeddingBKGPaths";
-  fl = TFile::Open(outgaliceFName,"update");
-  if (fl->Get(bgObjName.Data())) {
+  TFile* flOut = TFile::Open(outgaliceFName,"update");
+
+  TObjArray* embPathArr = (TObjArray*)flOut->Get(bgObjName.Data());
+  TObjString* embPathStr = embPathArr ? dynamic_cast<TObjString*>(embPathArr->At(0)) : 0;
+  printf("%p %p\n",embPathArr, embPathStr);
+  if (embPathStr) {
+    TFile* flBg = TFile::Open(embPathStr->GetName());
+    if (flBg) { // merge gen headers
+      flOut->Delete("TE"); // delete original tree
+      // and fetch its prototype from the original file
+      TTree* TEInj = (TTree*) flOrig->Get("TE");
+      if (!TEInj) {
+	printf("Error: failed to get TE tree from the input file %s\n",inpgaliceFName);
+	return kFALSE;
+      }
+      TTree* TEBg = (TTree*) flBg->Get("TE");
+      if (!TEBg) {
+	printf("Error: failed to get TE tree from the BG input file %s\n",embPathStr->GetName());
+	return kFALSE;
+      }    
+      //           
+      AliHeader *head = 0, *headBG = 0;
+      TEInj->SetBranchAddress("Header",&head);
+      TEBg->SetBranchAddress("Header",&headBG);
+
+      TTree* TEOut = new TTree(TEInj->GetName(),TEInj->GetTitle());
+      TEOut->Branch("Header",&head);
+      
+      AliGenCocktailEventHeader* combHead = new AliGenCocktailEventHeader();
+      int nEnt = TEInj->GetEntries(), lastBGRead=-1;
+      for (int entInj=0;entInj<nEnt;entInj++) {
+	TEInj->GetEntry(entInj);
+	int repFactor = head->GetSgPerBgEmbedded();
+	int entBg = entInj/repFactor;
+	if (lastBGRead!=entBg) TEBg->GetEntry( (lastBGRead=entBg) );
+	AliGenEventHeader* genH[2] = { head->GenEventHeader(), headBG->GenEventHeader() };
+
+	TArrayF vtx;
+	genH[0]->PrimaryVertex(vtx);
+	combHead->SetPrimaryVertex(vtx);
+	combHead->SetNProduced( genH[0]->NProduced() +  genH[0]->NProduced() );
+	AliGenEventHeader* genHd = 0;
+	for (int ig=0;ig<2;ig++) {
+	  if ( genH[ig]->InheritsFrom(AliGenCocktailEventHeader::Class()) ) {
+	    TList* cocktHeadersX = ((AliGenCocktailEventHeader*)genH[ig])->GetHeaders();
+	    TIter nxtH(cocktHeadersX);
+	    while( (genHd=(AliGenEventHeader*)nxtH()) ) combHead->AddHeader( genHd );
+	  }
+	  else combHead->AddHeader( genH[ig] );
+	}
+	head->SetGenEventHeader( combHead );
+	TEOut->Fill();
+	combHead->GetHeaders()->Delete();// clean already saved headers
+	head->SetGenEventHeader(genH[0]); // restore the original header
+      } // loop over injected events
+      flOut->cd();
+      TEOut->Write();
+      
+      delete TEInj;
+      delete TEBg;
+      flBg->Close();
+      delete flBg;
+      
+    }
     printf("Removing bg.event reference %s\n",bgObjName.Data());
     bgObjName += ";*";
-    fl->Delete(bgObjName.Data());
+    flOut->Delete(bgObjName.Data());
   }
-  fl->Close();
-  delete fl;
+  flOut->Close();
+  delete flOut;
+
+  flOrig->Close();
+  delete flOrig;
+  
   return kTRUE;
 }
