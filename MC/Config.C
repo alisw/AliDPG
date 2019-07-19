@@ -101,7 +101,7 @@ Config()
   printf(">>>>>   crossing angle: %f \n", crossingConfig);
   printf(">>>>>      random seed: %d \n", seedConfig);
   printf(">>>>>           geant4: %d \n", isGeant4);
-  printf(">>>>>       g4PhysList: %s \n", g4PhysList);
+  printf(">>>>>       g4PhysList: %s \n", g4PhysList.Data());
   printf(">>>>>       purifyKine: %d \n", purifyKine);
   printf(">>>>>            fluka: %d \n", isFluka);
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");

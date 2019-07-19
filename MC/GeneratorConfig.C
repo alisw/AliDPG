@@ -1530,10 +1530,16 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
   //
   // J/psi
   TString stringParams = params;
+  AliGenParam* jpsi    = NULL;
   if(stringParams.Contains("UserParam")){ 
    // use private parametrization for y / pT instead of AliGenMUONlib
    gROOT->LoadMacro("$ALIDPG_ROOT/MC/CustomGenerators/PWGDQ/GenJPsiParaSet.C++");
+#if !(defined(__CLING__))
    jpsi = GenJPsiParaSet(stringParams);
+#else
+   Printf("ERROR: This option is not yet available for ROOT6 ... abort");
+   return NULL;
+#endif
   }
   else jpsi = new AliGenParam(1, AliGenMUONlib::kJpsi, params, "Jpsi");
   jpsi->SetPtRange(0., 1000.);
