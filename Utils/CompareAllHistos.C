@@ -10,6 +10,7 @@
 #include <TString.h>
 #include <TPaveStats.h>
 #include "AliPerformanceObject.h"
+#include "AliPhysicsSelection.h"
 #endif
 
 
@@ -25,6 +26,7 @@ void ProcessFile(TString fname, TString dirToAnalyse);
 void ProcessDirectory(TDirectoryFile* df);
 void ProcessList(TList* ls);
 void ProcessArray(TObjArray* arr);
+void ProcessPhysSel(TList *lst);
 void WriteHisto(TObject* obj);
 void WriteProfile(TObject* obj);
 Bool_t AreIdenticalHistos(TH1* hA, TH1* hB);
@@ -32,6 +34,7 @@ Bool_t CompareHistos(TH1* hA, TH1* hB);
 
 
 void CompareAllHistos(TString filename="QAresults_v5-09-37.root", TString filename2="QAresults_v5-09-36.root", TString dirToAnalyse="", Bool_t areIndependentSamples=kFALSE){
+
 
   if(areIndependentSamples) correlationCase=1;
 
@@ -95,6 +98,7 @@ void ProcessFile(TString fname, TString dirToAnalyse){
     }else if(cname=="TList"){
       TList* ls=(TList*)fileBase->Get(oname.Data());
       TString lsName=ls->GetName();
+      if(lsName=="cstatsout") ProcessPhysSel(ls);
       if(dirToAnalyse.Length()>0 && !lsName.Contains(dirToAnalyse.Data())){
 	printf("Skip TList %s\n",lsName.Data());
       }else{
@@ -106,7 +110,12 @@ void ProcessFile(TString fname, TString dirToAnalyse){
 }
 
 
-
+void ProcessPhysSel(TList *lst){
+  AliPhysicsSelection* psel = (AliPhysicsSelection*)lst->FindObject("AliPhysicsSelection");
+  TH2F* hst=(TH2F*)psel->GetStatistics("");
+  WriteHisto(hst);
+  return;
+}
 
 void ProcessDirectory(TDirectoryFile* df){
   printf("--- Process TDirectoryFile %s ---\n",df->GetName());
@@ -313,7 +322,7 @@ Bool_t CompareHistos(TH1* hA, TH1* hB){
       stB->SetY1NDC(0.45);
       stB->SetY2NDC(0.65);
     }
-    
+   
     c->cd(2);
     hA->Divide(hB);
     for(Int_t k=1;k<=hA->GetNbinsX();k++) hA->SetBinError(k,0.000000001);
