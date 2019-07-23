@@ -431,7 +431,7 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
 	export CONFIG_GEANT4
-    elif [ "$option" = "--geant4PhysList" ] && [[ CONFIG_GEANT4 == "on" ]]; then
+    elif [ "$option" = "--geant4PhysList" ] && [[ $CONFIG_GEANT4 == "on" ]]; then
         CONFIG_GEANT4PHYSLIST="$1"
 	export CONFIG_GEANT4PHYSLIST
 	shift
