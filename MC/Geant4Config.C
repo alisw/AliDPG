@@ -20,7 +20,7 @@ void Geant4Config()
     TG4RunConfiguration* runConfiguration = NULL;
     TString configPhysList = "FTFP_INCLXX_EMV+optical";
     if (g4PhysList == "BERT") configPhysList = "FTFP_BERT_EMV+optical";
-    else if (g4PhysList == "BERT+biasing") configPhyList = "FTFP_BERT_EMV+optical+biasing";
+    else if (g4PhysList == "BERT+biasing") configPhysList = "FTFP_BERT_EMV+optical+biasing";
     // check if monopole injection requested
     if(abs(pdgConfig)<60000000 || abs(pdgConfig)>=70000000){
       
