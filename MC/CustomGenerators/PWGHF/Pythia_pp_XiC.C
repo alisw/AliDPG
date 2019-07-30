@@ -1,4 +1,4 @@
-AliGenerator *GeneratorCustom(TString opt =)
+AliGenerator *GeneratorCustom(TString opt ="")
 {
   Int_t iprocess = uidConfig % 4;
 
