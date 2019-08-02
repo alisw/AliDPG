@@ -7,7 +7,7 @@ GeneratorCustom(TString opt = "")
   gSystem->Load("libEvtGenExternal");
   gSystem->Load("libTEvtGen");
  
-  AliGenCocktail *ctl   = GeneratorCocktail("Hijing_LMee001");
+  AliGenCocktail* ctl   = (AliGenCocktail*) GeneratorCocktail("Hijing_LMee001");
 
   // Background events: HIJING (only if non-embedded)
   TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
@@ -31,11 +31,18 @@ GeneratorCustom(TString opt = "")
 
   AliDecayerPythia* decayerInt = NULL; 
   AliDecayerPythia* decayerExt = NULL;
+
+  // store all decay particles of forced decays in AliGenParam, e.g. the gamma in pi0->e+e-gamma
+  Bool_t selectAll = kFALSE;
+  if(opt.Contains("selectAll")){
+    Printf("Setup HIJING_LMee001: Store all decay particles of forced decays in AliGenParam, e.g. the gamma in pi0->e+e-gamma");
+    selectAll = kTRUE;
+  }
     
   // set internal decayer (for AliGenParam with Exodus only)
   if(opt.Contains("Exodus")){
     decayerInt = new AliDecayerPythia();
-    Printf("Use Exodus decayer for cocktail");
+    Printf("Setup HIJING_LMee001: Use Exodus decayer for cocktail");
     decayerInt->SetDecayerExodus();
     decayerInt->SetForceDecay(kDiElectronEM);
     decayerInt->Init();
@@ -57,6 +64,8 @@ GeneratorCustom(TString opt = "")
   pizero->SetForceDecay(kDiElectronEM);
   if(decayerInt)
     pizero->SetDecayer(decayerInt);
+  if(selectAll)
+    pizero->SetSelectAll(kTRUE);
   pizero->Init();
     
   // Eta
@@ -68,6 +77,8 @@ GeneratorCustom(TString opt = "")
   eta->SetForceDecay(kDiElectronEM);
   if(decayerInt)
     eta->SetDecayer(decayerInt);
+  if(selectAll)
+    eta->SetSelectAll(kTRUE);
   eta->Init();
 
   // Etaprime
@@ -79,6 +90,8 @@ GeneratorCustom(TString opt = "")
   etaprime->SetForceDecay(kDiElectronEM);
   if(decayerInt)
     etaprime->SetDecayer(decayerInt);
+  if(selectAll)
+    etaprime->SetSelectAll(kTRUE);
   etaprime->Init();
 
   // Rho 
@@ -90,6 +103,8 @@ GeneratorCustom(TString opt = "")
   rho->SetForceDecay(kDiElectronEM);
   if(decayerInt)
     rho->SetDecayer(decayerInt);
+  if(selectAll)
+    rho->SetSelectAll(kTRUE);
   rho->Init();
   
   // Omega
@@ -101,6 +116,8 @@ GeneratorCustom(TString opt = "")
   omega->SetForceDecay(kDiElectronEM);
   if(decayerInt)
     omega->SetDecayer(decayerInt);
+  if(selectAll)
+    omega->SetSelectAll(kTRUE);
   omega->Init();
 
   //Phi
@@ -112,6 +129,8 @@ GeneratorCustom(TString opt = "")
   phi->SetForceDecay(kDiElectronEM);
   if(decayerInt)
     phi->SetDecayer(decayerInt);
+  if(selectAll)
+    phi->SetSelectAll(kTRUE);
   phi->Init();
 
   // J/psi 

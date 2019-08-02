@@ -2,7 +2,7 @@ AliGenerator *
 GeneratorCustom(TString opt = "")
 {
 
-  AliGenCocktail *ctl   = GeneratorCocktail("Hijing_LMee002");
+  AliGenCocktail* ctl   = (AliGenCocktail*) GeneratorCocktail("Hijing_LMee002");
 
   // Background events: HIJING (only if non-embedded)
   TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
@@ -96,29 +96,29 @@ GeneratorCustom(TString opt = "")
     Int_t flag = (Int_t)gRandom->Uniform(0,100);
     if(flag>=0 && flag<20){
       if(opt.Contains("CentDepHF")){
-	Printf("Use centrality dependent injected HF: pythiaCC");
+	Printf("Setup HIJING_LMee002: Use centrality dependent injected HF: pythiaCC");
 	ctl->AddGenerator(pythiaCC,"Pythia CC",1.,formula);
       }
       else{
-	Printf("Use centrality independent injected HF: pythiaCC");
+	Printf("Setup HIJING_LMee002: Use centrality independent injected HF: pythiaCC");
 	ctl->AddGenerator(pythiaCC,"Pythia CC",1.);
       }
     }else if(flag>=20 && flag<40){ 
       if(opt.Contains("CentDepHF")){
-	Printf("Use centrality dependent injected HF: pythiaBB");
+	Printf("Setup HIJING_LMee002: Use centrality dependent injected HF: pythiaBB");
 	ctl->AddGenerator(pythiaBB,"Pythia BB",1.,formula);
       }
       else{
-	Printf("Use centrality independent injected HF: pythiaBB");
+	Printf("Setup HIJING_LMee002: Use centrality independent injected HF: pythiaBB");
 	ctl->AddGenerator(pythiaBB,"Pythia BB",1.);
       }
     }else if(flag>=40 && flag<100){ 
       if(opt.Contains("CentDepHF")){
-	Printf("Use centrality dependent injected HF: pythiaB");
+	Printf("Setup HIJING_LMee002: Use centrality dependent injected HF: pythiaB");
 	ctl->AddGenerator(pythiaB,"Pythia B",1.,formula);
       }
       else{
-	Printf("Use centrality independent injected HF: pythiaB");
+	Printf("Setup HIJING_LMee002: Use centrality independent injected HF: pythiaB");
 	ctl->AddGenerator(pythiaB,"Pythia B",1.);
       }
     }
