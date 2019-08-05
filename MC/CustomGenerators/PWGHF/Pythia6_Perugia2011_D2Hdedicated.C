@@ -29,7 +29,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
   pyth->SetTriggerParticle(sign * triggerParticle[channelOption],999,999,-1,1000); //Lc or Ds, etamin, etamax, ptmin, ptmax
   switch (imult) {  //multiplicity triggers
     case 0: break; //INT7
-    case 1: pyth->SetTriggerChargedMultiplicity(40,2.0); break; //HMSPD
+    case 1: pyth->SetTriggerChargedMultiplicity(40,1.2); break; //HMSPD
     case 2: pyth->SetTriggerMultiplicityEtaRange(40,2.8,5.1);   //V0A
             pyth->SetTriggerMultiplicityEtaRange(40,-3.7,-1.7); //V0C
             break;
