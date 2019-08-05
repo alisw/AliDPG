@@ -4,7 +4,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
 
   Decay_t decay[4] = {AliDecayer::kLcpKpi, AliDecayer::kLcpK0S, AliDecayer::kLcpK0SBDTsig, AliDecayer::kHadronicDWithV0};
   Int_t   triggerParticle[4] = {4122,  4122, 4122, 431};
-  TString optList[3][4] = {{"LcpKpi","LcpK0S", "LcpK0SBDTsig","DsDedicated"},
+  Char_t* optList[3][4] = {{"LcpKpi","LcpK0S", "LcpK0SBDTsig","DsDedicated"},
 			   {"LcpKpiHMSPD","LcpK0SHMSPD","LcpK0SBDTsigHMSPD","DsDedicatedHMSPD"},
 			   {"LcpKpiV0HM", "LcpK0SV0HM" ,"LcpK0SBDTsigV0HM" ,"DsDedicatedV0HM"}};
 		
