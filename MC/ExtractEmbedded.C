@@ -508,15 +508,29 @@ Bool_t RemoveBKGFromGalice(const char* outgaliceFName,const char* inpgaliceFName
 	TArrayF vtx;
 	genH[0]->PrimaryVertex(vtx);
 	combHead->SetPrimaryVertex(vtx);
-	combHead->SetNProduced( genH[0]->NProduced() +  genH[0]->NProduced() );
+	combHead->SetNProduced( genH[0]->NProduced() +  genH[1]->NProduced() );
 	AliGenEventHeader* genHd = 0;
 	for (int ig=0;ig<2;ig++) {
 	  if ( genH[ig]->InheritsFrom(AliGenCocktailEventHeader::Class()) ) {
 	    TList* cocktHeadersX = ((AliGenCocktailEventHeader*)genH[ig])->GetHeaders();
 	    TIter nxtH(cocktHeadersX);
-	    while( (genHd=(AliGenEventHeader*)nxtH()) ) combHead->AddHeader( genHd );
+	    while( (genHd=(AliGenEventHeader*)nxtH()) ) {
+	      if (ig==1) { // backgound
+		TString hdt = genHd->GetTitle();
+		hdt += "_particles_suppressed";
+		genHd->SetTitle( hdt.Data() );
+	      }
+	      combHead->AddHeader( genHd );	      
+	    }
 	  }
-	  else combHead->AddHeader( genH[ig] );
+	  else {
+	    if (ig==1) {
+	      TString hdt = genH[ig]->GetTitle();
+	      hdt += "_particles_suppressed";
+	      genH[ig]->SetTitle( hdt.Data() );
+	    }
+	    combHead->AddHeader( genH[ig] );
+	  }
 	}
 	head->SetGenEventHeader( combHead );
 	TEOut->Fill();
