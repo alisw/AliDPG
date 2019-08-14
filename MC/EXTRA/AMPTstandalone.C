@@ -106,34 +106,40 @@ void AMPTstandalone(){
   
   TString fifoname = "ampteventfifo";
   gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
-  Printf("Running now: .! sh $ALIDPG_ROOT/MC/EXTRA/gen_ampt.sh %s %i %i %i %i %s %s %.2f %.2f %.2f %i %i %i &> gen_ampt.log", fifoname.Data(),
-	 projectileA,
-	 projectileZ,
-	 targetA,
-	 targetZ,
-	 projectileString.Data(),
-	 targetString.Data(),
-	 bminConfigAMPT,
-	 bmaxConfigAMPT,
-	 energyConfigAMPT,
-	 neventsConfigAMPT,
-	 isoft,
-	 ntmax);
 
-  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_ampt.sh %s %i %i %i %i %s %s %.2f %.2f %.2f %i %i %i &> gen_ampt.log", fifoname.Data(),
-              projectileA,
-              projectileZ,
-              targetA,
-              targetZ,
-              projectileString.Data(),
-              targetString.Data(),
-              bminConfigAMPT,
-              bmaxConfigAMPT,
-              energyConfigAMPT,
-              neventsConfigAMPT,
-              isoft,
-              ntmax));
+  TString configuration = Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_ampt.sh %s %i %i %i %i %s %s %.2f %.2f %.2f %i %i %i &> gen_ampt.log", fifoname.Data(),
+			       projectileA,
+			       projectileZ,
+			       targetA,
+			       targetZ,
+			       projectileString.Data(),
+			       targetString.Data(),
+			       bminConfigAMPT,
+			       bmaxConfigAMPT,
+			       energyConfigAMPT,
+			       neventsConfigAMPT,
+			       isoft,
+			       ntmax);
 
+  if( systemConfigAMPT.EqualTo("Pb-p") || systemConfigAMPT.EqualTo("p-Pb") ){
+    configuration = Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_ampt_pPb.sh %s %i %i %i %i %s %s %.2f %.2f %.2f %i %i %i &> gen_ampt.log", fifoname.Data(),
+			 projectileA,
+			 projectileZ,
+			 targetA,
+			 targetZ,
+			 projectileString.Data(),
+			 targetString.Data(),
+			 bminConfigAMPT,
+			 bmaxConfigAMPT,
+			 energyConfigAMPT,
+			 neventsConfigAMPT,
+			 isoft,
+			 ntmax);
+  }
+  
+    
+  Printf("Running now: %s",configuration.Data());
+  gROOT->ProcessLine(Form("%s",configuration.Data()));
   Printf("Running AMPT in standalone...DONE");
 
 }
