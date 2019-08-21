@@ -1754,6 +1754,10 @@ GeneratorRELDIS()
     else{
       printf("RELDIS configuration: Track all (n, p and fragments)\n");
     }
+    if(options->GetString().Contains("InvertPz")){
+      reader->SetInvertPz(); // include this if you want to invert the particle momentum z component (A -> C side of ALICE)
+      printf("RELDIS configuration: InvertPz\n");
+    }
   }
 
   gener->SetReader(reader); 
