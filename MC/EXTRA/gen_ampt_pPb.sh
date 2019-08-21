@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "This is gen_ampt.sh"
+echo "This is gen_ampt_pPb.sh"
 
 if [[ $# -lt 13 ]]; then
     echo "Not enough arguments passed, see AliDPG/MC/GeneratorConfig.C"
@@ -47,21 +47,21 @@ echo "$9            ! BMAX (maximum impact parameter in fm, also see below)" >> 
 echo "${12}               ! ISOFT (D=1): select Default AMPT or String Melting(see below)" >> input.ampt
 echo "${13}             ! NTMAX: number of timesteps (D=150), see below" >> input.ampt
 echo "0.2             ! DT: timestep in fm (hadron cascade time= DT*NTMAX) (D=0.2)" >> input.ampt
-echo "0.3             ! PARJ(41): parameter a in Lund symmetric splitting function" >> input.ampt
-echo "0.15            ! PARJ(42): parameter b in Lund symmetric splitting function" >> input.ampt
+echo "0.5             ! PARJ(41): parameter a in Lund symmetric splitting function" >> input.ampt
+echo "0.9             ! PARJ(42): parameter b in Lund symmetric splitting function" >> input.ampt
 echo "1               ! (D=1,yes;0,no) flag for popcorn mechanism(netbaryon stopping)" >> input.ampt
 echo "1.0             ! PARJ(5) to control BMBbar vs BBbar in popcorn (D=1.0)" >> input.ampt
 echo "1               ! shadowing flag (Default=1,yes; 0,no)" >> input.ampt
 echo "0               ! quenching flag (D=0,no; 1,yes)" >> input.ampt
-echo "2.0             ! quenching parameter -dE/dx (GeV/fm) in case quenching flag=1" >> input.ampt
+echo "1.0             ! quenching parameter -dE/dx (GeV/fm) in case quenching flag=1" >> input.ampt
 echo "2.0             ! p0 cutoff in HIJING for minijet productions (D=2.0)" >> input.ampt
-echo "2.265d0         ! parton screening mass in fm^(-1) (D=2.265d0)" >> input.ampt
+echo "2.2814d0        ! parton screening mass in fm^(-1) (D=2.265d0)" >> input.ampt
 echo "0               ! IZPC: (D=0 forward-angle parton scatterings; 100,isotropic)" >> input.ampt
-echo "0.33d0          ! alpha in parton cascade (D=0.33d0), see parton screening mass" >> input.ampt
+echo "0.33333d0       ! alpha in parton cascade (D=0.33d0), see parton screening mass" >> input.ampt
 echo "1d6             ! dpcoal in GeV" >> input.ampt
 echo "1d6             ! drcoal in fm" >> input.ampt
 echo "11              ! ihjsed: take HIJING seed from below (D=0)or at runtime(11)" >> input.ampt
-echo "13150909        ! random seed for HIJING" >> input.ampt
+echo "53153523        ! random seed for HIJING" >> input.ampt
 echo "8               ! random seed for parton cascade" >> input.ampt
 echo "1               ! flag for K0s weak decays (D=0,no; 1,yes)" >> input.ampt
 echo "1               ! flag for phi decays at end of hadron cascade (D=1,yes; 0,no)" >> input.ampt
