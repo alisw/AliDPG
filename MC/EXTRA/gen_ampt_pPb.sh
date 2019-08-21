@@ -63,7 +63,7 @@ echo "1d6             ! drcoal in fm" >> input.ampt
 echo "11              ! ihjsed: take HIJING seed from below (D=0)or at runtime(11)" >> input.ampt
 echo "53153523        ! random seed for HIJING" >> input.ampt
 echo "8               ! random seed for parton cascade" >> input.ampt
-echo "0               ! flag for K0s weak decays (D=0,no; 1,yes)" >> input.ampt
+echo "1               ! flag for K0s weak decays (D=0,no; 1,yes)" >> input.ampt
 echo "1               ! flag for phi decays at end of hadron cascade (D=1,yes; 0,no)" >> input.ampt
 echo "1               ! flag for pi0 decays at end of hadron cascade (D=0,no; 1,yes)" >> input.ampt
 echo "0               ! optional OSCAR output (D=0,no; 1,yes; 2&3,more parton info)" >> input.ampt
