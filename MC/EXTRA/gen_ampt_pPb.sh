@@ -47,8 +47,8 @@ echo "$9            ! BMAX (maximum impact parameter in fm, also see below)" >> 
 echo "${12}               ! ISOFT (D=1): select Default AMPT or String Melting(see below)" >> input.ampt
 echo "${13}             ! NTMAX: number of timesteps (D=150), see below" >> input.ampt
 echo "0.2             ! DT: timestep in fm (hadron cascade time= DT*NTMAX) (D=0.2)" >> input.ampt
-echo "0.5             ! PARJ(41): parameter a in Lund symmetric splitting function" >> input.ampt
-echo "0.9             ! PARJ(42): parameter b in Lund symmetric splitting function" >> input.ampt
+echo "0.3             ! PARJ(41): parameter a in Lund symmetric splitting function" >> input.ampt
+echo "0.15             ! PARJ(42): parameter b in Lund symmetric splitting function" >> input.ampt
 echo "1               ! (D=1,yes;0,no) flag for popcorn mechanism(netbaryon stopping)" >> input.ampt
 echo "1.0             ! PARJ(5) to control BMBbar vs BBbar in popcorn (D=1.0)" >> input.ampt
 echo "1               ! shadowing flag (Default=1,yes; 0,no)" >> input.ampt
