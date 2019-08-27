@@ -90,9 +90,9 @@ GeneratorCustom(TString opt = "")
 
   // HF part only
   
-    // centrality dependent yield (only if requested) 
-    TFormula *formula = new TFormula("Signals","max(1.,19 * exp(-0.5 * x*x/5.12/5.12) + 1)");
-    
+  // centrality dependent yield (only if requested) 
+  TFormula *formula = new TFormula("Signals","19 * exp(-0.5 * x*x/5.12/5.12) + 1");
+ 
     Int_t flag = (Int_t)gRandom->Uniform(0,100);
     if(flag>=0 && flag<20){
       if(opt.Contains("CentDepHF")){
