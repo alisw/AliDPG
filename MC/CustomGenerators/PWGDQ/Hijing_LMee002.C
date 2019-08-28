@@ -90,9 +90,9 @@ GeneratorCustom(TString opt = "")
 
   // HF part only
   
-    // centrality dependent yield (only if requested) (from PWGHF/Hijing_HF001 needs to be adapted)
-    TFormula *formula = new TFormula("Signals","max(1.,120.*(x<5.)+80.*(1.-x/20.)*(x>5.)*(x<11.)+240.*(1.-x/13.)*(x>11.))");
-    
+  // centrality dependent yield (only if requested) 
+  TFormula *formula = new TFormula("Signals","19 * exp(-0.5 * x*x/5.12/5.12) + 1");
+ 
     Int_t flag = (Int_t)gRandom->Uniform(0,100);
     if(flag>=0 && flag<20){
       if(opt.Contains("CentDepHF")){
