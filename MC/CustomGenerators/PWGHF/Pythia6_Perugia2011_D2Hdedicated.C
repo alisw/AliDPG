@@ -15,7 +15,8 @@ AliGenerator *GeneratorCustom(TString opt = "")
   //Switches for prompt/nonprompt, sign of trigger particle
   Process_t iprocess = 0;	//charm or beauty
   Int_t sign = 0; //Sign of trigger particle
-
+  Int_t multOption = 0;
+  Int_t channelOption = 0;
   if (uidConfig%2 == 0)  iprocess = kPyCharmppMNRwmi; else iprocess = kPyBeautyppMNRwmi;
   if (uidConfig%4 <= 1)  sign = 1; 		      else sign = -1; //switch sign of trigger particle
   for (Int_t imult = 0; imult < 3; imult++) {
@@ -27,7 +28,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
   AliGenPythia* pyth = GeneratorPythia6(kPythia6Tune_Perugia2011);
   pyth->SetProcess(iprocess);
   pyth->SetTriggerParticle(sign * triggerParticle[channelOption],999,999,-1,1000); //Lc or Ds, etamin, etamax, ptmin, ptmax
-  switch (imult) {  //multiplicity triggers
+  switch (multOption) {  //multiplicity triggers
     case 0: break; //INT7
     case 1: pyth->SetTriggerChargedMultiplicity(40,1.2); break; //HMSPD
     case 2: pyth->SetTriggerMultiplicityEtaRange(40,2.8,5.1);   //V0A
