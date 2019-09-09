@@ -13,17 +13,20 @@ AliGenerator* GeneratorCustom(TString opt = "")
     "single_pp13TeV_1",
     "single_PbPb5TeV_1",
     "upsilon_pPb8TeV_1",
-    "upsilon_Pbp8TeV_1"
+    "upsilon_Pbp8TeV_1",
+    "jpsi_PbPb_1"
   };
   TString optMacros[nParametrizations] = {
     "Muon_GenParamSingle_pp13TeV_1.C",
     "Muon_GenParamSingle_PbPb5TeV_1.C",
     "Muon_GenParamUpsilon_pPb8TeV_1.C",
-    "Muon_GenParamUpsilon_Pbp8TeV_1.C"
+    "Muon_GenParamUpsilon_Pbp8TeV_1.C",
+    "Muon_GenParamJpsi_PbPb5TeV_1.C"
   };
   TString optSetups[nParametrizations] = {
     "",
     "",
+    "EvtGen",
     "EvtGen",
     "EvtGen"
   };
