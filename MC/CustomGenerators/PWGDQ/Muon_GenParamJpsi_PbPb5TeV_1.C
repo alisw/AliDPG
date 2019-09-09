@@ -6,22 +6,17 @@
 // CMUL7-B-NOPF-MUFAST for a given run.                                                             //
 //--------------------------------------------------------------------------------------------------//
 
-
-#if !defined(__CINT__) || defined(__MAKECINT__)
 #include <Riostream.h>
 #include "TRandom.h"
 #include "AliGenerator.h"
-#include "AliGenLib.h"
-#include "AliGenParam.h"
 #include "AliGenCocktail.h"
 #include "AliGenEvtGen.h"
+#include "AliGenParam.h"
 
-#endif
-
-static Int_t IpJPsiPbPb( TRandom *ran);
-static Double_t PtJPsiPbPb( const Double_t *px, const Double_t */*dummy*/ );
-static Double_t YJPsiPbPb( const Double_t *py, const Double_t */*dummy*/ );
-static Double_t V2JPsiPbPb( const Double_t *pv, const Double_t */*dummy*/ );
+Int_t IpJPsiPbPb( TRandom *ran);
+Double_t PtJPsiPbPb( const Double_t *px, const Double_t */*dummy*/ );
+Double_t YJPsiPbPb( const Double_t *py, const Double_t */*dummy*/ );
+Double_t V2JPsiPbPb( const Double_t *pv, const Double_t */*dummy*/ );
 
 //-------------------------------------------------------------------------
 AliGenerator* CreateGenerator()
@@ -30,8 +25,8 @@ AliGenerator* CreateGenerator()
 	gener->UsePerEventRates();
 
   AliGenParam *JPsiGener = new AliGenParam(1,-1,PtJPsiPbPb,YJPsiPbPb,V2JPsiPbPb,IpJPsiPbPb);
-  JPsiGener->SetMomentumRange(0,1e6);
-  JPsiGener->SetPtRange(0,999.);
+  JPsiGener->SetMomentumRange(0., 1.e6);
+  JPsiGener->SetPtRange(0., 999.);
   JPsiGener->SetYRange(-4.2, -2.3);
   JPsiGener->SetPhiRange(0., 360.);
 
