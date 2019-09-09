@@ -8,7 +8,7 @@ AliGenerator* GeneratorCustom(TString opt = "")
   // lists of available options and corresponding macros (to be updated each time a new macro is committed)
   // the third list is to activate whatever special setup this option might needed. Currently implemented:
   // - EvtGen --> load the libraries needed to use EvtGen (needed for J/psi radiative decay, ...)
-  const Int_t nParametrizations = 4;
+  const Int_t nParametrizations = 5;
   TString optNames[nParametrizations] = {
     "single_pp13TeV_1",
     "single_PbPb5TeV_1",
