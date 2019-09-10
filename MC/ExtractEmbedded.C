@@ -476,6 +476,7 @@ Bool_t RemoveBKGFromGalice(const char* outgaliceFName,const char* inpgaliceFName
   if (embPathStr) {
     TFile* flBg = TFile::Open(embPathStr->GetName());
     if (flBg) { // merge gen headers
+      flOut->cd();
       flOut->Delete("TE"); // delete original tree
       // and fetch its prototype from the original file
       TTree* TEInj = (TTree*) flOrig->Get("TE");
