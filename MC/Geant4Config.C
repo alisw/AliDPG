@@ -135,7 +135,10 @@ void Geant4Config()
   if (g4PhysList == "BERT+biasing") {
     geant4->ProcessGeantCommand("/mcVerbose/biasingConfigurationManager 1");
     geant4->ProcessGeantCommand("/mcPhysics/biasing/setModel inclxx");
-    geant4->ProcessGeantCommand("/mcPhysics/biasing/setRegions ITS_AIR$ ITS_WATER$ ITS_COPPER$ ITS_KAPTON(POLYCH2)$ ITS_GLUE_IBFPC$ ITS_CERAMIC$ ITS_K13D2U2k$ ITS_K13D2U120$ ITS_F6151B05M$ ITS_M60J3K$ ITS_M55J6K$ ITS_FGS003$ ITS_CarbonFleece$ ITS_PEEKCF30$ ITS_GLUE$ ITS_ALUMINUM$ ITS_INOX304$ ALPIDE_METALSTACK$ ALPIDE_SI$");
+    
+    //geant4->ProcessGeantCommand("/mcPhysics/biasing/setRegions ITS_AIR$ ITS_WATER$ ITS_COPPER$ ITS_KAPTON(POLYCH2)$ ITS_GLUE_IBFPC$ ITS_CERAMIC$ ITS_K13D2U2k$ ITS_K13D2U120$ ITS_F6151B05M$ ITS_M60J3K$ ITS_M55J6K$ ITS_FGS003$ ITS_CarbonFleece$ ITS_PEEKCF30$ ITS_GLUE$ ITS_ALUMINUM$ ITS_INOX304$ ALPIDE_METALSTACK$ ALPIDE_SI$");
+    geant4->ProcessGeantCommand("/mcPhysics/biasing/setRegions ITS* PIPE_BE*");
+    
     geant4->ProcessGeantCommand("/mcPhysics/biasing/setParticles proton neutron pi+ pi-");
   }
   
