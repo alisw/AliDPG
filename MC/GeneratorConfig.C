@@ -198,7 +198,7 @@ AliGenerator *GeneratorPythia8GammaJet(Int_t tune = 0, Int_t acceptance = kCalor
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
-AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Float_t bhighfrac, Bool_t useEvtGenForB=kFALSE);
+AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Float_t bhighfrac = 0.0, Bool_t useEvtGenForB=kFALSE);
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
 AliGenerator *GeneratorStarlight();
 AliGenerator *GeneratorDRgen();
@@ -1590,14 +1590,12 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
   pythiaHighPt->SetEnergyCMS(energyConfig);
   pythiaHighPt->SetTune(kPythia6Tune_Perugia0);
   pythiaHighPt->UseNewMultipleInteractionsScenario();
-  if(useEvtGenForB) pythiaHighPt->SetForceDecay(kNoDecayBeauty);
-  else {
+    // Cuts on child - J/psi
   pythiaHighPt->SetCutOnChild(1);
   pythiaHighPt->SetPdgCodeParticleforAcceptanceCut(443);
   pythiaHighPt->SetChildYRange(-1, 1);
   pythiaHighPt->SetChildPtRange(9, 50.);
   pythiaHighPt->SetForceDecay(kBJpsiUndecayed);
-  }
   pythiaHighPt->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
   //
   // 
