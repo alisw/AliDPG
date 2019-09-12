@@ -198,7 +198,7 @@ AliGenerator *GeneratorPythia8GammaJet(Int_t tune = 0, Int_t acceptance = kCalor
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
-AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Bool_t useEvtGenForB=kFALSE);
+AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Float_t bhighfrac, Bool_t useEvtGenForB=kFALSE);
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
 AliGenerator *GeneratorStarlight();
 AliGenerator *GeneratorDRgen();
@@ -1498,7 +1498,7 @@ AliGenParam* GeneratorParam(int n, int pdg, double ptmin, double ptmax, double y
 /*** JPSI -> EE ****************************************************/
 
 AliGenerator *
-Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Bool_t useEvtGenForB)
+Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Float_t bhighfrac, Bool_t useEvtGenForB)
 {
 
   /*
@@ -1580,6 +1580,25 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
   pythia->SetForceDecay(kBJpsiUndecayed);
   }
   pythia->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
+  // Jpsi from B - high pT
+  AliGenPythia *pythiaHighPt = new AliGenPythia(-1);
+  pythiaHighPt->SetMomentumRange(0, 999999.);
+  pythiaHighPt->SetThetaRange(0., 180.);
+  pythiaHighPt->SetYRange(-2., 2.);
+  pythiaHighPt->SetPtRange(0, 1000.);
+  pythiaHighPt->SetProcess(kPyBeautyppMNRwmi);
+  pythiaHighPt->SetEnergyCMS(energyConfig);
+  pythiaHighPt->SetTune(kPythia6Tune_Perugia0);
+  pythiaHighPt->UseNewMultipleInteractionsScenario();
+  if(useEvtGenForB) pythiaHighPt->SetForceDecay(kNoDecayBeauty);
+  else {
+  pythiaHighPt->SetCutOnChild(1);
+  pythiaHighPt->SetPdgCodeParticleforAcceptanceCut(443);
+  pythiaHighPt->SetChildYRange(-1, 1);
+  pythiaHighPt->SetChildPtRange(9, 50.);
+  pythiaHighPt->SetForceDecay(kBJpsiUndecayed);
+  }
+  pythiaHighPt->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
   //
   // 
   AliGenEvtGen *gene = new AliGenEvtGen();
@@ -1591,6 +1610,7 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
   if (lowfrac  > 0.) gener->AddGenerator(jpsiLowPt,      "jpsiLowPt",      lowfrac);
   if (highfrac > 0.) gener->AddGenerator(jpsiHighPtFlat, "jpsiHighPtFlat", highfrac);
   if (bfrac    > 0.) gener->AddGenerator(pythia,         "Pythia",         bfrac);
+  if (bhighfrac    > 0.) gener->AddGenerator(pythiaHighPt,         "jpsiBdecayPythiaHighPt",         bhighfrac);
   gener->AddGenerator(gene, "EvtGen", 1.);
   //
   return gener;
