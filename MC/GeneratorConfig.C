@@ -198,7 +198,7 @@ AliGenerator *GeneratorPythia8GammaJet(Int_t tune = 0, Int_t acceptance = kCalor
 AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC();
 AliGenerator *GeneratorHijing();
-AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Float_t bhighfrac = 0.0, Bool_t useEvtGenForB=kFALSE);
+AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Bool_t useEvtGenForB=kFALSE, Float_t bhighfrac = 0.0);
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
 AliGenerator *GeneratorStarlight();
 AliGenerator *GeneratorDRgen();
@@ -1498,7 +1498,7 @@ AliGenParam* GeneratorParam(int n, int pdg, double ptmin, double ptmax, double y
 /*** JPSI -> EE ****************************************************/
 
 AliGenerator *
-Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Float_t bhighfrac, Bool_t useEvtGenForB)
+Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Bool_t useEvtGenForB, Float_t bhighfrac)
 {
 
   /*
