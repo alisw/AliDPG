@@ -521,14 +521,8 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
    
   // --- PWGLF - Forward (cholm@nbi.dk) -----------------------------
   if (iPWGLFForward && usePhysicsSelection) { 
-    UShort_t pwglfForwardSys = 0; // iCollision+1; // pp:1, PbPb:2, pPb:3
-    UShort_t pwglfSNN        = 0;            // GeV, 0==unknown
-    Short_t  pwglfField      = 0;
-    AddTaskForwardMult(useMC && useTR,        // Need track-refs 
-		       pwglfForwardSys,       // Collision system
-		       pwglfSNN, 
-		       pwglfField);
-    AddTaskCentralMult(useMC, pwglfForwardSys, pwglfSNN, pwglfField);
+    AddTaskForwardMult(useMC && useTR);        // Need track-refs 
+    AddTaskCentralMult(useMC);
   }
 
   //PWGAgammaconv
