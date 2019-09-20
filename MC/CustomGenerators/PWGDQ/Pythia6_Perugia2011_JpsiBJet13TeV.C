@@ -32,16 +32,15 @@ GeneratorCustom()
   pythiaHighPt->SetCutOnChild(1);
   pythiaHighPt->SetPdgCodeParticleforAcceptanceCut(443);
   pythiaHighPt->SetChildYRange(-1, 1);
-  //pythiaHighPt->SetChildPtRange(9, 50.); // high pT J/psi would be enhanced with the pT hard bins?
+  pythiaHighPt->SetChildPtRange(5., 50.); // high pT cut for analysis using EMCal triggered events
   pythiaHighPt->SetForceDecay(kBJpsiUndecayed);
-  //pythiaHighPt->SetStackFillOpt(AliGenPythia::kHeavyFlavor);// this commenting should keep the full pyhia event?
 
   pythiaHighPt->SetPtHard(pthardminConfig, pthardmaxConfig);
   
   // not sure if this is needed, if not also remove from cocktail 
   AliGenEvtGen *gene = new AliGenEvtGen();
   gene->SetForceDecay(kBJpsiDiElectron);
-  gene->SetParticleSwitchedOff(AliGenEvtGen::kHFPart);
+  gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);
 
   // cocktail
   gener->AddGenerator(pythiaHighPt, "jpsiBdecayPythiaHighPt", 1.);
