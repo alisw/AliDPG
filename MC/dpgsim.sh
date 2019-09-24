@@ -72,6 +72,7 @@ function COMMAND_HELP(){
     echo "--genpkg                                  if using ALIGENMC as generator: package version"
     echo "--genmc                                   if using ALIGENMC as generator: generator"
     echo "--genopt                                  if using ALIGENMC as generator: optional arguments"
+    echo "--tpcExtraDist                            apply extra CoverVoltage distortions in TPC simulation"
     echo ""
     echo "Override automatic settings:"
     echo "--energy <energy>                         Centre-of-mass energy" 
@@ -216,6 +217,7 @@ CONFIG_RUN=""
 CONFIG_UID="1"
 CONFIG_SIMULATION=""
 CONFIG_RECONSTRUCTION=""
+CONFIG_EXTRATPCDIST=""
 CONFIG_QA=""
 CONFIG_AOD=""
 CONFIG_MODE=""
@@ -462,6 +464,8 @@ while [ ! -z "$1" ]; do
 	export ALIGENMC_GENERATOR="$1"
     elif [ "$option" = "--genopt" ]; then
 	export ALIGENMC_OPTIONS="$1"
+    elif [ "$option" = "--tpcExtraDist" ]; then
+	export CONFIG_EXTRATPCDIST="on"
 #    elif [ "$option" = "--sdd" ]; then
 #        RUNMODE="SDD"
 #	export RUNMODE
@@ -867,6 +871,7 @@ echo "OCDB............. $CONFIG_OCDB"
 echo "OCDBCustom....... $CONFIG_OCDBCUSTOM"
 echo "OCDBRun3......... $CONFIG_OCDBRUN3"
 echo "HLT.............. $CONFIG_HLT"
+echo "tpcExtraDist..... $CONFIG_EXTRATPCDIST"
 echo "============================================"
 #echo "B-field.......... $CONFIG_MAGNET"
 #echo "Physicslist...... $CONFIG_PHYSICSLIST"
