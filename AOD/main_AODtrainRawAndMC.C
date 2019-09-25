@@ -610,7 +610,7 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
        * (R+compatibility)
        */
 
-     taskesdfilter->SetRunMVertexerForPileUp(iCollision == kPbPb ? 15 : 0);
+      if(AliAnalysisTaskESDfilter::Class()->GetMethodAny("SetRunMVertexerForPileUp")) taskesdfilter->SetRunMVertexerForPileUp(iCollision == kPbPb ? 15 : 0);
       
      if (isMuonOnly) {
        taskesdfilter->DisableCaloClusters();
