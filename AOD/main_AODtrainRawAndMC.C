@@ -525,6 +525,24 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
     AddTaskCentralMult(useMC);
   }
 
+  // redo V0s
+  AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
+  taskWDV -> SetUseImprovedFinding();
+  //V0-Related topological selections
+  taskWDV -> SetV0VertexerDCAFirstToPV(0.05);
+  taskWDV -> SetV0VertexerDCASecondtoPV(0.05);
+  taskWDV -> SetV0VertexerDCAV0Daughters(1.50);
+  taskWDV -> SetV0VertexerCosinePA(0.95);
+  taskWDV -> SetV0VertexerMinRadius(0.9);
+  taskWDV -> SetV0VertexerMaxRadius(200);
+  //Cascade-Related topological selections
+  taskWDV -> SetCascVertexerMinV0ImpactParameter(0.05);
+  taskWDV -> SetCascVertexerV0MassWindow(0.008);
+  taskWDV -> SetCascVertexerDCABachToPV(0.05);
+  taskWDV -> SetCascVertexerDCACascadeDaughters(2.0);
+  taskWDV -> SetCascVertexerCascadeMinRadius(.5);
+  taskWDV -> SetCascVertexerCascadeCosinePA(.95);
+
   //PWGAgammaconv
   if (iPWGGAgammaconv) {
     Int_t dataset=iCollision;
