@@ -354,7 +354,8 @@ void AddAnalysisTasks(const char *suffix, const char *cdb_location)
   }
 
   // HLT (Alberica Toia)
-  if (doHLT && (ibarrel || iall)) {
+  //if (doHLT && (ibarrel || iall)) {
+  if (0) {
     AliPerformanceTask *hltQA = AddTaskPerformanceTPCdEdxQA(kFALSE, kTRUE, kFALSE,0,kTRUE);
     hltQA->SelectCollisionCandidates(kTriggerMask);
   }
