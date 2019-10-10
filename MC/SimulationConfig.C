@@ -77,6 +77,19 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     AliMagF::SetFastFieldDefault(kTRUE);
  }
 
+  if (gSystem->Getenv("CONFIG_EXTRATPCDIST")) {
+    if (AliTPC::Class()->GetMethodAny("SetDistortDiffuse") &&
+	AliTPCChebDist::Class()->GetMethodAny("SetExtraCVDistortions")) {
+      gInterpreter->ProcessLine("AliTPC::SetDistortDiffuse(kFALSE);");
+      gInterpreter->ProcessLine("AliTPCChebDist::SetExtraCVDistortions(0.7,0.3333333,0.6);");
+      printf("Applying extra CV-distortions in TPC\n");
+    }
+    else {
+      printf("ERROR: Methods AliTPC::SetDistortDiffuse or AliTPCChebDist::SetExtraCVDistortions are not available\n");
+      abort();
+    }
+  }
+  
   Int_t year;
   switch(tag) {
     
