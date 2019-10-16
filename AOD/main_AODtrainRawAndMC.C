@@ -526,7 +526,7 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
   }
 
   // redo V0s in case of pp (for now; PbPb needs to be tested)
-  if ( iCollision == kpp) { 
+  if (iCollision == kpp || iCollision == kpPb || iCollision == kPbp) { 
     AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
     taskWDV -> SetUseImprovedFinding();
     //V0-Related topological selections
