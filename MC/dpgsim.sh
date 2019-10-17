@@ -69,6 +69,7 @@ function COMMAND_HELP(){
     echo "--geant4PhysList <g4PhysList>             Which Physics List in case of GEANT4"
     echo "--nofastB                                 Switch off usage of fast B field"
     echo "--novdt                                   Switch off usage of VDT library"
+    echo "--nocleanup                               Do not clean up digits, recpoints etc. files"
     echo "--genpkg                                  if using ALIGENMC as generator: package version"
     echo "--genmc                                   if using ALIGENMC as generator: generator"
     echo "--genopt                                  if using ALIGENMC as generator: optional arguments"
@@ -231,6 +232,7 @@ CONFIG_GEANT4PHYSLIST=""
 CONFIG_FLUKA=""
 CONFIG_FASTB=""
 CONFIG_VDT="on"
+CONFIG_CLEANUP="on"
 CONFIG_MATERIAL=""
 CONFIG_KEEPTRACKREFSFRACTION="0"
 CONFIG_REMOVETRACKREFS="off"
@@ -444,6 +446,8 @@ while [ ! -z "$1" ]; do
         CONFIG_FASTB=""
     elif [ "$option" = "--novdt" ]; then
         CONFIG_VDT=""
+    elif [ "$option" = "--nocleanup" ]; then
+        CONFIG_CLEANUP=""
 #    elif [ "$option" = "--removeTrackRefs" ]; then
 #        CONFIG_REMOVETRACKREFS="on"
 #	export CONFIG_REMOVETRACKREFS
@@ -1016,11 +1020,13 @@ if [[ $CONFIG_MODE == *"rec"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 #
     
     # delete files not needed anymore
-    if [[ $CONFIG_SIMULATION == "EmbedBkg" ]]; then
-	rm -f *.RecPoints.root *.Digits.root
-	ls *.Hits.root | grep -v T0.Hits.root | xargs rm
-    else
-	rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
+    if [[ $CONFIG_CLEANUP == "on" ]]; then
+        if [[ $CONFIG_SIMULATION == "EmbedBkg" ]]; then
+	    rm -f *.RecPoints.root *.Digits.root
+	    ls *.Hits.root | grep -v T0.Hits.root | xargs rm
+        else
+	    rm -f *.RecPoints.root *.Hits.root *.Digits.root *.SDigits.root
+        fi
     fi
 
 fi
