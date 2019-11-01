@@ -91,7 +91,7 @@ const Char_t* CollisionSystemMC[kNSystem] =
   };
 
 // Temporaries.
-void ProcessEnvironment();
+void ProcessEnvironment(Int_t mergeCase);
 void ProcessEnvironmentMC();
 void PrintSettings();
 void AODmerge();
@@ -258,7 +258,7 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
       cdbm->SetSnapshotMode("OCDBrec.root");
     }
   }else{
-    ProcessEnvironment();
+    ProcessEnvironment(merge);
   }
 
   UpdateFlags();
@@ -632,12 +632,12 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
 
       if(AliAnalysisTaskESDfilter::Class()->GetMethodAny("SetRunMVertexerForPileUp")) taskesdfilter->SetRunMVertexerForPileUp(iCollision == kPbPb ? 15 : 0);
       
-     if (isMuonOnly) {
-       taskesdfilter->DisableCaloClusters();
-       taskesdfilter->DisableCells();
-       taskesdfilter->DisableCaloTrigger("PHOS");
-       taskesdfilter->DisableCaloTrigger("EMCAL");
-     } else AliEMCALGeometry::GetInstance("","");
+      if (isMuonOnly) {
+	taskesdfilter->DisableCaloClusters();
+	taskesdfilter->DisableCells();
+	taskesdfilter->DisableCaloTrigger("PHOS");
+	taskesdfilter->DisableCaloTrigger("EMCAL");
+      } else AliEMCALGeometry::GetInstance("","");
     }   
 
   // ********** PWG3 wagons ******************************************************           
@@ -845,7 +845,7 @@ void AODmerge()
 }
 
 //______________________________________________________________________________
-void ProcessEnvironment()
+void ProcessEnvironment(Int_t mergeCase)
 {
   //
   // Collision system configuration
@@ -938,7 +938,7 @@ void ProcessEnvironment()
 	isMuonCaloPass = kFALSE;
     }
   else
-    if(!localRunning)
+    if(!localRunning && mergeCase==0)
       {
 	printf(">>>>> Unknown production type ALIEN_JDL_RAWPRODTYPE \n");
 	abort();
