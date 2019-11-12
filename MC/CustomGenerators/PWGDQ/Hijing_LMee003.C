@@ -1,7 +1,3 @@
-#include "AliGenCocktail.h"
-#include "AliGenEMlib.h"
-
-
 AliGenerator *
 GeneratorCustom(TString opt = "")
 {
