@@ -119,6 +119,9 @@ void main_rec(const char *filename="raw.root", const char* options="")
   //Ignore SetStopOnError
   rec.SetStopOnError(kFALSE);
 
+  // keep digits for TRD
+  if(gSystem->Getenv("ALIEN_JDL_DOTRDDIGITSFILTERING")) rec.SetOption("TRD", "cw,dc");
+  
   // Delete recpoints
   // Remove recpoints after each event
   TString delRecPoints="TPC TRD";

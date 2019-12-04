@@ -24,7 +24,8 @@ void AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refilteringMode=
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGJE/macros/AddTaskJetCluster.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/PWGJE/macros/AddTaskJetBackgroundSubtract.C");
   */
-
+  gROOT->LoadMacro("$ALICE_PHYSICS/PWGPP/TRD/macros/AddTRDdigitsFilter.C");
+  
   if (gSystem->AccessPathName("localOCDBaccessConfig.C", kFileExists) == 0) {
     gROOT->LoadMacro("localOCDBaccessConfig.C");
   }
