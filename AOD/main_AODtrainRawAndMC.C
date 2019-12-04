@@ -51,6 +51,7 @@ Int_t       iPWGLFForward       = 1;       // Forward mult task (PWGLF)
 Int_t       iPWGGAgammaconv     = 1;       // Gamma conversion analysis (PWG4)
 Bool_t      doPIDResponse       = kTRUE;
 Bool_t      doPIDqa             = kTRUE;
+Bool_t      doTRDfilter         = kFALSE;  // TRD filtering task
 
 //
 Int_t       iMUONRefit          = 0;
@@ -307,6 +308,8 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
       return;
     }
   }
+  if(gSystem->Getenv("ALIEN_JDL_DOTRDDIGITSFILTERING")) doTRDfilter=kTRUE;
+  
   // Set temporary merging directory to current one
   gSystem->Setenv("TMPDIR", gSystem->pwd());
   // Set temporary compilation directory to current one
@@ -324,7 +327,7 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
   if (iJETANdelta)  printf("=     Jet delta AODs                                             =\n");
   if (iPWGHFvertexing) printf("=  PWGHF vertexing                                                =\n");
   if (iPWGDQJPSIfilter) printf("=  PWGDQ j/psi filter                                             =\n");
-  
+  if (doTRDfilter)  printf("=  TRD digits filter                                             =\n");
   // Make the analysis manager and connect event handlers
   AliAnalysisManager *mgr  = new AliAnalysisManager("Analysis Train", "Production train");
   if(!isMC) mgr->SetCacheSize(0);
@@ -639,7 +642,12 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
 	taskesdfilter->DisableCaloTrigger("EMCAL");
       } else AliEMCALGeometry::GetInstance("","");
     }   
-
+  // TRD digits filtering
+  if(doTRDfilter){
+    if(iCollision == kPbPb && year==2018) AddTRDdigitsFilter("PbPb-2018");
+    else printf("TRD digits filter not configured fot this system/year\n");
+  }
+  
   // ********** PWG3 wagons ******************************************************           
   // PWGHF vertexing
   if (iPWGHFvertexing) 
