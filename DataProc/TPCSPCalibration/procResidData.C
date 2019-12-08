@@ -105,7 +105,7 @@ AliTPCDcalibRes*  CreateSetCalib(int run,int tmin,int tmax,const char* inp)
   AliTPCDcalibRes* clbn = new AliTPCDcalibRes(run);
   clbn->SetTMinMax(tmin,tmax);
   clbn->SetResidualList(inp);
-  //
+  // 
   TString envs;
 
   // detectors to use >>>>>>>>>>>>>>>>
@@ -138,11 +138,23 @@ AliTPCDcalibRes*  CreateSetCalib(int run,int tmin,int tmax,const char* inp)
     ::Info("CreateResCalib","SetNZ2XBins %s",envs.Data());
     clbn->SetNZ2XBins(envs.Atoi());
   }
+  else if (envs=="fineZ2X") {
+    float z2x[]={0., 0.1, 0.2, 0.3,  0.4,0.6,0.8,1.};
+    int nz = sizeof(z2x)/sizeof(float)-1;
+    ::Info("CreateResCalib","SetNZ2XBins %s : %d bins",envs.Data(), nz);
+    clbn->SetZ2XBinning(nz,z2x);
+  } 
   //
   envs = gSystem->Getenv("distNBinsY");;
   if (envs.IsDigit()) {
     ::Info("CreateResCalib","SetNY2XBins %s",envs.Data());
     clbn->SetNY2XBins(envs.Atoi());
+  }
+  else if (envs=="fineY2X") {
+    float y2x[]={-1.000000,-0.933333,-0.866667,-0.800000,-0.733333,-0.600000,-0.466667,-0.333333,-0.200000,-0.066667,+0.066667,+0.200000,+0.333333,+0.466667,+0.600000,+0.733333, 0.800000, +0.866667,0.933333, +1.000000};
+    int ny = sizeof(y2x)/sizeof(float)-1;
+    ::Info("CreateResCalib","SetNY2XBins %s : %d bins",envs.Data(), ny);
+    clbn->SetY2XBinning(ny,y2x);
   }
   //
   // binning <<<<<<<<<<<<<<<<<<<<<<<<<
