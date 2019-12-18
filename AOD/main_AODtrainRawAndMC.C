@@ -528,8 +528,9 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
     AddTaskCentralMult(useMC);
   }
 
-  // redo V0s in case of pp (for now; PbPb needs to be tested)
-  if (iCollision == kpp || iCollision == kpPb || iCollision == kPbp) { 
+  // redo V0s with "loose enough" cuts
+  if (iCollision == kpp || iCollision == kpPb || iCollision == kPbp) {
+    // pp, p-Pb cut configuration
     AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
     taskWDV -> SetUseImprovedFinding();
     //V0-Related topological selections
@@ -546,6 +547,11 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
     taskWDV -> SetCascVertexerDCACascadeDaughters(2.0);
     taskWDV -> SetCascVertexerCascadeMinRadius(.5);
     taskWDV -> SetCascVertexerCascadeCosinePA(.95);
+  }else if(iCollision == kPbPb || iCollision == kXeXe){
+   // A-A cut configuration
+    AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
+    taskWDV -> SetUseImprovedFinding();
+    taskWDV -> SetupLooseVertexing();
   }
   
   //PWGAgammaconv
