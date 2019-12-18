@@ -552,6 +552,7 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
     AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
     taskWDV -> SetUseImprovedFinding();
     taskWDV -> SetupLooseVertexing();
+    taskWDV -> AddStandardV0HypSel();
   }
   
   //PWGAgammaconv
