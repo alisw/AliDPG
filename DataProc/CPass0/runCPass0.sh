@@ -392,9 +392,4 @@ fi
 
 echo "The time spent in aliroot sessions is $timeUsed"
 
-if [ $exitcode -ne 0 ]; then
-    echo "runCalibTrain.C exited with code $exitcode" > validation_error.message
-    exit 40
-fi
-
 exit 0
