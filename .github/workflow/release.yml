@@ -1,0 +1,11 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build_release:
+    runs-on: ubuntu-18.04
+    - run: |
+      echo "nothing done"
