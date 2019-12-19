@@ -107,7 +107,10 @@ void main_QAtrainAOD(Int_t isMC=0, Int_t iCollisionType=0){
   if(gSystem->Exec(TString::Format("ls %s > /dev/null 2>&1",macroName.Data()))==0){
     Bool_t usMCtruthForPID=isMC;
     AliAnalysisTaskCheckAODTracks* taskAODtr = reinterpret_cast<AliAnalysisTaskCheckAODTracks*>(gInterpreter->ProcessLine(TString::Format("AddTaskCheckAODTracks(\"QA\", %d, %d)", (Int_t)isMC, (Int_t)usMCtruthForPID)));
-    if(iCollisionType==kPbPb || iCollisionType==kXeXe) taskAODtr->SetUpperMultiplicity(10000.);
+    if(iCollisionType==kPbPb || iCollisionType==kXeXe){
+      taskAODtr->SetUpperMultiplicity(10000.);
+      taskAODtr->SetUsePileupCut(kFALSE);
+    }
   }else{
     printf("Macro %s not found -> task will not be executed\n",macroName.Data());
   }
