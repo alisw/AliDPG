@@ -56,7 +56,7 @@ void MergeCPass(const Char_t *list, TString component, TString outputFileName)
   //AliTPCcalibGainMult::SetMergeEntriesCut(2000000);
   //AliTPCcalibAlign::SetMergeEntriesCut(10000000);
   //AliTPCcalibTracks::SetMergeEntriesCut(10000000);
-  //AliTPCcalibTime::SetResHistoMergeCut(10000000);
+  AliTPCcalibTime::SetResHistoMergeCut(1000);
 
    AliTPCcalibTimeGain::SetMergeEntriesCut(500000);
    AliTPCcalibGainMult::SetMergeEntriesCut(500000);
