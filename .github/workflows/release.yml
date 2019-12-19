@@ -7,6 +7,7 @@ on:
 jobs:
   build_release:
     runs-on: ubuntu-18.04
+    steps:
     - run: |
        set -e
        echo ${{github.event.release.tag_name}} | grep -e "prod-20[0-9][0-9][0-1][0-9][0-3][0-9]"
