@@ -15,6 +15,7 @@ jobs:
         ${{secrets.KRB5CONF}}
         EOF
         grep rdns krb5.conf
+        sudo mv -f krb5.conf /etc/krb5.conf
         
     - name: Trigger release in jenkins
       run: |
