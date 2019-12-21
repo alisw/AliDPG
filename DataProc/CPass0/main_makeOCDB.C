@@ -9,6 +9,10 @@
   makeOCDB("105160");
 
 */
+int SafeInt(double v) {
+  const double MaxPrintStat =  21474836;
+  return v>MaxPrintStat ? MaxPrintStat : TMath::Nint(v);
+}
 
 void printCalibStat(Int_t run, const char * fname,  TTreeSRedirector * pcstream);
 
@@ -343,8 +347,8 @@ void printCalibStat(Int_t run, const char * fname,  TTreeSRedirector * pcstream)
     TH1 *histoEvents = (TH1*)TOFCalib->FindObject("hHistoVertexTimestamp");
     TH1 *histoTracks = (TH1*)TOFCalib->FindObject("hHistoDeltatTimestamp");
     if (histoEvents && histoTracks){
-      tofEvents = TMath::Nint(histoEvents->GetEntries());
-      tofTracks = TMath::Nint(histoTracks->GetEntries());
+      tofEvents = SafeInt( histoEvents->GetEntries());
+      tofTracks = SafeInt(histoTracks->GetEntries());
     }
     delete TOFCalib;
   }
@@ -369,8 +373,8 @@ void printCalibStat(Int_t run, const char * fname,  TTreeSRedirector * pcstream)
     calibTime = (AliTPCcalibTime *)array->FindObject("calibTime");
   }
   if (calibTime) {
-      tpcEvents = TMath::Nint(calibTime->GetTPCVertexHisto(0)->GetEntries());
-      tpcTracks = TMath::Nint(calibTime->GetResHistoTPCITS(0)->GetEntries());
+      tpcEvents = SafeInt(calibTime->GetTPCVertexHisto(0)->GetEntries());
+      tpcTracks = SafeInt(calibTime->GetResHistoTPCITS(0)->GetEntries());
   }
   printf("Monalisa TPCevents\t%d\n",tpcEvents);
   if (pcstream) (*pcstream)<<"calibStatAll"<<"TPCevents="<<tpcEvents;
@@ -387,8 +391,8 @@ void printCalibStat(Int_t run, const char * fname,  TTreeSRedirector * pcstream)
     TH1  *histoEvents = (TH1*)TRDCalib->FindObject("NEventsInput_AliTRDCalibTask");
     TH1  *histoTracks = (TH1*)TRDCalib->FindObject("AbsoluteGain_AliTRDCalibTask");
     if (histoEvents && histoTracks){
-      trdEvents= TMath::Nint(histoEvents->GetEntries());
-      trdTracks= TMath::Nint(histoTracks->GetEntries());
+      trdEvents= SafeInt(histoEvents->GetEntries());
+      trdTracks= SafeInt(histoTracks->GetEntries());
     }
     delete TRDCalib;
   }
@@ -405,7 +409,7 @@ void printCalibStat(Int_t run, const char * fname,  TTreeSRedirector * pcstream)
   if (T0Calib) {
     TH1  *histoEvents = (TH1*) T0Calib->FindObject("fTzeroORAplusORC");
     if (histoEvents){
-      T0Events= TMath::Nint(histoEvents->GetEntries());
+      T0Events= SafeInt(histoEvents->GetEntries());
     }
     delete T0Calib;
   }
@@ -419,7 +423,7 @@ void printCalibStat(Int_t run, const char * fname,  TTreeSRedirector * pcstream)
   if (meanVertexCalib) {
     TH1  *histoEvents = (TH1*) meanVertexCalib->FindObject("hTRKVertexX");
     if (histoEvents){
-      meanVertexEvents = TMath::Nint(histoEvents->GetEntries());
+      meanVertexEvents = SafeInt(histoEvents->GetEntries());
     }
     delete meanVertexCalib;
   }
@@ -435,8 +439,8 @@ void printCalibStat(Int_t run, const char * fname,  TTreeSRedirector * pcstream)
   if (SDDCalib) {
     TH1  *histoEvents = (TH1*) SDDCalib->FindObject("hNEvents");
     if (histoEvents ){
-      sddEvents = TMath::Nint(histoEvents->GetBinContent(4));
-      sddTracks = TMath::Nint(histoEvents->GetBinContent(5));
+      sddEvents = SafeInt(histoEvents->GetBinContent(4));
+      sddTracks = SafeInt(histoEvents->GetBinContent(5));
     }
     delete SDDCalib;
   }
