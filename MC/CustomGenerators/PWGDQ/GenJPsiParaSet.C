@@ -43,6 +43,22 @@ Double_t PtJpsiPbPb5020_0020(const Double_t *px, const Double_t *dummy)
   return kC * pt /TMath::Power((1. + (pt/kpt0)*(pt/kpt0)),kn);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Double_t PtJpsiPbPb5020_0010(const Double_t *px, const Double_t *dummy)
+{
+  // J/Psi pT
+  // PbPb 5.02 TeV, 0-10 % (2018)
+  //
+  const Double_t kC    = 4.93446e-02;
+  const Double_t kpt0  = 3.19847e+00;
+  const Double_t kn    = 3.33812e+00;
+
+  Double_t pt          = px[0];
+
+  return kC * pt /TMath::Power((1. + (pt/kpt0)*(pt/kpt0)),kn);
+}
+
+
 Double_t PtJpsiPbPb5020_2040(const Double_t *px, const Double_t *dummy)
 {
   // J/Psi pT
@@ -55,6 +71,22 @@ Double_t PtJpsiPbPb5020_2040(const Double_t *px, const Double_t *dummy)
 
   return kC * pt /TMath::Power((1. + (pt/kpt0)*(pt/kpt0)),kn);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Double_t PtJpsiPbPb5020_3050(const Double_t *px, const Double_t *dummy)
+{
+  // J/Psi pT
+  // PbPb 5.02 TeV, 0-10 % (2018)
+  //
+  const Double_t kC    = 5.06325e-03;
+  const Double_t kpt0  = 3.22806e+00;
+  const Double_t kn    = 2.95146e+00;
+
+  Double_t pt          = px[0];
+
+  return kC * pt /TMath::Power((1. + (pt/kpt0)*(pt/kpt0)),kn);
+}
+
 
 Double_t PtJpsiPbPb5020_4090(const Double_t *px, const Double_t *dummy)
 {
@@ -85,9 +117,11 @@ AliGenParam* GenJPsiParaSet(TString option)
 
   
   AliGenParam *genJpsi = 0x0;
-  if(option == "UserParam_PbPb5TeV_minbias")    genJpsi = new AliGenParam(1,-1, PtJpsiPbPb5020_0020, YJpsiFlat, V2Zero_M, IpJpsi_M);
+  if(option == "UserParam_PbPb5TeV_minbias")    genJpsi = new AliGenParam(1,-1, PtJpsiPbPb5020_0010, YJpsiFlat, V2Zero_M, IpJpsi_M);
+  else if(option == "UserParam_PbPb5TeV_0010")  genJpsi = new AliGenParam(1,-1, PtJpsiPbPb5020_0010, YJpsiFlat, V2Zero_M, IpJpsi_M);
   else if(option == "UserParam_PbPb5TeV_0020")  genJpsi = new AliGenParam(1,-1, PtJpsiPbPb5020_0020, YJpsiFlat, V2Zero_M, IpJpsi_M);
   else if(option == "UserParam_PbPb5TeV_2040")  genJpsi = new AliGenParam(1,-1, PtJpsiPbPb5020_2040, YJpsiFlat, V2Zero_M, IpJpsi_M);
+  else if(option == "UserParam_PbPb5TeV_3050")  genJpsi = new AliGenParam(1,-1, PtJpsiPbPb5020_3050, YJpsiFlat, V2Zero_M, IpJpsi_M);
   else if(option == "UserParam_PbPb5TeV_4090")  genJpsi = new AliGenParam(1,-1, PtJpsiPbPb5020_4090, YJpsiFlat, V2Zero_M, IpJpsi_M);
   return genJpsi;
 }
