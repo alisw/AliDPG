@@ -54,9 +54,12 @@ GeneratorCustom(TString opt = "")
     printf(">>>>> added generator for HF production:  %s \n", "jetjet");
   }   
 
-  AliGenEvtGen *gener = new AliGenEvtGen();
-  gener->SetParticleSwitchedOff(AliGenEvtGen::kBeautyPart);
-  ctl->AddGenerator(gener,"EvtGen",1.);
+  if(idecay == 4) { //EvtGen for b-decays
+    AliGenEvtGen *gener = new AliGenEvtGen();
+    gener->SetParticleSwitchedOff(AliGenEvtGen::kBeautyPart);
+    ctl->AddGenerator(gener,"EvtGen",1.);
+  }
+
   return ctl;
 }
 
