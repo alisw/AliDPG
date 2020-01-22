@@ -417,25 +417,42 @@ void GeneratorConfig(Int_t tag)
   }
   printf(">>>>> Diamond sigma-xy: %f \n", sigmaxy);
 
-  gen->SetOrigin(0., 0., 0.);
-
-  if(gSystem->Getenv("CONFIG_SIMULATION")){
-    if(strcmp(gSystem->Getenv("CONFIG_SIMULATION"), "GeneratorOnly") == 0){
-      Printf("Generator only simulation => ideal vertex at (0,0,0)");
+  Bool_t customDiam=kFALSE;
+  if(gSystem->Getenv("CONFIG_GENVERT")){
+    if(strcmp(gSystem->Getenv("CONFIG_GENVERT"), "VertexFromConfig") == 0){
+      Printf("Simulation with vertex position and sigma from Config file");
+      Float_t vx,vy,vz;
+      gen->GetOrigin(vx,vy,vz);
+      Printf(" <xv>=%.2f  <yv>=%.2f  <zv>=%.2f",vx,vy,vz);
+      customDiam=kTRUE;
+    }
+    else if(strcmp(gSystem->Getenv("CONFIG_GENVERT"), "NominalVertex") == 0){
+      Printf("Simulation with vertex fixed in (0,0,0)");
+      gen->SetOrigin(0., 0., 0.);
       gen->SetSigma(0.,0.,0.);
       gen->SetVertexSmear(kNoSmear);
+      customDiam=kTRUE;
+    }
+  }
+  if(!customDiam){
+    gen->SetOrigin(0., 0., 0.);
+    if(gSystem->Getenv("CONFIG_SIMULATION")){
+      if(strcmp(gSystem->Getenv("CONFIG_SIMULATION"), "GeneratorOnly") == 0){
+	Printf("Generator only simulation => ideal vertex at (0,0,0)");
+	gen->SetSigma(0.,0.,0.);
+	gen->SetVertexSmear(kNoSmear);
+      }
+      else{
+	gen->SetSigma(sigmaxy, sigmaxy, 5.);
+	gen->SetVertexSmear(kPerEvent);
+      }
     }
     else{
       gen->SetSigma(sigmaxy, sigmaxy, 5.);
       gen->SetVertexSmear(kPerEvent);
     }
   }
-  else{
-    gen->SetSigma(sigmaxy, sigmaxy, 5.);
-    gen->SetVertexSmear(kPerEvent);
-  }
   
- 
   gen->Init();
   printf(">>>>> Generator Configuration: %s \n", comment.Data());
   // Set the trigger configuration: proton-proton
