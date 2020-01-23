@@ -16,12 +16,12 @@ GeneratorCustom(TString opt = "")
     if (opt.EqualTo(optList[iopt]))
       idecay = iopt;
   //
-  AliGenCocktail *ctl  = GeneratorCocktail("Perugia2011_HF");
+  AliGenCocktail *ctl  = (AliGenCocktail*)GeneratorCocktail("Perugia2011_HF");
   //
   AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], kPythia6Tune_Perugia2011, kFALSE);
-  ((AliGenPythia*)phf)->SetTriggerChargedMultiplicity(40, 1.2);
+  ((AliGenPythia*)phf)->SetTriggerChargedMultiplicity(65, 1.2);
   ctl->AddGenerator(phf, label[iprocess][idecay], 1.);
-  printf(">>>>> added HF generator %s \n", label[iprocess][idecay]);
+  printf(">>>>> added HF generator With MY Threshold %s \n", label[iprocess][idecay]);
   // add pi0 and eta enhancement
   if (decay[idecay] == kPythia6HeavyDecay_Electron) {
     AliGenPHOSlib *plib = new AliGenPHOSlib();
