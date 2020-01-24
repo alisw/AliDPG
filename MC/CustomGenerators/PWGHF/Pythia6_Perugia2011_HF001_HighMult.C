@@ -21,7 +21,7 @@ GeneratorCustom(TString opt = "")
   AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], kPythia6Tune_Perugia2011, kFALSE);
   ((AliGenPythia*)phf)->SetTriggerChargedMultiplicity(65, 1.2);
   ctl->AddGenerator(phf, label[iprocess][idecay], 1.);
-  printf(">>>>> added HF generator With MY Threshold %s \n", label[iprocess][idecay]);
+  printf(">>>>> added HF generator With Mult Threshold %s \n", label[iprocess][idecay]);
   // add pi0 and eta enhancement
   if (decay[idecay] == kPythia6HeavyDecay_Electron) {
     AliGenPHOSlib *plib = new AliGenPHOSlib();
