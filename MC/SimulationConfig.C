@@ -263,7 +263,9 @@ void SimulationDefault(AliSimulation &sim)
 
   //
   //
-  sim.UseVertexFromCDB();
+  if(!gSystem->Getenv("CONFIG_GENVERT") || strcmp(gSystem->Getenv("CONFIG_GENVERT"), "NominalVertex") !=0 || strcmp(gSystem->Getenv("CONFIG_GENVERT"), "VertexFromConfig") != 0){
+    sim.UseVertexFromCDB();
+  }
   sim.UseMagFieldFromGRP();
 
   //

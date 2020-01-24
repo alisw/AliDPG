@@ -273,6 +273,10 @@ while [ ! -z "$1" ]; do
         CONFIG_GENERATOR="$1"
 	export CONFIG_GENERATOR
         shift
+    elif [ "$option" = "--genvertex" ]; then
+        CONFIG_GENVERT="$1"
+	export CONFIG_GENVERT
+        shift
     elif [ "$option" = "--background" ]; then
         CONFIG_BACKGROUND="$1"
 	export CONFIG_BACKGROUND
@@ -849,6 +853,7 @@ echo "No. Events....... $CONFIG_NEVENTS"
 echo "Unique-ID........ $CONFIG_UID"
 echo "MC seed.......... $CONFIG_SEED"
 echo "PROCID........... $CONFIG_PROCID"
+echo "Vertex........... $CONFIG_GENVERT"
 echo "============================================"
 echo "Background....... $CONFIG_BACKGROUND"
 echo "Override record.. $OVERRIDE_BKG_PATH_RECORD"

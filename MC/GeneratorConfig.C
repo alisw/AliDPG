@@ -417,25 +417,70 @@ void GeneratorConfig(Int_t tag)
   }
   printf(">>>>> Diamond sigma-xy: %f \n", sigmaxy);
 
-  gen->SetOrigin(0., 0., 0.);
-
-  if(gSystem->Getenv("CONFIG_SIMULATION")){
-    if(strcmp(gSystem->Getenv("CONFIG_SIMULATION"), "GeneratorOnly") == 0){
-      Printf("Generator only simulation => ideal vertex at (0,0,0)");
+  Bool_t customDiam=kFALSE;
+  if(gSystem->Getenv("CONFIG_GENVERT")){
+    if(strcmp(gSystem->Getenv("CONFIG_GENVERT"), "VertexFromConfig") == 0){
+      Printf("Simulation with vertex position and sigma from Config file");
+      Float_t vx,vy,vz;
+      gen->GetOrigin(vx,vy,vz);
+      Printf(" <xv>=%.3f  <yv>=%.3f  <zv>=%.3f cm",vx,vy,vz);
+      customDiam=kTRUE;
+    }
+    else if(strcmp(gSystem->Getenv("CONFIG_GENVERT"), "NominalVertex") == 0){
+      Printf("Simulation with vertex fixed in (0,0,0)");
+      gen->SetOrigin(0., 0., 0.);
       gen->SetSigma(0.,0.,0.);
       gen->SetVertexSmear(kNoSmear);
+      customDiam=kTRUE;
+    }
+    else if(strstr(gSystem->Getenv("CONFIG_GENVERT"), "FixedIn") != 0){
+      Float_t vx,vy,vz;
+      Int_t ncoord=sscanf(gSystem->Getenv("CONFIG_GENVERT"),"FixedIn-%f_%f_%f-",&vx,&vy,&vz);
+      if(ncoord==3){
+	Printf("Simulation with vertex position fixed from command argument");
+	Printf(" xv=%.3f  yv=%.3f  zv=%.3f cm",vx,vy,vz);
+	gen->SetOrigin(vx,vy,vz);
+	gen->SetSigma(0.,0.,0.);
+	gen->SetVertexSmear(kNoSmear);
+	customDiam=kTRUE;
+      }else{
+	Printf("Failed to extract vertex position from command argument --genvert %s",gSystem->Getenv("CONFIG_GENVERT"));
+      }
+    }
+    else if(strstr(gSystem->Getenv("CONFIG_GENVERT"), "Gauss") != 0){
+      Float_t vx,vy,vz,sx,sy,sz;
+      Int_t ncoord=sscanf(gSystem->Getenv("CONFIG_GENVERT"),"GaussMean-%f_%f_%f-Sigma-%f_%f_%f-",&vx,&vy,&vz,&sx,&sy,&sz);
+      if(ncoord==6){
+	Printf("Simulation with gaussian vertex from command argument");
+	Printf(" <xv>=%.3f  <yv>=%.3f  <zv>=%.3f cm --- sigmax=%.3f  sigmay=%.3f  sigmaz=%.3f cm",vx,vy,vz,sx,sy,sz);
+	gen->SetOrigin(vx,vy,vz);
+	gen->SetSigma(sx,sy,sz);
+	gen->SetVertexSmear(kPerEvent);
+	customDiam=kTRUE;
+      }else{
+	Printf("Failed to extract vertex mean and sigma from command argument --genvert %s",gSystem->Getenv("CONFIG_GENVERT"));
+      }
+    }
+  }
+  if(!customDiam){
+    gen->SetOrigin(0., 0., 0.);
+    if(gSystem->Getenv("CONFIG_SIMULATION")){
+      if(strcmp(gSystem->Getenv("CONFIG_SIMULATION"), "GeneratorOnly") == 0){
+	Printf("Generator only simulation => ideal vertex at (0,0,0)");
+	gen->SetSigma(0.,0.,0.);
+	gen->SetVertexSmear(kNoSmear);
+      }
+      else{
+	gen->SetSigma(sigmaxy, sigmaxy, 5.);
+	gen->SetVertexSmear(kPerEvent);
+      }
     }
     else{
       gen->SetSigma(sigmaxy, sigmaxy, 5.);
       gen->SetVertexSmear(kPerEvent);
     }
   }
-  else{
-    gen->SetSigma(sigmaxy, sigmaxy, 5.);
-    gen->SetVertexSmear(kPerEvent);
-  }
   
- 
   gen->Init();
   printf(">>>>> Generator Configuration: %s \n", comment.Data());
   // Set the trigger configuration: proton-proton
