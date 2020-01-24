@@ -435,7 +435,7 @@ void GeneratorConfig(Int_t tag)
     }
     else if(strstr(gSystem->Getenv("CONFIG_GENVERT"), "FixedIn") != 0){
       Float_t vx,vy,vz;
-      Int_t ncoord=sscanf(gSystem->Getenv("CONFIG_GENVERT"),"FixedIn(%f,%f,%f)",&vx,&vy,&vz);
+      Int_t ncoord=sscanf(gSystem->Getenv("CONFIG_GENVERT"),"FixedIn-%f_%f_%f-",&vx,&vy,&vz);
       if(ncoord==3){
 	Printf("Simulation with vertex position fixed from command argument");
 	Printf(" xv=%.3f  yv=%.3f  zv=%.3f cm",vx,vy,vz);
@@ -449,7 +449,7 @@ void GeneratorConfig(Int_t tag)
     }
     else if(strstr(gSystem->Getenv("CONFIG_GENVERT"), "Gauss") != 0){
       Float_t vx,vy,vz,sx,sy,sz;
-      Int_t ncoord=sscanf(gSystem->Getenv("CONFIG_GENVERT"),"GaussMean(%f,%f,%f)Sigma(%f,%f,%f)",&vx,&vy,&vz,&sx,&sy,&sz);
+      Int_t ncoord=sscanf(gSystem->Getenv("CONFIG_GENVERT"),"GaussMean-%f_%f_%f-Sigma-%f_%f_%f-",&vx,&vy,&vz,&sx,&sy,&sz);
       if(ncoord==6){
 	Printf("Simulation with gaussian vertex from command argument");
 	Printf(" <xv>=%.3f  <yv>=%.3f  <zv>=%.3f cm --- sigmax=%.3f  sigmay=%.3f  sigmaz=%.3f cm",vx,vy,vz,sx,sy,sz);
