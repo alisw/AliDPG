@@ -13,15 +13,25 @@ GeneratorCustom(TString opt = "")
   TString optList[3] = {"had", "hv0", "ele"};
   Int_t idecay = 0;
   for (Int_t iopt = 0; iopt < 3; iopt++)
-    if (opt.EqualTo(optList[iopt]))
+    if (opt.Contains(optList[iopt]))
       idecay = iopt;
   //
   AliGenCocktail *ctl  = GeneratorCocktail("Perugia2011_HF");
   //
   AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], kPythia6Tune_Perugia2011, kFALSE);
-  ((AliGenPythia*)phf)->SetTriggerChargedMultiplicity(40, 1.2);
+  
+  //setting multiplicity threshold
+  TString multthr = opt;
+  Int_t stop = opt.First('_');
+  if(stop==-1) {
+  	printf("Warning! Multiplicity threshold has to be set via the macro parameter!\n");
+	return 0x0;
+  }
+  multthr.Remove(0,stop+1);
+  ((AliGenPythia*)phf)->SetTriggerChargedMultiplicity(multthr.Atoi(), 1.2);
+  
   ctl->AddGenerator(phf, label[iprocess][idecay], 1.);
-  printf(">>>>> added HF generator %s \n", label[iprocess][idecay]);
+  printf(">>>>> added HF generator %s with mult threshold %d\n", label[iprocess][idecay],multthr.Atoi());
   // add pi0 and eta enhancement
   if (decay[idecay] == kPythia6HeavyDecay_Electron) {
     AliGenPHOSlib *plib = new AliGenPHOSlib();
