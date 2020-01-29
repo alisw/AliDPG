@@ -2,7 +2,7 @@ AliGenerator *
 GeneratorCustom(TString opt = "")
 {
     // set the xmldoc path using PYTHIA8DATA enviroement var
-    gSystem->Setenv("PYTHIA8DATA", gSystem->ExpandPathName("$ALICE_ROOT/PYTHIA8/pythia8243/xmldoc"));
+    gSystem->Setenv("PYTHIA8DATA", gSystem->ExpandPathName("$ALICE_ROOT/PYTHIA8/pythia8/xmldoc"));
 
     AliGenCocktail *ctl  = GeneratorCocktail("PYTHIA_HF");
     
