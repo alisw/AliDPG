@@ -532,7 +532,7 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
   if (iCollision == kpp || iCollision == kpPb || iCollision == kPbp) {
     // pp, p-Pb cut configuration
     AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
-    taskWDV -> SetUseImprovedFinding();
+    if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("SetUseImprovedFinding")) taskWDV -> SetUseImprovedFinding();
     //V0-Related topological selections
     taskWDV -> SetV0VertexerDCAFirstToPV(0.05);
     taskWDV -> SetV0VertexerDCASecondtoPV(0.05);
@@ -550,9 +550,9 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
   }else if(iCollision == kPbPb || iCollision == kXeXe){
    // A-A cut configuration
     AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
-    taskWDV -> SetUseImprovedFinding();
+    if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("SetUseImprovedFinding")) taskWDV -> SetUseImprovedFinding();
     taskWDV -> SetupLooseVertexing();
-    taskWDV -> AddStandardV0HypSel();
+    if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("AddStandardV0HypSel")) taskWDV -> AddStandardV0HypSel();
   }
   
   //PWGAgammaconv
