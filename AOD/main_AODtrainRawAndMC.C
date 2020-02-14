@@ -552,7 +552,8 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
     AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
     if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("SetUseImprovedFinding")) taskWDV -> SetUseImprovedFinding();
     taskWDV -> SetupLooseVertexing();
-    if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("AddStandardV0HypSel")) taskWDV -> AddStandardV0HypSel();
+    // 15/02/2020: comment the call to AddStandardV0HypSel while debugging it
+    //    if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("AddStandardV0HypSel")) taskWDV -> AddStandardV0HypSel();
   }
   
   //PWGAgammaconv
