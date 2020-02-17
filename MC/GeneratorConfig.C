@@ -148,7 +148,8 @@ enum ECalorimeterAcceptance_t {
   kCalorimeterAcceptance_PHSRun1,
   kCalorimeterAcceptance_EMCRun2,
   kCalorimeterAcceptance_PHSRun2,
-  kCalorimeterAcceptance_PHSDMC
+  kCalorimeterAcceptance_PHSDMC,
+  kCalorimeterAcceptance_EMCPHSDMC
 };
 
 void 
@@ -173,6 +174,12 @@ GetCalorimeterAcceptance(Int_t acceptance, Float_t &etaMax, Float_t &phiMin, Flo
       break;    
     case kCalorimeterAcceptance_PHSDMC:
       etaMax = 0.7 ; phiMin = 250.; phiMax = 327.;
+      break;    
+    case kCalorimeterAcceptance_EMCPHSDMC:
+      etaMax = 0.7 ; phiMin =  80.; phiMax = 327.; 
+        // open from EMCal min phi to max DCal phi for a first selection, 
+        // then rely on AliGenPythia/Plus calorimeters default settings 
+        // or settings like in CustomGenerator/PWGGA/Pythia_GammaTriggerAndJet.C
       break;
     }
   
@@ -552,6 +559,9 @@ GeneratorPythia6Jets(Int_t tune, Int_t acceptance)
   //
   // jets settings
   pythia->SetProcess(kPyJets);
+  
+  // Careful using detector acceptance cuts and jet acceptance, 
+  // let it open with kCalorimeterAcceptance_FullDetector
   Float_t etaMax, phiMin, phiMax;
   GetCalorimeterAcceptance(acceptance, etaMax, phiMin, phiMax);
   pythia->SetJetEtaRange(-etaMax, etaMax); // Final state kinematic cuts
@@ -803,6 +813,9 @@ GeneratorPythia8Jets(Int_t tune, Int_t acceptance)
   //
   // jets settings
   pythia->SetProcess(kPyJets);
+  
+  // Careful using detector acceptance cuts and jet acceptance, 
+  // let it open with kCalorimeterAcceptance_FullDetector
   Float_t etaMax, phiMin, phiMax;
   GetCalorimeterAcceptance(acceptance, etaMax, phiMin, phiMax);
   pythia->SetJetEtaRange(-etaMax, etaMax); // Final state kinematic cuts
