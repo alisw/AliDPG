@@ -52,6 +52,7 @@ Int_t       iPWGGAgammaconv     = 1;       // Gamma conversion analysis (PWG4)
 Bool_t      doPIDResponse       = kTRUE;
 Bool_t      doPIDqa             = kTRUE;
 Bool_t      doTRDfilter         = kFALSE;  // TRD filtering task
+Bool_t      doWeakDecayFinder   = kTRUE;   // Run weak-decay finder
 
 //
 Int_t       iMUONRefit          = 0;
@@ -202,6 +203,7 @@ void UpdateFlags()
       iPWGGAgammaconv    = 0; 
       doPIDResponse      = kFALSE;
       doPIDqa            = kFALSE;
+      doWeakDecayFinder  = kFALSE;
     }
   if ( isMuonOnly )
     {
@@ -209,6 +211,7 @@ void UpdateFlags()
       usePhysicsSelection = kFALSE;
       useCentrality       = kFALSE;
     }
+  if(gSystem->Getenv("ALIEN_JDL_SWITCHOFFWEAKDECAYFINDERINAOD")) doWeakDecayFinder=kFALSE;
 }
 
 //______________________________________________________________________________
@@ -309,7 +312,7 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
     }
   }
   if(gSystem->Getenv("ALIEN_JDL_DOTRDDIGITSFILTERING")) doTRDfilter=kTRUE;
-  
+
   // Set temporary merging directory to current one
   gSystem->Setenv("TMPDIR", gSystem->pwd());
   // Set temporary compilation directory to current one
@@ -529,31 +532,35 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
   }
 
   // redo V0s with "loose enough" cuts
-  if (iCollision == kpp || iCollision == kpPb || iCollision == kPbp) {
-    // pp, p-Pb cut configuration
-    AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
-    if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("SetUseImprovedFinding")) taskWDV -> SetUseImprovedFinding();
-    //V0-Related topological selections
-    taskWDV -> SetV0VertexerDCAFirstToPV(0.05);
-    taskWDV -> SetV0VertexerDCASecondtoPV(0.05);
-    taskWDV -> SetV0VertexerDCAV0Daughters(1.50);
-    taskWDV -> SetV0VertexerCosinePA(0.95);
-    taskWDV -> SetV0VertexerMinRadius(0.9);
-    taskWDV -> SetV0VertexerMaxRadius(200);
-    //Cascade-Related topological selections
-    taskWDV -> SetCascVertexerMinV0ImpactParameter(0.05);
-    taskWDV -> SetCascVertexerV0MassWindow(0.008);
-    taskWDV -> SetCascVertexerDCABachToPV(0.05);
-    taskWDV -> SetCascVertexerDCACascadeDaughters(2.0);
-    taskWDV -> SetCascVertexerCascadeMinRadius(.5);
-    taskWDV -> SetCascVertexerCascadeCosinePA(.95);
-  }else if(iCollision == kPbPb || iCollision == kXeXe){
-   // A-A cut configuration
-    AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
-    if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("SetUseImprovedFinding")) taskWDV -> SetUseImprovedFinding();
-    taskWDV -> SetupLooseVertexing();
-    // 15/02/2020: comment the call to AddStandardV0HypSel while debugging it
-    //    if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("AddStandardV0HypSel")) taskWDV -> AddStandardV0HypSel();
+  if(gSystem->AccessPathName(gSystem->ExpandPathName("$ALICE_PHYSICS/PWGLF/STRANGENESS/Cascades/Run2/macros/AddTaskWeakDecayVertexer.C"), kFileExists) != 0) doWeakDecayFinder=kFALSE;
+
+  if(doWeakDecayFinder){
+    if (iCollision == kpp || iCollision == kpPb || iCollision == kPbp) {
+      // pp, p-Pb cut configuration
+      AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
+      if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("SetUseImprovedFinding")) taskWDV -> SetUseImprovedFinding();
+      //V0-Related topological selections
+      taskWDV -> SetV0VertexerDCAFirstToPV(0.05);
+      taskWDV -> SetV0VertexerDCASecondtoPV(0.05);
+      taskWDV -> SetV0VertexerDCAV0Daughters(1.50);
+      taskWDV -> SetV0VertexerCosinePA(0.95);
+      taskWDV -> SetV0VertexerMinRadius(0.9);
+      taskWDV -> SetV0VertexerMaxRadius(200);
+      //Cascade-Related topological selections
+      taskWDV -> SetCascVertexerMinV0ImpactParameter(0.05);
+      taskWDV -> SetCascVertexerV0MassWindow(0.008);
+      taskWDV -> SetCascVertexerDCABachToPV(0.05);
+      taskWDV -> SetCascVertexerDCACascadeDaughters(2.0);
+      taskWDV -> SetCascVertexerCascadeMinRadius(.5);
+      taskWDV -> SetCascVertexerCascadeCosinePA(.95);
+    }else if(iCollision == kPbPb || iCollision == kXeXe){
+      // A-A cut configuration
+      AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
+      if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("SetUseImprovedFinding")) taskWDV -> SetUseImprovedFinding();
+      taskWDV -> SetupLooseVertexing();
+      // 15/02/2020: comment the call to AddStandardV0HypSel while debugging it
+      //    if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("AddStandardV0HypSel")) taskWDV -> AddStandardV0HypSel();
+    }
   }
   
   //PWGAgammaconv
@@ -1148,6 +1155,7 @@ void WriteConfig()
    out << "   run_flag        = " << run_flag << ";" << endl;
    out << "   isMuonCaloPass  = " << isMuonCaloPass << ";" << endl;
    out << "   useCentrality   = " << useCentrality << ";" << endl;
+   out << "   doWeakDecayFinder =" << doWeakDecayFinder << ";" << endl;
    out << "// Configuration for the wagons" << endl;
    out << "}" << endl;
    ::Info("AnalysisTrainNew.C::WriteConfig", "Train configuration wrote to file %s", Form("config_%s.C", train_name.Data()));
