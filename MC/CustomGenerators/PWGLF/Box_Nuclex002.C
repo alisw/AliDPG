@@ -12,7 +12,7 @@ GeneratorCustom()
         if (negative)
             pdg = -pdg;
         box->SetPart(pdg);
-        box->SetPtRange(2., 10.);
+        box->SetPtRange(0., 10.);
         box->SetPhiRange(0., 360.);
         box->SetYRange(-0.8, 0.8);
         ctl->AddGenerator(box, Form("%s%i", name, negative), 1);
