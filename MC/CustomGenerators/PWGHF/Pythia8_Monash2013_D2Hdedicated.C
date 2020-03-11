@@ -66,5 +66,9 @@ AliGenerator *GeneratorCustom(TString opt = "")
     (AliPythia8::Instance())->ReadString("333:onIfAll = 321 321");
   }
 
+  // Set up2date lifetimes for hadrons
+  // lambda_b from PDG 2019: tau0 = 1.471 ps = 441 m/c = 0.441 mm/c
+  (AliPythia8::Instance())->ReadString("5122:tau0 = 4.41000e-01");
+
   return pyth;
 }
