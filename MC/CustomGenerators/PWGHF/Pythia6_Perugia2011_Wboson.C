@@ -14,7 +14,7 @@ AliGenerator *GeneratorCustom()
 
   AliGenPythia* pyth = GeneratorPythia6(kPythia6Tune_Perugia2011);
   pyth->SetProcess(kPyW);
-  pyth->SetTriggerParticle(11,-1.0,1.0,8,100);   // take event that electrons in EMCal
+  pyth->SetTriggerParticle(triggerPart,-1.0,1.0,8,100);   // take event that electrons in EMCal
   return pyth;
 
 }
