@@ -8,11 +8,16 @@ GeneratorCustom(TString opt = "")
     if (opt.EqualTo(optList[iopt]))
       iinj = iopt;
   Int_t ninj = ninjlist[iinj];
-  AliGenCocktail *ctl   = GeneratorCocktail("Hijing_Jets001");
+  
+  AliGenerator   *gen   = GeneratorCocktail("Hijing_Jets001");
+  AliGenCocktail *ctl   = (AliGenCocktail*) gen;
+
   AliGenerator   *hij   = GeneratorHijing();
   ctl->AddGenerator(hij,  "Hijing", 1.);
+  
   AliGenerator   *jet   = GeneratorPythia8Jets();
   ctl->AddGenerator(jet,  "Jets", 1., new TFormula(Form("ninj_%d", ninj), Form("%d", ninj)));
-  return ctl;
+  
+  return gen;
 }
 

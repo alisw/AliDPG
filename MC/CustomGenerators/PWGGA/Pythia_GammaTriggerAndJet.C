@@ -17,6 +17,7 @@
 ///   * PHSRun1 : PHOS  |eta| < 0.13, 260 < phi < 320
 ///   * PHSRun2 : PHOS  |eta| < 0.13, 250 < phi < 320
 ///   * PHSDMC  : DCal+PHOS |eta| < 0.7, 250 < phi < 327
+///   * EMCPHSDMC: EMCal+DCal+PHOS |eta| < 0.7, 250 < phi < 327 & 80 < phi < 187
   
 ///
 /// Main configuration method 
