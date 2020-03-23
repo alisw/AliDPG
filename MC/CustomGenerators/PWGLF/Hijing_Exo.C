@@ -1,8 +1,10 @@
 AliGenerator * GeneratorCustom()
 {
-  AliGenCocktail *ctl   = GeneratorCocktail("LambdaN");
+  AliGenerator   *gen = GeneratorCocktail("LambdaN");
 
-  AliGenerator   *hij   = GeneratorHijing();
+  AliGenCocktail *ctl = (AliGenCocktail*) gen; 
+  
+  AliGenerator   *hij = GeneratorHijing();
   ctl->AddGenerator(hij,  "Hijing", 1.);
 
   AliGenerator   *LN  = Generator_Nuclex(0x2020, kFALSE, 20);
@@ -11,7 +13,7 @@ AliGenerator * GeneratorCustom()
   AliGenerator   *aLN  = Generator_Nuclex(0x2020, kTRUE, 20);
   ctl->AddGenerator(aLN,"Nuclex_AntiLambdaN", 1.);
 
-  return ctl;
+  return gen;
 
 }
 
