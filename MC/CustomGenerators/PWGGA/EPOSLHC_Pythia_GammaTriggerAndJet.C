@@ -76,7 +76,7 @@ GeneratorCustom
     
     // Rely on AliGenPythia/Plus calorimeter default acceptances or set them here
     if ( acceptance == kCalorimeterAcceptance_EMCPHSDMC )
-      ((AliGenPythia*) gammajet)->SetCheckBarrelCalos(kTRUE); 
+      ((AliGenPythia*) gammajet)->SetDecayPhotonInBarrelCalos(kTRUE); 
   }
   
   // PYTHIA8
@@ -94,7 +94,7 @@ GeneratorCustom
     gammajet = GeneratorPythia8JetsGammaTrg (kPythia8Tune_Monash2013 , acceptance); 
     // Rely on AliGenPythia/Plus calorimeter default acceptances or set them here
     if ( acceptance == kCalorimeterAcceptance_EMCPHSDMC )
-      ((AliGenPythiaPlus*) gammajet)->SetCheckBarrelCalos(kTRUE); 
+      ((AliGenPythiaPlus*) gammajet)->SetDecayPhotonInBarrelCalos(kTRUE); 
   }
   
   ctl->AddGenerator(gammajet, processConfig, 1.);  
