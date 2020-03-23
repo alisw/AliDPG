@@ -18,7 +18,7 @@ AliGenerator *GeneratorCustom()
   pyth->SetProcess(kPyW);
   pyth->SetTriggerParticle(triggerPart,-1.0,1.0,8,100);   // take event with electrons in EMCal
   
-  return (AliGenerator*) gener;
+  return gener;
 
 }
 
