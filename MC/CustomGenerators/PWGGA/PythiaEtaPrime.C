@@ -1,11 +1,12 @@
 AliGenerator* GeneratorCustom(TString opt = ""){
     
     // Pythia
-    AliGenPythiaPlus *pythia = (AliGenPythiaPlus*)GeneratorPythia6(kPythia6Tune_Perugia2011,331,1.2);
-    
+    AliGenerator *gen    = GeneratorPythia6(kPythia6Tune_Perugia2011,331,1.2);
+    AliGenPythia *pythia = (AliGenPythia*) gen;
+
     // settings
     pythia->SetForceDecay(kEtaPrime);
     
-    return pythia;
+    return gen;
     
 }
