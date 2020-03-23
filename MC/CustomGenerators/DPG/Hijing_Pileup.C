@@ -41,7 +41,7 @@ AliGenerator *GeneratorCustom(){
   bcm.ReplaceAll("L","H");
   bcm.ReplaceAll("X","L");
   
-  printf("   BC mask = %s\n",bcm.Data());
+  //printf("   BC mask = %s\n",bcm.Data());
   printf("   mu = %f\n",mu);
   printf("   Energy = %f\n",energyConfig);
   
