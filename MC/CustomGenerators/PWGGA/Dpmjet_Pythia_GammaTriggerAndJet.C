@@ -26,7 +26,8 @@ GeneratorCustom
 (TString opt = "kFullDetector")
 {
   // Init cocktail
-  AliGenCocktail *ctl   = GeneratorCocktail(Form("Dpmjet_%s",processConfig.Data()));
+  AliGenerator   *gen = GeneratorCocktail(Form("Dpmjet_%s",processConfig.Data()));
+  AliGenCocktail *ctl = (AliGenCocktail*) gen;
   
   //
   // DPMjet
@@ -51,7 +52,9 @@ GeneratorCustom
     acceptance = kCalorimeterAcceptance_PHSRun2;
   if (opt.EqualTo("PHSDMC"))
     acceptance = kCalorimeterAcceptance_PHSDMC;
-    
+  if (opt.EqualTo("EMCPHSDMC"))
+    acceptance = kCalorimeterAcceptance_EMCPHSDMC;
+     
   // process
   AliGenerator   *gammajet   = 0;
 
@@ -59,19 +62,41 @@ GeneratorCustom
   if (processConfig.EqualTo("Pythia6Jets"))
     gammajet = GeneratorPythia6Jets         (kPythia6Tune_Perugia2011, acceptance); 
   if (processConfig.EqualTo("Pythia6GammaJet"))
-    gammajet = GeneratorPythia6GammaJet     (kPythia6Tune_Perugia2011, acceptance); 
+  {
+    gammajet = GeneratorPythia6GammaJet     (kPythia6Tune_Perugia2011, acceptance);
+    
+    // Rely on AliGenPythia/Plus calorimeter default acceptances or set them here
+    if ( acceptance == kCalorimeterAcceptance_EMCPHSDMC )
+      ((AliGenPythia*) gammajet)->SetCheckBarrelCalos(kTRUE); 
+  }
   if (processConfig.EqualTo("Pythia6JetsGammaTrg"))
-    gammajet = GeneratorPythia6JetsGammaTrg (kPythia6Tune_Perugia2011, acceptance); 
+  {
+    gammajet = GeneratorPythia6JetsGammaTrg (kPythia6Tune_Perugia2011, acceptance);
+    
+    // Rely on AliGenPythia/Plus calorimeter default acceptances or set them here
+    if ( acceptance == kCalorimeterAcceptance_EMCPHSDMC )
+      ((AliGenPythia*) gammajet)->SetCheckBarrelCalos(kTRUE); 
+  }
   
   // PYTHIA8
   if (processConfig.EqualTo("Pythia8Jets"))
     gammajet = GeneratorPythia8Jets         (kPythia8Tune_Monash2013 , acceptance); 
   if (processConfig.EqualTo("Pythia8GammaJet"))
+  {
     gammajet =  GeneratorPythia8GammaJet     (kPythia8Tune_Monash2013 , acceptance); 
+    // Rely on AliGenPythia/Plus calorimeter default acceptances or set them here
+    if ( acceptance == kCalorimeterAcceptance_EMCPHSDMC )
+      ((AliGenPythiaPlus*) gammajet)->SetCheckBarrelCalos(kTRUE); 
+  }
   if (processConfig.EqualTo("Pythia8JetsGammaTrg"))
+  {
     gammajet = GeneratorPythia8JetsGammaTrg (kPythia8Tune_Monash2013 , acceptance); 
+    // Rely on AliGenPythia/Plus calorimeter default acceptances or set them here
+    if ( acceptance == kCalorimeterAcceptance_EMCPHSDMC )
+      ((AliGenPythiaPlus*) gammajet)->SetCheckBarrelCalos(kTRUE); 
+  }
   
   ctl->AddGenerator(gammajet, processConfig, 1.);  
   
-  return ctl;
+  return gen;
 }
