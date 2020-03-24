@@ -1,5 +1,6 @@
 /// \ingroup MC/CustomGenerators/DPG
 /// \brief   Performance generator (ATO-245)
+/// $ALIDPG_ROOT/MC/CustomGenerators/DPG/PerformanceGenerator.C
 
 void  AddNuclei(AliGenCocktail *ctl);
 
@@ -16,8 +17,11 @@ AliGenerator * GeneratorCustom() {
 
 /// Make performance generator with flat 1/pt and flat pdg () input jets
 /// Jet multiplicity smeared (Poisson) with mean value nJets
-/// * nJets  defaults 1 (pp), 2(pPb), 10 PbPb
-///   * can be overwritten by env variable PerformanceGenerator_nJets
+/// * nJets  defaults
+///   * 1  for pp
+///   * 2  for pPb
+///   * 10 for PbPb
+/// * Number of jets can be overwritten by env variable PerformanceGenerator_nJets
 /// \return Performance Generator
 AliGenerator* PerformanceGenerator() {
   Printf("======= GeneratorCustom ======");
