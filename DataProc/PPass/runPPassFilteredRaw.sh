@@ -222,9 +222,13 @@ cat cloneraw.C
 echo ""
 echo "" >&2
 echo "cloneraw.C" >&2
-echo executing aliroot -l -b -q -x "cloneraw.C(\"$CHUNKNAME\")"
+CHUNK=`echo ${CHUNKNAME##*/}` #takes last part of CHUNKNAME, using "/" as separator
+CHUNK=`echo ${CHUNK%.*}` # remove .root extension
+echo CHUNKNAME = $CHUNKNAME
+echo CHUNK = $CHUNK
+echo executing aliroot -l -b -q -x "cloneraw.C(\"$CHUNKNAME\", \"$CHUNK\")"
 timeStart=`date +%s`
-time aliroot -l -b -q -x "cloneraw.C(\"$CHUNKNAME\")" &> cloneRaw.log
+time aliroot -l -b -q -x "cloneraw.C(\"$CHUNKNAME\", \"$CHUNK\")" &> cloneRaw.log
 exitcode=$?
 timeEnd=`date +%s`
 timeUsed=$(( $timeUsed+$timeEnd-$timeStart ))
@@ -237,7 +241,7 @@ if [ $exitcode -ne 0 ]; then
     exit 10
 fi
 # Remove original raw data and substituting it with the newly created one
-rm -f $CHUNKNAME
+#rm -f $CHUNKNAME
 CHUNKNAME=raw1.root
 
 # Extraction of TPC clusters

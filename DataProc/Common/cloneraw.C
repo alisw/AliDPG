@@ -1,11 +1,21 @@
-void cloneraw(const char* fileName) {
+void cloneraw(const char* fileName, const char* chunkName) {
 
   // --- "Analysis part" ---
   // This has to be done in the analysis task that produces the TEntryList
 
+  // from env variables
+  Int_t runNumber = atoi(gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER"));
+  Int_t year = atoi(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"));
+  TString period = gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG");
+  TString pass = gSystem->Getenv("ALIEN_JDL_LPMPASSNAME");
+  
   // ESD file and tree
-  TFile fesd("AliESDs.root");
-  TTree * tesd = (TTree*)fesd.Get("esdTree");
+  TGrid::Connect("alien://");
+  TString filename(TString::Format("alien:///alice/data/%d/%s/%09d/%s/%s/AliESDs.root", year, period.Data(), runNumber, pass.Data(), chunkName));
+  cout << "Opening ESD file " << filename << endl;
+  TFile* fesd = TFile::Open(TString::Format("%s", filename.Data()));
+  //  TFile fesd("AliESDs.root");
+  TTree * tesd = (TTree*)fesd->Get("esdTree");
 
   // ESD event
   AliESDEvent * esd = new AliESDEvent();// The signal ESD object is put here
@@ -16,20 +26,32 @@ void cloneraw(const char* fileName) {
   fLocalList.SetTreeName("RAW");
   fLocalList.SetFileName(fileName);
 
-  // Event loop
-  Int_t nev = tesd->GetEntriesFast();  
-  for (Int_t iev=0; iev<nev; iev++) {
-
-    // Get ESD
-    tesd->GetEntry(iev);
-
-    AliESDVertex * vert = esd->GetPrimaryVertex();
-
-    if (strstr(vert->GetTitle(),"VertexerTracks")) {
-      cout << iev <<" OK" << endl;
-      fLocalList.Enter(iev);
-    }
+  // reading file with mapping
+  ifstream inFile;
+  inFile.open(TString::Format("ListOfFiles_%s.txt", period.Data()));
+  if (!inFile) {
+    cerr << "Unable to open file for mapping";
+    exit(1);   // call system to stop
   }
+  string line;
+  bool found = false;
+  while (getline(inFile, line)) {
+    //cout << "line = " << line << endl;
+    if (line.find(chunkName) != std::string::npos) {
+      TString strTmp(line);
+      TObjArray* arr = strTmp.Tokenize(":");
+      TObjString* objstr = (TObjString*)arr->At(2);
+      //cout << "token 2: " << objstr->String() << endl;
+      Int_t nevToFilter = (objstr->String()).Atoi();
+      fLocalList.Enter(nevToFilter);
+      cout << "Found event " << nevToFilter << " for chunk " << chunkName << endl; 
+      found = true;
+      delete arr;
+    }
+    else if (found == true) break;
+  }	
+
+  fesd->Close();
 
   fLocalList.OptimizeStorage();
 
