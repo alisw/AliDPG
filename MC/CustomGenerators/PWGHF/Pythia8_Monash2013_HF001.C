@@ -33,6 +33,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
     (AliPythia8::Instance())->ReadString("411:oneChannel = 1 0.0752 0 -321 211 211");
     (AliPythia8::Instance())->ReadString("411:addChannel = 1 0.0104 0 -313 211");
     (AliPythia8::Instance())->ReadString("411:addChannel = 1 0.0156 0 311 211");
+    (AliPythia8::Instance())->ReadString("411:addChannel = 1 0.00276 0 333 211");
     //add Lc decays absent in PYTHIA8 decay table and set BRs from PDG for other
     (AliPythia8::Instance())->ReadString("4122:oneChannel = 1 0.0196 100 2212 -313");
     (AliPythia8::Instance())->ReadString("4122:addChannel = 1 0.0108 100 2224 -321");
@@ -51,6 +52,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
     (AliPythia8::Instance())->ReadString("411:onMode = off");
     (AliPythia8::Instance())->ReadString("411:onIfMatch = 321 211 211");
     (AliPythia8::Instance())->ReadString("411:onIfMatch = 313 211");
+    (AliPythia8::Instance())->ReadString("411:onIfMatch = 333 211");
     (AliPythia8::Instance())->ReadString("313:onMode = off");
     (AliPythia8::Instance())->ReadString("313:onIfAll = 321 211");
     
