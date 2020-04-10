@@ -64,7 +64,7 @@ void cloneraw(const char* fileName, const char* chunkName) {
   // the RAW file is not stored in the ESD tag file, we will have to add it.
 
   // RAW file and tree
-  TFile fraw("raw.root");
+  TFile fraw("fileName");
   TTree * traw = (TTree*)fraw.Get("RAW");
 
   traw->SetEntryList(&fLocalList);
