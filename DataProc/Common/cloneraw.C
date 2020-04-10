@@ -28,7 +28,7 @@ void cloneraw(const char* fileName, const char* chunkName) {
 
   // reading file with mapping
   ifstream inFile;
-  inFile.open(TString::Format("ListOfFiles_%s.txt", period.Data()));
+  inFile.open(TString::Format("ListOfFiles_%s_sorted.txt", period.Data()));
   if (!inFile) {
     cerr << "Unable to open file for mapping";
     exit(1);   // call system to stop
