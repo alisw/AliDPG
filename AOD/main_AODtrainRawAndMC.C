@@ -540,9 +540,9 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
       AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
       if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("SetUseImprovedFinding")) taskWDV -> SetUseImprovedFinding();
       //V0-Related topological selections
-      taskWDV -> SetV0VertexerDCAFirstToPV(0.05);
-      taskWDV -> SetV0VertexerDCASecondtoPV(0.05);
-      taskWDV -> SetV0VertexerDCAV0Daughters(1.50);
+      taskWDV -> SetV0VertexerDCAFirstToPV(0.03);
+      taskWDV -> SetV0VertexerDCASecondtoPV(0.03);
+      taskWDV -> SetV0VertexerDCAV0Daughters(2.00);
       taskWDV -> SetV0VertexerCosinePA(0.95);
       taskWDV -> SetV0VertexerMinRadius(0.9);
       taskWDV -> SetV0VertexerMaxRadius(200);
