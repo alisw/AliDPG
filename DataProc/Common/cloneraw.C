@@ -7,11 +7,11 @@ void cloneraw(const char* fileName, const char* chunkName) {
   Int_t runNumber = atoi(gSystem->Getenv("ALIEN_JDL_LPMRUNNUMBER"));
   Int_t year = atoi(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"));
   TString period = gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG");
-  TString pass = gSystem->Getenv("ALIEN_JDL_LPMPASSNAME");
+  TString esdDirectory = gSystem->Getenv("ALIEN_JDL_ESDREFNAME");
   
   // ESD file and tree
   TGrid::Connect("alien://");
-  TString filename(TString::Format("alien:///alice/data/%d/%s/%09d/%s/%s/AliESDs.root", year, period.Data(), runNumber, pass.Data(), chunkName));
+  TString filename(TString::Format("alien:///alice/data/%d/%s/%09d/%s/%s/AliESDs.root", year, period.Data(), runNumber, esdDirectory.Data(), chunkName));
   cout << "Opening ESD file " << filename << endl;
   TFile* fesd = TFile::Open(TString::Format("%s", filename.Data()));
   //  TFile fesd("AliESDs.root");
