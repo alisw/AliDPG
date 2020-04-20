@@ -129,6 +129,13 @@ void main_rec(const char *filename="raw.root", const char* options="")
   rec.SetDeleteRecPoints(delRecPoints.Data()); 
   //
 
+  const char* confPID = gSystem->Getenv("CONFIG_HE3_PION_THRESHOLD");
+  if (confPID) {
+    int threshold = atoi(confPID);
+    threshold = threshold ? threshold : 130;
+    rec.SetPIDforTrackingOptimisedForNuclei(threshold);
+  }
+
   // Set 0.7% as fraction of friends (Ruben, 2017-08-22)
   rec.SetFractionFriends(0.007);
 
