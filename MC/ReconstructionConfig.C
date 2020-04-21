@@ -21,6 +21,7 @@ enum EReconstruction_t {
   kReconstructionITSpureSA,
   kReconstructionNoSDD,  
   kReconstructionRun1TrackingPID,
+  kReconstructionForNuclei,
   kReconstructionRun3,
   kReconstructionCustom,
   kReconstructionNoTPC,
@@ -36,6 +37,7 @@ const Char_t *ReconstructionName[kNReconstructions] = {
   "ITSpureSA",
   "NoSDD",
   "Run1TrackingPID",
+  "OptimisedForNuclei",
   "Run3",
   "Custom",
   "NoTPC",
@@ -201,6 +203,16 @@ void ReconstructionConfig(AliReconstruction &rec, int tag_tmp)
   case kReconstructionRun1TrackingPID:
     ReconstructionDefault(rec);
     rec.SetRun1PIDforTracking(kTRUE);
+    return;
+
+  case kReconstructionForNuclei:
+    ReconstructionDefault(rec);
+    const char* conf = gSystem->Getenv("ALIEN_JDL_CONFIG_HE3_PION_THRESHOLD");
+    if (conf) {
+      int threshold = atoi(conf);
+      threshold = threshold ? threshold : 130;
+      rec.SetPIDforTrackingOptimisedForNuclei(threshold);
+    }
     return;
 
     // Run3

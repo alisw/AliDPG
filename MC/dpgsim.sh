@@ -29,7 +29,7 @@ function COMMAND_HELP(){
     echo "--run <run>                   (mandatory) Anchor run number"    
     echo "--generator <generatorConfig>             Mandatory for sim mode, choose: general purpose, PWG specific, or Custom (see TWiki)"
     echo ""
-    echo "Monte Carle generation control:"
+    echo "Monte Carlo generation control:"
     echo "--nevents <numberOfEvents>                Number of events to be generated in the simulation stage"
     echo "--uid <uniqueID>                          Unique identifier of the process"
     echo "--pdg <pdgcode>                           PDG value of particle. Specific use may vary according to generator configuration"
