@@ -207,12 +207,12 @@ void ReconstructionConfig(AliReconstruction &rec, int tag_tmp)
 
   case kReconstructionForNuclei:
     ReconstructionDefault(rec);
-    const char* conf = gSystem->Getenv("CONFIG_HE3_PION_THRESHOLD");
-    int threshold = 130;
-    if (conf && !conf[0]) {
-      threshold = atoi(conf);
+    const char* conf = gSystem->Getenv("ALIEN_JDL_CONFIG_HE3_PION_THRESHOLD");
+    if (conf) {
+      int threshold = atoi(conf);
+      threshold = threshold ? threshold : 130;
+      rec.SetPIDforTrackingOptimisedForNuclei(threshold);
     }
-    rec.SetPIDforTrackingOptimisedForNuclei(threshold);
     return;
 
     // Run3

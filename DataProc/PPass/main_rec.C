@@ -129,7 +129,7 @@ void main_rec(const char *filename="raw.root", const char* options="")
   rec.SetDeleteRecPoints(delRecPoints.Data()); 
   //
 
-  const char* confPID = gSystem->Getenv("CONFIG_HE3_PION_THRESHOLD");
+  const char* confPID = gSystem->Getenv("ALIEN_JDL_CONFIG_HE3_PION_THRESHOLD");
   if (confPID) {
     int threshold = atoi(confPID);
     threshold = threshold ? threshold : 130;
