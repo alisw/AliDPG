@@ -1,16 +1,19 @@
 AliGenerator *GeneratorCustom(TString opt = "")
 {
-  Char_t* label[2] = {"DsDedicated", "DsDplusDedicated"};
+
+  const Int_t nOptions=3;
+  
+  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated","XicDedicated"};
 
   Int_t channelOption = 0;
-  for (Int_t iopt = 0; iopt < 2; iopt++ ) {
+  for (Int_t iopt = 0; iopt < nOptions; iopt++ ) {
     if (opt.EqualTo(label[iopt]))
       channelOption = iopt;
   }
 
   //Switches for prompt/nonprompt, sign of trigger particle, trigger particle
-  Int_t triggerParticleFirst[2] = {431, 431};
-  Int_t triggerParticleSecond[2] = {0, 411};
+  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132};
+  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232};
   Process_t process; //charm or beauty
   Int_t sign = 0; //Sign of trigger particle
   Int_t triggerPart = triggerParticleFirst[channelOption]; //trigger particle
@@ -28,13 +31,21 @@ AliGenerator *GeneratorCustom(TString opt = "")
     sign = -1;
 
   //switch trigger particle (if 2 enabled)
-  if (triggerParticleSecond[channelOption] != 0) {
+  if (channelOption == 1) {
+    // Ds / D+ sharing
     if (uidConfig%8 <= 3)
       triggerPart = triggerParticleFirst[channelOption];
     else
       triggerPart = triggerParticleSecond[channelOption];
   }
-
+  else if (channelOption == 2) {
+    // Xic0 / Xic+ sharing
+    if (uidConfig%12 <= 3) // Xic0 in 1/3 of the events
+      triggerPart = triggerParticleFirst[channelOption];
+    else
+      triggerPart = triggerParticleSecond[channelOption];
+  }
+  
   AliGenPythiaPlus* pyth = (AliGenPythiaPlus*)GeneratorPythia8(kPythia8Tune_Monash2013);
   pyth->SetTriggerParticle(sign * triggerPart, 999);
   pyth->SetProcess(process);
@@ -66,8 +77,23 @@ AliGenerator *GeneratorCustom(TString opt = "")
     (AliPythia8::Instance())->ReadString("431:onIfMatch = 321 313");
     (AliPythia8::Instance())->ReadString("333:onMode = off");
     (AliPythia8::Instance())->ReadString("333:onIfAll = 321 321");
+    //add Xic+ decays absent in PYTHIA8 decay table
+    (AliPythia8::Instance())->ReadString("4232:addChannel = 1 0.2 0 2212 313");
+    (AliPythia8::Instance())->ReadString("4232:addChannel = 1 0.2 0 2212 321 211");
+    (AliPythia8::Instance())->ReadString("4232:addChannel = 1 0.2 0 3324 211");
+    (AliPythia8::Instance())->ReadString("4232:addChannel = 1 0.2 0 3312 211 211");
+    // Xic+ -> pK*0
+    (AliPythia8::Instance())->ReadString("4232:onIfMatch = 2212 313");
+    // Xic+ -> p K- pi+
+    (AliPythia8::Instance())->ReadString("4232:onIfMatch = 2212 321 211");
+    // Xic+ -> Xi*0 pi+, Xi*->Xi- pi+
+    (AliPythia8::Instance())->ReadString("4232:onIfMatch = 3324 211");
+    // Xic+ -> Xi- pi+ pi+
+    (AliPythia8::Instance())->ReadString("4232:onIfMatch = 3312 211 211");
+    // Xic0 -> Xi- pi+
+    (AliPythia8::Instance())->ReadString("4132:onIfMatch = 3312 211");
   }
-
+    
   // Set up2date lifetimes for hadrons
   // lambda_b from PDG 2019: tau0 = 1.471 ps = 441 m/c = 0.441 mm/c
   (AliPythia8::Instance())->ReadString("5122:tau0 = 4.41000e-01");
