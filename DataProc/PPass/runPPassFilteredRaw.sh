@@ -241,7 +241,7 @@ if [ $exitcode -ne 0 ]; then
     exit 10
 fi
 # Remove original raw data and substituting it with the newly created one
-#rm -f $CHUNKNAME
+rm -f $CHUNKNAME
 CHUNKNAME=raw1.root
 
 # Extraction of TPC clusters
