@@ -482,7 +482,14 @@ DetectorInit(Int_t tag)
       else {
 	AliPHOS *PHOS = new AliPHOSv1("PHOS", "Run2");
       }
-	
+  
+      if (gSystem->Getenv("CONFIG_PHOS_TIMERES")) {
+          if ( !strcmp(gSystem->Getenv("CONFIG_PHOS_TIMERES"), "off") ) {
+            printf("*** PHOS time resolution off\n");
+            AliPHOSSimParam::GetInstance()->SetTOFparameters(1.e-12,1.e-12) ;
+          }
+      }
+
     }
 
 

@@ -194,6 +194,7 @@ OVERRIDE_SYSTEM=""
 CONFIG_TRIGGER=""
 OVERRIDE_TRIGGER=""
 CONFIG_DETECTOR=""
+CONFIG_PHOS_TIMERES="on" 
 CONFIG_DETECTORMASK="0x0"
 CONFIG_PHYSICSLIST=""
 CONFIG_PDG=""
@@ -298,6 +299,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--detector" ]; then
         CONFIG_DETECTOR="$1"
 	export CONFIG_DETECTOR
+        shift
+    elif [ "$option" = "--phostimeres" ]; then
+        CONFIG_PHOS_TIMERES="$1"
+  export CONFIG_PHOS_TIMERES
         shift
     elif [ "$option" = "--system" ]; then
         OVERRIDE_SYSTEM="$1"
@@ -861,6 +866,7 @@ echo "No. Events....... $CONFIG_NBKG"
 #echo "MC seed.......... $CONFIG_SEED (based on $CONFIG_SEED_BASED)"
 echo "============================================"
 echo "Detector......... $CONFIG_DETECTOR"
+echo "PHOS Time Res.... $CONFIG_PHOS_TIMERES"
 echo "GEANT4........... $CONFIG_GEANT4"
 echo "GEANT4 Phy List.. $CONFIG_GEANT4PHYSLIST"
 echo "FLUKA............ $CONFIG_FLUKA"
