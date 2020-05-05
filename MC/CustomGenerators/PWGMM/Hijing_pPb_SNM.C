@@ -2,7 +2,7 @@ AliGenerator* GeneratorCustom()
 {
   AliGenCocktail *gener = new AliGenCocktail();
 
-  AliGenHijing *hijing = GeneratorHijing();
+  AliGenHijing *hijing = (AliGenHijing*)GeneratorHijing();
   hijing->SetImpactParameterRange(0., 100.);
   hijing->SetShadowing(0);
   hijing->SetNoElas(kTRUE);
