@@ -1,9 +1,9 @@
 AliGenerator *GeneratorCustom(TString opt = "")
 {
 
-  const Int_t nOptions=3;
+  const Int_t nOptions=5;
   
-  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated","XicDedicated"};
+  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated","XicDedicated","LcTopKpiDedicated","LcTopK0sDedicated"};
 
   Int_t channelOption = 0;
   for (Int_t iopt = 0; iopt < nOptions; iopt++ ) {
@@ -12,8 +12,8 @@ AliGenerator *GeneratorCustom(TString opt = "")
   }
 
   //Switches for prompt/nonprompt, sign of trigger particle, trigger particle
-  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132};
-  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232};
+  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132,4122,4122};
+  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232,0,0};
   Process_t process; //charm or beauty
   Int_t sign = 0; //Sign of trigger particle
   Int_t triggerPart = triggerParticleFirst[channelOption]; //trigger particle
@@ -45,7 +45,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
     else
       triggerPart = triggerParticleSecond[channelOption];
   }
-  
+
   AliGenPythiaPlus* pyth = (AliGenPythiaPlus*)GeneratorPythia8(kPythia8Tune_Monash2013);
   pyth->SetTriggerParticle(sign * triggerPart, 999);
   pyth->SetProcess(process);
@@ -54,10 +54,18 @@ AliGenerator *GeneratorCustom(TString opt = "")
   pyth->SetPtHard(pthardminConfig, pthardmaxConfig);
 
   // Configuration of decayer
+  // Lc decays
   if(AliPythiaBase::Class()->GetMethodAny("Decayer")){
-    printf("Force decays using ForceHadronicD of AliDecayerPythia8\n");
-    pyth->SetForceDecay(kHadronicDWithV0);
-  }else{
+    printf("Force decays using ForceHadronicD of AliDecayerPythia8\n");   
+    if(channelOption==3){
+          pyth->SetForceDecay(kLcpKpi);
+    }
+    else if(channelOption==4){
+      pyth->SetForceDecay(kLcpK0S);
+    }
+    else pyth->SetForceDecay(kHadronicDWithV0);
+  }
+  else{
     printf("Force decays in the Config\n");
     //add D+ decays absent in PYTHIA8 decay table and set BRs from PDG for other
     (AliPythia8::Instance())->ReadString("411:oneChannel = 1 0.0752 0 -321 211 211");
@@ -78,8 +86,8 @@ AliGenerator *GeneratorCustom(TString opt = "")
     (AliPythia8::Instance())->ReadString("333:onMode = off");
     (AliPythia8::Instance())->ReadString("333:onIfAll = 321 321");
     //add Xic+ decays absent in PYTHIA8 decay table
-    (AliPythia8::Instance())->ReadString("4232:addChannel = 1 0.2 0 2212 313");
-    (AliPythia8::Instance())->ReadString("4232:addChannel = 1 0.2 0 2212 321 211");
+    (AliPythia8::Instance())->ReadString("4232:addChannel = 1 0.2 0 2212 -313");
+    (AliPythia8::Instance())->ReadString("4232:addChannel = 1 0.2 0 2212 -321 211");
     (AliPythia8::Instance())->ReadString("4232:addChannel = 1 0.2 0 3324 211");
     (AliPythia8::Instance())->ReadString("4232:addChannel = 1 0.2 0 3312 211 211");
     // Xic+ -> pK*0
@@ -92,11 +100,45 @@ AliGenerator *GeneratorCustom(TString opt = "")
     (AliPythia8::Instance())->ReadString("4232:onIfMatch = 3312 211 211");
     // Xic0 -> Xi- pi+
     (AliPythia8::Instance())->ReadString("4132:onIfMatch = 3312 211");
-  }
     
+    //add Lc decays absent in PYTHIA8 decay table and set BRs from PDG for others
+    (AliPythia8::Instance())->ReadString("4122:oneChannel = 1 0.0196 100 2212 -313");
+    (AliPythia8::Instance())->ReadString("4122:addChannel = 1 0.0108 100 2224 -321");
+    (AliPythia8::Instance())->ReadString("4122:addChannel = 1 0.022 100 3124 211");
+    (AliPythia8::Instance())->ReadString("4122:addChannel = 1 0.035 0 2212 -321 211");
+    (AliPythia8::Instance())->ReadString("4122:addChannel = 1 0.0159 0 2212 -311");
+    (AliPythia8::Instance())->ReadString("4122:addChannel = 1 0.0130 0 3122 211");
+    // switch them on
+    (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2212 313");
+    (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2224 321");
+    (AliPythia8::Instance())->ReadString("4122:onIfMatch = 3124 211");
+    (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2212 321 211");
+    (AliPythia8::Instance())->ReadString("4122:onIfMatch = 3122 211");
+    (AliPythia8::Instance())->ReadString("2224:onMode = off");
+    (AliPythia8::Instance())->ReadString("2224:onIfAll = 2212 211");
+    (AliPythia8::Instance())->ReadString("3124:onMode = off");
+    (AliPythia8::Instance())->ReadString("3124:onIfAll = 2212 321");
+    (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2212 311");
+
+    if(channelOption==3){
+      Printf("Forcing only Lc -> pKpi channel");
+      (AliPythia8::Instance())->ReadString("4122:onMode = off");
+      (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2212 313");
+      (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2224 321");
+      (AliPythia8::Instance())->ReadString("4122:onIfMatch = 3124 211");
+      (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2212 321 211");
+      (AliPythia8::Instance())->ReadString("4122:onIfMatch = 3122 211");    
+    }
+    else if(channelOption==4){
+      Printf("Lc -> pK0s channel");
+      (AliPythia8::Instance())->ReadString("4122:onMode = off");
+      (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2212 311");
+    }
+  } 
   // Set up2date lifetimes for hadrons
   // lambda_b from PDG 2019: tau0 = 1.471 ps = 441 m/c = 0.441 mm/c
   (AliPythia8::Instance())->ReadString("5122:tau0 = 4.41000e-01");
 
+  
   return pyth;
 }
