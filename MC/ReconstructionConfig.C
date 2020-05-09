@@ -270,7 +270,9 @@ void ReconstructionDefault(AliReconstruction &rec)
   }
 
     //
-    rec.SetCleanESD(kFALSE);
+    // switch off cleanESD if LPMESDCLEANOFF is set to 1 in the JDL (default now is ON)
+    TString envClean = gSystem->Getenv("ALIEN_JDL_LPMESDCLEANOFF");
+    rec.SetCleanESD( envClean.Atoi() == 1 ? kFALSE : kTRUE );
     rec.SetStopOnError(kFALSE);
     rec.SetWriteESDfriend();
     rec.SetWriteAlignmentData();
