@@ -269,10 +269,44 @@ void ReconstructionDefault(AliReconstruction &rec)
     //    cdbm->SetSnapshotMode("OCDBrec.root");
   }
 
+    Bool_t cleanESD = kTRUE;
     //
-    // switch off cleanESD if LPMESDCLEANOFF is set to 1 in the JDL (default now is ON)
-    TString envClean = gSystem->Getenv("ALIEN_JDL_LPMESDCLEANON");
-    rec.SetCleanESD( envClean.Atoi() == 1 ? kFALSE : kTRUE );
+    // Get the config arg to dpgsim (in case one runs locally and wants to overwrite)
+    //
+    TString envClean = gSystem->Getenv("CONFIG_CLEANESD");
+    cleanESD = (envClean.EqualTo("off")) ? kFALSE : kTRUE;
+
+    if(!gSystem->Getenv("CONFIG_CLEANESD") && gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR") && gSystem->Getenv("ALIEN_JDL_LPMANCHORPASSNAME"))
+    {
+        TString system = gSystem->Getenv("CONFIG_SYSTEM");
+        Int_t year = atoi(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"));
+        TString periodname=gSystem->Getenv("CONFIG_PERIOD");
+        TString passname=gSystem->Getenv("ALIEN_JDL_LPMANCHORPASSNAME");
+    
+        if(system.EqualTo("p-p"))
+            if(passname == "pass1" ||
+               (passname == "pass2" && (periodname == "LHC16k" || periodname == "LHC16l")) ||
+               ((passname == "pass1" || passname == "pass2" || passname == "pass3" || passname == "pass4") && periodname == "LHC15n")
+               )
+                cleanESD = kFALSE;
+    
+        if(system.EqualTo("p-Pb") || system.EqualTo("Pb-p"))
+            if(passname == "pass1" ||
+               (year == 2013 && (passname == "pass1" || passname == "pass2") || passname == "pass3" || passname == "pass4" || passname == "pass5")
+               )
+                cleanESD = kFALSE;
+    
+        if(system.EqualTo("Xe-Xe"))
+            if(passname == "pass1")
+                cleanESD = kFALSE;
+    
+        if(system.EqualTo("Pb-Pb"))
+            if(year == 2015 && (passname == "pass1___pass1_pidfix___pass3_lowIR_pidfix" || passname == "pass1" || passname == "pass1_pidfix" || passname == "pass3_lowIR_pidfix" || passname == "pass2_lowIR" || passname == "pass3_lowIR" || passname == "pass4_lowIR" || passname == "pass5_lowIR"))
+                cleanESD = kFALSE;
+    }
+
+    rec.SetCleanESD(cleanESD);
+    
     rec.SetStopOnError(kFALSE);
     rec.SetWriteESDfriend();
     rec.SetWriteAlignmentData();
