@@ -285,14 +285,14 @@ void ReconstructionDefault(AliReconstruction &rec)
     
         if(system.EqualTo("p-p"))
             if(passname == "pass1" ||
-               (passname == "pass2" && (periodname == "LHC16k" || periodname == "LHC16l")) ||
+               (passname == "pass2" && (periodname == "LHC16k" || periodname == "LHC16l" || periodname == "LHC15h" || periodname == "LHC15i")) ||
                ((passname == "pass1" || passname == "pass2" || passname == "pass3" || passname == "pass4") && periodname == "LHC15n")
                )
                 cleanESD = kFALSE;
     
         if(system.EqualTo("p-Pb") || system.EqualTo("Pb-p"))
             if(passname == "pass1" ||
-               (year == 2013 && (passname == "pass1" || passname == "pass2") || passname == "pass3" || passname == "pass4" || passname == "pass5")
+               (year == 2013 && (passname == "pass1" || passname == "pass2" || passname == "pass3" || passname == "pass4" || passname == "pass5"))
                )
                 cleanESD = kFALSE;
     
