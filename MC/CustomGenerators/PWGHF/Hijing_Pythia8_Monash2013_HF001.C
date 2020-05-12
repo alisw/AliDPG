@@ -122,7 +122,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
       (AliPythia8::Instance())->ReadString("4122:onIfMatch = 3122 211");
       (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2212 311");
     }
-    if(channelOption == 2) { //general purpose or pK0s triggered
+    if(channelOption == 2) { //pK0s triggered
       (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2212 311");
     }
 
@@ -137,6 +137,10 @@ AliGenerator *GeneratorCustom(TString opt = "")
     (AliPythia8::Instance())->ReadString("4132:onMode = off");
     (AliPythia8::Instance())->ReadString("4132:onIfMatch = 3312 211");
   }
+
+  // Set up2date lifetimes for hadrons
+  // lambda_b from PDG 2019: tau0 = 1.471 ps = 441 m/c = 0.441 mm/c
+  (AliPythia8::Instance())->ReadString("5122:tau0 = 4.41000e-01");
 
   TFormula *formula = new TFormula("Signals","max(1.,120.*(x<5.)+80.*(1.-x/20.)*(x>5.)*(x<11.)+240.*(1.-x/13.)*(x>11.))");
   if(isEmbedding){
