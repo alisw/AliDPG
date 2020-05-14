@@ -304,7 +304,7 @@ void ReconstructionDefault(AliReconstruction &rec)
             if(year == 2015 && (passname == "pass1___pass1_pidfix___pass3_lowIR_pidfix" || passname == "pass1" || passname == "pass1_pidfix" || passname == "pass3_lowIR_pidfix" || passname == "pass2_lowIR" || passname == "pass3_lowIR" || passname == "pass4_lowIR" || passname == "pass5_lowIR"))
                 cleanESD = kFALSE;
     }
-
+    printf(">>>>> Using cleanEsd %s for reconstruction \n", cleanESD == 1 ? "ON" : "OFF");
     rec.SetCleanESD(cleanESD);
     
     rec.SetStopOnError(kFALSE);
