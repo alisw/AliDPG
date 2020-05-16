@@ -74,6 +74,7 @@ function COMMAND_HELP(){
     echo "--genmc                                   if using ALIGENMC as generator: generator"
     echo "--genopt                                  if using ALIGENMC as generator: optional arguments"
     echo "--tpcExtraDist                            apply extra CoverVoltage distortions in TPC simulation"
+    echo "--cleanEsd <on|off>                       force cleanESD on/off for reconstruction, default is OFF for reconstructions done prior Dec,18 and ON after"
     echo ""
     echo "Override automatic settings:"
     echo "--energy <energy>                         Centre-of-mass energy" 
@@ -241,6 +242,7 @@ CONFIG_SIGNALFILTERINGFRACTION="100"
 CONFIG_SIGNALFILTERING="off"
 CONFIG_OCDBTIMESTAMP=""
 CONFIG_DEBUG=""
+CONFIG_CLEANESD=""
 
 RUNMODE=""
 
@@ -483,6 +485,9 @@ while [ ! -z "$1" ]; do
 #        RUNMODE="SDD"
 #	export RUNMODE
 #	shift
+    elif [ "$option" = "--cleanEsd" ]; then
+        export CONFIG_CLEANESD="$1"
+        shift
     fi
 done
 
@@ -887,6 +892,7 @@ echo "OCDBCustom....... $CONFIG_OCDBCUSTOM"
 echo "OCDBRun3......... $CONFIG_OCDBRUN3"
 echo "HLT.............. $CONFIG_HLT"
 echo "tpcExtraDist..... $CONFIG_EXTRATPCDIST"
+echo "cleanEsd......... $CONFIG_CLEANESD"
 echo "============================================"
 #echo "B-field.......... $CONFIG_MAGNET"
 #echo "Physicslist...... $CONFIG_PHYSICSLIST"
