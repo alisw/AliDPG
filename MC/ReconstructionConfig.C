@@ -13,6 +13,10 @@
 #include "AliMagF.h"
 #endif
 
+#if !defined(__CINT__) || defined(__MAKECINT__)
+#include "AliESDV0Params.h"
+#endif
+
 enum EReconstruction_t {
   kReconstructionDefault,
   kReconstructionMuon,
@@ -207,9 +211,8 @@ void ReconstructionConfig(AliReconstruction &rec, int tag_tmp)
 
   case kReconstructionForNuclei:
     ReconstructionDefault(rec);
-    const char* conf = gSystem->Getenv("ALIEN_JDL_CONFIG_HE3_PION_THRESHOLD");
-    if (conf) {
-      int threshold = atoi(conf);
+    if (gSystem->Getenv("ALIEN_JDL_CONFIG_HE3_PION_THRESHOLD")) {
+      int threshold = atoi(gSystem->Getenv("ALIEN_JDL_CONFIG_HE3_PION_THRESHOLD"));
       threshold = threshold ? threshold : 130;
       rec.SetPIDforTrackingOptimisedForNuclei(threshold);
     }
