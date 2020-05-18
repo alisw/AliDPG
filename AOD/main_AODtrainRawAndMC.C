@@ -307,7 +307,7 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
     TGrid::Connect("alien://");
     if (!gGrid || !gGrid->IsConnected()) 
     {
-      ::Error("AODtrainRawAndMC", "No grid connection");
+      ::Error("main_AODtrainRawAndMC", "No grid connection");
       return;
     }
   }
@@ -423,7 +423,7 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
     //
 //     if(refilteringMode)
 //       if(!TFile::Cp("alien:///alice/validation/validation.sh", ((AliAnalysisAlien*)alienHandler)->GetValidationScript()))
-//         Error("Connect", "Did not managed to copy production validation script.");
+//         ::Error("main_AODtrainRawAndMC", "Did not managed to copy production validation script.");
   }
   timer.Print();
 }                                                                                                                                          
@@ -758,7 +758,7 @@ TChain *CreateChain()
   // Create the input chain
   TChain* chain = new TChain("esdTree");
   if (gSystem->AccessPathName("AliESDs.root")) 
-    ::Error("AnalysisTrainNew.C::CreateChain", "File: AliESDs.root not in ./data dir");
+    ::Error("main_AODtrainRawAndMC::CreateChain", "File: AliESDs.root not in ./data dir");
   else 
     chain->Add("AliESDs.root");
   if (chain->GetNtrees()) return chain;
@@ -784,7 +784,7 @@ TChain *CreateChain(const char *mode, const char *plugin_mode)
                // Local AOD
                chain = new TChain("aodTree");
                if (gSystem->AccessPathName("data/AliAOD.root")) 
-                  ::Error("AnalysisTrainNew.C::CreateChain", "File: AliAOD.root not in ./data dir");
+                  ::Error("main_AODtrainRawAndMC::CreateChain", "File: AliAOD.root not in ./data dir");
                else
                {
                   if (!saveTrain) chain->Add("data/AliAOD.root");
@@ -804,7 +804,7 @@ TChain *CreateChain(const char *mode, const char *plugin_mode)
                // Local ESD
                chain = new TChain("esdTree");
                if (gSystem->AccessPathName("data/AliESDs.root")) 
-                  ::Error("AnalysisTrainNew.C::CreateChain", "File: AliESDs.root not in ./data dir");
+                  ::Error("main_AODtrainRawAndMC::CreateChain", "File: AliESDs.root not in ./data dir");
                else
                {
                   if (!saveTrain) chain->Add("data/AliESDs.root");
@@ -974,11 +974,18 @@ TChain* CreateChainSingle(const char* xmlfile, const char *treeName)
    printf("*******************************\n");
    printf("*** Getting the ESD Chain   ***\n");
    printf("*******************************\n");
-   TGridCollection * myCollection  = TAlienCollection::Open(xmlfile);
+   
+   if(!gGrid) 
+   {
+     ::Error("main_AODtrainRawAndMC::CreateChainSingle", "Grid not connected ") ;
+     return NULL ;
+   }
+   
+   TGridCollection * myCollection  = gGrid->OpenCollection(xmlfile);
 
    if (!myCollection)
    {
-      ::Error("AnalysisTrainNew.C::CreateChainSingle", "Cannot create an AliEn collection from %s", xmlfile) ;
+      ::Error("main_AODtrainRawAndMC::CreateChainSingle", "Cannot create an AliEn collection from %s", xmlfile) ;
       return NULL ;
    }
 
@@ -1093,7 +1100,7 @@ void WriteConfig()
       ifstream fdate("date.tmp");
       if (!fdate.is_open())
       {
-         ::Error("AnalysisTrainNew.C::Export","Could not generate file name");
+         ::Error("main_AODtrainRawAndMC::Export","Could not generate file name");
          return;
       }
       /*const*/ char date[64];
@@ -1109,7 +1116,7 @@ void WriteConfig()
    out.open(Form("%sConfig.C",train_name.Data()), ios::out); 
    if (out.bad())
    {
-      ::Error("AnalysisTrainNew.C::Export", "Cannot open ConfigTrain.C for writing");
+      ::Error("main_AODtrainRawAndMC::Export", "Cannot open ConfigTrain.C for writing");
       return;
    }
    out << "{" << endl;
