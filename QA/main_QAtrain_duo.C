@@ -721,7 +721,7 @@ void QAmerge(const char *suffix, const char *dir, Int_t stage)
   TStopwatch timer;
   timer.Start();
   TString outputDir = dir;
-  TString outputFiles = Form("QAresults%s.root,EventStat_temp%s.root,RecoQAresults%s.root,FilterEvents_trees%s.root",suffix,suffix,suffix,suffix);
+  TString outputFiles = Form("QAresults%s.root,EventStat_temp.root,RecoQAresults%s.root,FilterEvents_trees%s.root",suffix,suffix,suffix);
   //TString mergeExcludes = "EventStat_temp.root"; // created by AODtrain? crash in QAmerging if AOD missing?
   TString mergeExcludes = "";
   TObjArray *list = outputFiles.Tokenize(",");
