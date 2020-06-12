@@ -1,9 +1,7 @@
 AliGenerator *
 GeneratorCustom(TString opt = "")
 {
-
-  AliGenerator   *gen = GeneratorCocktail("Hijing_LMee003");
-  AliGenCocktail *ctl = (AliGenCocktail*) gen;
+  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Hijing_LMee003");
 
   // Background events: HIJING (only if non-embedded)
   TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
@@ -149,5 +147,5 @@ GeneratorCustom(TString opt = "")
     ctl->AddGenerator(pythiaB,"Pythia B",1.);
   }
   
-  return gen;
+  return ctl;
 }

@@ -1,11 +1,9 @@
 AliGenerator *
 GeneratorCustom()
 {
-
   TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
     
-  AliGenerator   *gen =  GeneratorCocktail("Hijing_Jpsiee001");
-  AliGenCocktail *ctl = (AliGenCocktail*) gen;
+  AliGenCocktail *ctl =  (AliGenCocktail*) GeneratorCocktail("Hijing_Jpsiee001");
   
   if(!simulation.Contains("Embed")){
     AliGenerator *hij = GeneratorHijing();
@@ -30,5 +28,5 @@ GeneratorCustom()
     TFile *file = new TFile("typeHF_5.proc", "recreate");
     file->Close();
   }
-  return gen;
+  return ctl;
 }

@@ -1,8 +1,7 @@
 AliGenerator *
 GeneratorCustom()
 {
-  AliGenerator   *gen = GeneratorCocktail("Hijing_JpsieeXeXe");
-  AliGenCocktail *cocktail = (AliGenCocktail*) gen;
+  AliGenCocktail *cocktail = (AliGenCocktail*) GeneratorCocktail("Hijing_JpsieeXeXe");
 
   AliGenerator   *hij   = GeneratorHijing();
   cocktail->AddGenerator(hij,  "Hijing", 1.);    
@@ -19,5 +18,5 @@ GeneratorCustom()
     file->Close();
   }
   
-  return gen;
+  return cocktail;
 }

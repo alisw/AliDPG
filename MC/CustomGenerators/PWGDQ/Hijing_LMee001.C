@@ -7,8 +7,7 @@ GeneratorCustom(TString opt = "")
   gSystem->Load("libEvtGenExternal");
   gSystem->Load("libTEvtGen");
  
-  AliGenerator   * gen = GeneratorCocktail("Hijing_LMee001");
-  AliGenCocktail * ctl = (AliGenCocktail*) gen;
+  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Hijing_LMee001");
 
   // Background events: HIJING (only if non-embedded)
   TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
@@ -251,5 +250,5 @@ GeneratorCustom(TString opt = "")
     }
   }
   
-  return gen;
+  return ctl;
 }

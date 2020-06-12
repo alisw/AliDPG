@@ -3,8 +3,7 @@ GeneratorCustom(TString ptParamPrompt="UserParam_PbPb5TeV_0010")
 {
   TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
     
-  AliGenerator   *gen =  GeneratorCocktail("Hijing_Jpsiee002");
-  AliGenCocktail *ctl = (AliGenCocktail*) gen;
+  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Hijing_Jpsiee002");
   
   if(!simulation.Contains("Embed")){
     AliGenerator *hij = GeneratorHijing();
@@ -26,6 +25,5 @@ GeneratorCustom(TString ptParamPrompt="UserParam_PbPb5TeV_0010")
     TFile *file = new TFile("typeHF_5.proc", "recreate");
     file->Close();
   }
-  
-  return gen;
+  return ctl;
 }
