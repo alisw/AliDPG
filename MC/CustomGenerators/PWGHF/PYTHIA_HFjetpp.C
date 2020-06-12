@@ -4,7 +4,7 @@ GeneratorCustom(TString opt = "")
     // set the xmldoc path using PYTHIA8DATA enviroement var
     gSystem->Setenv("PYTHIA8DATA", gSystem->ExpandPathName("$ALICE_ROOT/PYTHIA8/pythia8/xmldoc"));
 
-    AliGenCocktail *ctl  = GeneratorCocktail("PYTHIA_HF");
+    AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("PYTHIA_HF");
     
     Int_t process[2] = {kPythia6HeavyProcess_Charm, kPythia6HeavyProcess_Beauty};
     Int_t decay[5]   = {kPythia6HeavyDecay_Hadrons, kPythia6HeavyDecay_HadronsWithV0, kPythia6HeavyDecay_Electron, kPythia6HeavyDecay_All, kPythia6HeavyDecay_All_bDecaysEvtGen};

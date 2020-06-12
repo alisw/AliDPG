@@ -4,7 +4,7 @@ GeneratorCustom()
 
   TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
 
-  AliGenCocktail *ctl = GeneratorCocktail("Hijing_Nuclex004");
+  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Hijing_Nuclex004");
 
   if(!simulation.Contains("Embed")){
     AliGenerator *hij = GeneratorHijing();

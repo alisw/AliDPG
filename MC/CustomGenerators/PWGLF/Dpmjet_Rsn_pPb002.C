@@ -15,7 +15,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
   Double_t y_L = -0.6;
   Double_t y_H = 0.1;
 
-  AliGenCocktail *ctl  = GeneratorCocktail("DPMJET_RsnInject");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("DPMJET_RsnInject");
   AliGenDPMjet *dpmjet  = (AliGenDPMjet*) GeneratorPhojet();
   ctl->AddGenerator(dpmjet,"Dpmjet",           1.);
 

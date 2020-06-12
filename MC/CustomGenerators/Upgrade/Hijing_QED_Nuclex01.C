@@ -10,7 +10,7 @@ AliGenerator * GeneratorCustom(TString opt = "")
   
   //-----------------------------------------------
   // Cocktail
-  AliGenCocktail *ctl   = GeneratorCocktail("Run3_Hijing_with_QED_Nuclex001");
+  AliGenCocktail *ctl   = (AliGenCocktail*) GeneratorCocktail("Run3_Hijing_with_QED_Nuclex001");
 
   //-----------------------------------------------
   // HIJING

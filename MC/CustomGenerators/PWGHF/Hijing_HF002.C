@@ -1,7 +1,7 @@
 AliGenerator *
 GeneratorCustom(TString opt = "")
 {
-  AliGenCocktail *ctl  = GeneratorCocktail("Hijing_HF");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_HF");
   Float_t randHF = gRandom->Rndm();
   if(randHF>0.176797){
     AliGenerator   *hij  = GeneratorHijing();

@@ -1,6 +1,6 @@
 AliGenerator * GeneratorCustom()
 {
-  AliGenerator   *gen = GeneratorCocktail("LambdaN");
+  AliGenerator   *gen = (AliGenCocktail*) GeneratorCocktail("LambdaN");
 
   AliGenCocktail *ctl = (AliGenCocktail*) gen; 
   

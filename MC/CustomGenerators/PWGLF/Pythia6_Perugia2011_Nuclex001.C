@@ -1,7 +1,7 @@
 AliGenerator *
 GeneratorCustom()
 {
-    AliGenCocktail *ctl   = GeneratorCocktail("Perugia2011_Nuclex001");
+    AliGenCocktail *ctl   = (AliGenCocktail*) GeneratorCocktail("Perugia2011_Nuclex001");
     AliGenerator   *pyt   = GeneratorPythia6(kPythia6Tune_Perugia2011);
     ctl->AddGenerator(pyt,  "Pythia6", 1.);
     AliGenerator   *nu1a  = Generator_Nuclex(0xF, kFALSE, 10);

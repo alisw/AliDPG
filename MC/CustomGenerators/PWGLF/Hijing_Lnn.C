@@ -1,6 +1,6 @@
 AliGenerator * GeneratorCustom()
 {
-  AliGenCocktail *ctl   = GeneratorCocktail("Hijing_Nuclex001");
+  AliGenCocktail *ctl   = (AliGenCocktail*) GeneratorCocktail("Hijing_Nuclex001");
   AliGenerator   *hij   = GeneratorHijing();
   ctl->AddGenerator(hij,  "Hijing", 1.);
   AliGenerator   *nu1a  = Generator_Nuclex(0x2000, kFALSE, 5,10,1);

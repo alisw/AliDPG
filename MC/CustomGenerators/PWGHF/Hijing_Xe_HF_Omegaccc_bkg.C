@@ -4,7 +4,7 @@ GeneratorCustom(TString opt = "")
 
     AliPDG::AddParticlesToPdgDataBase();
 
-    AliGenCocktail *ctl  = GeneratorCocktail("Hijing_HF");
+    AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_HF");
   
         AliGenerator   *hij  = GeneratorHijing();
         ctl->AddGenerator(hij, "Hijing", 1.);
