@@ -9,8 +9,7 @@ GeneratorCustom(TString opt = "")
       iinj = iopt;
   Int_t ninj = ninjlist[iinj];
   
-  AliGenerator   *gen   = GeneratorCocktail("Hijing_Jets001");
-  AliGenCocktail *ctl   = (AliGenCocktail*) gen;
+  AliGenCocktail *ctl   = (AliGenCocktail*) GeneratorCocktail("Hijing_Jets001");
 
   AliGenerator   *hij   = GeneratorHijing();
   ctl->AddGenerator(hij,  "Hijing", 1.);
@@ -18,6 +17,6 @@ GeneratorCustom(TString opt = "")
   AliGenerator   *jet   = GeneratorPythia8Jets();
   ctl->AddGenerator(jet,  "Jets", 1., new TFormula(Form("ninj_%d", ninj), Form("%d", ninj)));
   
-  return gen;
+  return ctl;
 }
 

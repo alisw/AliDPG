@@ -1,8 +1,7 @@
 AliGenerator *
 GeneratorCustom()
 {
-  AliGenerator   *gen  = GeneratorCocktail("Hijing_Gamma001");
-  AliGenCocktail *ctl  = (AliGenCocktail*) gen;
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_Gamma001");
 
   AliGenerator   *hij  = GeneratorHijing();
   ctl->AddGenerator(hij,  "Hijing",         1.);
@@ -26,5 +25,5 @@ GeneratorCustom()
   ctl->AddGenerator(pi0d, "Injector (pi0d)", 1.);
   ctl->AddGenerator(etaa, "Injector (etaa)", 1.);
   
-  return gen;
+  return ctl;
 }

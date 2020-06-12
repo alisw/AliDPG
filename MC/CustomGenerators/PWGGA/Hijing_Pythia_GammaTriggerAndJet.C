@@ -27,8 +27,7 @@ GeneratorCustom
 (TString opt = "kFullDetector")
 {
   // Init cocktail
-  AliGenerator   *gen   = GeneratorCocktail(Form("HIJING_%s",processConfig.Data()));
-  AliGenCocktail *ctl   = (AliGenCocktail*) gen;
+  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail(Form("HIJING_%s",processConfig.Data()));
 
   //
   // HIJING
@@ -99,5 +98,5 @@ GeneratorCustom
   
    ctl->AddGenerator(gammajet, processConfig, 1.);  
   
-  return gen;
+  return ctl;
 }
