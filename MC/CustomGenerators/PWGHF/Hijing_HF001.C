@@ -1,6 +1,6 @@
 AliGenerator *GeneratorCustom(TString opt = "")
 {
-  AliGenCocktail *ctl  = GeneratorCocktail("Hijing_HF");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_HF");
 
   TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
   Int_t ntimes=1;

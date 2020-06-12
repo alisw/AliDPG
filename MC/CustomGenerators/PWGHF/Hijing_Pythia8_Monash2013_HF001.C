@@ -7,7 +7,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
     if (opt.EqualTo(optList[iopt]))
       channelOption = iopt;
 
-  AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Pythia8_HF");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_Pythia8_HF");
 
   TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
   Int_t ntimes=1;

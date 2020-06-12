@@ -5,7 +5,7 @@ GeneratorCustom(TString opt = "")
   // set the xmldoc path using PYTHIA8DATA enviroement var
   gSystem->Setenv("PYTHIA8DATA", gSystem->ExpandPathName("$ALICE_ROOT/PYTHIA8/pythia8/xmldoc"));  
   
-  AliGenCocktail *ctl  = GeneratorCocktail("EPOS_HF");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("EPOS_HF");
   Float_t randHF = gRandom->Rndm();
   if(randHF>0.176797){ // add EPOS generator for p-Pb
     AliGenerator *epos = GeneratorEPOSLHC();

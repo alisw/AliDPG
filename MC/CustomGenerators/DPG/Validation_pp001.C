@@ -2,7 +2,7 @@ AliGenerator *
 GeneratorCustom()
 {
   //
-  AliGenCocktail *ctl = GeneratorCocktail("GEANT4_validation");
+  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("GEANT4_validation");
   //
   // Pythia8 Monash 2013
   AliGenerator   *py8 = GeneratorPythia8(kPythia8Tune_Monash2013);

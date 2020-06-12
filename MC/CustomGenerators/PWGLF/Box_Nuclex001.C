@@ -1,7 +1,7 @@
 AliGenerator *
 GeneratorCustom()
 {
-  AliGenCocktail *ctl   = GeneratorCocktail("Box_Nuclex001");
+  AliGenCocktail *ctl   = (AliGenCocktail*) GeneratorCocktail("Box_Nuclex001");
 
   const Int_t pdgcodes[5] = {
     2212,

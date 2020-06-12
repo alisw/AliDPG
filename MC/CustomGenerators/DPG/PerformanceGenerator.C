@@ -5,7 +5,7 @@
 void  AddNuclei(AliGenCocktail *ctl);
 
 AliGenerator * GeneratorCustom() {
-  AliGenCocktail *ctl    = GeneratorCocktail("Hijing+Generator for performance (tracking,PID) studies");
+  AliGenCocktail *ctl    = (AliGenCocktail*) GeneratorCocktail("Hijing+Generator for performance (tracking,PID) studies");
   AliGenerator   *hij    = GeneratorHijing();
   AliGenerator   *genJet = PerformanceGenerator();
   ctl->AddGenerator(hij,    "Hijing", 1.);

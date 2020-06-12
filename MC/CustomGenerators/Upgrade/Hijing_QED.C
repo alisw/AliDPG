@@ -4,7 +4,7 @@ GeneratorCustom(TString opt = "")
 
   //-----------------------------------------------
   // Cocktail
-  AliGenCocktail *ctl = GeneratorCocktail("Run3_Generators_HIJING_with_QED");
+  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Run3_Generators_HIJING_with_QED");
 
   //-----------------------------------------------
   // HIJING

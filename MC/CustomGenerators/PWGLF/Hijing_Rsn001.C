@@ -14,7 +14,7 @@ GeneratorCustom(TString opt = "")
   Int_t pdg1 = pdglist1[uidConfig % 2]; // select according to unique ID
   Int_t pdg2 = pdglist2[uidConfig % 2]; // select according to unique ID
 
-  AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Rsn002");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_Rsn002");
   AliGenerator   *hij  = GeneratorHijing();
   AliGenerator   *inj1 = GeneratorInjector(ninj, pdg1, 0., 10., -0.6, 0.6);
   AliGenerator   *inj2 = GeneratorInjector(ninj, pdg2, 0., 10., -0.6, 0.6);

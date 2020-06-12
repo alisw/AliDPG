@@ -1,7 +1,7 @@
 AliGenerator *
 GeneratorCustom()
 {
-  AliGenCocktail *ctl = GeneratorCocktail("Monash2013_Rsn001");
+  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Monash2013_Rsn001");
   // pythia8
   AliGenerator   *py8 = GeneratorPythia8(kPythia8Tune_Monash2013);
   ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);

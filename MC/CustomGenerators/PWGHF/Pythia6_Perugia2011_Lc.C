@@ -11,7 +11,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
       if (opt.EqualTo(optList[iopt])) idecay = iopt;
   }
 
-//  AliGenCocktail *ctl = GeneratorCocktail("Perugia2011_HF");
+//  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Perugia2011_HF");
   AliGenPythia* pyth = GeneratorPythia6(kPythia6Tune_Perugia2011);
   pyth->SetProcess(kPyCharmppMNRwmi);
   pyth->SetTriggerParticle(4122,999,999,-1,1000); //Lc, etamin, etamax, ptmin, ptmax

@@ -24,7 +24,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
        if (opt.EqualTo(optList[imult][iopt])) { multOption = imult;  channelOption = iopt;}
      }
   }
-//  AliGenCocktail *ctl = GeneratorCocktail("Perugia2011_HF");
+//  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Perugia2011_HF");
   AliGenPythia* pyth = GeneratorPythia6(kPythia6Tune_Perugia2011);
   pyth->SetProcess(iprocess);
   pyth->SetTriggerParticle(sign * triggerParticle[channelOption],999,999,-1,1000); //Lc or Ds, etamin, etamax, ptmin, ptmax

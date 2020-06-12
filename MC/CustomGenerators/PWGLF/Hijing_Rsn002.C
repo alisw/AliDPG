@@ -7,7 +7,7 @@ GeneratorCustom(TString opt)
   for (Int_t iopt = 0; iopt < 3; iopt++)
     if (opt.EqualTo(optList[iopt]))
       ninj = ninjlist[iopt];
-  AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Rsn002");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_Rsn002");
   AliGenerator   *hij  = GeneratorHijing();
   AliGenerator   *inj1 = GeneratorInjector(ninj,  3124, 0., 10., -0.6, 0.6);
   AliGenerator   *inj2 = GeneratorInjector(ninj, -3124, 0., 10., -0.6, 0.6);

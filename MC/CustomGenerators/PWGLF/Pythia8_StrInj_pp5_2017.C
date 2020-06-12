@@ -2,7 +2,7 @@ AliGenerator *GeneratorCustom(){
 
   Int_t sign = uidConfig % 2 == 0 ? 1 : -1;
   
-  AliGenCocktail *ctl = GeneratorCocktail("Pythia8_StrInj_pp5_2017");
+  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Pythia8_StrInj_pp5_2017");
   
   AliGenerator   *py8  = GeneratorPythia8(kPythia8Tune_Monash2013);
   AliGenerator   *ila  = GeneratorInjector(1, sign * 3122, 0.0, 8.0, -0.7, 0.7);

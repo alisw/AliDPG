@@ -30,7 +30,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
 
   AliDecayerPythia *dec = new AliDecayerPythia;
 
-  AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Rsn005");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_Rsn005");
   AliGenerator   *hij  = GeneratorHijing();
   AliGenerator   *inj1 = GeneratorParam(ninj,  pdg1, 0., pTmax, -0.6, 0.6, dec);
   AliGenerator   *inj2 = GeneratorParam(ninj,  pdg2, 0., pTmax, -0.6, 0.6, dec);

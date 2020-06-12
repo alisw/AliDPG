@@ -2,7 +2,7 @@ AliGenerator *
 GeneratorCustom()
 {
   // Init cocktail
-  AliGenCocktail* cocktail = GeneratorCocktail("Dpmjet_Starlight");
+  AliGenCocktail* cocktail = (AliGenCocktail*) GeneratorCocktail("Dpmjet_Starlight");
 
   // DPMjet
   AliGenerator   *dpm   = GeneratorPhojet();

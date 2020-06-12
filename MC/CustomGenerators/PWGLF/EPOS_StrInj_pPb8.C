@@ -5,7 +5,7 @@ AliGenerator *GeneratorCustom(){
   
   Int_t sign = uidConfig % 2 == 0 ? 1 : -1;
   
-  AliGenCocktail *ctl  = GeneratorCocktail("EPOS_StrInj_pPb8");
+  AliGenCocktail *ctl   = (AliGenCocktail*) GeneratorCocktail("EPOS_StrInj_pPb8");
   AliGenerator   *epos  = GeneratorEPOSLHC();
   
   AliGenerator   *ixi = GeneratorInjector(ninjxi, sign * 3312, 2., 20., -1.2, 1.2);

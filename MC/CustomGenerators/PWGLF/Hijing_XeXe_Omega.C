@@ -1,7 +1,7 @@
 AliGenerator *
 GeneratorCustom()
 {
-  AliGenCocktail *ctl  = GeneratorCocktail("Hijing_XeXe_Omega");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_XeXe_Omega");
   AliGenerator   *hij  = GeneratorHijing();
   AliGenerator   *iom  = GeneratorInjector(1, 3334, 0.5, 7., -0.7, 0.7);
   AliGenerator   *iaom = GeneratorInjector(1, -3334, 0.5, 7., -0.7, 0.7);

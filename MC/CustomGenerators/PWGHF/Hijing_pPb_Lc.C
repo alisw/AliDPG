@@ -9,7 +9,7 @@ AliGenerator * GeneratorCustom(TString opt = "")
     if (opt.EqualTo(optList[iopt])) idecay = iopt;
   }
 
-  AliGenCocktail *ctl = GeneratorCocktail("Hijing_Lc");
+  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Hijing_Lc");
 
   Float_t randHF = gRandom->Rndm();
   if (randHF>0.176797){ // add Hijing for p-Pb

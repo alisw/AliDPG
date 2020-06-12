@@ -16,7 +16,7 @@ GeneratorCustom(TString opt = "")
     if (opt.Contains(optList[iopt]))
       idecay = iopt;
   //
-  AliGenCocktail *ctl  = GeneratorCocktail("Perugia2011_HF");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Perugia2011_HF");
   //
   AliGenerator *phf  = GeneratorPythia6Heavy(process[iprocess], decay[idecay], kPythia6Tune_Perugia2011, kFALSE);
   

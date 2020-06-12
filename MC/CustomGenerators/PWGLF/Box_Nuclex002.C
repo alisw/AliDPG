@@ -1,7 +1,7 @@
 AliGenerator *
 GeneratorCustom()
 {
-    AliGenCocktail *ctl = GeneratorCocktail("Box_Nuclex002");
+    AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Box_Nuclex002");
 
     const Int_t pdgcode = 1010010030;
     const Char_t *name = "Hypertriton";

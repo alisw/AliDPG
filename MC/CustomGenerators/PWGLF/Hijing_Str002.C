@@ -11,7 +11,7 @@ GeneratorCustom(TString opt)
     if (opt.EqualTo(optList[iopt]))
       iinj = iopt;
   Int_t sign = uidConfig % 2 == 0 ? 1 : -1;
-  AliGenCocktail *ctl  = GeneratorCocktail("Hijing_Str002");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_Str002");
   AliGenerator   *hij  = GeneratorHijing();
   AliGenerator   *ik0 = GeneratorInjector(ninjk0[iinj],         310, 0., 5., -0.7, 0.7);
   AliGenerator   *ila = GeneratorInjector(ninjla[iinj], sign * 3122, 0., 5., -0.7, 0.7);

@@ -1,7 +1,7 @@
 AliGenerator *
 GeneratorCustom(TString opt = "")
 {
-  AliGenCocktail *ctl  = GeneratorCocktail("HIJING_HF");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("HIJING_HF");
   Float_t randHF = gRandom->Rndm();
   if(randHF>0.176797){ // add HIJING generator for p-Pb
     AliGenerator *hij = GeneratorHijing();

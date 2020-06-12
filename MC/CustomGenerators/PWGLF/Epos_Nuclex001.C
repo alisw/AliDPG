@@ -1,7 +1,7 @@
 AliGenerator *
 GeneratorCustom()
 {
-  AliGenCocktail *ctl   = GeneratorCocktail("Epos_Nuclex001");
+  AliGenCocktail *ctl   = (AliGenCocktail*) GeneratorCocktail("Epos_Nuclex001");
   AliGenerator   *epos  = GeneratorEPOSLHC();
   ctl->AddGenerator(epos, "EPOSLHC", 1.);
   AliGenerator   *nu1a  = Generator_Nuclex(0xF, kFALSE, 10);
