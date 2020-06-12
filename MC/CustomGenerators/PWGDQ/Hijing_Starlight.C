@@ -1,8 +1,8 @@
 AliGenerator *
 GeneratorCustom()
 {
-  AliGenCocktail* cocktail = GeneratorCocktail("Hijing_Starlight");
-  
+  AliGenCocktail *cocktail = (AliGenCocktail*) GeneratorCocktail("Hijing_Starlight");
+
   AliGenerator* starlight = GeneratorStarlight();
   if (processConfig == TString("kTwoGammaToElMedium")) {
      AliGenStarLight *genStarLight = (AliGenStarLight*) starlight;

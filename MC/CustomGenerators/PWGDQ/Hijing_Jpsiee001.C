@@ -1,11 +1,10 @@
 AliGenerator *
 GeneratorCustom()
 {
-
   TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
     
-  AliGenCocktail *ctl = GeneratorCocktail("Hijing_Jpsiee001");
-
+  AliGenCocktail *ctl =  (AliGenCocktail*) GeneratorCocktail("Hijing_Jpsiee001");
+  
   if(!simulation.Contains("Embed")){
     AliGenerator *hij = GeneratorHijing();
     ctl->AddGenerator(hij, "Hijing", 1.);

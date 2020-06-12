@@ -1,7 +1,8 @@
 AliGenerator *
 GeneratorCustom()
 {
-  AliGenCocktail *cocktail   = GeneratorCocktail("Hijing_JpsieeXeXe");
+  AliGenCocktail *cocktail = (AliGenCocktail*) GeneratorCocktail("Hijing_JpsieeXeXe");
+
   AliGenerator   *hij   = GeneratorHijing();
   cocktail->AddGenerator(hij,  "Hijing", 1.);    
   if (uidConfig % 10 < 7) {
@@ -16,5 +17,6 @@ GeneratorCustom()
     TFile *file = new TFile("typeHF_5.proc", "recreate");
     file->Close();
   }
+  
   return cocktail;
 }
