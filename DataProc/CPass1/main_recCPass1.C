@@ -105,7 +105,7 @@ void main_recCPass1(const char *filename="raw.root",Int_t nevents=-1, const char
   }
 
   // All friends
-  TString collSystem(strcmp(gSystem->Getenv("ALIEN_JDL_LPMINTERACTIONTYPE")));
+  TString collSystem(gSystem->Getenv("ALIEN_JDL_LPMINTERACTIONTYPE"));
   Float_t fractionFriends = 0.5;
   if (collSystem == "PbPb" || collSystem == "XeXe") fractionFriends = 0.2;
   else if (collSystem == "pA" || collSystem == "Ap") fractionFriends = 1.0;
