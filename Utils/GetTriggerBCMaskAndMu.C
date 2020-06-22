@@ -11,7 +11,7 @@
 ///
 /// \file GetTriggerBCMaskAndMu.C
 /// \brief Recover the run trigger BC mask and pile-up mu value from OCDB
-/// \author Ruben Sahojan (main) and Gustavo Conesa (copy from older version of Hijing_PileUp.C::GetMaskMu())
+/// \author Ruben Shahoyan (main) and Gustavo Conesa (copy from older version of Hijing_PileUp.C::GetMaskMu())
 ///
 
 //
