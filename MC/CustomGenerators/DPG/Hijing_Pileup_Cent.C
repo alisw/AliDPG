@@ -13,15 +13,10 @@ AliGenerator *GeneratorCustom(){
 
   Double_t mu=0.001; 
   TString bcm=GetTriggerBCMaskAndMu(mu);
-
-  // swap H and L to match requirement of AliGenPileup
-  bcm.ReplaceAll("H","X");
-  bcm.ReplaceAll("L","H");
-  bcm.ReplaceAll("X","L");
   
   //printf("   BC mask = %s\n",bcm.Data());
-  printf("   mu = %f\n",mu);
-  printf("   Energy = %f\n",energyConfig);
+  //printf("   mu = %f\n",mu);
+  //printf("   Energy = %f\n",energyConfig);
   
   // Set the pileup interaction generator
   // The second argument is the pileup rate

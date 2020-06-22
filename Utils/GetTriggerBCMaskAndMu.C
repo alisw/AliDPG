@@ -49,6 +49,11 @@ TString GetTriggerBCMaskAndMu( double& mu, int run = -1 )
   
   TString maskStr = mask->GetTitle();
   
+  // swap H and L to match requirement of AliGenPileup
+  maskStr.ReplaceAll("H","X");
+  maskStr.ReplaceAll("L","H");
+  maskStr.ReplaceAll("X","L");
+  
   printf("GetTriggerBCMaskAndMu() -- mask %s\n",maskStr.Data());
 
   //
