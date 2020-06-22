@@ -1,44 +1,22 @@
 #if !defined(__CINT__) || defined(__MAKECINT__)
-#include "TString.h"
-#include "AliCDBManager.h"
-#include "AliCDBEntry.h"
-#include "TSystem.h"
-#include "AliTriggerConfiguration.h"
-#include "AliTriggerBCMask.h"
-#include "AliLumiTools.h"
+//For ROOT6
+R__ADD_INCLUDE_PATH($ALIDPG_ROOT)
+#include "Utils/GetTriggerBCMaskAndMu.C"
 #endif
-
-TString GetMaskMu(int run, double& mu, double xsecBarn = 8.0)
-{
-  AliCDBManager* man = AliCDBManager::Instance();
-  if (gSystem->AccessPathName("OCDB.root", kFileExists)==0) {     
-    man->SetDefaultStorage("local://");
-    man->SetRaw(kFALSE);
-    man->SetSnapshotMode("OCDB.root");
-  }
-  else if (!man->IsDefaultStorageSet()) {
-    man->SetDefaultStorage("raw://");
-  }
-  man->SetRun(run);
-  AliCDBEntry* entry = man->Get("GRP/CTP/Config");
-  const AliTriggerConfiguration* cf = (const AliTriggerConfiguration*)entry->GetObject();
-  const AliTriggerBCMask* mask = (const AliTriggerBCMask*)cf->GetMasks()[0];
-  TString maskStr = mask->GetTitle();
-  int nbc = mask->GetNUnmaskedBCs();
-  double lumi = AliLumiTools::GetLumiFromCTP(run)->GetMean(2);
-  mu = lumi*xsecBarn / 11245.;
-  return maskStr;
-}
 
 void  AddNuclei(AliGenCocktail *ctl);
 AliGenerator* PerformanceGenerator();
 
-
 AliGenerator * GeneratorCustom() {
-  Int_t nrun = atoi(gSystem->Getenv("CONFIG_RUN"));
-  printf("Configuration for run %d\n",nrun);
+  
+#if defined(__CINT__)
+  // For ROOT5
+  gROOT->LoadMacro("$ALIDPG_ROOT/Utils/GetTriggerBCMaskAndMu.C++");
+#endif
+
   Double_t mu=0.001; 
-  TString bcm=GetMaskMu(nrun,mu);
+  TString bcm=GetTriggerBCMaskAndMu(mu);
+  
   // swap H and L to match requirement of AliGenPileup
   bcm.ReplaceAll("H","X");
   bcm.ReplaceAll("L","H");

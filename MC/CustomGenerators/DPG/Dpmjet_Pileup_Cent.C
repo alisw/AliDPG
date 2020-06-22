@@ -13,7 +13,7 @@ AliGenerator *GeneratorCustom(){
 
   Double_t mu=0.001; 
   TString bcm=GetTriggerBCMaskAndMu(mu);
-
+  
   // swap H and L to match requirement of AliGenPileup
   bcm.ReplaceAll("H","X");
   bcm.ReplaceAll("L","H");
@@ -26,19 +26,19 @@ AliGenerator *GeneratorCustom(){
   // Set the pileup interaction generator
   // The second argument is the pileup rate
   // in terms of event rate per bunch crossing
-  AliGenCocktail *ctl = (AliGenCocktail*)GeneratorCocktail("HijingPileup");
+  AliGenCocktail *ctl = (AliGenCocktail*)GeneratorCocktail("DpmjetPileup");
 
-  // this is the Hijing generator for the trigger event,
+  // this is the DPMJET generator for the trigger event,
   // which could contain an impact parameter cut
-  AliGenHijing *hijingC = (AliGenHijing*)GeneratorHijing();
-  ctl->AddGenerator(hijingC,   "Hijing", 1.);
+  AliGenerator   *dpm   = GeneratorPhojet();
+  ctl->AddGenerator(dpm,  "Dpmjet", 1.);
   
   AliGenPileup *genpil = new AliGenPileup();
   // this is the Hijing generator for the pileup events,
   // which is configured wihtout impact parameter cuts
-  AliGenHijing *hijing = (AliGenHijing*)GeneratorHijing();
-  hijing->SetImpactParameterRange(0.,15.);
-  genpil->SetGenerator(hijing,mu);
+  AliGenerator *dmpPU = (AliGenerator*) GeneratorPhojet();
+  //dpmPU->SetImpactParameterRange(0.,15.);
+  genpil->SetGenerator(dmpPU,mu);
   // Set the beam time structure
   // Details on the syntax in STEER/AliTriggerBCMask
   genpil->SetBCMask(bcm.Data());
