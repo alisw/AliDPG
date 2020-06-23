@@ -34,8 +34,8 @@ Bool_t IsAliPhysicsMoreRecentThan(TString version){
       if(n1<nnn1) return kFALSE;
       else if(n1>nnn1) return kTRUE;
       else if(n1==nnn1){
-	if(n2<=nnn2) return kFALSE;
-	else return kTRUE;
+        if(n2<=nnn2) return kFALSE;
+        else return kTRUE;
       }
     }
   }else{
@@ -43,6 +43,10 @@ Bool_t IsAliPhysicsMoreRecentThan(TString version){
     printf("  --> Cannot check AliPhysics version\n");
     return kFALSE;
   }
+
+  // Silence ROOT6 warning 
+  printf("Unknown version: vvv %d, nnn1 %d, nnn2 %d\n",vvv,nnn1,nnn2);
+  return kFALSE;
 }
 
 Bool_t IsAliPhysicsMoreRecentThanOrEqualTo(TString version){
@@ -77,12 +81,18 @@ Bool_t IsAliPhysicsMoreRecentThanOrEqualTo(TString version){
 	if (n2 < nnn2) return kFALSE; // we check if it is "<=" (here is the difference wrt line 37
 	else return kTRUE;
       }
+      printf("Unknown version: n1 %d, n2 %d, vvv %d, nnn1 %d, nnn2 %d\n",n1,n2,vvv,nnn1,nnn2);
+      return kFALSE;
     }
   }else{
     printf("ALIEN_PACKAGES and ALIEN_JDL_PACKAGES not defined\n");
     printf("  --> Cannot check AliPhysics version\n");
     return kFALSE;
   }
+  
+  // Silence ROOT6 warning
+  printf("Unknown version: vvv %d, nnn1 %d, nnn2 %d\n",vvv,nnn1,nnn2);
+  return kFALSE;
 }
 
 Bool_t IsAliPhysicsEqualTo(TString version){
