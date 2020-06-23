@@ -81,6 +81,8 @@ Bool_t IsAliPhysicsMoreRecentThanOrEqualTo(TString version){
 	if (n2 < nnn2) return kFALSE; // we check if it is "<=" (here is the difference wrt line 37
 	else return kTRUE;
       }
+      printf("Unknown version: n1 %d, n2 %d, vvv %d, nnn1 %d, nnn2 %d\n",n1,n2,vvv,nnn1,nnn2);
+      return kFALSE;
     }
   }else{
     printf("ALIEN_PACKAGES and ALIEN_JDL_PACKAGES not defined\n");
