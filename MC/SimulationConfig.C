@@ -208,6 +208,11 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     if (year < 2015) sim.SetMakeSDigits("TRD TOF PHOS HMPID MUON ZDC PMD T0 VZERO FMD");
     else             sim.SetMakeSDigits("TRD TOF PHOS HMPID MUON ZDC PMD T0 VZERO FMD AD");
     return;
+  
+    // To silence ROOT6 warning
+  case kNSimulations:
+    printf("kNSimulations case not considered\n");
+    return;
 
   }
 
