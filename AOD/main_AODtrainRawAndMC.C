@@ -494,11 +494,6 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
   }
    
 
-  //Jacek
-  if (iPWGPP) {
-    AddTaskFilteredTree("FilterEvents_Trees.root");
-  }   
-
   // Muon refit
   if (iMUONRefit) {
     AliAnalysisTaskMuonRefit* refit = AddTaskMuonRefit(-1., -1., kTRUE, -1., -1.);
@@ -656,7 +651,14 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
 	taskesdfilter->DisableCaloTrigger("PHOS");
 	taskesdfilter->DisableCaloTrigger("EMCAL");
       } else AliEMCALGeometry::GetInstance("","");
-    }   
+    }
+
+  //Jacek
+  if (iPWGPP) {
+    AddTaskFilteredTree("FilterEvents_Trees.root");
+  }   
+
+
   // TRD digits filtering
   if(doTRDfilter){
     if(iCollision == kPbPb && year==2018) AddTRDdigitsFilter("PbPb-2018");
