@@ -21,15 +21,15 @@ AliGenerator *GeneratorCustom(){
   // Set the pileup interaction generator
   // The second argument is the pileup rate
   // in terms of event rate per bunch crossing
-  AliGenCocktail *ctl = (AliGenCocktail*)GeneratorCocktail("EPOSLHCPileup");
+  AliGenCocktail *ctl = (AliGenCocktail*)GeneratorCocktail("EPOS_Pileup");
 
   // this is the EPOS generator for the trigger event,
   // which could contain an impact parameter cut
   AliGenerator   *epos   = GeneratorEPOSLHC();
-  ctl->AddGenerator(epos,  "EPOSLHC", 1.);
+  ctl->AddGenerator(epos,  "EPOS-LHC", 1.);
   
   AliGenPileup *genpil = new AliGenPileup();
-  // this is the Hijing generator for the pileup events,
+  // this is the EPOS-LHC generator for the pileup events,
   // which is configured wihtout impact parameter cuts
   AliGenerator * eposPU = GeneratorEPOSLHC();
   //eposPU->SetImpactParameterRange(0.,15.);

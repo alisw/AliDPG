@@ -21,7 +21,7 @@ AliGenerator *GeneratorCustom(){
   // Set the pileup interaction generator
   // The second argument is the pileup rate
   // in terms of event rate per bunch crossing
-  AliGenCocktail *ctl = (AliGenCocktail*)GeneratorCocktail("DpmjetPileup");
+  AliGenCocktail *ctl = (AliGenCocktail*)GeneratorCocktail("Dpmjet_Pileup");
 
   // this is the DPMJET generator for the trigger event,
   // which could contain an impact parameter cut
@@ -29,7 +29,7 @@ AliGenerator *GeneratorCustom(){
   ctl->AddGenerator(dpm,  "Dpmjet", 1.);
   
   AliGenPileup *genpil = new AliGenPileup();
-  // this is the Hijing generator for the pileup events,
+  // this is the DPMJET generator for the pileup events,
   // which is configured wihtout impact parameter cuts
   AliGenerator *dmpPU = (AliGenerator*) GeneratorPhojet();
   //dpmPU->SetImpactParameterRange(0.,15.);
