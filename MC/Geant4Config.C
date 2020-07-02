@@ -21,6 +21,11 @@ void Geant4Config()
     TString configPhysList = "FTFP_BERT_EMV+optical+biasing";
     if (g4PhysList == "BERT") configPhysList = "FTFP_BERT_EMV+optical";
     else if (g4PhysList == "INCLXX") configPhysList = "FTFP_INCLXX_EMV+optical";
+    else if (g4PhysList == "BERT+biasing") configPhysList = "FTFP_BERT_EMV+optical+biasing";
+    else {
+      Printf("Wrong physics list passed, we cannot continue");
+      return;
+    }
     // check if monopole injection requested
     if(abs(pdgConfig)<60000000 || abs(pdgConfig)>=70000000){
       
