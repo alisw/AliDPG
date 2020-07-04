@@ -56,7 +56,7 @@ void Geant4Config()
 	return;
       }
       else if (str->String().Atoi() < 4 || !g4Version.Contains("monopole")) {
-	Printf("We cannot use monopoles with the current version of G4: %s", str.Data());
+	Printf("We cannot use monopoles with the current version of G4: %s", str->Data());
 	delete og4;
 	og4 = 0;
 	return;
@@ -66,7 +66,7 @@ void Geant4Config()
       Double_t eCh=(abs(pdgConfig)/pdgConfig)*abs(pdgConfig)/(int(1e6))%10;
       Double_t mCh=(abs(pdgConfig)/pdgConfig)*abs(pdgConfig)/(int(1e5))%10;
       pdgConfig=60000000;
-      Printf("\n PDG Code: %d, mass: %3.3f, el. charge: %d; mag. charge: %d",pdgConfig,mass,eCh,mCh);
+      Printf("\n PDG Code: %d, mass: %3.3f, el. charge: %1.0f; mag. charge: %1.0f",pdgConfig,mass,eCh,mCh);
 
       
       runConfiguration = new TG4RunConfiguration("geomRoot",
