@@ -50,7 +50,6 @@ AliGenerator *GeneratorCustom(TString opt = "")
   pyth->SetProcess(process[iprocess]);
   pyth->SetHeavyQuarkYRange(-1.5, 1.5);
   if(channelOption >= 1) {
-    pyth->SetTriggerY(1.0);
     pyth->SetTriggerParticle(sign * triggerPart, 999);
   }
 
@@ -67,7 +66,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
     printf("Force decays using ForceHadronicD of AliDecayerPythia8\n");
     pyth->SetForceDecay(kHadronicDWithout4Bodies);
     if(channelOption == 1)
-        pyth->SetForceDecay(AliDecayer:kLcpK0S)
+        pyth->SetForceDecay(AliDecayer::kLcpK0S)
     else if(channelOption == 2)
         pyth->SetForceDecay(AliDecayer::kLcpKpi)
   }else{
