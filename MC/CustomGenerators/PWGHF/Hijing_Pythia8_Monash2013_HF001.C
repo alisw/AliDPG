@@ -66,9 +66,9 @@ AliGenerator *GeneratorCustom(TString opt = "")
     printf("Force decays using ForceHadronicD of AliDecayerPythia8\n");
     pyth->SetForceDecay(kHadronicDWithout4Bodies);
     if(channelOption == 1)
-        pyth->SetForceDecay(AliDecayer::kLcpK0S)
+        pyth->SetForceDecay(kLcpK0S);
     else if(channelOption == 2)
-        pyth->SetForceDecay(AliDecayer::kLcpKpi)
+        pyth->SetForceDecay(kLcpKpi);
   }else{
     printf("Force decays in the Config\n");
     //add D+ decays absent in PYTHIA8 decay table and set BRs from PDG for other
