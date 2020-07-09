@@ -148,7 +148,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
   TFormula *formula = new TFormula("Signals","max(1.,120.*(x<5.)+80.*(1.-x/20.)*(x>5.)*(x<11.)+240.*(1.-x/13.)*(x>11.))");
   if(isEmbedding){
     ntimes=formula->Eval(bEvalFormula);
-    delete formula; formula=nullptr;
+    delete formula; formula=0x0;
   }
 
   ctl->AddGenerator(pyth, label[iprocess][channelOption], 1., formula, ntimes);
