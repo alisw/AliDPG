@@ -210,7 +210,7 @@ AliGenerator *GeneratorPythia8Jets(Int_t tune = 0, Int_t acceptance = kCalorimet
 AliGenerator *GeneratorPythia8JetsGammaTrg(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
 AliGenerator *GeneratorPythia8GammaJet(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
 AliGenerator *GeneratorPhojet();
-AliGenerator *GeneratorEPOSLHC();
+AliGenerator *GeneratorEPOSLHC(Bool_t pileup = kFALSE);
 AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Bool_t useEvtGenForB=kFALSE);
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
@@ -976,9 +976,8 @@ GeneratorPhojet()
 /*** EPOSLHC ****************************************************/
 
 AliGenerator *
-GeneratorEPOSLHC()
+GeneratorEPOSLHC(Bool_t pileup)
 {
-
   comment = comment.Append(Form(" | EPOS-LHC (%s)", systemConfig.Data()));
   //
   // configure projectile/target
@@ -1029,16 +1028,21 @@ GeneratorEPOSLHC()
   //
   // run CRMC
   TString fifoname = "crmceventfifo";
+  if ( pileup ) fifoname = "crmceventfifo_pileup";
+
+  Int_t nEventsEpos = neventsConfig;
+  if ( pileup ) nEventsEpos*=100;
   gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
   gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
-  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc.sh %s %d %d %f %d %f &> gen_eposlhc.log &",
-			  fifoname.Data(), neventsConfig,
+  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc.sh %s %d %d %f %d %f &> gen_eposlhc%d.log &",
+			  fifoname.Data(), nEventsEpos,
 			  projectileId, projectileEnergy,
-			  targetId, targetEnergy));
+			  targetId, targetEnergy,pileup));
   //
   // connect HepMC reader
   AliGenReaderHepMC *reader = new AliGenReaderHepMC();
   reader->SetFileName("crmceventfifo");
+  if ( pileup ) reader->SetFileName("crmceventfifo_pileup");
   AliGenExtFile *gener = new AliGenExtFile(-1);
   gener->SetName(Form("EPOSLHC_%s", systemConfig.Data()));
   gener->SetReader(reader);

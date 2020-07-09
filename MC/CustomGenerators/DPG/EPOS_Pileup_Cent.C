@@ -31,7 +31,7 @@ AliGenerator *GeneratorCustom(){
   AliGenPileup *genpil = new AliGenPileup();
   // this is the EPOS-LHC generator for the pileup events,
   // which is configured wihtout impact parameter cuts
-  AliGenerator * eposPU = GeneratorEPOSLHC();
+  AliGenerator * eposPU = GeneratorEPOSLHC(kTRUE);
   //eposPU->SetImpactParameterRange(0.,15.);
   genpil->SetGenerator(eposPU,mu);
   // Set the beam time structure
