@@ -158,6 +158,7 @@ void FilterEvent(AliESDEvent *evIn, AliESDfriend* evInF, AliESDEvent *evOut, Ali
   int ntr = evIn->GetNumberOfTracks();
   int trStatus[ntr];
   memset(trStatus,-1,sizeof(int)*ntr);
+  TBits caloCellsID[2]; // EMC and PHOS cells
   
   // check tracks
   for (int itr=0;itr<ntr;itr++) {
@@ -220,15 +221,7 @@ void FilterEvent(AliESDEvent *evIn, AliESDfriend* evInF, AliESDEvent *evOut, Ali
     evOut->AddKink(kink);
     knkStatus[ik] = nkinkAdd++;
   }
-
-  // filter calo clusters, cells
-  /* // need to decide what kind of clusters we filter out
-  Int_t ncl = evIn->GetNumberOfCaloClusters();
-  for (Int_t n=0; n<ncl; n++) {
-    AliESDCaloCluster *cluster = evIn->GetCaloCluster(n);
-  }
-  */
-      
+  
   // filter tracks
   //
   int ntrAdd = 0, ntrAddF = 0;
@@ -236,7 +229,7 @@ void FilterEvent(AliESDEvent *evIn, AliESDfriend* evInF, AliESDEvent *evOut, Ali
     if (trStatus[itr]==-1) continue; // discarded
     const AliESDtrack* trcIn = evIn->GetTrack(itr);
     evOut->AddTrack(trcIn);
-    trStatus[itr] = ntrAdd; // memorrise added track ID
+    trStatus[itr] = ntrAdd; // memorise added track ID
     AliESDtrack* trcOut = evOut->GetTrack(ntrAdd);
     //
     int frId = trcIn->GetFriendTrackID();
@@ -253,7 +246,6 @@ void FilterEvent(AliESDEvent *evIn, AliESDfriend* evInF, AliESDEvent *evOut, Ali
       trcOut->SetFriendTrackID(-1);
     }
 
-    trcOut->SetEMCALcluster(AliESDtrack::kEMCALNoMatch);
     int kinkID[3]={0}, kAdd = 0;
     for (int ik=0;ik<3;ik++) {
       int kID = trcIn->GetKinkIndex(ik);
@@ -265,6 +257,97 @@ void FilterEvent(AliESDEvent *evIn, AliESDfriend* evInF, AliESDEvent *evOut, Ali
     trcOut->SetKinkIndexes(kinkID); // reset indices
     ntrAdd++;
   }
+
+  // >>> Calo >>>
+  // filter calo clusters
+  Int_t nclIn = evIn->GetNumberOfCaloClusters(), nclOut = 0;
+  int caloClusStatus[nclIn];
+  memset(caloClusStatus,-1,sizeof(int)*nclIn);
+  for (Int_t ic=0; ic<nclIn; ic++) {
+    AliESDCaloCluster *cluster = evIn->GetCaloCluster(ic);
+    int nlab = cluster->GetNLabels();
+    TArrayI* labels = cluster->GetLabelsArray();
+    for (int il=0;il<nlab;il++) {
+      if (KeepTrack( (*labels)[il]) ) {
+        caloClusStatus[ic] = -10; // keep clusters with at least single signal contribution
+      }
+      else {
+        (*labels)[il] = -1;
+      }
+    }
+    if (caloClusStatus[ic]!=-1) {
+      // leave only preserved matched tracks
+      TArrayI* mtcTracks = cluster->GetTracksMatched();
+      int ntrm = cluster->GetNTracksMatched();
+      int ntKept = 0;
+      for (int itm=0;itm<ntrm;itm++) {
+        int trID = (*mtcTracks)[itm];
+        if (trStatus[trID] !=-1 ) { // track is kept, we have to store its new index
+          (*mtcTracks)[ntKept++] = trStatus[trID];
+        }
+      }
+      mtcTracks->Set(ntKept);
+      evOut->AddCaloCluster(cluster);
+      caloClusStatus[ic] = nclOut++;
+      // flag cells used by this cluster
+      int ncells = cluster->GetNCells();
+      UShort_t* cells = cluster->GetCellsAbsId();
+      for (int icl=0;icl<ncells;icl++) {
+        caloCellsID[cluster->IsPHOS()].SetBitNumber(cells[icl]);
+      }
+    }
+  }
+  
+  // update calo cluster indices in the tracks
+  for (int it=0;it<ntrAdd;it++) {
+    AliESDtrack* trout = evOut->GetTrack(it);
+    int clmtc = trout->GetEMCALcluster();
+    if (clmtc!=AliESDtrack::kEMCALNoMatch) {
+      trout->SetEMCALcluster(caloClusStatus[clmtc]>=0 ? caloClusStatus[clmtc] : AliESDtrack::kEMCALNoMatch);
+    }
+  }
+  
+  // select EMC cells belonging to preserved calo clusters
+  AliESDCaloCells* emcCellsIn = evIn->GetEMCALCells();
+  int nEMCCellsOut = 0, nEMCCellsIn = emcCellsIn->GetNumberOfCells();
+  for (int i=0;i<nEMCCellsIn;i++) {
+    if (caloCellsID[0].TestBitNumber( emcCellsIn->GetCellNumber(i) )) nEMCCellsOut++;
+  }
+  AliESDCaloCells* emcCellsOut = evOut->GetEMCALCells();
+  emcCellsOut->CreateContainer(nEMCCellsOut);
+  nEMCCellsOut = 0;
+  for (int i=0;i<nEMCCellsIn;i++) {
+    if (!caloCellsID[0].TestBitNumber( emcCellsIn->GetCellNumber(i) )) continue;
+    Short_t cellNumber;
+    Int_t mclabel;
+    Double_t amplitude, timec, efrac;
+    emcCellsIn->GetCell(i, cellNumber, amplitude, timec, mclabel,efrac);
+    Bool_t isHG = emcCellsIn->GetHighGain(i);
+    if (!KeepTrack(mclabel)) mclabel = -1;
+    emcCellsOut->SetCell(nEMCCellsOut++, cellNumber, amplitude, timec, mclabel, efrac, isHG);
+  }
+  
+  // select PHOS cells belonging to preserved calo clusters
+  AliESDCaloCells* phsCellsIn = evIn->GetPHOSCells();
+  int nPHSCellsOut = 0, nPHSCellsIn = phsCellsIn->GetNumberOfCells();
+  for (int i=0;i<nPHSCellsIn;i++) {
+    if (caloCellsID[1].TestBitNumber( phsCellsIn->GetCellNumber(i) )) nPHSCellsOut++;
+  }
+  AliESDCaloCells* phsCellsOut = evOut->GetPHOSCells();
+  phsCellsOut->CreateContainer(nPHSCellsOut);
+  nPHSCellsOut = 0;
+  for (int i=0;i<nPHSCellsIn;i++) {
+    if (!caloCellsID[1].TestBitNumber( phsCellsIn->GetCellNumber(i) )) continue;
+    Short_t cellNumber;
+    Int_t mclabel;
+    Double_t amplitude, timec, efrac;
+    phsCellsIn->GetCell(i, cellNumber, amplitude, timec, mclabel,efrac);
+    Bool_t isHG = phsCellsIn->GetHighGain(i);
+    if (!KeepTrack(mclabel)) mclabel = -1;
+    phsCellsOut->SetCell(nPHSCellsOut++, cellNumber, amplitude, timec, mclabel, efrac, isHG);
+  }
+  // <<< Calo <<<  
+  
   // filter TOF clusters and hits used but saved tracks
   TClonesArray* esdTOFHitArrIn = evIn->GetESDTOFHits();
   TClonesArray* esdTOFClArrIn = evIn->GetESDTOFClusters();
