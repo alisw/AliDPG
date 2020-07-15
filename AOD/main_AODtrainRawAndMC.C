@@ -528,7 +528,11 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
 
   // redo V0s with "loose enough" cuts
   if(gSystem->AccessPathName(gSystem->ExpandPathName("$ALICE_PHYSICS/PWGLF/STRANGENESS/Cascades/Run2/macros/AddTaskWeakDecayVertexer.C"), kFileExists) != 0) doWeakDecayFinder=kFALSE;
-
+  if(IsAliPhysicsMoreRecentThanOrEqualTo("v5-09-49") == kFALSE){
+    printf("AliPhysics version < v5-09-49, disable WeakDecayFinder\n");
+    doWeakDecayFinder=kFALSE;
+  }
+  
   if(doWeakDecayFinder){
     if (iCollision == kpp || iCollision == kpPb || iCollision == kPbp) {
       // pp, p-Pb cut configuration
@@ -548,6 +552,8 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
       taskWDV -> SetCascVertexerDCACascadeDaughters(2.0);
       taskWDV -> SetCascVertexerCascadeMinRadius(.5);
       taskWDV -> SetCascVertexerCascadeCosinePA(.95);
+      taskWDV -> SetRevertexAllEvents(kTRUE); // needed for pp and p-Pb for which we do not run AliMultSelection task
+      if(gSystem->Getenv("ALIEN_JDL_SWITCHOFFEXTRACLEANUPINWEAKDECAYFINDER")) taskWDV -> SetExtraCleanup(kFALSE);
     }else if(iCollision == kPbPb || iCollision == kXeXe){
       // A-A cut configuration
       AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
