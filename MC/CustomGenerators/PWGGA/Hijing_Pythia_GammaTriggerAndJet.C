@@ -32,8 +32,13 @@ GeneratorCustom
   //
   // HIJING
   //
-  AliGenerator   *hij   = GeneratorHijing();
-  ctl->AddGenerator(hij,  "Hijing", 1.);
+  TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
+  
+  if ( !simulation.Contains("Embed") )
+  {
+    AliGenerator *hij = GeneratorHijing();
+    ctl->AddGenerator(hij, "Hijing", 1.);
+  }
 
   //
   // PYTHIA
