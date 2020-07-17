@@ -11,8 +11,13 @@ GeneratorCustom(TString opt = "")
   
   AliGenCocktail *ctl   = (AliGenCocktail*) GeneratorCocktail("Hijing_Jets001");
 
-  AliGenerator   *hij   = GeneratorHijing();
-  ctl->AddGenerator(hij,  "Hijing", 1.);
+  TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
+  
+  if ( !simulation.Contains("Embed") )
+  {
+    AliGenerator *hij = GeneratorHijing();
+    ctl->AddGenerator(hij, "Hijing", 1.);
+  }
   
   AliGenerator   *jet   = GeneratorPythia8Jets();
   ctl->AddGenerator(jet,  "Jets", 1., new TFormula(Form("ninj_%d", ninj), Form("%d", ninj)));
