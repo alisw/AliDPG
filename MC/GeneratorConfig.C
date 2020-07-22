@@ -1772,8 +1772,15 @@ GeneratorQED()
   genBg->SetEnergyCMS(energyConfig);
   genBg->SetProjectile(projN, projA, projZ);
   genBg->SetTarget    (targN, targA, targZ);
-  genBg->SetYRange(-6.,3);
-  genBg->SetPtRange(0.4e-3,1.0);       // Set pt limits (GeV) for e+-: 1MeV corresponds to max R=13.3mm at 5kGaus
+  
+  yminConfig = TMath::Max(yminConfig,(Float_t) -8.0);
+  ymaxConfig = TMath::Min(ymaxConfig,(Float_t) +8.0);
+  genBg->SetYRange(yminConfig,ymaxConfig);
+  
+  ptminConfig = TMath::Max(ptminConfig,(Float_t) 0.4e-3); // Set pt limits (GeV) for e+-: 1MeV corresponds to max R=13.3mm at 2kGaus
+  ptmaxConfig = TMath::Min(ptmaxConfig,(Float_t) 1.0);
+  genBg->SetPtRange(ptminConfig,ptmaxConfig);
+  
   genBg->SetLumiIntTime(6.e27,3e-6);  // luminosity and integration time
   genBg->SetVertexSource(kInternal);
   
