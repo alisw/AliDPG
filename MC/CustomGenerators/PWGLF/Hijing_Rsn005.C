@@ -31,11 +31,16 @@ AliGenerator *GeneratorCustom(TString opt = "")
   AliDecayerPythia *dec = new AliDecayerPythia;
 
   AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_Rsn005");
-  AliGenerator   *hij  = GeneratorHijing();
+  
+  if(!simulation.Contains("Embed"))
+  {   
+    AliGenerator   *hij  = GeneratorHijing();
+    ctl->AddGenerator(hij,  "Hijing",              1.);
+  }
+  
   AliGenerator   *inj1 = GeneratorParam(ninj,  pdg1, 0., pTmax, -0.6, 0.6, dec);
   AliGenerator   *inj2 = GeneratorParam(ninj,  pdg2, 0., pTmax, -0.6, 0.6, dec);
 
-  ctl->AddGenerator(hij,  "Hijing",              1.);
   ctl->AddGenerator(inj2, "Injector (Rsn005_1)", 1.);
   ctl->AddGenerator(inj1, "Injector (Rsn005_2)", 1.);
   return ctl;
