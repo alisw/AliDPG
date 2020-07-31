@@ -3,6 +3,7 @@ GeneratorCustom()
 {
   AliGenCocktail *ctl   = (AliGenCocktail*) GeneratorCocktail("Epos_Nuclex001");
  
+  TString  simulation   = gSystem->Getenv("CONFIG_SIMULATION");  
   if(!simulation.Contains("Embed"))
   { 
     AliGenerator   *epos  = GeneratorEPOSLHC(); 

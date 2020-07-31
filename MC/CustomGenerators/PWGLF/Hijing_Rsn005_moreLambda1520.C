@@ -32,6 +32,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
 
   AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_Rsn005_moreLambda1520");
   
+  TString  simulation   = gSystem->Getenv("CONFIG_SIMULATION");  
   if(!simulation.Contains("Embed"))
   {   
     AliGenerator   *hij  = GeneratorHijing();
