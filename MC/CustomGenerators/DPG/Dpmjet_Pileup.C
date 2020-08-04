@@ -26,7 +26,6 @@ AliGenerator *GeneratorCustom(){
   // this is the DPMJET generator for the trigger event,
   // which could contain an impact parameter cut
   AliGenerator   *dpm   = GeneratorPhojet();
-  ctl->AddGenerator(dpm,  "Dpmjet", 1.);
   
   AliGenPileup *genpil = new AliGenPileup();
   // this is the DPMJET generator for the pileup events,
@@ -42,6 +41,7 @@ AliGenerator *GeneratorCustom(){
   genpil->Print();
   
   ctl->AddGenerator(genpil,    "Pileup", 1.);
+  ctl->AddGenerator(dpm,  "Dpmjet", 1.);
   
   return ctl;
 

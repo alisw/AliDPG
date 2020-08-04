@@ -26,7 +26,6 @@ AliGenerator *GeneratorCustom(){
   // this is the EPOS generator for the trigger event,
   // which could contain an impact parameter cut
   AliGenerator   *epos   = GeneratorEPOSLHC();
-  ctl->AddGenerator(epos,  "EPOS-LHC", 1.);
   
   AliGenPileup *genpil = new AliGenPileup();
   // this is the EPOS-LHC generator for the pileup events,
@@ -42,6 +41,7 @@ AliGenerator *GeneratorCustom(){
   genpil->Print();
   
   ctl->AddGenerator(genpil,    "Pileup", 1.);
+  ctl->AddGenerator(epos,  "EPOS-LHC", 1.);
   
   return ctl;
 

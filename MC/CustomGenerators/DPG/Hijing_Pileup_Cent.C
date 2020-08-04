@@ -26,7 +26,6 @@ AliGenerator *GeneratorCustom(){
   // this is the Hijing generator for the trigger event,
   // which could contain an impact parameter cut
   AliGenHijing *hijingC = (AliGenHijing*)GeneratorHijing();
-  ctl->AddGenerator(hijingC,   "Hijing", 1.);
   
   AliGenPileup *genpil = new AliGenPileup();
   // this is the Hijing generator for the pileup events,
@@ -42,6 +41,7 @@ AliGenerator *GeneratorCustom(){
   genpil->Print();
   
   ctl->AddGenerator(genpil,    "Pileup", 1.);
+  ctl->AddGenerator(hijingC,   "Hijing", 1.);
   
   return ctl;
 
