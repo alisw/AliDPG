@@ -33,7 +33,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
   };
 
   //Switches for prompt/nonprompt
-  Process_t process[2] = {kPyCharmppMNRwmi, kPyBeautyppMNRwmi}; //charm or beauty
+  Process_t process[2] = {kPyCharm, kPyBeauty}; //charm or beauty with HardQCD for pT hard bins
   Int_t iprocess = uidConfig % 2;
 
   //switch sign of trigger particle
@@ -53,12 +53,16 @@ AliGenerator *GeneratorCustom(TString opt = "")
     pyth->SetTriggerParticle(sign * triggerPart, 999);
   }
 
-  // Pt transfer of the hard scattering (4 different cases)
-  Float_t pth[4] = {2.76, 20., 50., 1000.};
+  // Pt transfer of the hard scattering (5 different cases)
+  // resulting pT shape tuned to be similar to pythia6 MC (Hijing_HF001.C)
+  // at least one even and one odd uidConfig for pT-hard bin to have the same pT hard bins for prompt and feed-down
+  Float_t pth[6] = {1., 10., 20., 40., 60., 1000.};
   Int_t ipt;
-  if      ((uidConfig / 2) % 10 < 7) ipt = 0;
-  else if ((uidConfig / 2) % 10 < 9) ipt = 1;
-  else                               ipt = 2;
+  if      (uidConfig % 100 < 80) ipt = 0; // 80% 
+  else if (uidConfig % 100 < 88) ipt = 1; // 8%
+  else if (uidConfig % 100 < 94) ipt = 2; // 6%
+  else if (uidConfig % 100 < 98) ipt = 3; // 4%
+  else                           ipt = 4; // 2% 
   pyth->SetPtHard(pth[ipt], pth[ipt + 1]);
 
   // Configuration of pythia8 decayer
