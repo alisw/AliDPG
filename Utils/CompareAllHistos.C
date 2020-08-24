@@ -31,10 +31,9 @@ void WriteHisto(TObject* obj);
 void WriteProfile(TObject* obj);
 Bool_t AreIdenticalHistos(TH1* hA, TH1* hB);
 Bool_t CompareHistos(TH1* hA, TH1* hB);
-
+void DrawRatio(TH1* hR);
 
 void CompareAllHistos(TString filename="QAresults_v5-09-37.root", TString filename2="QAresults_v5-09-36.root", TString dirToAnalyse="", Bool_t areIndependentSamples=kFALSE){
-
 
   if(areIndependentSamples) correlationCase=1;
 
@@ -324,15 +323,33 @@ Bool_t CompareHistos(TH1* hA, TH1* hB){
     }
    
     c->cd(2);
-    hA->Divide(hB);
-    for(Int_t k=1;k<=hA->GetNbinsX();k++) hA->SetBinError(k,0.000000001);
-    hA->SetMinimum(TMath::Max(0.98,0.95*hA->GetBinContent(hA->GetMinimumBin())-hA->GetBinError(hA->GetMinimumBin())));
-    hA->SetMaximum(TMath::Min(1.02,1.05*hA->GetBinContent(hA->GetMaximumBin())+hA->GetBinError(hA->GetMaximumBin())));
-    hA->SetStats(0);
-    if(hcln.Contains("TH2")) hA->Draw("colz");
-    else{
-      hA->Draw();
-      hA->GetYaxis()->SetTitle("Ratio");
+    if(hcln.Contains("TH3")){
+      TH1D* hXa=((TH3*)hA)->ProjectionX(Form("%s_xA",hA->GetName()));
+      TH1D* hXb=((TH3*)hB)->ProjectionX(Form("%s_xB",hB->GetName()));
+      TH1D* hYa=((TH3*)hA)->ProjectionY(Form("%s_yA",hA->GetName()));
+      TH1D* hYb=((TH3*)hB)->ProjectionY(Form("%s_yB",hB->GetName()));
+      TH1D* hZa=((TH3*)hA)->ProjectionZ(Form("%s_zA",hA->GetName()));
+      TH1D* hZb=((TH3*)hB)->ProjectionZ(Form("%s_zB",hB->GetName()));
+      hXa->Divide(hXb);
+      hYa->Divide(hYb);
+      hZa->Divide(hZb);
+      TPad* rpad=(TPad*)gPad;
+      rpad->Divide(1,3);
+      rpad->cd(1);
+      DrawRatio(hXa);
+      rpad->cd(2);
+      DrawRatio(hYa);
+      rpad->cd(3);
+      DrawRatio(hZa);
+    }else{
+      hA->Divide(hB);
+      for(Int_t k=1;k<=hA->GetNbinsX();k++) hA->SetBinError(k,0.000000001);
+      hA->SetMinimum(TMath::Max(0.98,0.95*hA->GetBinContent(hA->GetMinimumBin())-hA->GetBinError(hA->GetMinimumBin())));
+      hA->SetMaximum(TMath::Min(1.02,1.05*hA->GetBinContent(hA->GetMaximumBin())+hA->GetBinError(hA->GetMaximumBin())));
+      hA->SetStats(0);
+      if(hcln.Contains("TH2")) hA->Draw("colz");
+      else if(hcln.Contains("TH1")) DrawRatio(hA);
+      else hA->Draw();
     }
     c->cd(1);
     TString outc="";
@@ -356,4 +373,15 @@ Bool_t CompareHistos(TH1* hA, TH1* hB){
     return retVal;
   }
   return kTRUE;
+}
+
+void DrawRatio(TH1* hR){
+  hR->SetMarkerStyle(20);
+  hR->SetMarkerSize(0.5);
+  hR->SetMinimum(TMath::Max(0.98,0.95*hR->GetBinContent(hR->GetMinimumBin())-hR->GetBinError(hR->GetMinimumBin())));
+  hR->SetMaximum(TMath::Min(1.02,1.05*hR->GetBinContent(hR->GetMaximumBin())+hR->GetBinError(hR->GetMaximumBin())));
+  hR->SetStats(0);
+  hR->GetYaxis()->SetTitle("Ratio");
+  hR->Draw("P");
+  return;
 }
