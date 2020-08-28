@@ -49,6 +49,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
   AliGenPythiaPlus* pyth = (AliGenPythiaPlus*)GeneratorPythia8(kPythia8Tune_Monash2013);
   pyth->SetProcess(process[iprocess]);
   pyth->SetHeavyQuarkYRange(-1.5, 1.5);
+  pyth->SetMaximumLifetime(0.7);
   if(channelOption >= 1) {
     pyth->SetTriggerParticle(sign * triggerPart, 999);
   }
