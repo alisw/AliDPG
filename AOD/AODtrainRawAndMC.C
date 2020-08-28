@@ -3,6 +3,7 @@ void AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refilteringMode=
   // Steering main analysis train macro.
 
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/OCDBConfig.C");
+  gROOT->LoadMacro("$ALIDPG_ROOT/Utils/CheckAliRootVersion.C");
   gROOT->LoadMacro("$ALICE_PHYSICS/TENDER/TenderSupplies/AddTaskTender.C");
   gROOT->LoadMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C");
   gROOT->LoadMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDqa.C");

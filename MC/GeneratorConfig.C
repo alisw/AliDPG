@@ -210,7 +210,7 @@ AliGenerator *GeneratorPythia8Jets(Int_t tune = 0, Int_t acceptance = kCalorimet
 AliGenerator *GeneratorPythia8JetsGammaTrg(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
 AliGenerator *GeneratorPythia8GammaJet(Int_t tune = 0, Int_t acceptance = kCalorimeterAcceptance_FullDetector);
 AliGenerator *GeneratorPhojet();
-AliGenerator *GeneratorEPOSLHC();
+AliGenerator *GeneratorEPOSLHC(Bool_t pileup = kFALSE);
 AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Bool_t useEvtGenForB=kFALSE);
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
@@ -976,9 +976,8 @@ GeneratorPhojet()
 /*** EPOSLHC ****************************************************/
 
 AliGenerator *
-GeneratorEPOSLHC()
+GeneratorEPOSLHC(Bool_t pileup)
 {
-
   comment = comment.Append(Form(" | EPOS-LHC (%s)", systemConfig.Data()));
   //
   // configure projectile/target
@@ -1029,16 +1028,21 @@ GeneratorEPOSLHC()
   //
   // run CRMC
   TString fifoname = "crmceventfifo";
+  if ( pileup ) fifoname = "crmceventfifo_pileup";
+
+  Int_t nEventsEpos = neventsConfig;
+  if ( pileup ) nEventsEpos*=100;
   gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
   gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
-  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc.sh %s %d %d %f %d %f &> gen_eposlhc.log &",
-			  fifoname.Data(), neventsConfig,
+  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc.sh %s %d %d %f %d %f &> gen_eposlhc%d.log &",
+			  fifoname.Data(), nEventsEpos,
 			  projectileId, projectileEnergy,
-			  targetId, targetEnergy));
+			  targetId, targetEnergy,pileup));
   //
   // connect HepMC reader
   AliGenReaderHepMC *reader = new AliGenReaderHepMC();
   reader->SetFileName("crmceventfifo");
+  if ( pileup ) reader->SetFileName("crmceventfifo_pileup");
   AliGenExtFile *gener = new AliGenExtFile(-1);
   gener->SetName(Form("EPOSLHC_%s", systemConfig.Data()));
   gener->SetReader(reader);
@@ -1127,6 +1131,8 @@ GeneratorStarlight(){
   // kCohRhoToPiWithCont
   // kCohRhoToPiFlat
   // kCohPhiToKa
+  // kCohOmegaTo2Pi
+  // kCohOmegaTo3Pi
   // kCohJpsiToMu
   // kCohJpsiToEl
   // kCohJpsiToElRad
@@ -1141,6 +1147,8 @@ GeneratorStarlight(){
   // kIncohRhoToPiWithCont
   // kIncohRhoToPiFlat
   // kIncohPhiToKa
+  // kIncohOmegaTo2Pi
+  // kIncohOmegaTo3Pi
   // kIncohJpsiToMu
   // kIncohJpsiToEl
   // kIncohJpsiToElRad
@@ -1205,6 +1213,7 @@ GeneratorStarlight(){
   cocktail |= processConfig.Contains("Psi2sToElPi");
   cocktail |= processConfig.Contains("Psi2sToMuPi");
   cocktail |= processConfig.Contains("RhoPrime");
+  cocktail |= processConfig.Contains("OmegaTo3Pi");
   cocktail |= processConfig.Contains("JpsiToElRad");
   
   AliGenCocktail *genCocktail = NULL;
@@ -1231,6 +1240,8 @@ GeneratorStarlight(){
     {"kCohRhoToPiWithCont",  3,     913, 1200, -1.0, -1.0, 0.02 }, //
     {"kCohRhoToPiFlat",      3,     113,    1, -1.0,  2.5, 0.02 }, //
     {"kCohPhiToKa",          2,     333,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohOmegaTo2Pi",       2,     223,   20, -1.0, -1.0, 0.01 }, //
+    {"kCohOmegaTo3Pi",       2,     223,   20, -1.0, -1.0, 0.01 }, //
     {"kCohJpsiToMu",         2,  443013,   20, -1.0, -1.0, 0.01 }, //
     {"kCohJpsiToEl",         2,  443011,   20, -1.0, -1.0, 0.01 }, //
     {"kCohJpsiToElRad",      2,  443011,   20, -1.0, -1.0, 0.01 }, //
@@ -1245,6 +1256,8 @@ GeneratorStarlight(){
     {"kIncohRhoToPiWithCont",4,     913, 1200, -1.0, -1.0, 0.02 }, //
     {"kIncohRhoToPiFlat",    4,     113,    1, -1.0,  2.5, 0.02 }, //
     {"kIncohPhiToKa",        4,     333,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohOmegaTo2Pi",     4,     223,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohOmegaTo3Pi",     4,     223,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohJpsiToMu",       4,  443013,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohJpsiToEl",       4,  443011,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohJpsiToElRad",    4,  443011,   20, -1.0, -1.0, 0.01 }, //
@@ -1301,7 +1314,8 @@ GeneratorStarlight(){
   genStarLight->SetParameter("XSEC_METHOD   = 1      # Set to 0 to use old method for calculating gamma-gamma luminosity"); //CM
   genStarLight->SetParameter("BSLOPE_DEFINITION = 0");   // using default slope
   genStarLight->SetParameter("BSLOPE_VALUE      = 4.0"); // default slope value
-
+  genStarLight->SetParameter("PRINT_VM = 2"); // print cross sections and fluxes vs rapidity in stdout for VM photoproduction processes
+  
   genStarLight->SetRapidityMotherRange(yminConfig,ymaxConfig);
   if (!genCocktail) return genStarLight;
 
@@ -1311,11 +1325,13 @@ GeneratorStarlight(){
   if      (processConfig.Contains("Psi2sToMuPi")) decayTable="PSI2S.MUMUPIPI.DEC";
   else if (processConfig.Contains("Psi2sToElPi")) decayTable="PSI2S.EEPIPI.DEC";
   else if (processConfig.Contains("RhoPrime"))    decayTable="RHOPRIME.RHOPIPI.DEC";
+  else if (processConfig.Contains("OmegaTo3Pi"))  decayTable="OMEGA.3PI.DEC";
   else if (processConfig.Contains("JpsiToElRad")) decayTable="JPSI.EE.DEC";
   genEvtGen->SetUserDecayTable(gSystem->ExpandPathName(Form("$ALICE_ROOT/STARLIGHT/AliStarLight/DecayTables/%s",decayTable.Data())));
 
   if      (processConfig.Contains("Psi2s"))       genEvtGen->SetEvtGenPartNumber(100443);
   else if (processConfig.Contains("RhoPrime"))    genEvtGen->SetEvtGenPartNumber(30113);
+  else if (processConfig.Contains("OmegaTo3Pi"))  genEvtGen->SetEvtGenPartNumber(223);
   else if (processConfig.Contains("JpsiToElRad")) genEvtGen->SetEvtGenPartNumber(443);
 
   genEvtGen->SetPolarization(1);           // Set polarization: transversal(1),longitudinal(-1),unpolarized(0)
@@ -1768,8 +1784,15 @@ GeneratorQED()
   genBg->SetEnergyCMS(energyConfig);
   genBg->SetProjectile(projN, projA, projZ);
   genBg->SetTarget    (targN, targA, targZ);
-  genBg->SetYRange(-6.,3);
-  genBg->SetPtRange(0.4e-3,1.0);       // Set pt limits (GeV) for e+-: 1MeV corresponds to max R=13.3mm at 5kGaus
+  
+  yminConfig = TMath::Max(yminConfig,(Float_t) -8.0);
+  ymaxConfig = TMath::Min(ymaxConfig,(Float_t) +8.0);
+  genBg->SetYRange(yminConfig,ymaxConfig);
+  
+  ptminConfig = TMath::Max(ptminConfig,(Float_t) 0.4e-3); // Set pt limits (GeV) for e+-: 1MeV corresponds to max R=13.3mm at 2kGaus
+  ptmaxConfig = TMath::Min(ptmaxConfig,(Float_t) 1.0);
+  genBg->SetPtRange(ptminConfig,ptmaxConfig);
+  
   genBg->SetLumiIntTime(6.e27,3e-6);  // luminosity and integration time
   genBg->SetVertexSource(kInternal);
   

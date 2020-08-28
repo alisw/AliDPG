@@ -129,6 +129,13 @@ Config()
 
   /* configure Geant4 if requested */
   if (isGeant4) {
+    //add include to be able to retrive G4 version in the Geant4Config macro
+    if (gSystem->Getenv("G4VMCINSTALL") != 0) 
+      gInterpreter->AddIncludePath("$G4VMCINSTALL/include/geant4vmc");
+    else {
+      Printf("We cannot access env variable G4VMCINSTALL to determine default physics list, returning");
+      abort();
+    }
     Int_t error;
     TString geant4config_macro = "$ALIDPG_ROOT/MC/Geant4Config.C";
     if (gROOT->LoadMacro(Form("%s/Geant4Config.C", gSystem->pwd()), &error, kTRUE) == 0) {

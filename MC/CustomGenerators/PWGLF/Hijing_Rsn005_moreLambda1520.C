@@ -21,16 +21,16 @@ AliGenerator *GeneratorCustom(TString opt = "")
 
   // randomly injected particles
   //                 K*\pm  Sig*+  Sig*- Xi*(1530) K2*(1430) Xi*(1820) K*0  rho/phi  f0/f2  L*(1520)
-  Int_t pdglist1[] = { 323,  3224,  3114,  3324,    315,    123314,    313,  113,   9010221,  3124}; 
-  Int_t pdglist2[] = {-323, -3224, -3114, -3324,   -315,   -123314,   -313,  333,       225, -3124}; 
-  Double_t pTp[]   = { 25.,   10.,   10.,    7.,     7.,        7.,    25.,  25.,       25.,   7.0};
-  Int_t pdg1 = pdglist1[uidConfig % 10]; // select according to unique ID
-  Int_t pdg2 = pdglist2[uidConfig % 10]; // select according to unique ID
-  Double_t pTmax =  pTp[uidConfig % 10]; // select according to unique ID
+  Int_t pdglist1[] = { 323,  3224,  3114,  3324,    315,    123314,    313,  113,   9010221,  3124,  3124}; 
+  Int_t pdglist2[] = {-323, -3224, -3114, -3324,   -315,   -123314,   -313,  333,       225, -3124, -3124}; 
+  Double_t pTp[]   = { 25.,   10.,   10.,    7.,     7.,        7.,    25.,  25.,       25.,   7.0,   7.0};
+  Int_t pdg1 = pdglist1[uidConfig % 11]; // select according to unique ID
+  Int_t pdg2 = pdglist2[uidConfig % 11]; // select according to unique ID
+  Double_t pTmax =  pTp[uidConfig % 11]; // select according to unique ID
 
   AliDecayerPythia *dec = new AliDecayerPythia;
 
-  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_Rsn005");
+  AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_Rsn005_moreLambda1520");
   
   TString  simulation   = gSystem->Getenv("CONFIG_SIMULATION");  
   if(!simulation.Contains("Embed"))

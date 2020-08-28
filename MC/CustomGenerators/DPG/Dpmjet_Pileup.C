@@ -10,7 +10,7 @@ AliGenerator *GeneratorCustom(){
   // For ROOT5
   gROOT->LoadMacro("$ALIDPG_ROOT/Utils/GetTriggerBCMaskAndMu.C++");
 #endif
-  
+
   Double_t mu=0.001; 
   TString bcm=GetTriggerBCMaskAndMu(mu);
   
@@ -21,19 +21,18 @@ AliGenerator *GeneratorCustom(){
   // Set the pileup interaction generator
   // The second argument is the pileup rate
   // in terms of event rate per bunch crossing
-  AliGenCocktail *ctl = (AliGenCocktail*)GeneratorCocktail("EPOSLHCPileup");
+  AliGenCocktail *ctl = (AliGenCocktail*)GeneratorCocktail("Dpmjet_Pileup");
 
-  // this is the EPOS generator for the trigger event,
+  // this is the DPMJET generator for the trigger event,
   // which could contain an impact parameter cut
-  AliGenerator   *epos   = GeneratorEPOSLHC();
-  ctl->AddGenerator(epos,  "EPOSLHC", 1.);
+  AliGenerator   *dpm   = GeneratorPhojet();
   
   AliGenPileup *genpil = new AliGenPileup();
-  // this is the Hijing generator for the pileup events,
+  // this is the DPMJET generator for the pileup events,
   // which is configured wihtout impact parameter cuts
-  AliGenerator * eposPU = GeneratorEPOSLHC();
-  //eposPU->SetImpactParameterRange(0.,15.);
-  genpil->SetGenerator(eposPU,mu);
+  AliGenerator *dmpPU = (AliGenerator*) GeneratorPhojet();
+  //dpmPU->SetImpactParameterRange(0.,15.);
+  genpil->SetGenerator(dmpPU,mu);
   // Set the beam time structure
   // Details on the syntax in STEER/AliTriggerBCMask
   genpil->SetBCMask(bcm.Data());
@@ -42,6 +41,7 @@ AliGenerator *GeneratorCustom(){
   genpil->Print();
   
   ctl->AddGenerator(genpil,    "Pileup", 1.);
+  ctl->AddGenerator(dpm,  "Dpmjet", 1.);
   
   return ctl;
 

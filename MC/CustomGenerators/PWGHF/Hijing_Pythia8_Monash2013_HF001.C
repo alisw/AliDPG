@@ -27,13 +27,13 @@ AliGenerator *GeneratorCustom(TString opt = "")
     bEvalFormula=(bmaxConfig+bminConfig)/2.;
   }
 
-  const Char_t *label[2][5] = {
-    "chadr PYTHIA8", "chadr PYTHIA8 LcK0SpDedicated", "chadr PYTHIA8 LcpKpiDedicated", "chadr PYTHIA8 DsDedicated",
-    "bchadr PYTHIA8", "bchadr PYTHIA8 LcK0SpDedicated", "bchadr PYTHIA8 LcpKpiDedicated", "bchadr PYTHIA8 DsDedicated"
+  const Char_t *label[2][4] = {
+    {"chadr PYTHIA8", "chadr PYTHIA8 LcK0SpDedicated", "chadr PYTHIA8 LcpKpiDedicated", "chadr PYTHIA8 DsDedicated"},
+    {"bchadr PYTHIA8", "bchadr PYTHIA8 LcK0SpDedicated", "bchadr PYTHIA8 LcpKpiDedicated", "bchadr PYTHIA8 DsDedicated"}
   };
 
   //Switches for prompt/nonprompt
-  Process_t process[2] = {kPyCharmppMNRwmi, kPyBeautyppMNRwmi}; //charm or beauty
+  Process_t process[2] = {kPyCharm, kPyBeauty}; //charm or beauty with HardQCD for pT hard bins
   Int_t iprocess = uidConfig % 2;
 
   //switch sign of trigger particle
@@ -50,16 +50,19 @@ AliGenerator *GeneratorCustom(TString opt = "")
   pyth->SetProcess(process[iprocess]);
   pyth->SetHeavyQuarkYRange(-1.5, 1.5);
   if(channelOption >= 1) {
-    pyth->SetTriggerY(1.0);
     pyth->SetTriggerParticle(sign * triggerPart, 999);
   }
 
-  // Pt transfer of the hard scattering (4 different cases)
-  Float_t pth[4] = {2.76, 20., 50., 1000.};
+  // Pt transfer of the hard scattering (5 different cases)
+  // resulting pT shape tuned to be similar to pythia6 MC (Hijing_HF001.C)
+  // at least one even and one odd uidConfig for pT-hard bin to have the same pT hard bins for prompt and feed-down
+  Float_t pth[6] = {0.5, 5, 20., 40., 60., 1000.};
   Int_t ipt;
-  if      ((uidConfig / 2) % 10 < 7) ipt = 0;
-  else if ((uidConfig / 2) % 10 < 9) ipt = 1;
-  else                               ipt = 2;
+  if      (uidConfig % 100 < 80) ipt = 0; // 80% 
+  else if (uidConfig % 100 < 88) ipt = 1; // 8%
+  else if (uidConfig % 100 < 94) ipt = 2; // 6%
+  else if (uidConfig % 100 < 98) ipt = 3; // 4%
+  else                           ipt = 4; // 2% 
   pyth->SetPtHard(pth[ipt], pth[ipt + 1]);
 
   // Configuration of pythia8 decayer
@@ -67,9 +70,9 @@ AliGenerator *GeneratorCustom(TString opt = "")
     printf("Force decays using ForceHadronicD of AliDecayerPythia8\n");
     pyth->SetForceDecay(kHadronicDWithout4Bodies);
     if(channelOption == 1)
-        pyth->SetForceDecay(AliDecayer:kLcpK0S)
+        pyth->SetForceDecay(kLcpK0S);
     else if(channelOption == 2)
-        pyth->SetForceDecay(AliDecayer::kLcpKpi)
+        pyth->SetForceDecay(kLcpKpi);
   }else{
     printf("Force decays in the Config\n");
     //add D+ decays absent in PYTHIA8 decay table and set BRs from PDG for other
@@ -149,7 +152,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
   TFormula *formula = new TFormula("Signals","max(1.,120.*(x<5.)+80.*(1.-x/20.)*(x>5.)*(x<11.)+240.*(1.-x/13.)*(x>11.))");
   if(isEmbedding){
     ntimes=formula->Eval(bEvalFormula);
-    delete formula; formula=nullptr;
+    delete formula; formula=0x0;
   }
 
   ctl->AddGenerator(pyth, label[iprocess][channelOption], 1., formula, ntimes);

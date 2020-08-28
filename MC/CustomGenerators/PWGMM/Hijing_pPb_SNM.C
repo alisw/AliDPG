@@ -4,7 +4,7 @@ AliGenerator* GeneratorCustom()
 
   AliGenHijing *hijing = (AliGenHijing*)GeneratorHijing();
   hijing->SetImpactParameterRange(0., 100.);
-  hijing->SetShadowing(0);
+  //hijing->SetShadowing(0);
   hijing->SetNoElas(kTRUE);
   // Cocktail with slow nucleons generator DO NOT track spectators
   hijing->SetSpectators(0);

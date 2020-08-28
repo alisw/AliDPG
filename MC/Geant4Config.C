@@ -1,3 +1,5 @@
+#include "TG4Version.h"
+
 void Geant4Config()
 {
 
@@ -19,8 +21,19 @@ void Geant4Config()
   if ( ! gMC ) {
     TG4RunConfiguration* runConfiguration = NULL;
     TString configPhysList = "FTFP_INCLXX_EMV+optical";
-    if (g4PhysList == "BERT") configPhysList = "FTFP_BERT_EMV+optical";
-    else if (g4PhysList == "BERT+biasing") configPhysList = "FTFP_BERT_EMV+optical+biasing";
+    TString g4Version(GEANT4_VMC_RELEASE);
+    TObjArray* og4 = g4Version.Tokenize(".");
+    TObjString* str = (TObjString*)og4->At(0);
+    // use FTFP_BERT_EMV+optical+biasing as default if G4 version allows, or if requested
+    if (str->String().Atoi() >= 5 || g4Version.Contains("biasing") || g4PhysList == "BERT+biasing") configPhysList = "FTFP_BERT_EMV+optical+biasing";
+    else if (g4PhysList == "BERT") configPhysList = "FTFP_BERT_EMV+optical";
+    else if (g4PhysList == "INCLXX") configPhysList = "FTFP_INCLXX_EMV+optical";
+    else {
+      Printf("Wrong physics list passed, we cannot continue");
+      delete og4;
+      og4 = 0;
+      return;
+    }
     // check if monopole injection requested
     if(abs(pdgConfig)<60000000 || abs(pdgConfig)>=70000000){
       
@@ -29,7 +42,7 @@ void Geant4Config()
 						 "specialCuts+stackPopper+stepLimiter",
 						 true);
       geant4 = new TGeant4("TGeant4", 
-			   Form("The Geant4 Monte Carlo : %s", configPhysList.Data()), 
+			   Form("The Geant4 Monte Carlo : %s, EMV-EMCAL", configPhysList.Data()), 
 			   runConfiguration);
     }
     else{
@@ -38,6 +51,14 @@ void Geant4Config()
 	Printf("We cannot use the BERT+biasing with the monopoles, we will unset the pointer to geant4");
 	delete geant4;
 	geant4 = 0;
+	delete og4;
+	og4 = 0;
+	return;
+      }
+      else if (str->String().Atoi() < 4 || !g4Version.Contains("monopole")) {
+	Printf("We cannot use monopoles with the current version of G4: %s", str->Data());
+	delete og4;
+	og4 = 0;
 	return;
       }
       //decode mass, electric charge and magnetic charge:  pdgConfig= sign 6abcdefg -> mass= c.defg*10^g; el charge=sign a; mag. charge= sign b
@@ -45,7 +66,7 @@ void Geant4Config()
       Double_t eCh=(abs(pdgConfig)/pdgConfig)*abs(pdgConfig)/(int(1e6))%10;
       Double_t mCh=(abs(pdgConfig)/pdgConfig)*abs(pdgConfig)/(int(1e5))%10;
       pdgConfig=60000000;
-      Printf("\n PDG Code: %d, mass: %3.3f, el. charge: %d; mag. charge: %d",pdgConfig,mass,eCh,mCh);
+      Printf("\n PDG Code: %d, mass: %3.3f, el. charge: %1.0f; mag. charge: %1.0f",pdgConfig,mass,eCh,mCh);
 
       
       runConfiguration = new TG4RunConfiguration("geomRoot",
@@ -58,9 +79,12 @@ void Geant4Config()
       runConfiguration->SetParameter("monopoleMagCharge", mCh);
       
       geant4 = new TGeant4("TGeant4", 
-			   Form("The Geant4 Monte Carlo : %s+monopole", configPhysList.Data()), 
+			   Form("The Geant4 Monte Carlo : %s+monopole, EMV-EMCAL", configPhysList.Data()), 
 			   runConfiguration);
     }
+
+    delete og4;
+    og4 = 0;
     
     cout << "Geant4 has been created." << endl;
   } 

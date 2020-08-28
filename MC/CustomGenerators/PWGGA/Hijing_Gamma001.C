@@ -3,15 +3,40 @@ GeneratorCustom()
 {
   AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_Gamma001");
 
-  AliGenerator   *hij  = GeneratorHijing();
-  ctl->AddGenerator(hij,  "Hijing",         1.);
+  TString  simulation   = gSystem->Getenv("CONFIG_SIMULATION");  
+  Double_t bEvalFormula = -1;
+  Bool_t   isEmbedding  = kFALSE;
+  if ( !simulation.Contains("Embed") )
+  {
+    AliGenerator *hij = GeneratorHijing();
+    ctl->AddGenerator(hij, "Hijing", 1.);
+  }
+  else
+  {
+    isEmbedding=kTRUE;
+    
+    if ( bminConfig > bmaxConfig )
+      Fatal("Hijing_Gamma001_MCtoMCembedding","max impact parameter smaller than min impact parameter");
+    if ( bminConfig < 0. )
+      Fatal("Hijing_Gamma001_MCtoMCembedding","min impact parameter <0");
+    if ( bmaxConfig > 20 )
+      Fatal("Hijing_Gamma001_MCtoMCembedding","unphysical impact parameter");
+    
+    bEvalFormula=(bmaxConfig+bminConfig)/2.;
+  }
   
   // PCM
   TFormula* neutralsF  = new TFormula("neutrals",  "30. + 30. * exp(- 0.5 * x * x / 5.12 / 5.12)");
+  Int_t ntimes = 1;
+  if ( isEmbedding )
+  {
+    ntimes=neutralsF->Eval(bEvalFormula);
+    delete neutralsF; neutralsF=0x0;
+  }
   AliGenerator   *pi0  = GeneratorInjector(1, 111, 0., 50., -1.2, 1.2);
   AliGenerator   *eta  = GeneratorInjector(1, 221, 0., 50., -1.2, 1.2);
-  ctl->AddGenerator(pi0,  "Injector (pi0)", 1., neutralsF);
-  ctl->AddGenerator(eta,  "Injector (eta)", 1., neutralsF);
+  ctl->AddGenerator(pi0,  "Injector (pi0)", 1., neutralsF,ntimes);
+  ctl->AddGenerator(eta,  "Injector (eta)", 1., neutralsF,ntimes);
   
   // PHOS
   AliGenerator   *pi0a = GeneratorInjector(1, 111, 0., 50., -0.155, 0.155, 240., 260.);
