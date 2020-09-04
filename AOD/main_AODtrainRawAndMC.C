@@ -18,6 +18,7 @@ Int_t       iCollision          = 0;       // 0=pp, 1=Pb-Pb
 Int_t       run_flag            = 1500;    // year (1000, 2010 pp; 1100, 2011 pp; 1500, 2015)
 Int_t       year                = 2015;
 TString     periodName          = "LHC15n";
+TString     passName            = "pass1";
 Int_t       run_number          = 0;
 Bool_t      localRunning        = kFALSE;  // Missing environment vars will cause a crash; change it to kTRUE if running locally w/o env vars
 
@@ -95,6 +96,7 @@ const Char_t* CollisionSystemMC[kNSystem] =
 // Temporaries.
 void ProcessEnvironment(Int_t mergeCase);
 void ProcessEnvironmentMC();
+void SetRunFlagForFilterBits();
 void PrintSettings();
 void AODmerge();
 void AddAnalysisTasks(const char *cdb_location, Bool_t isMC);
@@ -268,7 +270,6 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
   UpdateFlags();
 
   PrintSettings();
-
   TString smode(analysis_mode);
   smode.ToUpper();  
   if(refilteringMode)
@@ -918,30 +919,21 @@ void ProcessEnvironment(Int_t mergeCase)
 	abort();
       }
 
-  //
-  // Run flag configuration
-  //
   if(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"))
-    {
-      year = atoi(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"));
-
-      if(year<2015)
-	run_flag =1100;
-      else
-	run_flag =1500;
-      if(year<=2010) 
-	{
-	  run_flag =1000;
-	  if(periodName.EqualTo("LHC10h"))
-	    run_flag = 1001;
-	}
-    }
+    year = atoi(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"));
   else
     if(!localRunning)
       {
 	printf(">>>>> Unknown anchor year system configuration ALIEN_JDL_LPMANCHORYEAR \n");
 	abort();
       }
+  
+  //
+  // Run flag configuration
+  //
+  if(gSystem->Getenv("ALIEN_JDL_LPMPASSNAME"))
+    passName = gSystem->Getenv("ALIEN_JDL_LPMPASSNAME");
+  SetRunFlagForFilterBits();
 
   //
   // Run number
@@ -1065,17 +1057,41 @@ void ProcessEnvironmentMC()
   //
   // Figure out the run_flag - still the "poor-man-solution" :)
   //
-  run_flag = 1500;
   if (gSystem->Getenv("CONFIG_YEAR"))
     year = atoi(gSystem->Getenv("CONFIG_YEAR"));
   if (gSystem->Getenv("CONFIG_PERIOD"))
     periodName = gSystem->Getenv("CONFIG_PERIOD");
-  if(year<2015)  run_flag =1100;
-  if(year<=2010) {
-    run_flag =1000;
-    if (periodName.EqualTo("LHC10h"))
-      run_flag = 1001;
-  }
+  if(gSystem->Getenv("ALIEN_JDL_LPMANCHORPASSNAME"))
+    passName = gSystem->Getenv("ALIEN_JDL_LPMANCHORPASSNAME");
+  SetRunFlagForFilterBits();
+
+}
+//________________________________________________________
+void SetRunFlagForFilterBits(){
+  
+  printf("Set filter bit flag for year %d, period %s, anchor production: %s\n",year,periodName.Data(),passName.Data());
+  if(year<2015)
+    run_flag =1100;
+  else
+    {
+      run_flag =1500;
+      // Set filter bit definition with chi2 cut at 2.5 
+      // for Run-2 data and MC samples processed with updated TPC error parameterization
+
+      if((periodName.EqualTo("LHC18q") || periodName.EqualTo("LHC18r")) && passName.EqualTo("pass3"))
+	run_flag = 1501;
+      else if(periodName.EqualTo("LHC15o") && passName.EqualTo("pass2"))
+	run_flag = 1501;
+      else if((periodName.EqualTo("LHC16q") || periodName.EqualTo("LHC16r") ||
+	       periodName.EqualTo("LHC16s") || periodName.EqualTo("LHC16t")) && passName.EqualTo("pass2"))
+	run_flag = 1501;
+    }
+  if(year<=2010) 
+    {
+      run_flag =1000;
+      if(periodName.EqualTo("LHC10h"))
+	run_flag = 1001;
+    }
 }
 
 //________________________________________________________
