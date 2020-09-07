@@ -1034,7 +1034,7 @@ GeneratorEPOSLHC(Bool_t pileup)
   if ( pileup ) nEventsEpos*=100;
   gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
   gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
-  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc.sh %s %d %d %f %d %f &> gen_eposlhc%d.log &",
+  gROOT->ProcessLine(Form(".! bash $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc.sh %s %d %d %f %d %f &> gen_eposlhc%d.log &",
 			  fifoname.Data(), nEventsEpos,
 			  projectileId, projectileEnergy,
 			  targetId, targetEnergy,pileup));
