@@ -1,9 +1,9 @@
 AliGenerator *GeneratorCustom(TString opt = "")
 {
 
-  const Int_t nOptions=5;
+  const Int_t nOptions=6;
   
-  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated","XicDedicated","LcTopKpiDedicated","LcTopK0sDedicated"};
+  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated"};
 
   Int_t channelOption = 0;
   for (Int_t iopt = 0; iopt < nOptions; iopt++ ) {
@@ -12,8 +12,8 @@ AliGenerator *GeneratorCustom(TString opt = "")
   }
 
   //Switches for prompt/nonprompt, sign of trigger particle, trigger particle
-  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132,4122,4122};
-  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232,0,0};
+  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132};
+  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0};
   Process_t process; //charm or beauty
   Int_t sign = 0; //Sign of trigger particle
   Int_t triggerPart = triggerParticleFirst[channelOption]; //trigger particle
@@ -62,6 +62,15 @@ AliGenerator *GeneratorCustom(TString opt = "")
     }
     else if(channelOption==4){
       pyth->SetForceDecay(kLcpK0S);
+    }
+    else if(channelOption==5){
+        if(AliDecayerPythia8::Class()->GetMethodWithPrototype("ForceDecayD", "int, int, int, int")) {
+            pyth->SetForceDecay(kXic0Semileptonic);
+        }
+        else {
+            printf("ERROR: AliRoot version does not contain option for Xic semileptonic decay!\n");
+            return 0x0;
+        }
     }
     else pyth->SetForceDecay(kHadronicDWithV0);
   }
