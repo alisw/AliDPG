@@ -47,7 +47,10 @@ AliGenerator *GeneratorCustom(TString opt = "")
   }
 
   AliGenPythiaPlus* pyth = (AliGenPythiaPlus*)GeneratorPythia8(kPythia8Tune_Monash2013);
-  pyth->SetTriggerParticle(sign * triggerPart, 999);
+  Double_t etaMax = 999.;
+  if(channelOption == 2)
+    etaMax = 2.;
+  pyth->SetTriggerParticle(sign * triggerPart, etaMax);
   pyth->SetProcess(process);
   pyth->SetHeavyQuarkYRange(-1.5, 1.5);
   // Pt transfer of the hard scattering (set for all cases)
