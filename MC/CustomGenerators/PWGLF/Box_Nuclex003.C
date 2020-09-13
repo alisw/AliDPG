@@ -12,5 +12,6 @@ GeneratorCustom()
     //
     ctl->AddGenerator(box, "anti-3He", 1.0);
     //
+    return ctl;
 
 }
