@@ -27,7 +27,7 @@ void OCDBRun3(int type=0)
   
   man->SetSpecificStorage("TPC/Calib/RecoParam","alien://Folder=/alice/simulation/2008/v4-15-Release/Residual/");
 
-  if (type=0) { // sim specific
+  if (type==0) { // sim specific
     man->SetSpecificStorage("TPC/Calib/ClusterParam","alien://Folder=/alice/simulation/2008/v4-15-Release/Ideal/");
     man->SetSpecificStorage("TPC/Calib/TimeGain","alien://Folder=/alice/simulation/2008/v4-15-Release/Ideal/");
     man->SetSpecificStorage("TPC/Calib/Correction","alien://Folder=/alice/simulation/2008/v4-15-Release/Ideal/");
