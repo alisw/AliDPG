@@ -61,21 +61,26 @@ AliGenerator *GeneratorCustom(TString opt = "")
   if(AliPythiaBase::Class()->GetMethodAny("Decayer")){
     printf("Force decays using ForceHadronicD of AliDecayerPythia8\n");   
     if(channelOption==3){
-          pyth->SetForceDecay(kLcpKpi);
+      pyth->SetForceDecay(kLcpKpi);
     }
     else if(channelOption==4){
       pyth->SetForceDecay(kLcpK0S);
     }
     else if(channelOption==5){
-        if(AliDecayerPythia8::Class()->GetMethodWithPrototype("ForceDecayD", "int, int, int, int")) {
-            pyth->SetForceDecay(kXic0Semileptonic);
-        }
-        else {
-            printf("ERROR: AliRoot version does not contain option for Xic semileptonic decay!\n");
-            return 0x0;
-        }
+      if(AliDecayerPythia8::Class()->GetMethod("ForceHadronicD", "0,0,0,1")) {
+        pyth->SetForceDecay(kXic0Semileptonic);
+      }
+      else {
+        printf("ERROR: AliRoot version does not contain option for Xic semileptonic decay!\n");
+        return 0x0;
+      }
     }
-    else pyth->SetForceDecay(kHadronicDWithV0);
+    else if(channelOption<2 && AliDecayerPythia8::Class()->GetMethod("ForceHadronicD", "0,0,0,0,1")){
+      pyth->SetForceDecay(kHadronicDWithout4BodiesDsPhiPi);
+    }
+    else {
+      pyth->SetForceDecay(kHadronicDWithV0);
+    }
   }
   else{
     printf("Force decays in the Config\n");
