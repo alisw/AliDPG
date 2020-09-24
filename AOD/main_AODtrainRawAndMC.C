@@ -114,13 +114,15 @@ TChain* CreateChainSingle(const char* xmlfile, const char *treeName);
 AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode);
 TString local_xmldataset   = "";
 Int_t runOnData = 0;       // Set to 1 if processing real data
-Int_t run_numbers[10] = {177580}; // Set the run range, for testing
+Int_t run_numbers[1000] = {0}; // Set the run range, for testing
+Int_t runCount =0;
+TString userProductionName = "";
 
 /**************************************************
  *            Refiltering settings                *
  **************************************************/
 
-TString     aliphysics_version = "v5-09-46-01-1"; // *CHANGE ME IF MORE RECENT IN GRID*
+TString     aliphysics_version = "v5-09-53e-01-1"; // *CHANGE ME IF MORE RECENT IN GRID*
 
 Int_t       iAODanalysis        = 0;      // AOD based analysis 
 // Maximum number of files per job (gives size of AOD)
@@ -236,6 +238,38 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
     else printf("Run AOD train for RAW (based on macro argument)\n");
   }
 
+  //
+  // re-filtering in user mode
+  //
+  if(gSystem->Getenv("USER_AOD_ALIEN_DATA_DIR"))
+  {
+      printf("Runnning in user mode\n");
+      useProductionMode=kFALSE;
+      runOnData=(isMC)?0:1;
+      if(gSystem->Getenv("USER_AOD_ALIEN_DATA_DIR"))
+          alien_datadir=gSystem->Getenv("USER_AOD_ALIEN_DATA_DIR");
+      if(gSystem->Getenv("USER_AOD_ALIEN_PASS") && runOnData)
+          data_pattern=Form("/%s%s", gSystem->Getenv("USER_AOD_ALIEN_PASS"), "/*/AliESDs.root");
+      
+      if(gSystem->Getenv("USER_AOD_ALIEN_DATA_DIR"))
+        if(isMC)
+        {
+            TString strTmp(gSystem->Getenv("USER_AOD_ALIEN_DATA_DIR"));
+            TObjArray* arr = strTmp.Tokenize("/");
+            userProductionName = ((TObjString*)arr->At(arr->GetLast()))->String();
+        }
+        else
+            userProductionName = gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG");
+            
+      grid_workdir=Form("AOD/AOD_%s", userProductionName.Data());
+      alien_outdir = "AOD";
+      
+      if(!isMC && gSystem->Getenv("USER_AOD_ALIEN_PASS"))
+          grid_workdir=Form("%s_%s", grid_workdir.Data(), gSystem->Getenv("USER_AOD_ALIEN_PASS"));
+      if(gSystem->Getenv("USER_AOD_ALIEN_RUN_NUMBERS"))
+          convertStrtoArr(gSystem->Getenv("USER_AOD_ALIEN_RUN_NUMBERS"));
+  }
+    
   if(isMC){
     useDBG=kTRUE;
     useMC=kTRUE;
@@ -286,8 +320,18 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
     visible_name       = Form("FILTER%s$2_$3", train_tag.Data()); //# FIXED #
     // Add train composition and other comments
     job_comment        = "Standard AODs + deltas";
-    job_tag            = Form("%s: %s", visible_name.Data(), job_comment.Data());
 
+    if(!useProductionMode && gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG"))
+    {
+      visible_name = Form("FILTER%s$2", train_tag.Data()); //# FIXED #
+      job_comment = Form("%s %s", job_comment.Data(), userProductionName.Data());
+      if(!isMC && gSystem->Getenv("USER_AOD_ALIEN_PASS"))
+      {
+        job_comment = Form("%s %s", job_comment.Data(), gSystem->Getenv("USER_AOD_ALIEN_PASS"));
+      }
+    }
+    job_tag = Form("%s: %s", visible_name.Data(), job_comment.Data());
+      
     // Main analysis train macro. If a configuration file is provided, all parameters
     // are taken from there but may be altered by CheckModuleFlags.
     //if (strlen(config_file) && !LoadConfig(config_file)) return;
@@ -1205,7 +1249,9 @@ AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode)
    {
       plugin->SetProductionMode();
       plugin->AddDataFile(data_collection);
-   }   
+   }
+   else
+       plugin->SetOutputToRunNo();
       
    if (!outputSingleFolder.IsNull())
    {
@@ -1234,7 +1280,7 @@ AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode)
          plugin->SetRunPrefix("000");
       }   
 //   if (!iAODanalysis) plugin->SetRunRange(run_range[0], run_range[1]);
-      for (Int_t i=0; i<10; i++)
+      for (Int_t i=0; i<=runCount; i++)
       {
          if (run_numbers[i]==0) break;
          plugin->AddRunNumber(run_numbers[i]);
@@ -1259,7 +1305,8 @@ AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode)
    plugin->SetDefaultOutputs(kTRUE);
    plugin->SetMergeExcludes(mergeExclude);
    plugin->SetMaxMergeFiles(maxMergeFiles);
-   plugin->SetNrunsPerMaster(nRunsPerMaster);
+   if(useProductionMode)
+     plugin->SetNrunsPerMaster(nRunsPerMaster);
 // Optionally define the files to be archived.
 //   plugin->SetOutputArchive("log_archive.zip:stdout,stderr@ALICE::NIHAM::File root_archive.zip:AliAOD.root,AOD.tag.root@ALICE::NIHAM::File");
    
@@ -1351,13 +1398,53 @@ AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode)
    plugin->SetSplitMode("se");
    plugin->SetNumberOfReplicas(outputReplicas);
    
+/*
    ((TGridJDL*)plugin->GetGridJDL())->AddToInputSandbox("LF:/alice/validation/aodmerge/extraValidation.sh");
    // This may be added as custom file, iterating over the actual file list to be merged in this macro
    //
    ((TGridJDL*)plugin->GetGridJDL())->AddToInputSandbox("LF:/alice/validation/aodmerge/validation.rc");
+*/
 
    // save the logs for standard central refiltering productions
    plugin->SetKeepLogs();
 
    return plugin;
+}
+
+//______________________________________________________________________________
+// Function to convert a string to
+// integer array
+void convertStrtoArr(string str)
+{
+    // get length of string str
+    int str_length = str.length();
+    
+    Int_t j = 0, i;
+  
+    // Traverse the string
+    for (i = 0; str[i] != '\0'; i++)
+    {
+  
+        // if str[i] is ', ' then split
+        if (str[i] == ',')
+            continue;
+         if (str[i] == ' '){
+            // Increment j to point to next
+            // array location
+            j++;
+        }
+        else
+        {
+            // subtract str[i] by 48 to convert it to int
+            // Generate number by multiplying 10 and adding
+            // (int)(str[i])
+            run_numbers[j] = run_numbers[j] * 10 + (str[i] - 48);
+        }
+    }
+  
+    cout << "Registering runs = ";
+    for (i = 0; i <= j; i++)
+        cout << run_numbers[i] << " ";
+    cout << endl;
+    runCount =j;
 }
