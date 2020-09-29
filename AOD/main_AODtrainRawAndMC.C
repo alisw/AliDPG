@@ -103,6 +103,7 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC);
 Bool_t LoadCommonLibraries();
 Bool_t LoadAnalysisLibraries();
 Bool_t LoadLibrary(const char *);
+void convertStrtoArr(string);
 TChain *CreateChain();
 const char *cdbPath = "raw://";
 
@@ -252,6 +253,7 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
           data_pattern=Form("/%s%s", gSystem->Getenv("USER_AOD_ALIEN_PASS"), "/*/AliESDs.root");
       
       if(gSystem->Getenv("USER_AOD_ALIEN_DATA_DIR"))
+      {
         if(isMC)
         {
             TString strTmp(gSystem->Getenv("USER_AOD_ALIEN_DATA_DIR"));
@@ -260,6 +262,7 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
         }
         else
             userProductionName = gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG");
+      }
             
       grid_workdir=Form("AOD/AOD_%s", userProductionName.Data());
       alien_outdir = "AOD";
