@@ -52,6 +52,8 @@ AliGenerator *GeneratorCustom(TString opt = "")
   pyth->SetMaximumLifetime(0.7);
   if(channelOption >= 1) {
     pyth->SetTriggerParticle(sign * triggerPart, 999);
+    if(AliGenPythiaPlus::Class()->GetMethodAny("SetTriggerY"))
+      pyth->SetTriggerY(1.0);
   }
 
   // Pt transfer of the hard scattering (5 different cases)
