@@ -59,8 +59,8 @@ AliGenerator *GeneratorCustom(TString opt = "")
   pyth->SetTriggerParticle(sign * triggerPart, etaMax);
   pyth->SetProcess(process);
   pyth->SetHeavyQuarkYRange(-1.5, 1.5);
-  // Pt transfer of the hard scattering (set for all cases)
-  pyth->SetPtHard(pthardminConfig, pthardmaxConfig);
+  if(AliGenPythiaPlus::Class()->GetMethodAny("SetTriggerY"))
+    pyth->SetTriggerY(1.0);
 
   // Configuration of decayer
   // Lc decays
