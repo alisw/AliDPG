@@ -519,8 +519,7 @@ void GeneratorConfig(Int_t tag)
     TObjArray  *oa         = gentrigstr.Tokenize(":");
     TObjString *pwgtrig    = (TObjString*) oa->At(0);
     TObjString *pwgtriggen = (TObjString*) oa->At(1);
-    // In case we manage to pass an option to the function, not possible now
-    //TObjString *pwgtrigopt = (TObjString*) oa->At(2);
+    TObjString *pwgtrigopt = (TObjString*) oa->At(2);
     
     if (!pwgtrig || !pwgtriggen) {
       printf("ERROR: problem parsing CONFIG_GENTRIGGER: %s \n", gentrigstr.Data());
@@ -541,6 +540,10 @@ void GeneratorConfig(Int_t tag)
       abort();
       return;
     }
+    
+    // Pass the parameters to be used by the external trigger via an environmental variable
+    if ( pwgtrigopt && pwgtrigopt->GetString()!="" ) 
+      gSystem->Setenv("CONFIG_GENTRIGGERPARAM",pwgtrigopt->GetString());
     
     gg_tmp_gen = gen;
     gROOT->ProcessLine("GenTriggerCustom(gg_tmp_gen);");
