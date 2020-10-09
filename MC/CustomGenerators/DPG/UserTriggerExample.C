@@ -19,7 +19,7 @@
 Bool_t UserTriggerFunction(AliStack *stack)
 {
   printf("____________________________\n");
-  printf("USER TRIGGER IMPLEMENTATION \n");
+  printf("USER TRIGGER IMPLEMENTATION EXAMPLE\n");
 
   Int_t nTracks  = stack->GetNtrack();
   printf("n Tracks = %i \n",nTracks);
@@ -39,7 +39,7 @@ Bool_t UserTriggerFunction(AliStack *stack)
 //------
 /// Main, pass the generator and set the user trigger
 //------
-void UserTrigger(AliGenerator * generator)
+void GenTriggerCustom(AliGenerator * generator)
 {
   Bool_t (*funcUserTrigger)(AliStack*) = UserTriggerFunction;
   

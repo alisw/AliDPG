@@ -494,6 +494,61 @@ void GeneratorConfig(Int_t tag)
     }
   }
   
+  // Externally defined event trigger
+  
+  TString gentrigstr = gSystem->Getenv("CONFIG_GENTRIGGER");
+
+  // Custom external trigger
+  if ( gentrigstr == "Custom")
+  {
+    if ((gROOT->LoadMacro("GenTriggerCustom.C")) != 0) {
+      printf("ERROR: cannot find GenTriggerCustom.C\n");
+      abort();
+      return;
+    }
+        
+    // Load and compile macro
+    gROOT->LoadMacro("GenTriggerCustom.C+");
+    
+    gg_tmp_gen = gen;
+    gROOT->ProcessLine("GenTriggerCustom(gg_tmp_gen);");
+  }
+  else if (gentrigstr!="")
+  {
+    // PWG
+    TObjArray  *oa         = gentrigstr.Tokenize(":");
+    TObjString *pwgtrig    = (TObjString*) oa->At(0);
+    TObjString *pwgtriggen = (TObjString*) oa->At(1);
+    // In case we manage to pass an option to the function, not possible now
+    //TObjString *pwgtrigopt = (TObjString*) oa->At(2);
+    
+    if (!pwgtrig || !pwgtriggen) {
+      printf("ERROR: problem parsing CONFIG_GENTRIGGER: %s \n", gentrigstr.Data());
+      abort();
+      return;
+    }
+    
+    // load PWG custom trigger generator macro
+    TString pwgtrigmacro = "$ALIDPG_ROOT/MC/CustomGenerators/";
+    pwgtrigmacro += pwgtrig->GetString();
+    pwgtrigmacro += "/";
+    pwgtrigmacro += pwgtriggen->GetString();
+    pwgtrigmacro += ".C+";
+    
+    // Load and compile macro
+    if ( ( gROOT->LoadMacro(pwgtrigmacro.Data() ) ) != 0) {
+      printf("ERROR: cannot find %s \n", pwgtrigmacro.Data());
+      abort();
+      return;
+    }
+    
+    gg_tmp_gen = gen;
+    gROOT->ProcessLine("GenTriggerCustom(gg_tmp_gen);");
+  }
+  
+  // ////////////////////////////
+  
+  
   gen->Init();
   printf(">>>>> Generator Configuration: %s \n", comment.Data());
   // Set the trigger configuration: proton-proton
