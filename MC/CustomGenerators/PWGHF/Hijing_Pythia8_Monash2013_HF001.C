@@ -59,14 +59,13 @@ AliGenerator *GeneratorCustom(TString opt = "")
   // Pt transfer of the hard scattering (5 different cases)
   // resulting pT shape tuned to be similar to pythia6 MC (Hijing_HF001.C)
   // at least one even and one odd uidConfig for pT-hard bin to have the same pT hard bins for prompt and feed-down
-  Float_t pth[7] = {0.5, 5, 10., 20., 40., 60., 200.};
+  Float_t pth[6] = {0., 3.5, 10., 20., 40., 60.};
   Int_t ipt;
-  if      (uidConfig % 200 < 50)  ipt = 0; // 25% 
-  else if (uidConfig % 200 < 170) ipt = 1; // 60%
-  else if (uidConfig % 200 < 186) ipt = 2; // 8%
-  else if (uidConfig % 200 < 194) ipt = 3; // 4%
-  else if (uidConfig % 200 < 198) ipt = 4; // 2%
-  else                            ipt = 5; // 1% 
+  if      (uidConfig % 100 < 74) ipt = 0; // 74% 
+  else if (uidConfig % 100 < 92) ipt = 1; // 18%
+  else if (uidConfig % 100 < 96) ipt = 2; // 4%
+  else if (uidConfig % 100 < 98) ipt = 3; // 2%
+  else                           ipt = 4; // 2%
   pyth->SetPtHard(pth[ipt], pth[ipt + 1]);
 
   // Configuration of pythia8 decayer
