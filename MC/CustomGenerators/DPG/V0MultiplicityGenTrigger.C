@@ -7,10 +7,11 @@
 /// Count primary particles in V0 acceptance above and below a pT cut, and accept the event
 /// when multiplicity is the requested one.
 ///
-/// Pass to dpgsim.sh:  --generator Pythia6 or EPOSLHC or generators using AliGenExtFile
-///                --gentrigger DPG:V0MultiplicityGenTrigger (use default cut paramters)
-///                --gentrigger DPG:V0MultiplicityGenTrigger:xx_yy_zz ( count particles using as cut nMin = xx,  ptMin = yy,  ptMax = zz)
-///                 It is possible to specify only xx or xx_yy or xx_yy_zz, if you want to set zz, you need to set the others.
+/// Pass to dpgsim.sh: --generator Pythia6 or EPOSLHC or generators using AliGenExtFile
+///                    --gentrigger DPG:V0MultiplicityGenTrigger (use default cut paramters)
+///                    --gentrigger DPG:V0MultiplicityGenTrigger:xx_yy_zz ( count particles using as cut nMin = xx,  ptMin = yy,  ptMax = zz)
+/// It is possible to specify only xx or xx_yy or xx_yy_zz, if you want to set zz, you need to set the others, 
+/// if you want to set yy, you need to set xx
 ///
 /// \author Luca Micheletti <luca.micheletti@cern.ch>
 /// \author Gustavo Conesa Balbastre <Gustavo.Conesa.Balbastre@cern.ch>
@@ -26,7 +27,6 @@
 
 //------
 /// User trigger logic to accept the event
-/// Here simple multiplicity selection
 //------
 Bool_t UserTriggerFunction(AliStack *stack)
 {
@@ -40,11 +40,10 @@ Bool_t UserTriggerFunction(AliStack *stack)
   TString param = gSystem->Getenv("CONFIG_GENTRIGGERPARAM");
   if ( param!="" )
   {
-    //nMin = atoi(gSystem->Getenv("CONFIG_GENTRIGGERPARAM"));
     TObjArray *oa = param.Tokenize("_");
-    if ( oa->At(0) ) nMin  = atoi(((TObjString*) oa->At(0))->GetString());
-    if ( oa->At(1) ) ptMin = atof(((TObjString*) oa->At(1))->GetString());
-    if ( oa->At(2) ) ptMax = atof(((TObjString*) oa->At(2))->GetString());
+    if ( oa->At(0) ) nMin  = atoi( ( (TObjString*) oa->At(0) )->GetString() );
+    if ( oa->At(1) ) ptMin = atof( ( (TObjString*) oa->At(1) )->GetString() );
+    if ( oa->At(2) ) ptMax = atof( ( (TObjString*) oa->At(2) )->GetString() );
   }
   
   printf("____________________________\n");
