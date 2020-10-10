@@ -1,6 +1,6 @@
 ///
 /// \file V0MultiplicityGenTrigger.C
-/// \brief Example of user defined trigger, to be called by main CustomGenerator macro
+/// \brief Select generated events depending on particle multiplicity on V0 acceptance within pT cuts
 /// 
 /// Selection of events depending on generated particle multiplicity on V0 acceptance
 /// Extracted from AliAnalysisTaskGenMCRidge::GetMultiplicity()
