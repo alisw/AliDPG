@@ -1,5 +1,5 @@
 ///
-/// \file UserTrigger.C
+/// \file UserTriggerExample.C
 /// \brief Example of user defined trigger, to be called by main CustomGenerator macro
 /// 
 /// Example of user trigger with simple multiplicity event selection.
