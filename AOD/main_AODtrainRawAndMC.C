@@ -1125,12 +1125,12 @@ void SetRunFlagForFilterBits(){
       // Set filter bit definition with chi2 cut at 2.5 
       // for Run-2 data and MC samples processed with updated TPC error parameterization
 
-      if((periodName.EqualTo("LHC18q") || periodName.EqualTo("LHC18r")) && passName.EqualTo("pass3"))
+      if((periodName.EqualTo("LHC18q") || periodName.EqualTo("LHC18r")) && passName.EndsWith("pass3"))
 	run_flag = 1501;
-      else if(periodName.EqualTo("LHC15o") && passName.EqualTo("pass2"))
+      else if(periodName.EqualTo("LHC15o") && passName.EndsWith("pass2"))
 	run_flag = 1501;
       else if((periodName.EqualTo("LHC16q") || periodName.EqualTo("LHC16r") ||
-	       periodName.EqualTo("LHC16s") || periodName.EqualTo("LHC16t")) && passName.EqualTo("pass2"))
+	       periodName.EqualTo("LHC16s") || periodName.EqualTo("LHC16t")) && passName.EndsWith("pass2"))
 	run_flag = 1501;
     }
   if(year<=2010) 
