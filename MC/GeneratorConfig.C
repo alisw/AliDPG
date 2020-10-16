@@ -1087,9 +1087,18 @@ GeneratorEPOSLHC(Bool_t pileup)
   // run CRMC
   TString fifoname = "crmceventfifo";
   if ( pileup ) fifoname = "crmceventfifo_pileup";
-
-  Int_t nEventsEpos = neventsConfig;
-  if ( pileup ) nEventsEpos*=100;
+  
+  // Need more events for triggered productions
+  // remember to pass via dpgsim "--eventsinPoolFrac 100"
+  Float_t extraEvents =  1;
+  if ( gSystem->Getenv("CONFIG_NEVENTSPOOLFRAC") && !pileup )
+    extraEvents = atoi(gSystem->Getenv("CONFIG_NEVENTSPOOLFRAC"));
+  
+  Int_t nEventsEpos = neventsConfig*extraEvents;
+  if ( pileup ) nEventsEpos*=100; // Should we keep this hardcoded or pass another param via dpgsim?
+  
+  printf("*** Generate %d x %2.1f x 100*%d = %d EPOS events, pile-up? %d\n",neventsConfig,extraEvents,pileup,nEventsEpos);
+  
   gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
   gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
   gROOT->ProcessLine(Form(".! bash $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc.sh %s %d %d %f %d %f &> gen_eposlhc%d.log &",

@@ -81,6 +81,7 @@ function COMMAND_HELP(){
     echo "--energy <energy>                         Centre-of-mass energy" 
     echo "--system <system>             (mandatory) Collision system"
     echo "--trigger <triggerconfig>                 Configuration of trigger inputs: ocdb, Pb-Pb (dummy configuration), p-p (dummy configuration), MUON or Custom.cfg configuration (needs Custom.cfg file)"
+    echo "--eventsinPoolFrac                        Generate n times more MC events at generator level pool than set with --nevents, needed for EPOS"                                            
     echo ""
     echo "More help can be found here: https://twiki.cern.ch/twiki/bin/view/ALICE/AliDPGMonteCarloTutorial"
     echo ""
@@ -180,6 +181,7 @@ function runBenchmark(){
 }
 
 CONFIG_NEVENTS="200"
+CONFIG_NEVENTSPOOLFRAC="1"
 CONFIG_NBKG=""
 CONFIG_BGEVDIR=""
 CONFIG_SEED="0"
@@ -422,6 +424,10 @@ while [ ! -z "$1" ]; do
         CONFIG_NEVENTS="$1"
 	export CONFIG_NEVENTS
         shift
+    elif [ "$option" = "--eventsinPoolFrac" ]; then
+        CONFIG_NEVENTSPOOLFRAC="$1"
+  export CONFIG_NEVENTSPOOLFRAC
+        shift        
     elif [ "$option" = "--nbkg" ]; then
         CONFIG_NBKG="$1"
 	export CONFIG_NBKG
@@ -868,6 +874,7 @@ echo "Generator........ $CONFIG_GENERATOR"
 echo "Gen. evt. trig... $CONFIG_GENTRIGGER"
 echo "Process.......... $CONFIG_PROCESS"
 echo "No. Events....... $CONFIG_NEVENTS"
+echo "x nEvents Pool... $CONFIG_NEVENTSPOOLFRAC"
 echo "Unique-ID........ $CONFIG_UID"
 echo "MC seed.......... $CONFIG_SEED"
 echo "PROCID........... $CONFIG_PROCID"
