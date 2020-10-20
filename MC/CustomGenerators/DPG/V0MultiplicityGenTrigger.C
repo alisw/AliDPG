@@ -9,9 +9,10 @@
 ///
 /// Pass to dpgsim.sh: --generator Pythia6 or EPOSLHC or generators using AliGenExtFile
 ///                    --gentrigger DPG:V0MultiplicityGenTrigger (use default cut paramters)
-///                    --gentrigger DPG:V0MultiplicityGenTrigger:xx_yy_zz ( count particles using as cut nMin = xx,  ptMin = yy,  ptMax = zz)
+///                    --gentrigger DPG:V0MultiplicityGenTrigger:xx_yy_zz_dd ( count particles using as cut nMin = xx,  ptMin = yy,  ptMax = zz, debug = dd)
 /// It is possible to specify only xx or xx_yy or xx_yy_zz, if you want to set zz, you need to set the others, 
 /// if you want to set yy, you need to set xx
+/// Debug is 0 or 1 to enable debugging prints.
 ///
 /// \author Luca Micheletti <luca.micheletti@cern.ch>
 /// \author Gustavo Conesa Balbastre <Gustavo.Conesa.Balbastre@cern.ch>
@@ -34,7 +35,8 @@ Bool_t UserTriggerFunction(AliStack *stack)
   Int_t    nMin = 103; 
   Float_t ptMin = 0; 
   Float_t ptMax = 1.e4; 
-  
+  Bool_t  debug = kFALSE;
+ 
   // Recover multiplicity cut from environmental variable
   
   TString param = gSystem->Getenv("CONFIG_GENTRIGGERPARAM");
@@ -44,11 +46,15 @@ Bool_t UserTriggerFunction(AliStack *stack)
     if ( oa->At(0) ) nMin  = atoi( ( (TObjString*) oa->At(0) )->GetString() );
     if ( oa->At(1) ) ptMin = atof( ( (TObjString*) oa->At(1) )->GetString() );
     if ( oa->At(2) ) ptMax = atof( ( (TObjString*) oa->At(2) )->GetString() );
+    if ( oa->At(3) ) debug = atoi( ( (TObjString*) oa->At(3) )->GetString() );
   }
   
-  printf("____________________________\n");
-  printf("USER TRIGGER IMPLEMENTATION: nTrack >= %d, %2.2f <= pT < %2.2f GeV/c \n",nMin, ptMin, ptMax);
-  
+  if ( debug )
+  {
+    printf("____________________________\n");
+    printf("USER TRIGGER IMPLEMENTATION: nTrack >= %d, %2.2f <= pT < %2.2f GeV/c \n",nMin, ptMin, ptMax);
+  }
+
   Int_t nTracks  = stack->GetNtrack();
   
   Int_t ntrk = 0;
@@ -77,7 +83,8 @@ Bool_t UserTriggerFunction(AliStack *stack)
       ntrk++;
   }
 
-  printf("n Tracks = %i n_prim = %i n_primchg|V0_acc = %i \n", nTracks, nprim, ntrk);
+  if ( debug )
+    printf("n Tracks = %i n_prim = %i n_primchg|V0_acc = %i \n", nTracks, nprim, ntrk);
 
   // https://alice.its.cern.ch/jira/browse/ALIROOT-8533?filter=10512
   //
@@ -91,15 +98,14 @@ Bool_t UserTriggerFunction(AliStack *stack)
   // So I think maybe we can just ask V0M in the particle level(Nch_V0M) >=103 or 100 
   // or sharp cut on each generators.
  
-  
   if ( ntrk >= nMin )
   {
-    printf("\t accepted!\n");
+    if ( debug ) printf("\t accepted!\n");
     return kTRUE;
   }
   else
   {
-    printf("\t rejected!\n");
+    if ( debug ) printf("\t rejected!\n");
     return kFALSE;
   }
 }
