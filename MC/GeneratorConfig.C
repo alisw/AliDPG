@@ -1097,7 +1097,7 @@ GeneratorEPOSLHC(Bool_t pileup)
   Int_t nEventsEpos = neventsConfig*extraEvents;
   if ( pileup ) nEventsEpos*=100; // Should we keep this hardcoded or pass another param via dpgsim?
   
-  printf("*** Generate %d x %2.1f x 100*%d = %d EPOS events, pile-up? %d\n",neventsConfig,extraEvents,pileup,nEventsEpos);
+  printf("*** Generate %d x %2.1f x 100*%d = %d EPOS events\n",neventsConfig,extraEvents,pileup,nEventsEpos);
   
   gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
   gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
