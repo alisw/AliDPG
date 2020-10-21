@@ -609,6 +609,7 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
       taskWDV -> SetupLooseVertexing();
       // 15/02/2020: comment the call to AddStandardV0HypSel while debugging it
       //    if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("AddStandardV0HypSel")) taskWDV -> AddStandardV0HypSel();
+      taskWDV -> SetRevertexAllEvents(kTRUE); // needed for Pb-Pb starting from v5-09-54, since some events are tagged as rejected by AliMultSelectionTask
     }
   }
   
