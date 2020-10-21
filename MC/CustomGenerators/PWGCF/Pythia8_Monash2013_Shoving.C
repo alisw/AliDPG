@@ -1,9 +1,11 @@
 AliGenerator *
-GeneratorCustom(TString opt = "")
+GeneratorCustom(TString sAmplitude = "3")
 {
   AliGenerator *py8 = GeneratorPythia8(kPythia8Tune_Monash2013);
   
-  Float_t fgAmplitude = 4;
+  Float_t fgAmplitude = atof(sAmplitude);
+  
+  printf("*** SET Pythia8 Monash Shobing Ropewalk:gAmplitude = %lf\n",fgAmplitude);
   
   (AliPythia8::Instance())->ReadString("SoftQCD:nonDiffractive = on");
   (AliPythia8::Instance())->ReadString("SoftQCD:singleDiffractive = on");
