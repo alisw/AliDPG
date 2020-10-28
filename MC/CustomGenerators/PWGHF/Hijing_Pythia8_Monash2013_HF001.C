@@ -71,12 +71,17 @@ AliGenerator *GeneratorCustom(TString opt = "")
   // Configuration of pythia8 decayer
   if(AliPythiaBase::Class()->GetMethodAny("Decayer")){
     printf("Force decays using ForceHadronicD of AliDecayerPythia8\n");
+    TList *argsList = AliDecayerPythia8::Class()->GetMethodAny("ForceHadronicD")->GetListOfMethodArgs();
+    int argsNum = 0;
+    if(argsList)
+        argsNum = argsList->GetSize();
+
     pyth->SetForceDecay(kHadronicDWithout4Bodies);
     if(channelOption == 1)
       pyth->SetForceDecay(kLcpK0S);
     else if(channelOption == 2)
       pyth->SetForceDecay(kLcpKpi);
-    else if(channelOption == 3 && AliDecayerPythia8::Class()->GetMethod("ForceHadronicD", "0,0,0,0,1"))
+    else if(channelOption == 3 && argsNum>=5)
       pyth->SetForceDecay(kHadronicDWithout4BodiesDsPhiPi);
   }else{
     printf("Force decays in the Config\n");
