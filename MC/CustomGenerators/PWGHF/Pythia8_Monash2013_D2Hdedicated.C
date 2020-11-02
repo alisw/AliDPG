@@ -1,9 +1,9 @@
 AliGenerator *GeneratorCustom(TString opt = "")
 {
 
-  const Int_t nOptions=6;
+  const Int_t nOptions=7;
   
-  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated"};
+  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated", "OmegacDedicated"};
 
   Int_t channelOption = 0;
   for (Int_t iopt = 0; iopt < nOptions; iopt++ ) {
@@ -12,8 +12,8 @@ AliGenerator *GeneratorCustom(TString opt = "")
   }
 
   //Switches for prompt/nonprompt, sign of trigger particle, trigger particle
-  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132};
-  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0};
+  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132, 4332};
+  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0, 0};
   Process_t process; //charm or beauty
   Int_t sign = 0; //Sign of trigger particle
   Int_t triggerPart = triggerParticleFirst[channelOption]; //trigger particle
@@ -56,12 +56,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
   if(AliGenPythiaPlus::Class()->GetMethodAny("SetTriggerY"))
     pyth->SetTriggerY(1.0);
 
-  // Configuration of decayer (depending on AliRoot version)
-  TList *argsList = AliDecayerPythia8::Class()->GetMethodAny("ForceHadronicD")->GetListOfMethodArgs();
-  int argsNum = 0;
-  if(argsList)
-    argsNum = argsList->GetSize();
-
+  // Configuration of decayer
   // Lc decays
   if(AliPythiaBase::Class()->GetMethodAny("Decayer")){
     printf("Force decays using ForceHadronicD of AliDecayerPythia8\n");   
@@ -72,7 +67,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
       pyth->SetForceDecay(kLcpK0S);
     }
     else if(channelOption==5){
-      if(argsNum>=4) {
+      if(AliDecayerPythia8::Class()->GetMethod("ForceHadronicD", "0,0,0,1")) {
         pyth->SetForceDecay(kXic0Semileptonic);
       }
       else {
@@ -80,7 +75,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
         return 0x0;
       }
     }
-    else if(channelOption<2 && argsNum>=5){
+    else if(channelOption<2 && AliDecayerPythia8::Class()->GetMethod("ForceHadronicD", "0,0,0,0,1")){
       pyth->SetForceDecay(kHadronicDWithout4BodiesDsPhiPi);
     }
     else {
@@ -122,6 +117,9 @@ AliGenerator *GeneratorCustom(TString opt = "")
     (AliPythia8::Instance())->ReadString("4232:onIfMatch = 3312 211 211");
     // Xic0 -> Xi- pi+
     (AliPythia8::Instance())->ReadString("4132:onIfMatch = 3312 211");
+    // Omegac0 -> Omega- pi+
+    (AliPythia8::Instance())->ReadString("4332:onMode = off");
+    (AliPythia8::Instance())->ReadString("4332:onIfMatch = 3334 211");
     
     //add Lc decays absent in PYTHIA8 decay table and set BRs from PDG for others
     (AliPythia8::Instance())->ReadString("4122:oneChannel = 1 0.0196 100 2212 -313");
