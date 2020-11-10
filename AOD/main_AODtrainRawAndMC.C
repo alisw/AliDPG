@@ -727,8 +727,18 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
     {
 
       Int_t configHF=0;
+      TString specialConfig="";
       if(iCollision == kPbPb || iCollision == kXeXe) configHF=1;
-      AliAnalysisTaskSEVertexingHF *taskvertexingHF = AddTaskVertexingHF(configHF,train_name,"",run_number,periodName);
+      if(isMC && iCollision == kPbPb && year==2018){
+	Float_t bmin=0;
+	Float_t bmax=20;
+	if (gSystem->Getenv("CONFIG_BMIN")) bmin = atof(gSystem->Getenv("CONFIG_BMIN"));
+	if (gSystem->Getenv("CONFIG_BMAX")) bmax = atof(gSystem->Getenv("CONFIG_BMAX"));
+	if(bmin<6.5 &&  bmax<6.5) specialConfig="$ALICE_PHYSICS/PWGHF/vertexingHF/ConfigVertexingHF_Pb_AllCent_NoLS_PIDLc_PtDepSel_LcMinpt1_DsMinPt15_2018opt_Central.C";
+	if(bmin>5) specialConfig="$ALICE_PHYSICS/PWGHF/vertexingHF/ConfigVertexingHF_Pb_AllCent_NoLS_PIDLc_PtDepSel_LcMinpt1_DsMinPt15_2018opt_SemiCentral.C";
+	if(specialConfig.Length()>0) printf("Special config file will be used for VertexingHF: %s\n",specialConfig.Data());
+      }
+      AliAnalysisTaskSEVertexingHF *taskvertexingHF = AddTaskVertexingHF(configHF,train_name,specialConfig,run_number,periodName);
       // Now we need to keep in sync with the ESD filter
       if (!taskvertexingHF) ::Warning("AnalysisTrainNew", "AliAnalysisTaskSEVertexingHF cannot run for this train conditions - EXCLUDED");
       else mgr->RegisterExtraFile("AliAOD.VertexingHF.root");
