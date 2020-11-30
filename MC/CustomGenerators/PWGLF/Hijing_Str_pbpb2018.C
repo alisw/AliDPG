@@ -27,7 +27,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
   if(isEmbedding){
     if     ( bEvalFormula>0 && bEvalFormula<6 ) iinj = 0;
     else if( bEvalFormula>5 && bEvalFormula<9 ) iinj = 1;
-    else if( bEvalFormula>5.5&& bEvalFormula<11.5 ) iinj = 2;
+    else if( bEvalFormula>7.5&& bEvalFormula<12.5 ) iinj = 2;
     else if( bEvalFormula>11 && bEvalFormula<15) iinj = 3;
   }
   else{
