@@ -28,6 +28,7 @@ function COMMAND_HELP(){
     echo "--mode <mode>                 (mandatory) Running mode (ocdb,sim,rec,qa,aod,full,Muon,MuonOnly,Run3,extractembedded)" 
     echo "--run <run>                   (mandatory) Anchor run number"    
     echo "--generator <generatorConfig>             Mandatory for sim mode, choose: general purpose, PWG specific, or Custom (see TWiki)"
+    echo "--gentrigger <generatorTriggerConfig>     Generator event selected by external trigger PWG specific, or Custom  (see TWiki)"
     echo ""
     echo "Monte Carlo generation control:"
     echo "--nevents <numberOfEvents>                Number of events to be generated in the simulation stage"
@@ -80,6 +81,7 @@ function COMMAND_HELP(){
     echo "--energy <energy>                         Centre-of-mass energy" 
     echo "--system <system>             (mandatory) Collision system"
     echo "--trigger <triggerconfig>                 Configuration of trigger inputs: ocdb, Pb-Pb (dummy configuration), p-p (dummy configuration), MUON or Custom.cfg configuration (needs Custom.cfg file)"
+    echo "--eventsinPoolFrac                        Generate n times more MC events at generator level pool than set with --nevents, needed for EPOS"                                            
     echo ""
     echo "More help can be found here: https://twiki.cern.ch/twiki/bin/view/ALICE/AliDPGMonteCarloTutorial"
     echo ""
@@ -179,10 +181,12 @@ function runBenchmark(){
 }
 
 CONFIG_NEVENTS="200"
+CONFIG_NEVENTSPOOLFRAC="1"
 CONFIG_NBKG=""
 CONFIG_BGEVDIR=""
 CONFIG_SEED="0"
 CONFIG_GENERATOR=""
+CONFIG_GENTRIGGER=""
 CONFIG_BACKGROUND=""
 OVERRIDE_BKG_PATH_RECORD=""
 CONFIG_PROCESS=""
@@ -276,6 +280,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--generator" ]; then
         CONFIG_GENERATOR="$1"
 	export CONFIG_GENERATOR
+        shift
+    elif [ "$option" = "--gentrigger" ]; then
+        CONFIG_GENTRIGGER="$1"
+  export CONFIG_GENTRIGGER
         shift
     elif [ "$option" = "--genvertex" ]; then
         CONFIG_GENVERT="$1"
@@ -416,6 +424,10 @@ while [ ! -z "$1" ]; do
         CONFIG_NEVENTS="$1"
 	export CONFIG_NEVENTS
         shift
+    elif [ "$option" = "--eventsinPoolFrac" ]; then
+        CONFIG_NEVENTSPOOLFRAC="$1"
+  export CONFIG_NEVENTSPOOLFRAC
+        shift        
     elif [ "$option" = "--nbkg" ]; then
         CONFIG_NBKG="$1"
 	export CONFIG_NBKG
@@ -859,8 +871,10 @@ echo "Energy........... $CONFIG_ENERGY"
 echo "Detector mask.... $CONFIG_DETECTORMASK"
 echo "============================================"
 echo "Generator........ $CONFIG_GENERATOR"
+echo "Gen. evt. trig... $CONFIG_GENTRIGGER"
 echo "Process.......... $CONFIG_PROCESS"
 echo "No. Events....... $CONFIG_NEVENTS"
+echo "x nEvents Pool... $CONFIG_NEVENTSPOOLFRAC"
 echo "Unique-ID........ $CONFIG_UID"
 echo "MC seed.......... $CONFIG_SEED"
 echo "PROCID........... $CONFIG_PROCID"

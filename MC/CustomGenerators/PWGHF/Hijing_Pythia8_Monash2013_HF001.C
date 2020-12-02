@@ -49,30 +49,40 @@ AliGenerator *GeneratorCustom(TString opt = "")
   AliGenPythiaPlus* pyth = (AliGenPythiaPlus*)GeneratorPythia8(kPythia8Tune_Monash2013);
   pyth->SetProcess(process[iprocess]);
   pyth->SetHeavyQuarkYRange(-1.5, 1.5);
+  pyth->SetMaximumLifetime(0.7);
   if(channelOption >= 1) {
     pyth->SetTriggerParticle(sign * triggerPart, 999);
+    if(AliGenPythiaPlus::Class()->GetMethodAny("SetTriggerY"))
+      pyth->SetTriggerY(1.0);
   }
 
   // Pt transfer of the hard scattering (5 different cases)
   // resulting pT shape tuned to be similar to pythia6 MC (Hijing_HF001.C)
   // at least one even and one odd uidConfig for pT-hard bin to have the same pT hard bins for prompt and feed-down
-  Float_t pth[6] = {0.5, 5, 20., 40., 60., 1000.};
+  Float_t pth[6] = {0., 3.5, 10., 20., 40., 60.};
   Int_t ipt;
-  if      (uidConfig % 100 < 80) ipt = 0; // 80% 
-  else if (uidConfig % 100 < 88) ipt = 1; // 8%
-  else if (uidConfig % 100 < 94) ipt = 2; // 6%
-  else if (uidConfig % 100 < 98) ipt = 3; // 4%
-  else                           ipt = 4; // 2% 
+  if      (uidConfig % 100 < 74) ipt = 0; // 74% 
+  else if (uidConfig % 100 < 92) ipt = 1; // 18%
+  else if (uidConfig % 100 < 96) ipt = 2; // 4%
+  else if (uidConfig % 100 < 98) ipt = 3; // 2%
+  else                           ipt = 4; // 2%
   pyth->SetPtHard(pth[ipt], pth[ipt + 1]);
 
   // Configuration of pythia8 decayer
   if(AliPythiaBase::Class()->GetMethodAny("Decayer")){
     printf("Force decays using ForceHadronicD of AliDecayerPythia8\n");
+    TList *argsList = AliDecayerPythia8::Class()->GetMethodAny("ForceHadronicD")->GetListOfMethodArgs();
+    int argsNum = 0;
+    if(argsList)
+        argsNum = argsList->GetSize();
+
     pyth->SetForceDecay(kHadronicDWithout4Bodies);
     if(channelOption == 1)
-        pyth->SetForceDecay(kLcpK0S);
+      pyth->SetForceDecay(kLcpK0S);
     else if(channelOption == 2)
-        pyth->SetForceDecay(kLcpKpi);
+      pyth->SetForceDecay(kLcpKpi);
+    else if(channelOption == 3 && argsNum>=5)
+      pyth->SetForceDecay(kHadronicDWithout4BodiesDsPhiPi);
   }else{
     printf("Force decays in the Config\n");
     //add D+ decays absent in PYTHIA8 decay table and set BRs from PDG for other

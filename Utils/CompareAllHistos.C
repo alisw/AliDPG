@@ -104,6 +104,9 @@ void ProcessFile(TString fname, TString dirToAnalyse){
 	prefix.Append(Form("%s_",ls->GetName()));
 	ProcessList(ls);
       }
+    }else if(cname.BeginsWith("TH")){
+      TObject* o=(TObject*)fileBase->Get(oname.Data());
+      WriteHisto(o);
     }
   }
 }

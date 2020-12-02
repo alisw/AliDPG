@@ -18,6 +18,7 @@ Int_t       iCollision          = 0;       // 0=pp, 1=Pb-Pb
 Int_t       run_flag            = 1500;    // year (1000, 2010 pp; 1100, 2011 pp; 1500, 2015)
 Int_t       year                = 2015;
 TString     periodName          = "LHC15n";
+TString     passName            = "pass1";
 Int_t       run_number          = 0;
 Bool_t      localRunning        = kFALSE;  // Missing environment vars will cause a crash; change it to kTRUE if running locally w/o env vars
 
@@ -95,12 +96,14 @@ const Char_t* CollisionSystemMC[kNSystem] =
 // Temporaries.
 void ProcessEnvironment(Int_t mergeCase);
 void ProcessEnvironmentMC();
+void SetRunFlagForFilterBits();
 void PrintSettings();
 void AODmerge();
 void AddAnalysisTasks(const char *cdb_location, Bool_t isMC);
 Bool_t LoadCommonLibraries();
 Bool_t LoadAnalysisLibraries();
 Bool_t LoadLibrary(const char *);
+void convertStrtoArr(string);
 TChain *CreateChain();
 const char *cdbPath = "raw://";
 
@@ -112,13 +115,15 @@ TChain* CreateChainSingle(const char* xmlfile, const char *treeName);
 AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode);
 TString local_xmldataset   = "";
 Int_t runOnData = 0;       // Set to 1 if processing real data
-Int_t run_numbers[10] = {177580}; // Set the run range, for testing
+Int_t run_numbers[1000] = {0}; // Set the run range, for testing
+Int_t runCount =0;
+TString userProductionName = "";
 
 /**************************************************
  *            Refiltering settings                *
  **************************************************/
 
-TString     aliphysics_version = "v5-09-46-01-1"; // *CHANGE ME IF MORE RECENT IN GRID*
+TString     aliphysics_version = "v5-09-53e-01-1"; // *CHANGE ME IF MORE RECENT IN GRID*
 
 Int_t       iAODanalysis        = 0;      // AOD based analysis 
 // Maximum number of files per job (gives size of AOD)
@@ -234,6 +239,40 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
     else printf("Run AOD train for RAW (based on macro argument)\n");
   }
 
+  //
+  // re-filtering in user mode
+  //
+  if(gSystem->Getenv("USER_AOD_ALIEN_DATA_DIR"))
+  {
+      printf("Runnning in user mode\n");
+      useProductionMode=kFALSE;
+      runOnData=(isMC)?0:1;
+      if(gSystem->Getenv("USER_AOD_ALIEN_DATA_DIR"))
+          alien_datadir=gSystem->Getenv("USER_AOD_ALIEN_DATA_DIR");
+      if(gSystem->Getenv("USER_AOD_ALIEN_PASS") && runOnData)
+          data_pattern=Form("/%s%s", gSystem->Getenv("USER_AOD_ALIEN_PASS"), "/*/AliESDs.root");
+      
+      if(gSystem->Getenv("USER_AOD_ALIEN_DATA_DIR"))
+      {
+        if(isMC)
+        {
+            TString strTmp(gSystem->Getenv("USER_AOD_ALIEN_DATA_DIR"));
+            TObjArray* arr = strTmp.Tokenize("/");
+            userProductionName = ((TObjString*)arr->At(arr->GetLast()))->String();
+        }
+        else
+            userProductionName = gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG");
+      }
+            
+      grid_workdir=Form("AOD/AOD_%s", userProductionName.Data());
+      alien_outdir = "AOD";
+      
+      if(!isMC && gSystem->Getenv("USER_AOD_ALIEN_PASS"))
+          grid_workdir=Form("%s_%s", grid_workdir.Data(), gSystem->Getenv("USER_AOD_ALIEN_PASS"));
+      if(gSystem->Getenv("USER_AOD_ALIEN_RUN_NUMBERS"))
+          convertStrtoArr(gSystem->Getenv("USER_AOD_ALIEN_RUN_NUMBERS"));
+  }
+    
   if(isMC){
     useDBG=kTRUE;
     useMC=kTRUE;
@@ -268,7 +307,6 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
   UpdateFlags();
 
   PrintSettings();
-
   TString smode(analysis_mode);
   smode.ToUpper();  
   if(refilteringMode)
@@ -285,8 +323,18 @@ void main_AODtrainRawAndMC(Int_t merge=0, Bool_t isMC=kFALSE, Bool_t refiltering
     visible_name       = Form("FILTER%s$2_$3", train_tag.Data()); //# FIXED #
     // Add train composition and other comments
     job_comment        = "Standard AODs + deltas";
-    job_tag            = Form("%s: %s", visible_name.Data(), job_comment.Data());
 
+    if(!useProductionMode && gSystem->Getenv("ALIEN_JDL_LPMPRODUCTIONTAG"))
+    {
+      visible_name = Form("FILTER%s$2", train_tag.Data()); //# FIXED #
+      job_comment = Form("%s %s", job_comment.Data(), userProductionName.Data());
+      if(!isMC && gSystem->Getenv("USER_AOD_ALIEN_PASS"))
+      {
+        job_comment = Form("%s %s", job_comment.Data(), gSystem->Getenv("USER_AOD_ALIEN_PASS"));
+      }
+    }
+    job_tag = Form("%s: %s", visible_name.Data(), job_comment.Data());
+      
     // Main analysis train macro. If a configuration file is provided, all parameters
     // are taken from there but may be altered by CheckModuleFlags.
     //if (strlen(config_file) && !LoadConfig(config_file)) return;
@@ -538,12 +586,13 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
       // pp, p-Pb cut configuration
       AliAnalysisTaskWeakDecayVertexer *taskWDV = AddTaskWeakDecayVertexer();
       if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("SetUseImprovedFinding")) taskWDV -> SetUseImprovedFinding();
+      taskWDV -> SetPreselectX(kFALSE);
       //V0-Related topological selections
       taskWDV -> SetV0VertexerDCAFirstToPV(0.03);
       taskWDV -> SetV0VertexerDCASecondtoPV(0.03);
       taskWDV -> SetV0VertexerDCAV0Daughters(2.00);
       taskWDV -> SetV0VertexerCosinePA(0.95);
-      taskWDV -> SetV0VertexerMinRadius(0.9);
+      taskWDV -> SetV0VertexerMinRadius(0.2);
       taskWDV -> SetV0VertexerMaxRadius(200);
       //Cascade-Related topological selections
       taskWDV -> SetCascVertexerMinV0ImpactParameter(0.05);
@@ -561,6 +610,7 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
       taskWDV -> SetupLooseVertexing();
       // 15/02/2020: comment the call to AddStandardV0HypSel while debugging it
       //    if(AliAnalysisTaskWeakDecayVertexer::Class()->GetMethodAny("AddStandardV0HypSel")) taskWDV -> AddStandardV0HypSel();
+      taskWDV -> SetRevertexAllEvents(kTRUE); // needed for Pb-Pb starting from v5-09-54, since some events are tagged as rejected by AliMultSelectionTask
     }
   }
   
@@ -677,8 +727,18 @@ void AddAnalysisTasks(const char *cdb_location, Bool_t isMC)
     {
 
       Int_t configHF=0;
+      TString specialConfig="";
       if(iCollision == kPbPb || iCollision == kXeXe) configHF=1;
-      AliAnalysisTaskSEVertexingHF *taskvertexingHF = AddTaskVertexingHF(configHF,train_name,"",run_number,periodName);
+      if(isMC && iCollision == kPbPb && year==2018){
+	Float_t bmin=0;
+	Float_t bmax=20;
+	if (gSystem->Getenv("CONFIG_BMIN")) bmin = atof(gSystem->Getenv("CONFIG_BMIN"));
+	if (gSystem->Getenv("CONFIG_BMAX")) bmax = atof(gSystem->Getenv("CONFIG_BMAX"));
+	if(bmin<6.5 &&  bmax<6.5) specialConfig="$ALICE_PHYSICS/PWGHF/vertexingHF/ConfigVertexingHF_Pb_AllCent_NoLS_PIDLc_PtDepSel_LcMinpt1_DsMinPt15_2018opt_Central.C";
+	if(bmin>5) specialConfig="$ALICE_PHYSICS/PWGHF/vertexingHF/ConfigVertexingHF_Pb_AllCent_NoLS_PIDLc_PtDepSel_LcMinpt1_DsMinPt15_2018opt_SemiCentral.C";
+	if(specialConfig.Length()>0) printf("Special config file will be used for VertexingHF: %s\n",specialConfig.Data());
+      }
+      AliAnalysisTaskSEVertexingHF *taskvertexingHF = AddTaskVertexingHF(configHF,train_name,specialConfig,run_number,periodName);
       // Now we need to keep in sync with the ESD filter
       if (!taskvertexingHF) ::Warning("AnalysisTrainNew", "AliAnalysisTaskSEVertexingHF cannot run for this train conditions - EXCLUDED");
       else mgr->RegisterExtraFile("AliAOD.VertexingHF.root");
@@ -918,30 +978,21 @@ void ProcessEnvironment(Int_t mergeCase)
 	abort();
       }
 
-  //
-  // Run flag configuration
-  //
   if(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"))
-    {
-      year = atoi(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"));
-
-      if(year<2015)
-	run_flag =1100;
-      else
-	run_flag =1500;
-      if(year<=2010) 
-	{
-	  run_flag =1000;
-	  if(periodName.EqualTo("LHC10h"))
-	    run_flag = 1001;
-	}
-    }
+    year = atoi(gSystem->Getenv("ALIEN_JDL_LPMANCHORYEAR"));
   else
     if(!localRunning)
       {
 	printf(">>>>> Unknown anchor year system configuration ALIEN_JDL_LPMANCHORYEAR \n");
 	abort();
       }
+  
+  //
+  // Run flag configuration
+  //
+  if(gSystem->Getenv("ALIEN_JDL_LPMPASSNAME"))
+    passName = gSystem->Getenv("ALIEN_JDL_LPMPASSNAME");
+  SetRunFlagForFilterBits();
 
   //
   // Run number
@@ -1065,17 +1116,41 @@ void ProcessEnvironmentMC()
   //
   // Figure out the run_flag - still the "poor-man-solution" :)
   //
-  run_flag = 1500;
   if (gSystem->Getenv("CONFIG_YEAR"))
     year = atoi(gSystem->Getenv("CONFIG_YEAR"));
   if (gSystem->Getenv("CONFIG_PERIOD"))
     periodName = gSystem->Getenv("CONFIG_PERIOD");
-  if(year<2015)  run_flag =1100;
-  if(year<=2010) {
-    run_flag =1000;
-    if (periodName.EqualTo("LHC10h"))
-      run_flag = 1001;
-  }
+  if(gSystem->Getenv("ALIEN_JDL_LPMANCHORPASSNAME"))
+    passName = gSystem->Getenv("ALIEN_JDL_LPMANCHORPASSNAME");
+  SetRunFlagForFilterBits();
+
+}
+//________________________________________________________
+void SetRunFlagForFilterBits(){
+  
+  printf("Set filter bit flag for year %d, period %s, anchor production: %s\n",year,periodName.Data(),passName.Data());
+  if(year<2015)
+    run_flag =1100;
+  else
+    {
+      run_flag =1500;
+      // Set filter bit definition with chi2 cut at 2.5 
+      // for Run-2 data and MC samples processed with updated TPC error parameterization
+
+      if((periodName.EqualTo("LHC18q") || periodName.EqualTo("LHC18r")) && passName.EndsWith("pass3"))
+	run_flag = 1501;
+      else if(periodName.EqualTo("LHC15o") && passName.EndsWith("pass2"))
+	run_flag = 1501;
+      else if((periodName.EqualTo("LHC16q") || periodName.EqualTo("LHC16r") ||
+	       periodName.EqualTo("LHC16s") || periodName.EqualTo("LHC16t")) && passName.EndsWith("pass2"))
+	run_flag = 1501;
+    }
+  if(year<=2010) 
+    {
+      run_flag =1000;
+      if(periodName.EqualTo("LHC10h"))
+	run_flag = 1001;
+    }
 }
 
 //________________________________________________________
@@ -1189,7 +1264,9 @@ AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode)
    {
       plugin->SetProductionMode();
       plugin->AddDataFile(data_collection);
-   }   
+   }
+   else
+       plugin->SetOutputToRunNo();
       
    if (!outputSingleFolder.IsNull())
    {
@@ -1218,7 +1295,7 @@ AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode)
          plugin->SetRunPrefix("000");
       }   
 //   if (!iAODanalysis) plugin->SetRunRange(run_range[0], run_range[1]);
-      for (Int_t i=0; i<10; i++)
+      for (Int_t i=0; i<=runCount; i++)
       {
          if (run_numbers[i]==0) break;
          plugin->AddRunNumber(run_numbers[i]);
@@ -1243,7 +1320,8 @@ AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode)
    plugin->SetDefaultOutputs(kTRUE);
    plugin->SetMergeExcludes(mergeExclude);
    plugin->SetMaxMergeFiles(maxMergeFiles);
-   plugin->SetNrunsPerMaster(nRunsPerMaster);
+   if(useProductionMode)
+     plugin->SetNrunsPerMaster(nRunsPerMaster);
 // Optionally define the files to be archived.
 //   plugin->SetOutputArchive("log_archive.zip:stdout,stderr@ALICE::NIHAM::File root_archive.zip:AliAOD.root,AOD.tag.root@ALICE::NIHAM::File");
    
@@ -1335,13 +1413,53 @@ AliAnalysisAlien* CreateAlienHandler(const char *plugin_mode)
    plugin->SetSplitMode("se");
    plugin->SetNumberOfReplicas(outputReplicas);
    
+/*
    ((TGridJDL*)plugin->GetGridJDL())->AddToInputSandbox("LF:/alice/validation/aodmerge/extraValidation.sh");
    // This may be added as custom file, iterating over the actual file list to be merged in this macro
    //
    ((TGridJDL*)plugin->GetGridJDL())->AddToInputSandbox("LF:/alice/validation/aodmerge/validation.rc");
+*/
 
    // save the logs for standard central refiltering productions
    plugin->SetKeepLogs();
 
    return plugin;
+}
+
+//______________________________________________________________________________
+// Function to convert a string to
+// integer array
+void convertStrtoArr(string str)
+{
+    // get length of string str
+    int str_length = str.length();
+    
+    Int_t j = 0, i;
+  
+    // Traverse the string
+    for (i = 0; str[i] != '\0'; i++)
+    {
+  
+        // if str[i] is ', ' then split
+        if (str[i] == ',')
+            continue;
+         if (str[i] == ' '){
+            // Increment j to point to next
+            // array location
+            j++;
+        }
+        else
+        {
+            // subtract str[i] by 48 to convert it to int
+            // Generate number by multiplying 10 and adding
+            // (int)(str[i])
+            run_numbers[j] = run_numbers[j] * 10 + (str[i] - 48);
+        }
+    }
+  
+    cout << "Registering runs = ";
+    for (i = 0; i <= j; i++)
+        cout << run_numbers[i] << " ";
+    cout << endl;
+    runCount =j;
 }

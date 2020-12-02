@@ -1,10 +1,13 @@
 AliGenerator *
 GeneratorCustom()
 {
-  AliGenCocktail *ctl   = (AliGenCocktail*) GeneratorCocktail("Epos_Nuclex001");
+  AliGenCocktail *ctl   = (AliGenCocktail*) GeneratorCocktail("Hijing_pPb_Nuclex001");
  
-  AliGenerator   *epos  = GeneratorEPOSLHC(); 
-  ctl->AddGenerator(epos, "EPOSLHC", 1.);  
+  TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
+  if(!simulation.Contains("Embed")){
+    AliGenerator *hij = GeneratorHijing();
+    ctl->AddGenerator(hij, "Hijing", 1.);
+  }
 
   AliGenerator   *nu1a  = Generator_Nuclex(0xF, kFALSE, 10);
   AliGenerator   *nu1b  = Generator_Nuclex(0xF, kTRUE, 10);

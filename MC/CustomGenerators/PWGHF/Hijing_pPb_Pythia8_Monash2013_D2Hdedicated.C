@@ -1,9 +1,15 @@
 AliGenerator *GeneratorCustom(TString opt = "")
 {
+	AliGenCocktail *ctl  = (AliGenCocktail*) GeneratorCocktail("Hijing_Pythia8_HF");
+	Float_t randHF = gRandom->Rndm();
+	if(randHF>0.176797){// add Hijing for p-Pb, from PWGHF/Hijing_HF002.C and PWGHF/Hijing_pPb_Lc.C
+		AliGenerator   *hij  = GeneratorHijing();
+		ctl->AddGenerator(hij, "Hijing", 1.);
+	}
 
-  const Int_t nOptions=7;
+  const Int_t nOptions=6;
   
-  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated", "OmegacDedicated"};
+  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated"};
 
   Int_t channelOption = 0;
   for (Int_t iopt = 0; iopt < nOptions; iopt++ ) {
@@ -12,8 +18,8 @@ AliGenerator *GeneratorCustom(TString opt = "")
   }
 
   //Switches for prompt/nonprompt, sign of trigger particle, trigger particle
-  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132, 4332};
-  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0, 0};
+  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132};
+  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0};
   Process_t process; //charm or beauty
   Int_t sign = 0; //Sign of trigger particle
   Int_t triggerPart = triggerParticleFirst[channelOption]; //trigger particle
@@ -56,7 +62,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
   if(AliGenPythiaPlus::Class()->GetMethodAny("SetTriggerY"))
     pyth->SetTriggerY(1.0);
 
-  // Configuration of decayer (depending on AliRoot version)
+  // Configuration of decayer
   TList *argsList = AliDecayerPythia8::Class()->GetMethodAny("ForceHadronicD")->GetListOfMethodArgs();
   int argsNum = 0;
   if(argsList)
@@ -122,9 +128,6 @@ AliGenerator *GeneratorCustom(TString opt = "")
     (AliPythia8::Instance())->ReadString("4232:onIfMatch = 3312 211 211");
     // Xic0 -> Xi- pi+
     (AliPythia8::Instance())->ReadString("4132:onIfMatch = 3312 211");
-    // Omegac0 -> Omega- pi+
-    (AliPythia8::Instance())->ReadString("4332:onMode = off");
-    (AliPythia8::Instance())->ReadString("4332:onIfMatch = 3334 211");
     
     //add Lc decays absent in PYTHIA8 decay table and set BRs from PDG for others
     (AliPythia8::Instance())->ReadString("4122:oneChannel = 1 0.0196 100 2212 -313");
@@ -163,7 +166,9 @@ AliGenerator *GeneratorCustom(TString opt = "")
   // Set up2date lifetimes for hadrons
   // lambda_b from PDG 2019: tau0 = 1.471 ps = 441 m/c = 0.441 mm/c
   (AliPythia8::Instance())->ReadString("5122:tau0 = 4.41000e-01");
-
   
-  return pyth;
+//  return pyth;
+	ctl->AddGenerator(pyth, label[channelOption], 1.);
+	printf(">>>>> added HF generator %s \n", label[channelOption]);
+	return ctl;
 }

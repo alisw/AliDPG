@@ -494,6 +494,64 @@ void GeneratorConfig(Int_t tag)
     }
   }
   
+  // Externally defined event trigger
+  
+  TString gentrigstr = gSystem->Getenv("CONFIG_GENTRIGGER");
+
+  // Custom external trigger
+  if ( gentrigstr == "Custom")
+  {
+    if ((gROOT->LoadMacro("GenTriggerCustom.C")) != 0) {
+      printf("ERROR: cannot find GenTriggerCustom.C\n");
+      abort();
+      return;
+    }
+        
+    // Load and compile macro
+    gROOT->LoadMacro("GenTriggerCustom.C+");
+    
+    gg_tmp_gen = gen;
+    gROOT->ProcessLine("GenTriggerCustom(gg_tmp_gen);");
+  }
+  else if (gentrigstr!="")
+  {
+    // PWG
+    TObjArray  *oa         = gentrigstr.Tokenize(":");
+    TObjString *pwgtrig    = (TObjString*) oa->At(0);
+    TObjString *pwgtriggen = (TObjString*) oa->At(1);
+    TObjString *pwgtrigopt = (TObjString*) oa->At(2);
+    
+    if (!pwgtrig || !pwgtriggen) {
+      printf("ERROR: problem parsing CONFIG_GENTRIGGER: %s \n", gentrigstr.Data());
+      abort();
+      return;
+    }
+    
+    // load PWG custom trigger generator macro
+    TString pwgtrigmacro = "$ALIDPG_ROOT/MC/CustomGenerators/";
+    pwgtrigmacro += pwgtrig->GetString();
+    pwgtrigmacro += "/";
+    pwgtrigmacro += pwgtriggen->GetString();
+    pwgtrigmacro += ".C+";
+    
+    // Load and compile macro
+    if ( ( gROOT->LoadMacro(pwgtrigmacro.Data() ) ) != 0) {
+      printf("ERROR: cannot find %s \n", pwgtrigmacro.Data());
+      abort();
+      return;
+    }
+    
+    // Pass the parameters to be used by the external trigger via an environmental variable
+    if ( pwgtrigopt && pwgtrigopt->GetString()!="" ) 
+      gSystem->Setenv("CONFIG_GENTRIGGERPARAM",pwgtrigopt->GetString());
+    
+    gg_tmp_gen = gen;
+    gROOT->ProcessLine("GenTriggerCustom(gg_tmp_gen);");
+  }
+  
+  // ////////////////////////////
+  
+  
   gen->Init();
   printf(">>>>> Generator Configuration: %s \n", comment.Data());
   // Set the trigger configuration: proton-proton
@@ -1029,12 +1087,21 @@ GeneratorEPOSLHC(Bool_t pileup)
   // run CRMC
   TString fifoname = "crmceventfifo";
   if ( pileup ) fifoname = "crmceventfifo_pileup";
-
-  Int_t nEventsEpos = neventsConfig;
-  if ( pileup ) nEventsEpos*=100;
+  
+  // Need more events for triggered productions
+  // remember to pass via dpgsim "--eventsinPoolFrac 100"
+  Float_t extraEvents =  1;
+  if ( gSystem->Getenv("CONFIG_NEVENTSPOOLFRAC") && !pileup )
+    extraEvents = atoi(gSystem->Getenv("CONFIG_NEVENTSPOOLFRAC"));
+  
+  Int_t nEventsEpos = neventsConfig*extraEvents;
+  if ( pileup ) nEventsEpos*=100; // Should we keep this hardcoded or pass another param via dpgsim?
+  
+  printf("*** Generate %d x %2.1f x 100*%d = %d EPOS events\n",neventsConfig,extraEvents,pileup,nEventsEpos);
+  
   gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
   gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
-  gROOT->ProcessLine(Form(".! sh $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc.sh %s %d %d %f %d %f &> gen_eposlhc%d.log &",
+  gROOT->ProcessLine(Form(".! bash $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc.sh %s %d %d %f %d %f &> gen_eposlhc%d.log &",
 			  fifoname.Data(), nEventsEpos,
 			  projectileId, projectileEnergy,
 			  targetId, targetEnergy,pileup));
