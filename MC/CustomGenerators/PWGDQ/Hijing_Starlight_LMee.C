@@ -7,14 +7,16 @@ GeneratorCustom()
   AliGenStarLight *genStarLight = (AliGenStarLight*) starlight;  
   if (processConfig == TString("kTwoGammaToElLow")) {
      genStarLight->SetParameter("W_MIN = 0.38 #Min value of w");
+     genStarLight->SetParameter("W_MAX = 1.1 #Max value of w");
   }
   else if (processConfig == TString("kTwoGammaToElMedium")) {
-     genStarLight->SetParameter("W_MIN = 1.1 #Min value of w");
+     genStarLight->SetParameter("W_MIN = 1.0 #Min value of w");
+     genStarLight->SetParameter("W_MAX = 1.9 #Max value of w");
   }
   else if (processConfig == TString("kTwoGammaToElHigh")) {
      genStarLight->SetParameter("W_MIN = 1.8 #Min value of w");
+     genStarLight->SetParameter("W_MAX = 3.3 #Max value of w");
   }
-  genStarLight->SetParameter("W_MAX = 15.0 #Min value of w");
   genStarLight->SetParameter("RAP_MAX = 1.00 #max y");
   genStarLight->SetParameter("CUT_ETA = 1 #Cut in pseudorapidity? (0 = no, 1 = yes)");
   genStarLight->SetParameter("ETA_MIN = -1 #Minimum pseudorapidity");
