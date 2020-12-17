@@ -1144,6 +1144,8 @@ void SetRunFlagForFilterBits(){
       else if((periodName.EqualTo("LHC16q") || periodName.EqualTo("LHC16r") ||
 	       periodName.EqualTo("LHC16s") || periodName.EqualTo("LHC16t")) && passName.EndsWith("pass2"))
 	run_flag = 1501;
+      else if(periodName.Contains("LHC18") && passName.EndsWith("pass2"))
+        run_flag = 1501;
     }
   if(year<=2010) 
     {
