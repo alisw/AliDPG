@@ -8,7 +8,10 @@
 /*****************************************************************/
 /*****************************************************************/
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+//#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#if !defined(__CINT__) || defined(__MAKECINT__)
+#include "TSystem.h"
+#include "TROOT.h"
 #include "ExtractEmbedded.C"
 #endif
 
@@ -18,11 +21,14 @@ void ExtractEmbeddedWrapper(Bool_t keepMixed = kFALSE)
   Printf("Run the extraction of embedded signal (keepMixed = %d)",keepMixed);
 
   gSystem->Exec("ln -s $ALIDPG_ROOT/MC/ExtractEmbedded.C ExtractEmbedded.C");
+#if defined(__CINT__)
+    // for root5
   if(gROOT->LoadMacro("ExtractEmbedded.C+") != 0) {
     Printf("ERROR: Problem when loading ExtractEmbedded.C");
     abort();
     return;
   }
+#endif
 
   if(ExtractEmbedded(keepMixed,"AliESDs_EMB.root","AliESDs.root", "AliESDfriends_EMB.root", "AliESDfriends.root") == kFALSE){
     Printf("ERROR: Problem when running ExtractEmbedded");
