@@ -1062,12 +1062,14 @@ void ProcessEnvironmentMC()
   // Collision system configuration
   //
   iCollision = kpp;
+  train_tag = TrainTag[kpp];
   if (gSystem->Getenv("CONFIG_SYSTEM"))
     {
       Bool_t valid = kFALSE;
       for (Int_t icoll = 0; icoll < kNSystem; icoll++)
 	if (strcmp(gSystem->Getenv("CONFIG_SYSTEM"), CollisionSystemMC[icoll]) == 0) {
 	  iCollision = icoll;
+	  train_tag = TrainTag[icoll];
 	  valid = kTRUE;
 	  printf(">>>>> Using collision system from CONFIG_SYSTEM as %s (iCollision =%d)\n", CollisionSystemMC[icoll],iCollision);
 	  break;
@@ -1144,7 +1146,19 @@ void SetRunFlagForFilterBits(){
       else if((periodName.EqualTo("LHC16q") || periodName.EqualTo("LHC16r") ||
 	       periodName.EqualTo("LHC16s") || periodName.EqualTo("LHC16t")) && passName.EndsWith("pass2"))
 	run_flag = 1501;
-      else if(periodName.Contains("LHC18") && passName.EndsWith("pass2"))
+      else if(periodName.Contains("LHC18") && passName.Contains("pass2")) /* Contains not EndsWith, due to 18c */
+        run_flag = 1501;
+      else if(periodName.Contains("LHC17") && passName.Contains("pass2")) /* Contains not EndsWith, due to 17p/q */
+        run_flag = 1501;
+      else if(periodName.Contains("LHC16") && passName.EndsWith("pass2") && !(periodName.EqualTo("LHC16k") || periodName.EqualTo("LHC16l")))
+        run_flag = 1501;
+      else if((periodName.EqualTo("LHC16k") || periodName.EqualTo("LHC16l")) && passName.EndsWith("pass3"))
+        run_flag = 1501;
+      else if((periodName.EqualTo("LHC15h") || periodName.EqualTo("LHC15i")) && passName.EndsWith("pass3"))
+        run_flag = 1501;
+      else if((periodName.EqualTo("LHC15j") || periodName.EqualTo("LHC15l")) && passName.EndsWith("pass2"))
+        run_flag = 1501;
+      else if(periodName.EqualTo("LHC15n") && passName.EndsWith("pass5"))
         run_flag = 1501;
     }
   if(year<=2010) 
