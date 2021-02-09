@@ -902,7 +902,7 @@ void AODmerge()
   TStopwatch timer;
   timer.Start();
   TString outputDir = "wn.xml";
-  TString outputFiles = "EventStat_temp.root,AODQA.root,AliAOD.root,AliAOD.VertexingHF.root,AliAOD.Muons.root,AliAODGammaConversion.root,AliAOD.Jets.root,FilterEvents_Trees.root,pyxsec_hists.root";
+  TString outputFiles = "EventStat_temp_AODFiltering.root,AODQA.root,AliAOD.root,AliAOD.VertexingHF.root,AliAOD.Muons.root,AliAODGammaConversion.root,AliAOD.Jets.root,pyxsec_hists.root";
   TString mergeExcludes = "";
   TObjArray *list = outputFiles.Tokenize(",");
   TIter *iter = new TIter(list);
