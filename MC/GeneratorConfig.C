@@ -1381,7 +1381,8 @@ GeneratorStarlight(){
   genStarLight->SetParameter("XSEC_METHOD   = 1      # Set to 0 to use old method for calculating gamma-gamma luminosity"); //CM
   genStarLight->SetParameter("BSLOPE_DEFINITION = 0");   // using default slope
   genStarLight->SetParameter("BSLOPE_VALUE      = 4.0"); // default slope value
-  genStarLight->SetParameter("PRINT_VM = 2"); // print cross sections and fluxes vs rapidity in stdout for VM photoproduction processes
+  if(genStarLight->Class_Version() > 3) // this option is only in later versions
+    genStarLight->SetParameter("PRINT_VM = 2"); // print cross sections and fluxes vs rapidity in stdout for VM photoproduction processes
   
   genStarLight->SetRapidityMotherRange(yminConfig,ymaxConfig);
   if (!genCocktail) return genStarLight;
