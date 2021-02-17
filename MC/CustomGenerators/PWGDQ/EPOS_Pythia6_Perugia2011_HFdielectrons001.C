@@ -27,7 +27,6 @@ AliGenerator* EPOS_MbPythiaTunePerugia2011bcforcele(Int_t flag)
   // Background events: EPOS generator for p-Pb (only if non-embedded)
   TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
   if(!simulation.Contains("Embed")){
-    Printf("No Embedding....");
     AliGenerator *epos = GeneratorEPOSLHC();
     gener->AddGenerator(epos, "EPOS-LHC", 1.);
   }
