@@ -9,7 +9,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
 
   const Int_t nOptions=7;
   
-  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated", "LctoLpiDedicated"};
+  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated", "LcToLpiDedicated"};
 
   Int_t channelOption = 0;
   for (Int_t iopt = 0; iopt < nOptions; iopt++ ) {
