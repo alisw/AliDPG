@@ -7,9 +7,9 @@ AliGenerator *GeneratorCustom(TString opt = "")
 		ctl->AddGenerator(hij, "Hijing", 1.);
 	}
 
-  const Int_t nOptions=6;
+  const Int_t nOptions=7;
   
-  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated"};
+  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated", "LcToLpiDedicated"};
 
   Int_t channelOption = 0;
   for (Int_t iopt = 0; iopt < nOptions; iopt++ ) {
@@ -18,8 +18,8 @@ AliGenerator *GeneratorCustom(TString opt = "")
   }
 
   //Switches for prompt/nonprompt, sign of trigger particle, trigger particle
-  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132};
-  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0};
+  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132, 4122};
+  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0, 0};
   Process_t process; //charm or beauty
   Int_t sign = 0; //Sign of trigger particle
   Int_t triggerPart = triggerParticleFirst[channelOption]; //trigger particle
@@ -85,6 +85,9 @@ AliGenerator *GeneratorCustom(TString opt = "")
         printf("ERROR: AliRoot version does not contain option for Xic semileptonic decay!\n");
         return 0x0;
       }
+    }
+    else if(channelOption==6) {
+       pyth->SetForceDecay(kLcLpi);
     }
     else if(channelOption<2 && argsNum>=5){
       pyth->SetForceDecay(kHadronicDWithout4BodiesDsPhiPi);
@@ -161,6 +164,11 @@ AliGenerator *GeneratorCustom(TString opt = "")
       Printf("Lc -> pK0s channel");
       (AliPythia8::Instance())->ReadString("4122:onMode = off");
       (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2212 311");
+    }
+    else if(channelOption==6){
+      Printf("Lc -> Lambda pi channel");
+      (AliPythia8::Instance())->ReadString("4122:onMode = off");
+      (AliPythia8::Instance())->ReadString("4122:onIfMatch = 3122 211");
     }
   } 
   // Set up2date lifetimes for hadrons

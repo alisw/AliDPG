@@ -1,9 +1,9 @@
 AliGenerator *GeneratorCustom(TString opt = "")
 {
 
-  const Int_t nOptions=7;
+  const Int_t nOptions=8;
   
-  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated", "OmegacDedicated"};
+  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated", "OmegacDedicated","LcToLpiDedicated"};
 
   Int_t channelOption = 0;
   for (Int_t iopt = 0; iopt < nOptions; iopt++ ) {
@@ -12,8 +12,8 @@ AliGenerator *GeneratorCustom(TString opt = "")
   }
 
   //Switches for prompt/nonprompt, sign of trigger particle, trigger particle
-  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132, 4332};
-  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0, 0};
+  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132, 4332, 4122};
+  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0, 0, 0};
   Process_t process; //charm or beauty
   Int_t sign = 0; //Sign of trigger particle
   Int_t triggerPart = triggerParticleFirst[channelOption]; //trigger particle
@@ -79,6 +79,9 @@ AliGenerator *GeneratorCustom(TString opt = "")
         printf("ERROR: AliRoot version does not contain option for Xic semileptonic decay!\n");
         return 0x0;
       }
+    }
+    else if(channelOption==7) {
+      pyth->SetForceDecay(kLcLpi);
     }
     else if(channelOption<2 && argsNum>=5){
       pyth->SetForceDecay(kHadronicDWithout4BodiesDsPhiPi);
@@ -159,11 +162,17 @@ AliGenerator *GeneratorCustom(TString opt = "")
       (AliPythia8::Instance())->ReadString("4122:onMode = off");
       (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2212 311");
     }
+    else if(channelOption==7){
+      Printf("Lc -> Lpi channel");
+      (AliPythia8::Instance())->ReadString("4122:onMode = off");
+      (AliPythia8::Instance())->ReadString("4122:onIfMatch = 3122 211");
+    }
   } 
   // Set up2date lifetimes for hadrons
   // lambda_b from PDG 2019: tau0 = 1.471 ps = 441 m/c = 0.441 mm/c
   (AliPythia8::Instance())->ReadString("5122:tau0 = 4.41000e-01");
-
   
+
+
   return pyth;
 }
