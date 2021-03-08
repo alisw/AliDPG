@@ -24,10 +24,12 @@ AliGenerator* EPOS_MbPythiaTunePerugia2011bcforcele(Int_t flag)
   gener->UsePerEventRates();
 
 
-  // add EPOS generator for p-Pb
-  AliGenerator *epos = GeneratorEPOSLHC();
-  gener->AddGenerator(epos, "EPOS-LHC", 1.);
-
+  // Background events: EPOS generator for p-Pb (only if non-embedded)
+  TString simulation = gSystem->Getenv("CONFIG_SIMULATION");
+  if(!simulation.Contains("Embed")){
+    AliGenerator *epos = GeneratorEPOSLHC();
+    gener->AddGenerator(epos, "EPOS-LHC", 1.);
+  }
 
   comment = comment.Append(" pp: HF->ee in |y|<1.2");
 
@@ -108,11 +110,11 @@ AliGenerator* EPOS_MbPythiaTunePerugia2011bcforcele(Int_t flag)
   //  Create cocktail
   ////////////////////////////////////////////
   
-  if(flag>=0 && flag<10){ //  0.1 x 30 M = 3 M
+  if(flag>=0 && flag<20){ //  0.2 x 50 M = 10 M
     gener->AddGenerator(pythiaCC,"Pythia CC",1.);
-  }else if(flag>=10 && flag<20){ //  0.1 x 30 M = 3 M
+  }else if(flag>=20 && flag<40){ //  0.2 x 50 M = 10 M
     gener->AddGenerator(pythiaBB,"Pythia BB",1.);
-  }else if(flag>=20 && flag<100){ //  0.8 x 30 M = 24 M
+  }else if(flag>=40 && flag<100){ //  0.6 x 50 M = 30 M
     gener->AddGenerator(pythiaB,"Pythia B",1.);
   }
 
