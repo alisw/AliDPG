@@ -13,6 +13,7 @@ enum EDetector_t {
   kDetectorMuon,
   kDetectorPhosOnly,
   kDetectorNoZDC,
+  kDetectorCentralBarrelTracking,
   kDetectorRun3,
   kDetectorCustom,
   kNDetectors
@@ -23,6 +24,7 @@ const Char_t *DetectorName[kNDetectors] = {
   "Muon",
   "PhosOnly",
   "NoZDC",
+  "CentralBarrelTracking",
   "Run3",
   "Custom"
 };
@@ -104,6 +106,22 @@ DetectorConfig(Int_t tag)
   case kDetectorNoZDC:
     DetectorDefault();
     iZDC = 0;
+    break;
+    
+    // kDetectorCentralBarrelTracking
+  case kDetectorCentralBarrelTracking:
+    DetectorDefault();
+    iZDC = 0;
+    iABSO = 0;
+    iACORDE = 0;
+    iAD = 0;
+    iDIPO = 0;
+    iEMCAL = 0;
+    iFMD = 0;
+    iMUON = 0;
+    iPHOS = 0;
+    iPMD = 0;
+    iHMPID = 0;
     break;
 
     // kDetectorRun3
