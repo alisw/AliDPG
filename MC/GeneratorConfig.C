@@ -164,7 +164,7 @@ GetCalorimeterAcceptance(Int_t acceptance, Float_t &etaMax, Float_t &phiMin, Flo
   switch (acceptance) 
     {
     case kCalorimeterAcceptance_FullDetector:
-      etaMax = 1.5 ; phiMin =   0.; phiMax = 360.;
+      etaMax = 20. ; phiMin =   0.; phiMax = 360.;
       break;   
     case kCalorimeterAcceptance_EMCRun1:
       etaMax = 0.7 ; phiMin =  80.; phiMax = 180.;
