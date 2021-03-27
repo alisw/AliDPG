@@ -1,7 +1,7 @@
 AliGenerator *
 GeneratorCustom()
 {
-  AliGenCocktail *ctl = GeneratorCocktail("EPOSLHC_Jpsiee002");
+  AliGenCocktail *ctl = (AliGenCocktail *) GeneratorCocktail("EPOSLHC_Jpsiee002");
   AliGenerator *epos = GeneratorEPOSLHC();
   ctl->AddGenerator(epos, "EPOS-LHC", 1.);
   if (uidConfig % 10 < 7)
