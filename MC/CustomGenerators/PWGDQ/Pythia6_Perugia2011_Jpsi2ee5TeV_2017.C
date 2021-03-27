@@ -1,7 +1,7 @@
 AliGenerator *
 GeneratorCustom()
 {
-  AliGenCocktail *ctl   = GeneratorCocktail("Pythia6_Perugia2011_Jpsi2ee5TeV_2017");
+  AliGenCocktail *ctl   = (AliGenCocktail *) GeneratorCocktail("Pythia6_Perugia2011_Jpsi2ee5TeV_2017");
   AliGenerator   *pyt   = GeneratorPythia6(kPythia6Tune_Perugia2011);
   ctl->AddGenerator(pyt,  "Pythia6", 1.);
   if (uidConfig % 10 < 7) {

@@ -1,7 +1,7 @@
 AliGenerator* GeneratorCustom()
 {
  
-  AliGenCocktail *ctl   = GeneratorCocktail("Muon_LowMassCocktail");
+  AliGenCocktail *ctl   = (AliGenCocktail *) GeneratorCocktail("Muon_LowMassCocktail");
   
   enum {kEta2Body, kEtaDalitz, kRho2Body, kOmega2Body, kOmegaDalitz, kPhi2Body, kEtaPrimeDalitz, kPionLMR, kKaonLMR};
   Int_t   nPart  = 1;
