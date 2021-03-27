@@ -56,7 +56,7 @@ void Geant4Config()
 	return;
       }
       else if (str->String().Atoi() < 4 || !g4Version.Contains("monopole")) {
-	Printf("We cannot use monopoles with the current version of G4: %s", str->Data());
+	Printf("We cannot use monopoles with the current version of G4: %s", str->String().Data());
 	delete og4;
 	og4 = 0;
 	return;
