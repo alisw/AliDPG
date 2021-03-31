@@ -49,6 +49,7 @@ function COMMAND_HELP(){
     echo "--nbkg <numberOfEvents>                   Number of background events to be generated in the simulation stag in MC-to-MC embedding mode"
     echo "--quenching <quenching>                   Switch on quenching for Pythia: --quenching 1"
     echo "--qhat <qhat>                             Modify qhat for Pythia: --quenching qhat (default = 1.7)"
+    echo "--selectevents <macro>                    Macro to select events after generation+transport"
     echo ""
     echo "Detector, simulation, reconstruction and other settings:"
     echo "--detector <detectorConfig>               tag name of the detector configuration, as defined in MC/DetectorConfig.C" 
@@ -221,6 +222,7 @@ CONFIG_PTTRIGMIN=""
 CONFIG_PTTRIGMAX=""
 CONFIG_QUENCHING=""
 CONFIG_QHAT=""
+CONFIG_SELEVMACRO=""
 CONFIG_RUN=""
 CONFIG_UID="1"
 CONFIG_SIMULATION=""
@@ -419,6 +421,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--qhat" ]; then
         CONFIG_QHAT="$1"
 	export CONFIG_QHAT
+        shift
+    elif [ "$option" = "--selectevents" ]; then
+        CONFIG_SELEVMACRO="$1"
+	export CONFIG_SELEVMACRO
         shift
     elif [ "$option" = "--nevents" ]; then
         CONFIG_NEVENTS="$1"
@@ -930,6 +936,7 @@ echo "pT-trigger min... $CONFIG_PTTRIGMIN"
 echo "pT-trigger max... $CONFIG_PTTRIGMAX"
 echo "quenching........ $CONFIG_QUENCHING"
 echo "q-hat............ $CONFIG_QHAT"
+echo "select events ... $CONFIG_SELEVMACRO"
 echo "============================================"
 echo "Debug mode....... $CONFIG_DEBUG"
 echo "============================================"
@@ -968,6 +975,14 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     SIMC=$ALIDPG_ROOT/MC/sim.C
     if [ -f sim.C ]; then
 	SIMC=sim.C
+    fi
+    GENC=$ALIDPG_ROOT/MC/Generate.C
+    if [ -f Generate.C ]; then
+	GENC=Generate.C
+    fi
+    DIGC=$ALIDPG_ROOT/MC/Digitize.C
+    if [ -f Digitize.C ]; then
+	DIGC=Digitize.C
     fi
 
     # embedding using already generated background
@@ -1014,12 +1029,53 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	
     fi
 
-    runcommand "SIMULATION" $SIMC sim.log 5
-    mv -f syswatch.log simwatch.log
+    if [[ $CONFIG_SELEVMACRO != "" ]]; then
+	# case in which we use a trigger macro to select events after generation+propagation
+	jtry=0
+	while true
+	do
+	    echo "TRIAL" $jtry
+	    runcommand "SIMULATION" $GENC sim.log 5
+	    mv -f syswatch.log simwatch.log
 
+
+	    echo -e "\n"
+	    echo -e "\n" >&2
+
+	    echo "* EVENT SELECTION : $CONFIG_SELEVMACRO"
+	    echo "* EVENT SELECTION : output log in tag.log"
+	    echo "* EVENT SELECTION : $CONFIG_SELEVMACRO" >&2
+	    echo "* EVENT SELECTION : output log in tag.log" >&2
+	    
+	    time aliroot -b -q -x $CONFIG_SELEVMACRO > tag.log 2>&1
+	    exitcode=$?
+	    isthere="$(grep "FOUND IN KINE TREE" tag.log)"
+	    echo $isthere
+	    echo "exitcode" $exitcode
+	    if [ $exitcode -eq 0 ]; then
+		echo "Requested particle found -> run digitization"
+		break
+	    else
+		echo "Requested particle not found -> generate another event"
+		rm *.Hits.root galice.root Kinematics.root TrackRefs.root geometry.root sim.log
+		jtry=$((jtry+1))
+		CONFIG_SEED=$(($CONFIG_SEED+1))
+		echo "New seed" $CONFIG_SEED
+	    fi
+	done
+	
+	runcommand "DIGITIZATION" $DIGC dig.log 5
+	mv -f syswatch.log digwatch.log
+	
+    else
+	runcommand "SIMULATION" $SIMC sim.log 5
+	mv -f syswatch.log simwatch.log
+    fi
+    
     runBenchmark
 
 fi
+
 
 ### rec.C
 
