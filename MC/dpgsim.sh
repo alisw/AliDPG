@@ -1047,7 +1047,7 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 	    echo "* EVENT SELECTION : $CONFIG_SELEVMACRO" >&2
 	    echo "* EVENT SELECTION : output log in tag.log" >&2
 	    
-	    time aliroot -b -q -x $CONFIG_SELEVMACRO > tag.log 2>&1
+	    aliroot -b -q -x ${CONFIG_SELEVMACRO}+ > tag.log 2>&1
 	    exitcode=$?
 	    isthere="$(grep "FOUND IN KINE TREE" tag.log)"
 	    echo $isthere
@@ -1059,7 +1059,11 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
 		echo "Requested particle not found -> generate another event"
 		rm *.Hits.root galice.root Kinematics.root TrackRefs.root geometry.root sim.log
 		jtry=$((jtry+1))
-		CONFIG_SEED=$(($CONFIG_SEED+1))
+                CONFIG_SEED=($(awk -v ranseed=$CONFIG_SEED 'BEGIN {
+                                   srand(ranseed)
+                                   k=rand()
+                                   print int(1 + k * 10000000)
+                                   }'))
 		echo "New seed" $CONFIG_SEED
 	    fi
 	done
