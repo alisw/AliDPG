@@ -30,6 +30,7 @@ enum EReconstruction_t {
   kReconstructionCustom,
   kReconstructionNoTPC,
   kReconstructionNoEMCal,
+  kReconstructionEMCal,
   kNReconstructions
 };
 
@@ -45,7 +46,8 @@ const Char_t *ReconstructionName[kNReconstructions] = {
   "Run3",
   "Custom",
   "NoTPC",
-  "NoEMCal"
+  "NoEMCal",
+  "EMCal"
 };
 
 void ReconstructionDefault(AliReconstruction &rec);
@@ -243,6 +245,11 @@ void ReconstructionConfig(AliReconstruction &rec, int tag_tmp)
   case kReconstructionNoEMCal:
     ReconstructionDefault(rec);
     rec.SetRunReconstruction("ALL -EMCAL");
+
+    // EMCal + triggers
+  case kReconstructionEMCal:
+    ReconstructionDefault(rec);
+    rec.SetRunReconstruction("EMCAL ITS VZERO T0");
   }  
 
 }

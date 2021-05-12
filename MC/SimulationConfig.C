@@ -33,6 +33,7 @@ enum ESimulation_t {
   kSimulationDefaultIonTail,
   kSimulationNoTPC,
   kSimulationNoEMCal,
+  kSimulationEMCal,
   kNSimulations
 };
 
@@ -49,7 +50,8 @@ const Char_t *SimulationName[kNSimulations] = {
   "Custom",
   "SimulationDefaultIonTail",
   "NoTPC",
-  "NoEMCal"
+  "NoEMCal",
+  "EMCal"
 };
 
 
@@ -209,6 +211,15 @@ void SimulationConfig(AliSimulation &sim, ESimulation_t tag)
     else             sim.SetMakeSDigits("TRD TOF PHOS HMPID MUON ZDC PMD T0 VZERO FMD AD");
     return;
   
+    // EMCal + triggers
+  case kSimulationEMCal:
+    SimulationDefault(sim);
+    sim.SetMakeSDigits("EMCAL VZERO T0");
+    sim.SetMakeDigits("EMCAL VZERO T0");
+    sim.SetMakeDigitsFromHits("ITS");
+    sim.SetRunHLT("");
+    return;
+
     // To silence ROOT6 warning
   case kNSimulations:
     printf("kNSimulations case not considered\n");
