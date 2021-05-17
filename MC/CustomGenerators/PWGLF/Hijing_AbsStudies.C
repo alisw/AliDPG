@@ -13,7 +13,7 @@ GeneratorCustom(TString opt = "d")
     AliGenerator   *hij  = GeneratorHijing();
     AliGenerator   *iH3 = GeneratorInjector(ninjH3[iinj], AliPID::ParticleCode(AliPID::kTriton), 0.5, 3., -1., 1.);
     AliGenerator   *iAntiH3 = GeneratorInjector(ninjAntiH3[iinj], -AliPID::ParticleCode(AliPID::kTriton), 0.5, 3., -1., 1.);
-    AliGenerator   *iHe3 = GeneratorInjector(ninjHe3[iinj], AliPID::ParticleCode(AliPID::kHe3), 2., 14., -1., 1.);
+    AliGenerator   *iHe3 = GeneratorInjector(ninjHe3[iinj], AliPID::ParticleCode(AliPID::kHe3), 1., 14., -1., 1.);
     ctl->AddGenerator(hij,  "Hijing", 1.);
     ctl->AddGenerator(iH3, "Triton", 1.);
     ctl->AddGenerator(iAntiH3, "AntiTriton", 1.);
