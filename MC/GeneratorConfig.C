@@ -213,6 +213,7 @@ AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC(Bool_t pileup = kFALSE);
 AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Bool_t useEvtGenForB=kFALSE);
+AliGenerator *Generator_JpsiEtaToProton(const Char_t *params, Float_t jpsifrac, Float_t etafrac);
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
 AliGenerator *GeneratorStarlight();
 AliGenerator *GeneratorDRgen();
@@ -1646,6 +1647,61 @@ AliGenParam* GeneratorParam(int n, int pdg, double ptmin, double ptmax, double y
   return gen;
 }
 
+/*** JPSI / ETA_C -> P ANTI-P ****************************************************/
+AliGenerator *
+Generator_JpsiEtaToProton(const Char_t *params, Float_t jpsifrac, Float_t etafrac)
+{
+  /*
+  method to decay Jpsi and Eta_c to proton antiproton using EvtGen
+  */
+  // load libraries to use Evtgen
+  gSystem->Load("libPhotos");
+  gSystem->Load("libEvtGen");
+  gSystem->Load("libEvtGenExternal");
+  gSystem->Load("libTEvtGen");
+  //
+  // set external decayer
+  TVirtualMCDecayer* decayer = new AliDecayerPythia();
+  decayer->SetForceDecay(kAll);
+  decayer->Init();
+  gMC->SetExternalDecayer(decayer);
+
+  comment = comment.Append(Form(" | J/psi / Eta_c -> p p-bar (%s, %.1f/%.1f)", params, jpsifrac, etafrac));
+
+  AliGenCocktail *gener = new AliGenCocktail();
+  gener->UsePerEventRates();
+
+  TString stringParams = params;
+  //
+  // J/psi
+  #if defined(__CINT__)
+    // for root5
+   gROOT->LoadMacro("$ALIDPG_ROOT/MC/CustomGenerators/PWGDQ/GenJPsiParaSet.C++");
+  #endif
+  AliGenParam *jpsi = GenJPsiParaSet(Form("UserParam_%s",stringParams.Data()));
+  jpsi->SetPtRange(0., 1000.);
+  jpsi->SetYRange(-1.0, 1.0);
+  jpsi->SetPhiRange(0., 360.);
+  jpsi->SetForceDecay(kNoDecay);
+  //
+  //
+  // Eta_c
+  AliGenParam *eta_c = GenJPsiParaSet(Form("UserParam_%s_EtaC",stringParams.Data()));
+  eta_c->SetPtRange(0., 1000.);
+  eta_c->SetYRange(-1.0, 1.0);
+  eta_c->SetPhiRange(0., 360.);
+  eta_c->SetForceDecay(kNoDecay);
+  /// 
+  AliGenEvtGen *gene = new AliGenEvtGen();
+  gene->SetUserDecayTable(gSystem->ExpandPathName("$ALIDPG_ROOT/MC/CustomDecayTables/JPSIETACTOPROT.DEC"));
+  gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);
+
+  if (jpsifrac > 0.) gener->AddGenerator(jpsi,           "JPsi",           jpsifrac);
+  if (etafrac > 0.)  gener->AddGenerator(eta_c,          "Eta_c",          etafrac);
+  gener->AddGenerator(gene, "EvtGen", 1.);
+  //
+  return gener;
+}
 
 
 /*** JPSI -> EE ****************************************************/

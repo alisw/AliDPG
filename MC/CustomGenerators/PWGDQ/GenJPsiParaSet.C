@@ -22,6 +22,14 @@ Double_t  V2Zero_M( const Double_t* /*px*/, const Double_t */*dummy*/ )
  
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------
+Int_t IpEtac_M(TRandom *)
+{
+  // J/Psi composition
+  return 441;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------
 Int_t IpJpsi_M(TRandom *)
 {
   // J/Psi composition
@@ -101,6 +109,19 @@ Double_t PtJpsiPbPb5020_4090(const Double_t *px, const Double_t *dummy)
   return kC * pt /TMath::Power((1. + (pt/kpt0)*(pt/kpt0)),kn);
 }
 
+Double_t PtJpsipp_13TeV(const Double_t *px, const Double_t *dummy)
+{
+  // prompt J/Psi pT
+  // pp, 13TeV
+  //
+  const Double_t kC    = 2.28550e+00;
+  const Double_t kpt0  = 3.73619e+00;
+  const Double_t kn    = 2.81708e+00;
+  Double_t pt          = px[0];
+
+  return kC * pt /TMath::Power((1. + (pt/kpt0)*(pt/kpt0)),kn);
+}
+
 Double_t YJpsiFlat( const Double_t */*x*/, const Double_t */*dummy*/ )
 {
   return 1.;
@@ -123,5 +144,7 @@ AliGenParam* GenJPsiParaSet(TString option)
   else if(option == "UserParam_PbPb5TeV_2040")  genJpsi = new AliGenParam(1,-1, PtJpsiPbPb5020_2040, YJpsiFlat, V2Zero_M, IpJpsi_M);
   else if(option == "UserParam_PbPb5TeV_3050")  genJpsi = new AliGenParam(1,-1, PtJpsiPbPb5020_3050, YJpsiFlat, V2Zero_M, IpJpsi_M);
   else if(option == "UserParam_PbPb5TeV_4090")  genJpsi = new AliGenParam(1,-1, PtJpsiPbPb5020_4090, YJpsiFlat, V2Zero_M, IpJpsi_M);
+  else if(option == "UserParam_pp13TeV")        genJpsi = new AliGenParam(1,-1, PtJpsipp_13TeV,      YJpsiFlat, V2Zero_M, IpJpsi_M);
+  else if(option == "UserParam_pp13TeV_EtaC")   genJpsi = new AliGenParam(1,-1, PtJpsipp_13TeV,      YJpsiFlat, V2Zero_M, IpEtac_M);
   return genJpsi;
 }

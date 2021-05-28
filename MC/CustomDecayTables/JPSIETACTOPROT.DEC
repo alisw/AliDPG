@@ -1,0 +1,13 @@
+###
+Decay J/psi
+### from DECAY.DEC
+1.000 p+      anti-p-          PHSP; #[Reconstructed PDG2011]
+Enddecay
+
+Decay eta_c
+### from DECAY.DEC
+1.000 p+      anti-p-          PHSP; #[Reconstructed PDG2011]
+Enddecay
+
+End
+
