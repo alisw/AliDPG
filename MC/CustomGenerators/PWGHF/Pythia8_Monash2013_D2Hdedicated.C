@@ -1,9 +1,9 @@
 AliGenerator *GeneratorCustom(TString opt = "")
 {
 
-  const Int_t nOptions=8;
+  const Int_t nOptions=9;
   
-  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated", "OmegacDedicated","LcToLpiDedicated"};
+  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated", "OmegacDedicated","LcToLpiDedicated","OmegacSemilepDedicated"};
 
   Int_t channelOption = 0;
   for (Int_t iopt = 0; iopt < nOptions; iopt++ ) {
@@ -12,8 +12,8 @@ AliGenerator *GeneratorCustom(TString opt = "")
   }
 
   //Switches for prompt/nonprompt, sign of trigger particle, trigger particle
-  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132, 4332, 4122};
-  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0, 0, 0};
+  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132, 4332, 4122, 4332};
+  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0, 0, 0, 0};
   Process_t process; //charm or beauty
   Int_t sign = 0; //Sign of trigger particle
   Int_t triggerPart = triggerParticleFirst[channelOption]; //trigger particle
@@ -83,6 +83,15 @@ AliGenerator *GeneratorCustom(TString opt = "")
     else if(channelOption==7) {
       pyth->SetForceDecay(kLcLpi);
     }
+    else if(channelOption==8){  // Omegac0 -> Omegac + e
+        if (argsNum>=6){
+        pyth->SetForceDecay(kOmegac0Semileptonic);
+        }
+        else {
+            printf("ERROR: AliRoot version does not contain option for Omegac semileptonic decay !\n");
+            return 0x0;
+        }
+    }
     else if(channelOption<2 && argsNum>=5){
       pyth->SetForceDecay(kHadronicDWithout4BodiesDsPhiPi);
     }
@@ -128,7 +137,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
     // Omegac0 -> Omega- pi+
     (AliPythia8::Instance())->ReadString("4332:onMode = off");
     (AliPythia8::Instance())->ReadString("4332:onIfMatch = 3334 211");
-    
+      
     //add Lc decays absent in PYTHIA8 decay table and set BRs from PDG for others
     (AliPythia8::Instance())->ReadString("4122:oneChannel = 1 0.0196 100 2212 -313");
     (AliPythia8::Instance())->ReadString("4122:addChannel = 1 0.0108 100 2224 -321");
