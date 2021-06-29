@@ -134,9 +134,14 @@ AliGenerator *GeneratorCustom(TString opt = "")
     (AliPythia8::Instance())->ReadString("4232:onIfMatch = 3312 211 211");
     // Xic0 -> Xi- pi+
     (AliPythia8::Instance())->ReadString("4132:onIfMatch = 3312 211");
-    // Omegac0 -> Omega- pi+
+    
     (AliPythia8::Instance())->ReadString("4332:onMode = off");
-    (AliPythia8::Instance())->ReadString("4332:onIfMatch = 3334 211");
+    if(channelOption ==6){ // Omegac0 -> Omega- pi+
+        (AliPythia8::Instance())->ReadString("4332:onIfMatch = 3334 211");
+      }
+    if(channelOption ==8){ // Omegac0 semileptonic decay
+        (AliPythia8::Instance())->ReadString("4332:onIfMatch = 3334 -11 12");
+      }
       
     //add Lc decays absent in PYTHIA8 decay table and set BRs from PDG for others
     (AliPythia8::Instance())->ReadString("4122:oneChannel = 1 0.0196 100 2212 -313");
