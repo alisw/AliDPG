@@ -313,7 +313,7 @@ while [ ! -z "$1" ]; do
 #        shift
     elif [ "$option" = "--detector" ]; then
         CONFIG_DETECTOR="$1"
-         # check that FOCAL env is set in case we run a FOCAL simulation
+        # check that FOCAL env is set in case we run a FOCAL simulation
         if [ "$CONFIG_DETECTOR" = "FOCAL" ]; then
             if [ -z "$FOCAL" ]; then
                 echo "FOCAL simulation requested but FOCAL environment not set."
@@ -516,6 +516,7 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--cleanEsd" ]; then
         export CONFIG_CLEANESD="$1"
         shift
+    fi
     elif [ "$option" = "--focalGeometryFile" ]; then
         export CONFIG_FOCALGEOMETRYFILE="$1"
         shift
@@ -1000,91 +1001,92 @@ if [[ $CONFIG_MODE == *"sim"* ]] || [[ $CONFIG_MODE == *"full"* ]]; then
     # embedding using already generated background
     if [[ $CONFIG_BACKGROUND == *galice.root ]]; then
 
-      echo ">>>>> EMBEDDING: request to embed $CONFIG_GENERATOR signal in $CONFIG_BACKGROUND background"
-      export CONFIG_SIMULATION="EmbedSig"	
-      export CONFIG_BGEVDIR=${CONFIG_BACKGROUND%galice.root}
+	echo ">>>>> EMBEDDING: request to embed $CONFIG_GENERATOR signal in $CONFIG_BACKGROUND background"
+	export CONFIG_SIMULATION="EmbedSig"	
+	export CONFIG_BGEVDIR=${CONFIG_BACKGROUND%galice.root}
 	
     # embedding using on-the-fly generated background
     elif [[ $CONFIG_BACKGROUND != "" ]]; then
 
-      CONFIG_BGEVDIR=$CONFIG_BACKGROUND
-      export CONFIG_BGEVDIR
+	CONFIG_BGEVDIR=$CONFIG_BACKGROUND
+	export CONFIG_BGEVDIR
 
-      echo ">>>>> EMBEDDING: request to embed $CONFIG_GENERATOR signal in $CONFIG_BACKGROUND background"
+	echo ">>>>> EMBEDDING: request to embed $CONFIG_GENERATOR signal in $CONFIG_BACKGROUND background"
 
-      if [[ $CONFIG_NBKG == "" ]]; then
-          export CONFIG_NBKG=1
-      fi
+	if [[ $CONFIG_NBKG == "" ]]; then
+	    export CONFIG_NBKG=1
+	fi
 	
-      SAVE_CONFIG_GENERATOR=$CONFIG_GENERATOR
-      SAVE_CONFIG_NEVENTS=$CONFIG_NEVENTS
-      SAVE_CONFIG_SIMULATION=$CONFIG_SIMULATION
-      export CONFIG_GENERATOR=$CONFIG_BACKGROUND
-      export CONFIG_NEVENTS=$CONFIG_NBKG
-      export CONFIG_SIMULATION="EmbedBkg"
-      export CONFIG_BGEVDIR="BKG"
+	SAVE_CONFIG_GENERATOR=$CONFIG_GENERATOR
+	SAVE_CONFIG_NEVENTS=$CONFIG_NEVENTS
+	SAVE_CONFIG_SIMULATION=$CONFIG_SIMULATION
+	export CONFIG_GENERATOR=$CONFIG_BACKGROUND
+	export CONFIG_NEVENTS=$CONFIG_NBKG
+	export CONFIG_SIMULATION="EmbedBkg"
+	export CONFIG_BGEVDIR="BKG"
 	
-      mkdir $CONFIG_BGEVDIR
-      cp OCDB*.root *.C $CONFIG_BGEVDIR/.
-      cd $CONFIG_BGEVDIR
+	mkdir $CONFIG_BGEVDIR
+	cp OCDB*.root *.C $CONFIG_BGEVDIR/.
+	cd $CONFIG_BGEVDIR
 
-      runcommand "BACKGROUND" $SIMC sim.log 5
-      mv -f syswatch.log simwatch.log
-      echo "Doing ls on background folder" >> sim.log
-      ls -altr >> sim.log
+	runcommand "BACKGROUND" $SIMC sim.log 5
+	mv -f syswatch.log simwatch.log
+	echo "Doing ls on background folder" >> sim.log
+	ls -altr >> sim.log
 	
-      cd ..
-      export CONFIG_GENERATOR=$SAVE_CONFIG_GENERATOR
-      export CONFIG_NEVENTS=$SAVE_CONFIG_NEVENTS
-      export CONFIG_SIMULATION="EmbedSig"
+	cd ..
+
+	export CONFIG_GENERATOR=$SAVE_CONFIG_GENERATOR
+	export CONFIG_NEVENTS=$SAVE_CONFIG_NEVENTS
+	export CONFIG_SIMULATION="EmbedSig"
 	
     fi
 
     if [[ $CONFIG_SELEVMACRO != "" ]]; then
-      # case in which we use a trigger macro to select events after generation+propagation
-      jtry=0
-      while true
-      do
-          echo "TRIAL" $jtry
-          runcommand "SIMULATION" $GENC sim.log 5
-          mv -f syswatch.log simwatch.log
+	# case in which we use a trigger macro to select events after generation+propagation
+	jtry=0
+	while true
+	do
+	    echo "TRIAL" $jtry
+	    runcommand "SIMULATION" $GENC sim.log 5
+	    mv -f syswatch.log simwatch.log
 
 
-          echo -e "\n"
-          echo -e "\n" >&2
+	    echo -e "\n"
+	    echo -e "\n" >&2
 
-          echo "* EVENT SELECTION : $CONFIG_SELEVMACRO"
-          echo "* EVENT SELECTION : output log in tag.log"
-          echo "* EVENT SELECTION : $CONFIG_SELEVMACRO" >&2
-          echo "* EVENT SELECTION : output log in tag.log" >&2
+	    echo "* EVENT SELECTION : $CONFIG_SELEVMACRO"
+	    echo "* EVENT SELECTION : output log in tag.log"
+	    echo "* EVENT SELECTION : $CONFIG_SELEVMACRO" >&2
+	    echo "* EVENT SELECTION : output log in tag.log" >&2
 	    
-          aliroot -b -q -x ${CONFIG_SELEVMACRO}+ > tag.log 2>&1
-          exitcode=$?
-          isthere="$(grep "FOUND IN KINE TREE" tag.log)"
-          echo $isthere
-          echo "exitcode" $exitcode
-          if [ $exitcode -eq 0 ]; then
-              echo "Requested particle found -> run digitization"
-              break
-          else
-              echo "Requested particle not found -> generate another event"
-              rm *.Hits.root galice.root Kinematics.root TrackRefs.root geometry.root sim.log
-              jtry=$((jtry+1))
+	    aliroot -b -q -x ${CONFIG_SELEVMACRO}+ > tag.log 2>&1
+	    exitcode=$?
+	    isthere="$(grep "FOUND IN KINE TREE" tag.log)"
+	    echo $isthere
+	    echo "exitcode" $exitcode
+	    if [ $exitcode -eq 0 ]; then
+		echo "Requested particle found -> run digitization"
+		break
+	    else
+		echo "Requested particle not found -> generate another event"
+		rm *.Hits.root galice.root Kinematics.root TrackRefs.root geometry.root sim.log
+		jtry=$((jtry+1))
                 CONFIG_SEED=($(awk -v ranseed=$CONFIG_SEED 'BEGIN {
                                    srand(ranseed)
                                    k=rand()
                                    print int(1 + k * 10000000)
                                    }'))
-              echo "New seed" $CONFIG_SEED
-          fi
-      done
+		echo "New seed" $CONFIG_SEED
+	    fi
+	done
 	
-      runcommand "DIGITIZATION" $DIGC dig.log 5
-      mv -f syswatch.log digwatch.log
+	runcommand "DIGITIZATION" $DIGC dig.log 5
+	mv -f syswatch.log digwatch.log
 	
     else
-      runcommand "SIMULATION" $SIMC sim.log 5
-      mv -f syswatch.log simwatch.log
+	runcommand "SIMULATION" $SIMC sim.log 5
+	mv -f syswatch.log simwatch.log
     fi
     
     runBenchmark
