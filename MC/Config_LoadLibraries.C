@@ -36,6 +36,14 @@ Config_LoadLibraries()
   } 
   TString isFluka = gSystem->Getenv("CONFIG_FLUKA");
   if (isFluka!="on") gSystem->Load("libgeant321");
-
+  
+  if (gSystem->Getenv("CONFIG_DETECTOR")) {
+    if (strcmp(gSystem->Getenv("CONFIG_DETECTOR"), "FOCAL") == 0) {
+      printf(">>>>> Load FOCAL libs \n");
+      gSystem->Load("libFOCALbase");
+      gSystem->Load("libFOCALgen");
+      gSystem->Load("libFOCALsim");
+    }
+  }
 }
 

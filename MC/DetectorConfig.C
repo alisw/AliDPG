@@ -15,6 +15,7 @@ enum EDetector_t {
   kDetectorNoZDC,
   kDetectorCentralBarrelTracking,
   kDetectorRun3,
+  kDetectorFOCAL,
   kDetectorCustom,
   kNDetectors
 };
@@ -26,6 +27,7 @@ const Char_t *DetectorName[kNDetectors] = {
   "NoZDC",
   "CentralBarrelTracking",
   "Run3",
+  "FOCAL",
   "Custom"
 };
 
@@ -74,6 +76,7 @@ Int_t iVZERO  = 1;
 Int_t iZDC    = 1;
 Int_t iMFT    = 0;
 Int_t iFIT    = 0;
+Int_t iFOCAL  = 0;
   
 void DetectorDefault();
 void DetectorMuon();
@@ -128,6 +131,17 @@ DetectorConfig(Int_t tag)
   case kDetectorRun3:
     DetectorRun3();
     break;
+    
+  case kDetectorFOCAL:
+    DetectorDefault();
+    iFMD = 0;
+    iT0 = 0;
+    iZDC = 0;
+    iVZERO = 0;
+    iAD = 0;
+    iFIT = 1;
+    iFOCAL = 1;
+    break;  
     
     // kDetectorCustom
   case kDetectorCustom:
@@ -339,8 +353,18 @@ DetectorInit(Int_t tag)
   if (iPIPE)
     {
       //=================== PIPE parameters ============================
-
-      AliPIPE *PIPE = new AliPIPEv3("PIPE", "Beam Pipe");
+      if(tag == kDetectorFOCAL) {
+        AliPIPEFOCAL *PIPE = new AliPIPEFOCAL("PIPE", "Beam Pipe");
+        PIPE->SetConical(35,400);
+        PIPE->SetZflange(483.8);
+        PIPE->SetR2(3.6);
+        PIPE->SetIsConeBe(1);
+        PIPE->SetIsFlangeBe(1);
+        PIPE->SetConeW(0.1);
+      }
+      else {
+        AliPIPE *PIPE = new AliPIPEv3("PIPE", "Beam Pipe");
+      }
     }
  
   if (iITS)
@@ -575,6 +599,21 @@ DetectorInit(Int_t tag)
      else {
 	    Printf("AD is disabled, as we are using Fluka");
      }
+  }
+  
+  if (iFOCAL)
+  {
+    //=================== FOCAL parameters ============================
+    const char *gfname="";
+    if (gSystem->Getenv("CONFIG_FOCALGEOMETRYFILE")) {
+        gfname = gSystem->Getenv("CONFIG_FOCALGEOMETRYFILE");
+    }
+    AliFOCAL *FOCAL = new AliFOCALv1("FOCAL","FOCAL with HCAL at 7m",gfname);
+  }
+  
+  if (iFIT)
+  {
+    AliFIT *fit = new AliFITv8("FIT","FIT");
   }
 
 }
