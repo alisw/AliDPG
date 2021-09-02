@@ -58,6 +58,14 @@ void sim()
   gROOT->LoadMacro("$ALIDPG_ROOT/MC/Config_LoadLibraries.C");
   gROOT->ProcessLine("Config_LoadLibraries();");
   AliSimulation sim(config_macro.Data());
+  
+  if (gSystem->Getenv("CONFIG_DETECTOR")) {
+    if (strcmp(gSystem->Getenv("CONFIG_DETECTOR"), "FOCAL") == 0) {
+      printf(">>>>> sim.C: No align data from CDB when running FOCAL !!!!!!!!!!!!!!! \n");  
+      sim.SetLoadAlignFromCDB(kFALSE);
+      sim.SetUseDetectorsFromGRP(kFALSE);
+    }
+  }
 
   /* configuration */
   SimulationConfig(sim, simulationConfig);
