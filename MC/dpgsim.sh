@@ -516,7 +516,6 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--cleanEsd" ]; then
         export CONFIG_CLEANESD="$1"
         shift
-    fi
     elif [ "$option" = "--focalGeometryFile" ]; then
         export CONFIG_FOCALGEOMETRYFILE="$1"
         shift
@@ -905,6 +904,9 @@ echo "No. Events....... $CONFIG_NBKG"
 #echo "MC seed.......... $CONFIG_SEED (based on $CONFIG_SEED_BASED)"
 echo "============================================"
 echo "Detector......... $CONFIG_DETECTOR"
+if [ "$CONFIG_DETECTOR" = "FOCAL" ]; then
+echo "FOCAL geom file.. $CONFIG_FOCALGEOMETRYFILE"
+fi
 echo "PHOS Time Res.... $CONFIG_PHOS_TIMERES"
 echo "GEANT4........... $CONFIG_GEANT4"
 echo "GEANT4 Phy List.. $CONFIG_GEANT4PHYSLIST"
