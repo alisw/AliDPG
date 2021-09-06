@@ -157,6 +157,9 @@ DetectorConfig(Int_t tag)
 
   if( tag == kDetectorRun3 )
     DetectorInitRun3(tag);
+  else if (tag == kDetectorFOCAL) {
+    gROOT->ProcessLine(".x $ALIDPG_ROOT/MC/DetectorInitFOCAL.C");
+  }
   else
     DetectorInit(tag);
 }
@@ -353,18 +356,7 @@ DetectorInit(Int_t tag)
   if (iPIPE)
     {
       //=================== PIPE parameters ============================
-      if(tag == kDetectorFOCAL) {
-        AliPIPEFOCAL *PIPE = new AliPIPEFOCAL("PIPE", "Beam Pipe");
-        PIPE->SetConical(35,400);
-        PIPE->SetZflange(483.8);
-        PIPE->SetR2(3.6);
-        PIPE->SetIsConeBe(1);
-        PIPE->SetIsFlangeBe(1);
-        PIPE->SetConeW(0.1);
-      }
-      else {
-        AliPIPE *PIPE = new AliPIPEv3("PIPE", "Beam Pipe");
-      }
+      AliPIPE *PIPE = new AliPIPEv3("PIPE", "Beam Pipe");
     }
  
   if (iITS)
@@ -601,15 +593,6 @@ DetectorInit(Int_t tag)
      }
   }
   
-  if (iFOCAL)
-  {
-    //=================== FOCAL parameters ============================
-    const char *gfname="";
-    if (gSystem->Getenv("CONFIG_FOCALGEOMETRYFILE")) {
-        gfname = gSystem->Getenv("CONFIG_FOCALGEOMETRYFILE");
-    }
-    AliFOCAL *FOCAL = new AliFOCALv1("FOCAL","FOCAL with HCAL at 7m",gfname);
-  }
   
   if (iFIT)
   {
