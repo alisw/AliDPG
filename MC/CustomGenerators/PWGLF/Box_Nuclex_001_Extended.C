@@ -20,7 +20,7 @@ AliGenerator *GeneratorCustom()  {
         "Hypertriton"
     };
     
-    int npart = 10;
+    int npart = 20;
     
     double maxpt[6] = {10.0,10.0,10.0,10.0,10.0,10.0};
   
@@ -33,7 +33,7 @@ AliGenerator *GeneratorCustom()  {
             box->SetPart(pdg);
             box->SetPtRange(0., maxpt[ipart]);
             box->SetPhiRange(0., 360.);
-            box->SetYRange(-0.8,0.8);
+            box->SetYRange(-0.5,0.5);
             ctl->AddGenerator(box, Form("%s%i",names[ipart],negative), 1);
         }
     }
