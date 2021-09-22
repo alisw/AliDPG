@@ -20,7 +20,7 @@ AliGenerator *GeneratorCustom()  {
         "Hypertriton"
     };
     
-    int npart = 10;
+    int npart = 20;
     
     double maxpt[6] = {10.0,10.0,10.0,10.0,10.0,10.0};
   
