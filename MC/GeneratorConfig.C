@@ -214,6 +214,8 @@ AliGenerator *GeneratorEPOSLHC(Bool_t pileup = kFALSE);
 AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Bool_t useEvtGenForB=kFALSE);
 AliGenerator *Generator_JpsiEtaToProton(const Char_t *params, Float_t jpsifrac, Float_t etafrac);
+//AliGenerator *Generator_JpsiToLLbar(const Char_t *params, Float_t jpsifrac);
+AliGenerator *Generator_JpsiToLLbar(const Char_t *params, Float_t jpsifrac, Float_t bfrac, Bool_t useEvtGenForB);
 AliGenerator *Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt = 10.f, Float_t max_y = 1.);
 AliGenerator *GeneratorStarlight();
 AliGenerator *GeneratorDRgen();
@@ -1221,6 +1223,7 @@ GeneratorStarlight(){
   // kIncohJpsiToEl
   // kIncohJpsiToElRad
   // kIncohJpsiToProton
+  // kIncohJpsiToLLbar
   // kIncohPsi2sToMu
   // kIncohPsi2sToEl
   // kIncohPsi2sToMuPi
@@ -1330,6 +1333,7 @@ GeneratorStarlight(){
     {"kIncohJpsiToEl",       4,  443011,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohJpsiToElRad",    4,  443011,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohJpsiToProton",   4, 4432212,   20, -1.0, -1.0, 0.01 }, //
+    {"kIncohJpsiToLLbar",   4, 4433122,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohPsi2sToMu",      4,  444013,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohPsi2sToEl",      4,  444011,   20, -1.0, -1.0, 0.01 }, //
     {"kIncohPsi2sToMuPi",    4,  444013,   20, -1.0, -1.0, 0.01 }, //
@@ -1701,6 +1705,71 @@ Generator_JpsiEtaToProton(const Char_t *params, Float_t jpsifrac, Float_t etafra
   gener->AddGenerator(gene, "EvtGen", 1.);
   //
   return gener;
+}
+
+/*** JPSI ->LLbar **************************************************/
+
+AliGenerator *
+Generator_JpsiToLLbar(const Char_t *params, Float_t jpsifrac, Float_t bfrac, Bool_t useEvtGenForB)
+{
+        //gSystem->Load("libPhotos");
+        gSystem->Load("libEvtGen");
+        gSystem->Load("libEvtGenExternal");
+        gSystem->Load("libTEvtGen");
+
+	TVirtualMCDecayer* decayer = new AliDecayerPythia();
+        decayer->SetForceDecay(kAll);
+        decayer->Init();
+        gMC->SetExternalDecayer(decayer);
+        comment = comment.Append(Form(" | J/psi -> L L-bar (%s, %.1f/%.1f)", params));
+        AliGenCocktail *gener = new AliGenCocktail();
+        gener->UsePerEventRates();
+
+	TString stringParams = params;
+  	AliGenParam* jpsi    = NULL;
+  	if(stringParams.Contains("UserParam")){
+	#if defined(__CINT__)
+		gROOT->LoadMacro("$ALIDPG_ROOT/MC/CustomGenerators/PWGDQ/GenJPsiParaSet.C++");
+	#endif
+   	jpsi = GenJPsiParaSet(stringParams);
+  	}
+  	else jpsi = new AliGenParam(1, AliGenMUONlib::kJpsi, params, "Jpsi");
+
+	jpsi->SetPtRange(0., 1000.);
+        jpsi->SetYRange(-1.0, 1.0);
+        jpsi->SetPhiRange(0., 360.);
+        jpsi->SetForceDecay(kNoDecay);
+
+	AliGenPythia *pythia = new AliGenPythia(-1);
+  	pythia->SetMomentumRange(0, 999999.);
+  	pythia->SetThetaRange(0., 180.);
+  	pythia->SetYRange(-2., 2.);
+  	pythia->SetPtRange(0, 1000.);
+  	pythia->SetProcess(kPyBeautyppMNRwmi);
+  	pythia->SetEnergyCMS(energyConfig);
+  	pythia->SetTune(kPythia6Tune_Perugia0);
+  	pythia->UseNewMultipleInteractionsScenario();
+ 	if(useEvtGenForB) pythia->SetForceDecay(kNoDecayBeauty);
+  	else {
+  	pythia->SetCutOnChild(1);
+  	pythia->SetPdgCodeParticleforAcceptanceCut(443);
+  	pythia->SetChildYRange(-2, 2);
+  	pythia->SetChildPtRange(0, 10000.);
+  	pythia->SetForceDecay(kBJpsiUndecayed);
+  	}
+  	pythia->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
+
+	AliGenEvtGen *gene = new AliGenEvtGen();
+        gene->SetUserDecayTable(gSystem->ExpandPathName("$ALIDPG_ROOT/MC/CustomDecayTables/BTOJPSITOLLBAR.DEC"));
+        //gene->SetUserDecayTable(gSystem->ExpandPathName("$ALIDPG_ROOT/MC/CustomDecayTables/JPSITOLLBAR.DEC"));
+  	if(useEvtGenForB) gene->SetParticleSwitchedOff(AliGenEvtGen::kHFPart);
+  	else gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);
+
+  	if (jpsifrac > 0.) gener->AddGenerator(jpsi,           "JPsi",           jpsifrac);
+  	if (bfrac    > 0.) gener->AddGenerator(pythia,         "Pythia",         bfrac);
+  	gener->AddGenerator(gene, "EvtGen", 1.);
+	
+	return gener;
 }
 
 
