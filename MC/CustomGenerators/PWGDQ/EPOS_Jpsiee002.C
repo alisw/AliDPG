@@ -6,7 +6,7 @@ GeneratorCustom()
   ctl->AddGenerator(epos, "EPOS-LHC", 1.);
   if (uidConfig % 10 < 7)
     { // (params, jpsifrac, lowfrac, highfrac, bfrac) 
-      AliGenerator *jpsi = Generator_Jpsiee("pPb 5.03", 0.7, 0.0, 0.3, 0.0); 
+      AliGenerator *jpsi = Generator_Jpsiee("pPb 5.03", 1.0, 0.0, 0.0, 0.0); 
       ctl->AddGenerator(jpsi, "Jpsi2ee", 1., NULL, 3); 
       TFile *file = new TFile("typeHF_4.proc", "recreate"); 
       file->Close(); 
