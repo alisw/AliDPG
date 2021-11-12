@@ -254,7 +254,7 @@ Special FOCAL simulations detector init
     if (gSystem->Getenv("CONFIG_FOCALGEOMETRYFILE")) {
       gfname = gSystem->Getenv("CONFIG_FOCALGEOMETRYFILE");
     }
-    AliFOCAL *FOCAL = new AliFOCALv1("FOCAL","FOCAL with HCAL at 7m",gfname);
+    AliFOCAL *FOCAL = new AliFOCALv2("FOCAL","FOCAL version-2",gfname);
   }
   
   if (iFIT) {
