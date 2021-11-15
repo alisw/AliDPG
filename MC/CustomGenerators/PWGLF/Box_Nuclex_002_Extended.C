@@ -29,7 +29,7 @@ AliGenerator *GeneratorCustom()  {
             box->SetPart(pdg);
             box->SetPtRange(0., maxpt[ipart]);
             box->SetPhiRange(0., 360.);
-            box->SetYRange(-0.5,0.5);
+            box->SetYRange(-1.,1.);
             ctl->AddGenerator(box, Form("%s%i",names[ipart],negative), 1);
         }
     }
