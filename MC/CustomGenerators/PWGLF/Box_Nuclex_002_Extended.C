@@ -18,7 +18,7 @@ AliGenerator *GeneratorCustom()  {
     
     int npart = 20;
     
-    double maxpt[4] = {10.0,10.0,10.0,10.0};
+    double maxpt[4] = {3.,3.5,4.,5.};
   
     for (Int_t ipart = 0; ipart < 4; ++ipart) {
         for (Int_t negative = 0; negative < 2; negative++) {
