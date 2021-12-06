@@ -38,7 +38,7 @@ AliGenerator *GeneratorCustom()
 
   int npart = 20;
 
-  double maxpt[4] = {3., 10., 4., 5.}; /// large pt range for Lambda for the mass measurement
+  double maxpt[4] = {3.5, 4., 4., 5.}; /// large pt range for Lambda for the mass measurement
 
   for (Int_t ipart = 0; ipart < 4; ++ipart)
   {
