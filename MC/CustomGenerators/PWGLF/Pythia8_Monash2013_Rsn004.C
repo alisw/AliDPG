@@ -8,7 +8,7 @@ struct particle_inj {
 
 AliGenerator* GeneratorCustom()
 {
-  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Monash2013_RsnNcl002");
+  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Monash2013_RsnNcl004");
   // pythia8
   AliGenerator   *py8 = GeneratorPythia8(kPythia8Tune_Monash2013);
   ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
