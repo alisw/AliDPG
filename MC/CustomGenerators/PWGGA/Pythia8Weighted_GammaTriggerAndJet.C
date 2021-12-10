@@ -68,7 +68,7 @@ GeneratorCustom
   }
   
   // Set the desired weight
-  ((AliGenPythiaPlus*) gener)->SetWeightPower(6.);
+  ((AliGenPythiaPlus*) gener)->SetWeightPower(4.);
   
   return gener;
 }
