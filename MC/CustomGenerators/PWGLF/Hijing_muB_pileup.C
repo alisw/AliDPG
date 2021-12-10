@@ -36,7 +36,7 @@ AliGenerator *GeneratorCustom()
       "Xi",
       "Omega"};
 
-  int npart = 20;
+  int npart[4] = {40, 40, 10, 10};
 
   double maxpt[4] = {3.5, 4., 4., 5.}; /// large pt range for Lambda for the mass measurement
 
@@ -45,7 +45,7 @@ AliGenerator *GeneratorCustom()
     for (Int_t negative = 0; negative < 2; negative++)
     {
 
-      AliGenBox *box = new AliGenBox(npart);
+      AliGenBox *box = new AliGenBox(npart[ipart]);
       Int_t pdg = pdgcodes[ipart];
       if (negative)
         pdg = -pdg;
