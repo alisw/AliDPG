@@ -20,7 +20,12 @@
 ///   * PHSRun2 : PHOS  |eta| < 0.13, 250 < phi < 320
 ///   * PHSDMC  : DCal+PHOS |eta| < 0.7, 250 < phi < 327
 ///   * EMCPHSDMC: EMCal+DCal+PHOS |eta| < 0.7, 250 < phi < 327 & 80 < phi < 187
-///   
+///
+///  * Weight to be applied to the pT hard exponential distribution.
+///
+///  Options are passed via the macro options, first the "acceptance string" and then the "weight string"
+///  in this way: "acceptance_weight", for example "kFullDetector_5.13"
+///
 /// This macro can only be used for AliRoot containing the setting of the weight, 
 /// from v5-09-54m, v5-09-55b, v5-09-56f. On master from April 2021
  
@@ -29,23 +34,28 @@
 ///
 AliGenerator * 
 GeneratorCustom
-(TString opt = "kFullDetector")
+(TString opt = "kFullDetector_5.13")
 {
+  // Parse the option into detector string and weight
+  TObjArray *oa = opt.Tokenize("_");
+  TString det    = ( (TObjString*) oa->At(0) )->GetString();
+  Float_t weight = atof((( (TObjString*) oa->At(1) )->GetString()).Data());
+
   // acceptance
   Int_t acceptance = kCalorimeterAcceptance_FullDetector;
-  if (opt.EqualTo("FullDetector"))
+  if (det.EqualTo("FullDetector"))
     acceptance = kCalorimeterAcceptance_FullDetector;
-  if (opt.EqualTo("EMCRun1"))
+  if (det.EqualTo("EMCRun1"))
     acceptance = kCalorimeterAcceptance_EMCRun1;
-  if (opt.EqualTo("PHSRun1"))
+  if (det.EqualTo("PHSRun1"))
     acceptance = kCalorimeterAcceptance_PHSRun1;
-  if (opt.EqualTo("EMCRun2"))
+  if (det.EqualTo("EMCRun2"))
     acceptance = kCalorimeterAcceptance_EMCRun2;
-  if (opt.EqualTo("PHSRun2"))
+  if (det.EqualTo("PHSRun2"))
     acceptance = kCalorimeterAcceptance_PHSRun2;
-  if (opt.EqualTo("PHSDMC"))
+  if (det.EqualTo("PHSDMC"))
     acceptance = kCalorimeterAcceptance_PHSDMC;
-  if (opt.EqualTo("EMCPHSDMC"))
+  if (det.EqualTo("EMCPHSDMC"))
      acceptance = kCalorimeterAcceptance_EMCPHSDMC;
   
   AliGenerator * gener = 0;
@@ -68,7 +78,10 @@ GeneratorCustom
   }
   
   // Set the desired weight
-  ((AliGenPythiaPlus*) gener)->SetWeightPower(4.);
-  
+  ((AliGenPythiaPlus*) gener)->SetWeightPower(weight);
+
+  printf("Pythia8Weighted_GammaTriggerAndJet.C - Set weight %f for acceptance <%s> and process <%s>\n",
+         weight, det.Data(),processConfig.Data());
+
   return gener;
 }
