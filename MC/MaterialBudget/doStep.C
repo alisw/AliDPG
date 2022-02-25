@@ -2,10 +2,10 @@ void doStep(Int_t prec=1, Int_t iMin=0, Int_t iMax=100, Float_t zMax=5., float s
   
   double rMin =iMin*stepsize;
   double rMax =iMax*stepsize;
-  Int_t nThetaBins = 1;  // Y
+  Int_t nThetaBins = prec*45;  // Y
   Double_t thetaMin = 85;
   Double_t thetaMax = 95;
-  Int_t nPhiBins = 1;   //X
+  Int_t nPhiBins = prec*45;   //X
   Double_t phiMin = 0;
   Double_t phiMax = 360;
   
