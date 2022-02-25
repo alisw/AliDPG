@@ -1,0 +1,12 @@
+doStep.C
+- create a geometry from Config.C + OCDB
+- fill histos with X/X0 and density in a given R-range
+
+showLego.C
+- show results and print average X/X0 and density  
+
+doscanInRadius.sh
+- do a scan for Radii (draw.C used to make the plot and save to file mb.root)
+
+draw.C
+- visualize results after doscanInRadius.sh
