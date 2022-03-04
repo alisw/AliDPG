@@ -363,9 +363,68 @@ DetectorInit(Int_t tag)
     {
       //=================== ITS parameters ============================
       
-      AliITS *ITS  = new AliITSv11("ITS","ITS v11");
+      AliITSv11 *ITS  = new AliITSv11("ITS","ITS v11");
       if( tag == kDetectorPhosOnly)
 	ITS->DisableStepManager();
+
+      // adjust material if requested
+      if(gSystem->Getenv("CONFIG_ITS_MATERIAL")){
+        printf("*** ITS requiring adjusment of SPD and SDD denisities\n");
+        TString str_conf = gSystem->Getenv("CONFIG_ITS_MATERIAL");
+        char currentpar[100];
+        int upto = str_conf.First(",");
+        while(upto > - 1 && upto < 100){ // more than one param
+          snprintf(currentpar, upto+1, "%s", str_conf.Data());
+          TString tstr(currentpar);
+          str_conf.Remove(0, upto+1);
+          upto = str_conf.First(",");
+
+          if(tstr.Contains("kSPDSiChip")){
+            float val = atof(&tstr[tstr.First("=") + 1]);
+            printf("kSPDSiChip = %f\n", val);
+            ITS->SetDensityFactor(AliITSv11::kSPDSiChip, val);// SPD Silicon chip
+          } else if(tstr.Contains("kSPDSiSens")){
+            float val = atof(&tstr[tstr.First("=") + 1]);
+            printf("kSPDSiSens = %f\n", val);
+            ITS->SetDensityFactor(AliITSv11::kSPDSiSens, val);// SPD Silicon sensor
+          } else if(tstr.Contains("kSPDAlBus")){
+            float val = atof(&tstr[tstr.First("=") + 1]);
+            printf("kSPDAlBus = %f\n", val);
+            ITS->SetDensityFactor(AliITSv11::kSPDAlBus, val);// SPD Aluminum Bus
+          } else if(tstr.Contains("kSPDCoolPipes")){
+            float val = atof(&tstr[tstr.First("=") + 1]);
+            printf("kSPDCoolPipes = %f\n", val);
+            ITS->SetDensityFactor(AliITSv11::kSPDCoolPipes, val);// SPD Phynox
+          } else if(tstr.Contains("kSDDSiAll")){
+            float val = atof(&tstr[tstr.First("=") + 1]);
+            printf("kSDDSiAll = %f\n", val);
+            ITS->SetDensityFactor(AliITSv11::kSDDSiAll, val);// SDD Silicon chip+sensor
+          }
+        }
+        snprintf(currentpar, 100, "%s", str_conf.Data());
+        TString tstr(currentpar);
+        if(tstr.Contains("kSPDSiChip")){
+          float val = atof(&tstr[tstr.First("=") + 1]);
+          printf("kSPDSiChip = %f\n", val);
+          ITS->SetDensityFactor(AliITSv11::kSPDSiChip, val);// SPD Silicon chip
+        } else if(tstr.Contains("kSPDSiSens")){
+          float val = atof(&tstr[tstr.First("=") + 1]);
+          printf("kSPDSiSens = %f\n", val);
+          ITS->SetDensityFactor(AliITSv11::kSPDSiSens, val);// SPD Silicon sensor
+        } else if(tstr.Contains("kSPDAlBus")){
+          float val = atof(&tstr[tstr.First("=") + 1]);
+          printf("kSPDAlBus = %f\n", val);
+          ITS->SetDensityFactor(AliITSv11::kSPDAlBus, val);// SPD Aluminum Bus
+        } else if(tstr.Contains("kSPDCoolPipes")){
+          float val = atof(&tstr[tstr.First("=") + 1]);
+          printf("kSPDCoolPipes = %f\n", val);
+          ITS->SetDensityFactor(AliITSv11::kSPDCoolPipes, val);// SPD Phynox
+        } else if(tstr.Contains("kSDDSiAll")){
+          float val = atof(&tstr[tstr.First("=") + 1]);
+          printf("kSDDSiAll = %f\n", val);
+          ITS->SetDensityFactor(AliITSv11::kSDDSiAll, val);// SDD Silicon chip+sensor
+        }
+      }
     }
 
   if (iTPC)
