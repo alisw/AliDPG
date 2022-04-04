@@ -68,6 +68,7 @@ function COMMAND_HELP(){
     echo "--keepTrackRefsFraction <percentage>      Percentage of subjobs that keeps the TrackRefs file"
     echo "--signalFilteringFraction <percentage>    Percentage of subjobs that use signal filtering (for embedding only)"
     echo "--material <densityFactor>                Modify material budget by a density factor"
+    echo "--its-material <densityFactor>            Modify its-only material budget following this syntaxt \"kSPDSiChip=1.2,kSPDSiSens=1.2,kSPDAlBus=1.2,kSPDCoolPipes=1.2,kSDDSiAll=1.12\""
     echo "--purifyKineOff                           Switch off the PurifyKine step in simulation" 
     echo "--fluka                                   Use FLUKA instead of GEANT3" 
     echo "--geant4                                  Use GEANT4 instead of GEANT3"
@@ -251,6 +252,7 @@ CONFIG_FASTB=""
 CONFIG_VDT="on"
 CONFIG_CLEANUP="on"
 CONFIG_MATERIAL=""
+CONFIG_ITS_MATERIAL=""
 CONFIG_KEEPTRACKREFSFRACTION="0"
 CONFIG_REMOVETRACKREFS="off"
 CONFIG_SIGNALFILTERINGFRACTION="100"
@@ -493,6 +495,10 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--material" ]; then
         CONFIG_MATERIAL="$1"
 	export CONFIG_MATERIAL
+        shift
+    elif [ "$option" = "--its-material" ]; then
+        CONFIG_ITS_MATERIAL="$1"
+        export CONFIG_ITS_MATERIAL
         shift
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
