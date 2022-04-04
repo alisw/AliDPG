@@ -39,6 +39,9 @@ function COMMAND_HELP(){
     echo "--ymin <min> --ymax <max>                 Rapidity range. Specific use may vary according to generator configuration"
     echo "--phimin <min> --phimax <max>             Azimuthal angle range (in degree). Specific use may vary according to generator configuration"
     echo "--ptmin <min> --ptmax <max>               Transverse momentum range. Specific use may vary according to generator configuration"
+    echo "--etamin <min> --etamax <max>             Eta range. Specific use may vary according to generator configuration"
+    echo "--pmom <momentum>                         Full momentum of generated particle. Specific use may vary according to generator configuration"
+    echo "--eta <eta>                               Eta of generated particle. Specific use may vary according to generator configuration"
     echo "--pthardmin <min> --pthardmax <max>       Range of pT hard bins (if applicable)" 
     echo "--pthardbin <bin number>                  For selection of predefined pT hard bins (see MC/dpgsim.sh for definition)"
     echo "--pttrigmin <min> --pttrigmax <max>       Range of pT for trigger particles (if applicable)"
@@ -65,7 +68,6 @@ function COMMAND_HELP(){
     echo "--keepTrackRefsFraction <percentage>      Percentage of subjobs that keeps the TrackRefs file"
     echo "--signalFilteringFraction <percentage>    Percentage of subjobs that use signal filtering (for embedding only)"
     echo "--material <densityFactor>                Modify material budget by a density factor"
-    echo "--its-material <densityFactor>            Modify its-only material budget following this syntaxt \"kSPDSiChip=1.2,kSPDSiSens=1.2,kSPDAlBus=1.2,kSPDCoolPipes=1.2,kSDDSiAll=1.12\""
     echo "--purifyKineOff                           Switch off the PurifyKine step in simulation" 
     echo "--fluka                                   Use FLUKA instead of GEANT3" 
     echo "--geant4                                  Use GEANT4 instead of GEANT3"
@@ -216,6 +218,10 @@ CONFIG_PHIMIN=""
 CONFIG_PHIMAX=""
 CONFIG_PTMIN=""
 CONFIG_PTMAX=""
+CONFIG_ETAMIN=""
+CONFIG_ETAMAX=""
+CONFIG_PMOM=""
+CONFIG_ETA=""
 CONFIG_PTHARDBIN=""
 CONFIG_PTHARDMIN=""
 CONFIG_PTHARDMAX=""
@@ -245,7 +251,6 @@ CONFIG_FASTB=""
 CONFIG_VDT="on"
 CONFIG_CLEANUP="on"
 CONFIG_MATERIAL=""
-CONFIG_ITS_MATERIAL=""
 CONFIG_KEEPTRACKREFSFRACTION="0"
 CONFIG_REMOVETRACKREFS="off"
 CONFIG_SIGNALFILTERINGFRACTION="100"
@@ -401,6 +406,22 @@ while [ ! -z "$1" ]; do
         CONFIG_PTMAX="$1"
 	export CONFIG_PTMAX
         shift
+    elif [ "$option" = "--etamin" ]; then
+        CONFIG_ETAMIN="$1"
+	export CONFIG_ETAMIN
+        shift    
+    elif [ "$option" = "--etamax" ]; then
+        CONFIG_ETAMAX="$1"
+	export CONFIG_ETAMAX
+        shift        
+    elif [ "$option" = "--pmom" ]; then
+        CONFIG_PMOM="$1"
+	export CONFIG_PMOM
+        shift    
+    elif [ "$option" = "--eta" ]; then
+        CONFIG_ETA="$1"
+	export CONFIG_ETA
+        shift    
     elif [ "$option" = "--pthardbin" ]; then
         CONFIG_PTHARDBIN="$1"
 	export CONFIG_PTHARDBIN
@@ -472,10 +493,6 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--material" ]; then
         CONFIG_MATERIAL="$1"
 	export CONFIG_MATERIAL
-        shift
-    elif [ "$option" = "--its-material" ]; then
-        CONFIG_ITS_MATERIAL="$1"
-        export CONFIG_ITS_MATERIAL
         shift
     elif [ "$option" = "--geant4" ]; then
         CONFIG_GEANT4="on"
@@ -948,6 +965,10 @@ echo "phi-min (in deg.) $CONFIG_PHIMIN"
 echo "phi-max (in deg.) $CONFIG_PHIMAX"
 echo "pT-min........... $CONFIG_PTMIN"
 echo "pT-max........... $CONFIG_PTMAX"
+echo "pmom............. $CONFIG_PMOM"
+echo "eta.............. $CONFIG_ETA"
+echo "eta-min.......... $CONFIG_ETAMIN"
+echo "eta-max.......... $CONFIG_ETAMAX"
 echo "============================================"
 echo "pT-hard bin...... $CONFIG_PTHARDBIN"
 echo "pT-hard min...... $CONFIG_PTHARDMIN"
