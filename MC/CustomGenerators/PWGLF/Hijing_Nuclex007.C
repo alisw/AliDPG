@@ -1,4 +1,4 @@
-// Requires AliRoot from v5-09-02
+// Requires AliRoot from v5-09-59b --> fix for A=4 hypernuclei masses
 AliGenerator *
 GeneratorCustom()
 {
