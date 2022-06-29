@@ -1,9 +1,9 @@
 AliGenerator *GeneratorCustom(TString opt = "")
 {
 
-  const Int_t nOptions=9;
-  
-  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated", "OmegacDedicated","LcToLpiDedicated","OmegacSemilepDedicated"};
+  const Int_t nOptions=10;
+
+  Char_t* label[nOptions] = {"DsDedicated", "DsDplusDedicated", "XicDedicated", "LcTopKpiDedicated", "LcTopK0sDedicated", "XicSemilepDedicated", "OmegacDedicated","LcToLpiDedicated","OmegacSemilepDedicated","OmegacToXiPiDedicated"};
 
   Int_t channelOption = 0;
   for (Int_t iopt = 0; iopt < nOptions; iopt++ ) {
@@ -12,8 +12,8 @@ AliGenerator *GeneratorCustom(TString opt = "")
   }
 
   //Switches for prompt/nonprompt, sign of trigger particle, trigger particle
-  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132, 4332, 4122, 4332};
-  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0, 0, 0, 0};
+  Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132, 4332, 4122, 4332, 4332};
+  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0, 0, 0, 0, 0};
   Process_t process; //charm or beauty
   Int_t sign = 0; //Sign of trigger particle
   Int_t triggerPart = triggerParticleFirst[channelOption]; //trigger particle
@@ -64,7 +64,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
 
   // Lc decays
   if(AliPythiaBase::Class()->GetMethodAny("Decayer")){
-    printf("Force decays using ForceHadronicD of AliDecayerPythia8\n");   
+    printf("Force decays using ForceHadronicD of AliDecayerPythia8\n");
     if(channelOption==3){
       pyth->SetForceDecay(kLcpKpi);
     }
@@ -134,7 +134,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
     (AliPythia8::Instance())->ReadString("4232:onIfMatch = 3312 211 211");
     // Xic0 -> Xi- pi+
     (AliPythia8::Instance())->ReadString("4132:onIfMatch = 3312 211");
-    
+
     (AliPythia8::Instance())->ReadString("4332:onMode = off");
     if(channelOption ==6){ // Omegac0 -> Omega- pi+
         (AliPythia8::Instance())->ReadString("4332:onIfMatch = 3334 211");
@@ -142,7 +142,10 @@ AliGenerator *GeneratorCustom(TString opt = "")
     if(channelOption ==8){ // Omegac0 semileptonic decay
         (AliPythia8::Instance())->ReadString("4332:onIfMatch = 3334 -11 12");
       }
-      
+    if(channelOption ==9){ //Omegac0 -> Xi Pi
+        (AliPythia8::Instance())->ReadString("4332:onIfMatch = 3312 211");
+      }
+
     //add Lc decays absent in PYTHIA8 decay table and set BRs from PDG for others
     (AliPythia8::Instance())->ReadString("4122:oneChannel = 1 0.0196 100 2212 -313");
     (AliPythia8::Instance())->ReadString("4122:addChannel = 1 0.0108 100 2224 -321");
@@ -169,7 +172,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
       (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2224 321");
       (AliPythia8::Instance())->ReadString("4122:onIfMatch = 3124 211");
       (AliPythia8::Instance())->ReadString("4122:onIfMatch = 2212 321 211");
-      (AliPythia8::Instance())->ReadString("4122:onIfMatch = 3122 211");    
+      (AliPythia8::Instance())->ReadString("4122:onIfMatch = 3122 211");
     }
     else if(channelOption==4){
       Printf("Lc -> pK0s channel");
@@ -181,11 +184,11 @@ AliGenerator *GeneratorCustom(TString opt = "")
       (AliPythia8::Instance())->ReadString("4122:onMode = off");
       (AliPythia8::Instance())->ReadString("4122:onIfMatch = 3122 211");
     }
-  } 
+  }
   // Set up2date lifetimes for hadrons
   // lambda_b from PDG 2019: tau0 = 1.471 ps = 441 m/c = 0.441 mm/c
   (AliPythia8::Instance())->ReadString("5122:tau0 = 4.41000e-01");
-  
+
 
 
   return pyth;
