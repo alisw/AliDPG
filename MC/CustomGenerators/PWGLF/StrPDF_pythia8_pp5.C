@@ -11,7 +11,7 @@
 AliGenerator *GeneratorCustom(){
 
   Int_t inj_config = uidConfig % 7; 
-  Int_t inj_sign = uidConfig % 2; 
+  Int_t inj_sign = (uidConfig%2)? 1 : -1  ;
   
   const int dim = 7; //nijection required
   Int_t k0s_array[dim] = {4,5,6,7,8,9,10}; //index: npart injected 
