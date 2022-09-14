@@ -92,6 +92,9 @@ AliGenerator *GeneratorCustom(TString opt = "")
             return 0x0;
         }
     }
+    else if(channelOption==9){ //Omegac0 -> Xi pi
+      pyth->SetForceDecay(kOmegac0ToXiPi);
+    }
     else if(channelOption<2 && argsNum>=5){
       pyth->SetForceDecay(kHadronicDWithout4BodiesDsPhiPi);
     }
@@ -134,7 +137,10 @@ AliGenerator *GeneratorCustom(TString opt = "")
     (AliPythia8::Instance())->ReadString("4232:onIfMatch = 3312 211 211");
     // Xic0 -> Xi- pi+
     (AliPythia8::Instance())->ReadString("4132:onIfMatch = 3312 211");
+    //Add Omegac0 decay absent in PYTHIA8 decay table (omegac0->Xi pi)
+    (AliPythia8::Instance())->ReadString("4332:addChannel = 1 0.2 0 3312 211");
 
+    //Omegac0 decays
     (AliPythia8::Instance())->ReadString("4332:onMode = off");
     if(channelOption ==6){ // Omegac0 -> Omega- pi+
         (AliPythia8::Instance())->ReadString("4332:onIfMatch = 3334 211");
