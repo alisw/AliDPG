@@ -323,7 +323,7 @@ while [ ! -z "$1" ]; do
     elif [ "$option" = "--detector" ]; then
         CONFIG_DETECTOR="$1"
         # check that FOCAL env is set in case we run a FOCAL simulation
-        if [ "$CONFIG_DETECTOR" = "FOCAL" ]; then
+        if [ "$CONFIG_DETECTOR" = "FOCAL" ] || [ "$CONFIG_DETECTOR" = "FOCALnoFIT" ]; then
             if [ -z "$FOCAL" ]; then
                 echo "FOCAL simulation requested but FOCAL environment not set."
                 exit 1

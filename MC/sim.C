@@ -60,7 +60,8 @@ void sim()
   AliSimulation sim(config_macro.Data());
   
   if (gSystem->Getenv("CONFIG_DETECTOR")) {
-    if (strcmp(gSystem->Getenv("CONFIG_DETECTOR"), "FOCAL") == 0) {
+    if ((strcmp(gSystem->Getenv("CONFIG_DETECTOR"), "FOCAL") == 0) ||
+        (strcmp(gSystem->Getenv("CONFIG_DETECTOR"), "FOCALnoFIT") == 0)) {
       printf(">>>>> sim.C: No align data from CDB when running FOCAL !!!!!!!!!!!!!!! \n");  
       sim.SetLoadAlignFromCDB(kFALSE);
       sim.SetUseDetectorsFromGRP(kFALSE);

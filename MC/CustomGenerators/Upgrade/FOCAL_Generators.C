@@ -7,7 +7,8 @@ Double_t EtaToTheta(Double_t eta)
 enum GenTypes {
   gun=0, 
   gunJpsi,
-  box, 
+  box,
+  boxWithDecay,
   pythia, 
   pythia_MBtrig, 
   pythia_dirgamma_trig, 
@@ -25,6 +26,7 @@ TString gGenTypeNames[kNGenTypes] = {
   "gun", 
   "gunJpsi",
   "box", 
+  "boxWithDecay",
   "pythia", 
   "pythia_MBtrig", 
   "pythia_dirgamma_trig",
@@ -183,6 +185,82 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       generator = gener;
     }
     break;
+    
+    case boxWithDecay:  
+    // Example for Moving Particle Gun (with decays enabled) 
+    {
+      float ptmin = 0.0;      
+      if (gSystem->Getenv("CONFIG_PTMIN")) {
+        ptmin = atof(gSystem->Getenv("CONFIG_PTMIN"));
+      }
+      float ptmax = 10.0;      
+      if (gSystem->Getenv("CONFIG_PTMAX")) {
+        ptmax = atof(gSystem->Getenv("CONFIG_PTMAX"));
+      }
+      float ymin = 3.0;      
+      if (gSystem->Getenv("CONFIG_YMIN")) {
+        ymin = atof(gSystem->Getenv("CONFIG_YMIN"));
+      }
+      float ymax = 6.0;      
+      if (gSystem->Getenv("CONFIG_YMAX")) {
+        ymax = atof(gSystem->Getenv("CONFIG_YMAX"));
+      }
+      float phimin = 0.0;      
+      if (gSystem->Getenv("CONFIG_PHIMIN")) {
+        phimin = atof(gSystem->Getenv("CONFIG_PHIMIN"));
+      }
+      float phimax = 360.0;      
+      if (gSystem->Getenv("CONFIG_PHIMAX")) {
+        phimax = atof(gSystem->Getenv("CONFIG_PHIMAX"));
+      }
+      int pdg = 23;   // default: Z0
+      if (gSystem->Getenv("CONFIG_PDG")) {
+        pdg = atoi(gSystem->Getenv("CONFIG_PDG"));
+      }
+      
+      // set external decayer
+      TVirtualMCDecayer* decayer = new AliDecayerPythia();
+      decayer->SetForceDecay(kAll);
+      decayer->Init();
+      gMC->SetExternalDecayer(decayer);      
+      
+      AliGenCocktail *gener = new AliGenCocktail();
+      gener->UsePerEventRates();
+      
+      AliGenBox *genBox = new AliGenBox(1);
+      genBox->SetPtRange(ptmin, ptmax);
+      genBox->SetPhiRange(phimin, phimax);  // full polar angle around beam axis
+      genBox->SetYRange(ymin, ymax);
+      genBox->SetOrigin(0,0,0);   
+      //vertex position
+      genBox->SetSigma(0,0,0);         //Sigma in (X,Y,Z) (cm) on IP position
+      genBox->SetPart(pdg);
+      gener->AddGenerator(genBox, "box", 1.);      
+      
+      AliGenEvtGen *gene = new AliGenEvtGen();
+      // NOTE: the original decay table is in AliRoot/TEvtGen/EvtGen/DecayTable/DIELECTRON.DEC
+      //       If the decay you are after is there, then you can comment out the following line.
+      //       Alternatively, make sure the decay file you use below is in the working directory (or copied to 
+      //         the grid working note if you run on the grid)
+      gene->SetUserDecayTable("DIELECTRON.DEC");
+      if (pdg==23) {
+        gene->SetForceDecay(kZDiElectron);
+        gene->SetParticleSwitchedOff(AliGenEvtGen::kAllPart);
+      }
+      if (pdg==443) {
+        gene->SetForceDecay(kDiElectron);
+        gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);      
+      }
+      if (pdg==553) {
+        gene->SetForceDecay(kDiElectron);
+        gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);      
+      }
+      gene->Init();
+      gener->AddGenerator(gene, "EvtGen", 1.);
+      
+      generator = gener;
+    }
+    break;
 
     case pythia:
     // Example for Pythia            
@@ -240,7 +318,11 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       }
       gener->SetCheckFOCAL(kTRUE);  
       gener->SetFOCALEta(3.5, 6.2);
-      gener->SetTriggerParticleMinPt(4.0);
+      float ptmin = 4.0;      
+      if (gSystem->Getenv("CONFIG_PTMIN")) {
+        ptmin = atof(gSystem->Getenv("CONFIG_PTMIN"));
+      }
+      gener->SetTriggerParticleMinPt(ptmin);
       generator = gener;
     }
     break;
@@ -304,7 +386,7 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       gener->SetSpectators(0); // Don't track spectators 
       gener->SetSelectAll(0); // kinematic selection 
       gener->SetImpactParameterRange(0., 8.); // Impact parameter range (fm) 
-      //gener->UnsetDataDrivenSpectators();
+      gener->UnsetDataDrivenSpectators();
 
       gener->SetTrigger(2); // 2: direct photons; 3: decay photons
       gener->SetPtJet(4.);
@@ -392,18 +474,23 @@ AliGenerator* GeneratorCustom(TString opt = "") {
 
       /*TString fifoname("$TMPDIR/myfifo");
       AliGenExtExec* eposExt = new AliGenExtExec();
-      eposExt->SetPathScript(Form("./gen_eposlhc.sh %s",fifoname.Data()));
+      //eposExt->SetPathScript(Form("./gen_eposlhc.sh %s",fifoname.Data()));
+      eposExt->SetPathScript(Form("crmc -o hepmc -f %s -n %d -m 0 -i %d -p %f -I %d -P %f",
+                                  fifoname.Data(),nEvents,projectileId,projectileEnergy,targetId,targetEnergy));
       eposExt->SetPathFIFO(fifoname);
       cocktail->AddGenerator(eposExt,"EPOS",1.);*/
       
       TString fifoname("myfifo");
       gROOT->ProcessLine(Form(".! rm -rf %s", fifoname.Data()));
       gROOT->ProcessLine(Form(".! mkfifo %s", fifoname.Data()));
-      gROOT->ProcessLine(Form(".! bash $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc.sh %s %d %d %f %d %f &> gen_eposlhc%d.log &",
+      /*gROOT->ProcessLine(Form(".! bash $ALIDPG_ROOT/MC/EXTRA/gen_eposlhc.sh %s %d %d %f %d %f &> gen_eposlhc%d.log &",
                               fifoname.Data(), nEvents,
                               projectileId, projectileEnergy,
-                              targetId, targetEnergy, pileup));
-  
+                              targetId, targetEnergy, pileup));*/
+      gROOT->ProcessLine(Form(".! crmc -o hepmc -f %s -n %d -m 0 -i %d -p %f -I %d -P %f &> gen_eposlhc.log &",
+                              fifoname.Data(), nEvents,
+                              projectileId, projectileEnergy,
+                              targetId, targetEnergy));
       // connect HepMC reader
       AliGenReaderHepMC *reader = new AliGenReaderHepMC();
       reader->SetFileName(fifoname.Data());

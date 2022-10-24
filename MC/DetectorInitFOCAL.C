@@ -30,6 +30,10 @@ Special FOCAL simulations detector init
   Int_t iFIT    = 1;
   Int_t iFOCAL  = 1;
   
+  if (strcmp(gSystem->Getenv("CONFIG_DETECTOR"), "FOCALnoFIT") == 0) {
+    iFIT = 0;        
+  }
+  
   Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
 
   //=================== Alice BODY parameters =============================
@@ -258,6 +262,6 @@ Special FOCAL simulations detector init
   }
   
   if (iFIT) {
-    AliFIT *fit = new AliFITv8("FIT","FIT");
+    AliFIT *fit = new AliFITv9("FIT","FIT");
   }
 }
