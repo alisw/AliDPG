@@ -272,7 +272,7 @@ AliGenerator* GeneratorCustom(TString opt = "") {
             
       AliGenPythia *gener = new AliGenPythia(-1); 
       gener->SetMomentumRange(0,999999); 
-      //gener->SetThetaRange(0., 45.); 
+      gener->SetThetaRange(0., 45.); 
       gener->SetYRange(-12,12); 
       gener->SetPtRange(0,1000); 
       gener->SetProcess(kPyMb); // Min. bias events 
@@ -472,7 +472,7 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       cocktail->SetSigma(0, 0, 5.8); // Sigma in (X,Y,Z) (cm) on IP position
       cocktail->SetVertexSmear(kPerEvent); // Smear per event
 
-      /*TString fifoname("myfifo");
+      /*TString fifoname("$TMPDIR/myfifo");
       AliGenExtExec* eposExt = new AliGenExtExec();
       //eposExt->SetPathScript(Form("./gen_eposlhc.sh %s",fifoname.Data()));
       eposExt->SetPathScript(Form("crmc -o hepmc -f %s -n %d -m 0 -i %d -p %f -I %d -P %f",
@@ -491,7 +491,6 @@ AliGenerator* GeneratorCustom(TString opt = "") {
                               fifoname.Data(), nEvents,
                               projectileId, projectileEnergy,
                               targetId, targetEnergy));
-      
       // connect HepMC reader
       AliGenReaderHepMC *reader = new AliGenReaderHepMC();
       reader->SetFileName(fifoname.Data());

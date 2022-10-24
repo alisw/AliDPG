@@ -1736,7 +1736,7 @@ Generator_JpsiToLLbar(const Char_t *params, Float_t jpsifrac, Float_t bfrac, Boo
         decayer->SetForceDecay(kAll);
         decayer->Init();
         gMC->SetExternalDecayer(decayer);
-        comment = comment.Append(Form(" | J/psi -> L L-bar (%s, %.1f/%.1f)", params));
+        comment = comment.Append(Form(" | J/psi -> L L-bar (%s, jpsi frac %1.2f / b frac %1.2f)", params,jpsifrac,bfrac));
         AliGenCocktail *gener = new AliGenCocktail();
         gener->UsePerEventRates();
 
