@@ -16,8 +16,8 @@ AliGenerator* GeneratorCustom()
   // randomly injected particles
   const int nParticles = 2;
   particle_inj particleList[2] = { // {name,pdgcode,maxpt,maxy},
-    {1,"Omega-(2012)",3335,7.,0.9},
-    {1,"Omega+_bar(2012)",-3335,7.,0.9}
+    {1,"Omega-(2012)",3335,10.,0.9},
+    {1,"Omega+_bar(2012)",-3335,10.,0.9}
   };
 
   AliDecayerPythia *dec = new AliDecayerPythia;
