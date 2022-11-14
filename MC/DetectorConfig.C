@@ -16,6 +16,7 @@ enum EDetector_t {
   kDetectorCentralBarrelTracking,
   kDetectorRun3,
   kDetectorFOCAL,
+  kDetectorFOCALnoFIT,
   kDetectorCustom,
   kNDetectors
 };
@@ -28,6 +29,7 @@ const Char_t *DetectorName[kNDetectors] = {
   "CentralBarrelTracking",
   "Run3",
   "FOCAL",
+  "FOCALnoFIT",
   "Custom"
 };
 
@@ -157,7 +159,7 @@ DetectorConfig(Int_t tag)
 
   if( tag == kDetectorRun3 )
     DetectorInitRun3(tag);
-  else if (tag == kDetectorFOCAL) {
+  else if (tag == kDetectorFOCAL || tag == kDetectorFOCALnoFIT) {
     gROOT->ProcessLine(".x $ALIDPG_ROOT/MC/DetectorInitFOCAL.C");
   }
   else
