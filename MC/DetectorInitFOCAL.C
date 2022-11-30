@@ -15,7 +15,6 @@ Special FOCAL simulations detector init
   Int_t iMUON   = 1;
   Int_t iPHOS   = 0;
   Int_t iPIPE   = 1;
-  Int_t iPMD    = 1;
   Int_t iHMPID  = 1;
   Int_t iSHIL   = 1;
   Int_t iT0     = 0;
@@ -219,11 +218,6 @@ Special FOCAL simulations detector init
         AliPHOSSimParam::GetInstance()->SetTOFparameters(1.e-12,1.e-12) ;
       }
     }
-  }
-
-  if (iPMD) {
-    //=================== PMD parameters ============================
-    AliPMD *PMD = new AliPMDv1("PMD", "normal PMD");
   }
 
   if (iT0) {
