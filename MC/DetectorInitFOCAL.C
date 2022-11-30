@@ -1,10 +1,7 @@
 void DetectorInitFOCAL() {
-    Bool_t isGeant4 = kFALSE;
-    Bool_t isFluka = kFALSE;
 /*
 Special FOCAL simulations detector init
    */
-    
   Int_t iABSO   = 1;
   Int_t iACORDE = 1;
   Int_t iAD     = 0;
@@ -16,9 +13,8 @@ Special FOCAL simulations detector init
   Int_t iITS    = 1;
   Int_t iMAG    = 1;
   Int_t iMUON   = 1;
-  Int_t iPHOS   = 1;
+  Int_t iPHOS   = 0;
   Int_t iPIPE   = 1;
-  Int_t iPMD    = 1;
   Int_t iHMPID  = 1;
   Int_t iSHIL   = 1;
   Int_t iT0     = 0;
@@ -30,8 +26,23 @@ Special FOCAL simulations detector init
   Int_t iFIT    = 1;
   Int_t iFOCAL  = 1;
   
-  if (strcmp(gSystem->Getenv("CONFIG_DETECTOR"), "FOCALnoFIT") == 0) {
-    iFIT = 0;        
+  Bool_t isGeant4 = kFALSE;
+  Bool_t isFluka = kFALSE;
+  if (gSystem->Getenv("CONFIG_GEANT4")) {
+    if (strcmp(gSystem->Getenv("CONFIG_GEANT4"), "on") == 0) {
+      isGeant4 = kTRUE;        
+    }
+  }
+  if (gSystem->Getenv("CONFIG_FLUKA")) {
+    if (strcmp(gSystem->Getenv("CONFIG_FLUKA"), "on") == 0) {
+      isFluka = kTRUE;        
+    }
+  }
+  
+  if (gSystem->Getenv("CONFIG_DETECTOR")) {
+    if (strcmp(gSystem->Getenv("CONFIG_DETECTOR"), "FOCALnoFIT") == 0) {
+      iFIT = 0;        
+    }
   }
   
   Int_t year = atoi(gSystem->Getenv("CONFIG_YEAR"));
@@ -207,11 +218,6 @@ Special FOCAL simulations detector init
         AliPHOSSimParam::GetInstance()->SetTOFparameters(1.e-12,1.e-12) ;
       }
     }
-  }
-
-  if (iPMD) {
-    //=================== PMD parameters ============================
-    AliPMD *PMD = new AliPMDv1("PMD", "normal PMD");
   }
 
   if (iT0) {
