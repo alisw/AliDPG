@@ -16,11 +16,11 @@ AliGenerator* GeneratorCustom()
   // randomly injected particles
   const int nParticles = 2;
   particle_inj particleList[2] = { // {name,pdgcode,maxpt,maxy},
-    {1,"f0(1710)",10331,10.,0.9},
-    {1,"f2(1525)",335,10.,0.9},
-    {1,"f1(1285)",20223,10.,0.9},
-    {1,"f1(1420)",20333,10.,0.9},
-    {1,"f0(1500)",90302,10.,0.9}
+    {1,"f0(1710)",10331,20.,0.9},
+    {1,"f2(1525)",335,20.,0.9},
+    {1,"f1(1285)",20223,20.,0.9},
+    {1,"f1(1420)",20333,20.,0.9},
+    {1,"f0(1500)",90302,20.,0.9}
   };
 
   AliDecayerPythia *dec = new AliDecayerPythia;
