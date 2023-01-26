@@ -8,6 +8,7 @@ enum GenTypes {
   gun=0, 
   gunJpsi,
   box,
+  boxMonocromatic,
   boxWithDecay,
   pythia, 
   pythia_MBtrig, 
@@ -20,6 +21,8 @@ enum GenTypes {
   PA_cocktail_MBtrig, 
   PA_cocktail_EPOS_MBtrig, 
   PA_cocktail_EPOS_dirgam,
+  jpsiAndPythiaMB,
+  pi0WithPileup,
   kNGenTypes
 };
 
@@ -27,6 +30,7 @@ TString gGenTypeNames[kNGenTypes] = {
   "gun", 
   "gunJpsi",
   "box", 
+  "boxMonocromatic",
   "boxWithDecay",
   "pythia", 
   "pythia_MBtrig", 
@@ -38,7 +42,9 @@ TString gGenTypeNames[kNGenTypes] = {
   "PA_cocktail_dirgam",
   "PA_cocktail_MBtrig",
   "PA_cocktail_EPOS_MBtrig",
-  "PA_cocktail_EPOS_dirgam"
+  "PA_cocktail_EPOS_dirgam",
+  "jpsiAndPythiaMB",
+  "pi0WithPileup"
 };
 
 
@@ -188,6 +194,46 @@ AliGenerator* GeneratorCustom(TString opt = "") {
     }
     break;
     
+    case boxMonocromatic:  
+    // Example for Moving Particle Gun  
+    {
+      float pmom = 500.0;      
+      if (gSystem->Getenv("CONFIG_PMOM")) {
+        pmom = atof(gSystem->Getenv("CONFIG_PMOM"));
+      }
+      float etamin = 3.0;      
+      if (gSystem->Getenv("CONFIG_ETAMIN")) {
+        etamin = atof(gSystem->Getenv("CONFIG_ETAMIN"));
+      }
+      float etamax = 6.0;      
+      if (gSystem->Getenv("CONFIG_ETAMAX")) {
+        etamax = atof(gSystem->Getenv("CONFIG_ETAMAX"));
+      }
+      float phimin = 0.0;      
+      if (gSystem->Getenv("CONFIG_PHIMIN")) {
+        phimin = atof(gSystem->Getenv("CONFIG_PHIMIN"));
+      }
+      float phimax = 360.0;      
+      if (gSystem->Getenv("CONFIG_PHIMAX")) {
+        phimax = atof(gSystem->Getenv("CONFIG_PHIMAX"));
+      }
+      int pdg = kGamma;
+      if (gSystem->Getenv("CONFIG_PDG")) {
+        pdg = atoi(gSystem->Getenv("CONFIG_PDG"));
+      }
+            
+      AliGenBox *gener = new AliGenBox(1);
+      gener->SetMomentumRange(0.9999*pmom, 1.0001*pmom);
+      gener->SetPhiRange(phimin, phimax);  // full polar angle around beam axis
+      gener->SetEtaRange(etamin, etamax);
+      gener->SetOrigin(0,0,0);   
+      //vertex position
+      gener->SetSigma(0,0,0);         //Sigma in (X,Y,Z) (cm) on IP position
+      gener->SetPart(pdg);
+      generator = gener;
+    }
+    break;
+    
     case boxWithDecay:  
     // Example for Moving Particle Gun (with decays enabled) 
     {
@@ -244,7 +290,8 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       //       If the decay you are after is there, then you can comment out the following line.
       //       Alternatively, make sure the decay file you use below is in the working directory (or copied to 
       //         the grid working note if you run on the grid)
-      gene->SetUserDecayTable("DIELECTRON.DEC");
+      char* decayTable = "DIELECTRON.DEC";
+      gene->SetUserDecayTable(decayTable);
       if (pdg==23) {
         gene->SetForceDecay(kZDiElectron);
         gene->SetParticleSwitchedOff(AliGenEvtGen::kAllPart);
@@ -299,7 +346,7 @@ AliGenerator* GeneratorCustom(TString opt = "") {
             
       AliGenPythiaFOCAL *gener = new AliGenPythiaFOCAL(-1); 
       gener->SetMomentumRange(0,999999); 
-      gener->SetThetaRange(0., 45.); 
+      //gener->SetThetaRange(0., 45.); 
       gener->SetYRange(-12,12); 
       gener->SetPtRange(0,1000); 
       gener->SetEnergyCMS(energy); // LHC energy 
@@ -319,7 +366,7 @@ AliGenerator* GeneratorCustom(TString opt = "") {
         gener->SetFragPhotonInFOCAL(kTRUE);
       }
       gener->SetCheckFOCAL(kTRUE);  
-      gener->SetFOCALEta(3.5, 6.2);
+      gener->SetFOCALEta(3.0, 6.2);
       float ptmin = 4.0;      
       if (gSystem->Getenv("CONFIG_PTMIN")) {
         ptmin = atof(gSystem->Getenv("CONFIG_PTMIN"));
@@ -339,7 +386,7 @@ AliGenerator* GeneratorCustom(TString opt = "") {
             
       AliGenPythiaFOCAL *gener = new AliGenPythiaFOCAL(-1); 
       gener->SetMomentumRange(0,999999); 
-      gener->SetThetaRange(0., 45.); 
+      //gener->SetThetaRange(0., 45.); 
       gener->SetYRange(-12,12); 
       gener->SetPtRange(0,1000); 
       gener->SetEnergyCMS(energy); // LHC energy 
@@ -354,7 +401,7 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       gener->SetDirPhotonInFOCAL(kTRUE);
       
       gener->SetCheckFOCAL(kTRUE);  
-      gener->SetFOCALEta(3.5, 6.2);
+      gener->SetFOCALEta(3.0, 6.2);
       float ptmin = 4.0;      
       if (gSystem->Getenv("CONFIG_PTMIN")) {
         ptmin = atof(gSystem->Getenv("CONFIG_PTMIN"));
@@ -478,8 +525,8 @@ AliGenerator* GeneratorCustom(TString opt = "") {
         pythia->SetDecayPhotonInFOCAL(kTRUE);
       }
       pythia->SetCheckFOCAL(kTRUE);
-      pythia->SetFOCALEta(3.5, 5.9);
-      pythia->SetTriggerParticleMinPt(4.0);
+      pythia->SetFOCALEta(3.0, 6.2);
+      pythia->SetTriggerParticleMinPt(5.0);
       cocktail->AddGenerator(pythia,"Pythia",1.);
 
       generator = cocktail;	
@@ -558,6 +605,144 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       cocktail->SetTriggerKinematics(4.0,3.5,5.9);
       generator = cocktail;
     }
+    break;
+    
+    case jpsiAndPythiaMB:
+    {
+      float energy = 14000;  // GeV, used for the pythia MB event
+      if (gSystem->Getenv("CONFIG_ENERGY")) {
+        energy = atof(gSystem->Getenv("CONFIG_ENERGY"));
+      }
+      
+      float ptmin = 0.0;      
+      if (gSystem->Getenv("CONFIG_PTMIN")) {
+        ptmin = atof(gSystem->Getenv("CONFIG_PTMIN"));
+      }
+      float ptmax = 10.0;      
+      if (gSystem->Getenv("CONFIG_PTMAX")) {
+        ptmax = atof(gSystem->Getenv("CONFIG_PTMAX"));
+      }
+      float ymin = 3.0;      
+      if (gSystem->Getenv("CONFIG_YMIN")) {
+        ymin = atof(gSystem->Getenv("CONFIG_YMIN"));
+      }
+      float ymax = 6.0;      
+      if (gSystem->Getenv("CONFIG_YMAX")) {
+        ymax = atof(gSystem->Getenv("CONFIG_YMAX"));
+      }
+      float phimin = 0.0;      
+      if (gSystem->Getenv("CONFIG_PHIMIN")) {
+        phimin = atof(gSystem->Getenv("CONFIG_PHIMIN"));
+      }
+      float phimax = 360.0;      
+      if (gSystem->Getenv("CONFIG_PHIMAX")) {
+        phimax = atof(gSystem->Getenv("CONFIG_PHIMAX"));
+      }
+      // load libraries to use Evtgen
+      gSystem->Load("libPhotos");
+      //gSystem->Load("libEvtGenBase");
+      //gSystem->Load("libEvtGenModels");
+      gSystem->Load("libEvtGen");
+      gSystem->Load("libEvtGenExternal");
+      gSystem->Load("libTEvtGen");  
+      //
+      // set external decayer
+      TVirtualMCDecayer* decayer = new AliDecayerPythia();
+      decayer->SetForceDecay(kAll);
+      decayer->Init();
+      gMC->SetExternalDecayer(decayer);
+      
+      // Create the cocktail generator
+      AliGenCocktail *gener = new AliGenCocktail();
+      gener->UsePerEventRates();
+
+      // Add one MB event
+      AliGenPythia *myPythia = new AliGenPythia(-1); 
+      myPythia->SetMomentumRange(0,999999); 
+      myPythia->SetThetaRange(0., 45.);          // NOTE: generate particles in a hemi-sphere which includes FOCAL. Change this if you need kinematics in the full acceptance
+      myPythia->SetYRange(-12,12); 
+      myPythia->SetPtRange(0,1000); 
+      myPythia->SetProcess(kPyMb); // Min. bias events 
+      myPythia->SetEnergyCMS(energy); // LHC energy 
+      //myPythia->SetSigma(0.0, 0.0, 0.0); // Sigma in (X,Y,Z) (cm) on IP position 
+      //myPythia->SetCutVertexZ(1.); // Truncate at 1 sigma 
+      //myPythia->SetVertexSmear(kPerEvent); // Smear per event 
+      myPythia->SetTrackingFlag(1); // Particle transport 
+      //gener->AddGenerator(myPythia, "pythiaMB", 1.0);
+      
+      // Add the jpsi generator (parameterization based on previous forward measurements)
+      AliGenParam *jpsi = new AliGenParam(1, AliGenMUONlib::kJpsi, "pp 8", "Jpsi");  // flat pt distribution
+      jpsi->SetPtRange(ptmin, ptmax);
+      jpsi->SetYRange(ymin, ymax);
+      jpsi->SetPhiRange(phimin, phimax);
+      jpsi->SetForceDecay(kNoDecay);
+      gener->AddGenerator(jpsi, "jpsi", 1.0);
+      
+      //add the EVTGEN generator (purpose is just to decay the jpsi)
+      AliGenEvtGen *gene = new AliGenEvtGen();
+      gene->SetForceDecay(kBJpsiDiElectron);
+      gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);
+      gener->AddGenerator(gene, "EvtGen", 1.);
+      generator = gener;
+    };
+    break;
+    
+    case pi0WithPileup:
+    {
+      float energy = 14000;  // GeV, used for the pythia MB event
+      if (gSystem->Getenv("CONFIG_ENERGY")) {
+        energy = atof(gSystem->Getenv("CONFIG_ENERGY"));
+      }
+      
+      float ptmin = 4.0;      
+      if (gSystem->Getenv("CONFIG_PTMIN")) {
+        ptmin = atof(gSystem->Getenv("CONFIG_PTMIN"));
+      }
+      int nbkg = 0;      
+      if (gSystem->Getenv("CONFIG_NBKG")) {
+        nbkg = atoi(gSystem->Getenv("CONFIG_NBKG"));
+      }
+            
+      // Create the cocktail generator
+      AliGenCocktail *cocktail = new AliGenCocktail();
+      cocktail->UsePerEventRates();
+            
+      AliGenPythiaFOCAL *gener = new AliGenPythiaFOCAL(-1); 
+      gener->SetMomentumRange(0,999999); 
+      gener->SetThetaRange(0., 45.); 
+      gener->SetYRange(-12,12); 
+      gener->SetPtRange(0,1000); 
+      gener->SetEnergyCMS(energy); // LHC energy 
+      //gener->SetOrigin(0, 0, 0); // Vertex position 
+      gener->SetSigma(0, 0, 5.3); // Sigma in (X,Y,Z) (cm) on IP position 
+      gener->SetCutVertexZ(1.); // Truncate at 1 sigma 
+      gener->SetVertexSmear(kPerEvent); // Smear per event 
+      gener->SetTrackingFlag(1); // Particle transport 
+      gener->SetProcess(kPyMb); // Min. bias events 
+      gener->SetDecayPhotonInFOCAL(kTRUE);        // trigger mostly on pi0 
+      gener->SetCheckFOCAL(kTRUE);  
+      gener->SetFOCALEta(3.0, 6.2);
+      gener->SetTriggerParticleMinPt(ptmin);
+      cocktail->AddGenerator(gener, "PythiaTriggered", 1.0);
+      
+      AliGenPythia *pythiaMB = new AliGenPythia(-1); 
+      pythiaMB->SetMomentumRange(0,999999); 
+      pythiaMB->SetThetaRange(0., 45.); 
+      pythiaMB->SetYRange(-12,12); 
+      pythiaMB->SetPtRange(0,1000); 
+      pythiaMB->SetProcess(kPyMb); // Min. bias events 
+      pythiaMB->SetEnergyCMS(energy); // LHC energy 
+      //pythiaMB->SetOrigin(0, 0, 0); // Vertex position 
+      pythiaMB->SetSigma(0, 0, 5.3); // Sigma in (X,Y,Z) (cm) on IP position 
+      pythiaMB->SetCutVertexZ(1.); // Truncate at 1 sigma 
+      pythiaMB->SetVertexSmear(kPerEvent); // Smear per event 
+      pythiaMB->SetTrackingFlag(1); // Particle transport 
+      if (nbkg>0) {
+        cocktail->AddGenerator(pythiaMB, "PythiaMB", 1.0, 0, nbkg);
+      }
+      
+      generator = cocktail;
+    };
     break;
   }  // end switch
   
