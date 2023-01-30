@@ -8,8 +8,10 @@ enum GenTypes {
   gun=0, 
   gunJpsi,
   box,
+  boxMomUniform,
   boxMonocromatic,
   boxWithDecay,
+  boxWithPP,
   pythia, 
   pythia_MBtrig, 
   pythia_dirgamma_trig,
@@ -30,8 +32,10 @@ TString gGenTypeNames[kNGenTypes] = {
   "gun", 
   "gunJpsi",
   "box", 
+  "boxMomUniform",
   "boxMonocromatic",
   "boxWithDecay",
+  "boxWithPP",
   "pythia", 
   "pythia_MBtrig", 
   "pythia_dirgamma_trig",
@@ -194,6 +198,50 @@ AliGenerator* GeneratorCustom(TString opt = "") {
     }
     break;
     
+    case boxMomUniform:  
+    // Example for Moving Particle Gun  
+    {
+      float pmin = 0.0;      
+      if (gSystem->Getenv("CONFIG_PTMIN")) {          // NOTE: we use the ptmin parameter to transmit the pmin (full momentum)
+        pmin = atof(gSystem->Getenv("CONFIG_PTMIN"));
+      }
+      float pmax = 2000.0;      
+      if (gSystem->Getenv("CONFIG_PTMAX")) {          // NOTE: we use the ptmax parameter to transmit the pmax (full momentum)
+        pmax = atof(gSystem->Getenv("CONFIG_PTMAX"));
+      }
+      float etamin = 3.0;      
+      if (gSystem->Getenv("CONFIG_ETAMIN")) {
+        etamin = atof(gSystem->Getenv("CONFIG_ETAMIN"));
+      }
+      float etamax = 6.0;      
+      if (gSystem->Getenv("CONFIG_ETAMAX")) {
+        etamax = atof(gSystem->Getenv("CONFIG_ETAMAX"));
+      }
+      float phimin = 0.0;      
+      if (gSystem->Getenv("CONFIG_PHIMIN")) {
+        phimin = atof(gSystem->Getenv("CONFIG_PHIMIN"));
+      }
+      float phimax = 360.0;      
+      if (gSystem->Getenv("CONFIG_PHIMAX")) {
+        phimax = atof(gSystem->Getenv("CONFIG_PHIMAX"));
+      }
+      int pdg = kGamma;
+      if (gSystem->Getenv("CONFIG_PDG")) {
+        pdg = atoi(gSystem->Getenv("CONFIG_PDG"));
+      }
+            
+      AliGenBox *gener = new AliGenBox(1);
+      gener->SetMomentumRange(pmin, pmax);
+      gener->SetPhiRange(phimin, phimax);  // full polar angle around beam axis
+      gener->SetEtaRange(etamin, etamax);
+      gener->SetOrigin(0,0,0);   
+      //vertex position
+      gener->SetSigma(0,0,0);         //Sigma in (X,Y,Z) (cm) on IP position
+      gener->SetPart(pdg);
+      generator = gener;
+    }
+    break;
+    
     case boxMonocromatic:  
     // Example for Moving Particle Gun  
     {
@@ -300,7 +348,7 @@ AliGenerator* GeneratorCustom(TString opt = "") {
         gene->SetForceDecay(kDiElectron);
         gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);      
       }
-      if (pdg==553) {
+      if (pdg==553 || pdg==100553 || pdg==200553) {
         gene->SetForceDecay(kDiElectron);
         gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);      
       }
@@ -311,6 +359,107 @@ AliGenerator* GeneratorCustom(TString opt = "") {
     }
     break;
 
+    case boxWithPP:
+    {
+      float ptmin = 0.0;      
+      if (gSystem->Getenv("CONFIG_PTMIN")) {
+        ptmin = atof(gSystem->Getenv("CONFIG_PTMIN"));
+      }
+      float ptmax = 10.0;      
+      if (gSystem->Getenv("CONFIG_PTMAX")) {
+        ptmax = atof(gSystem->Getenv("CONFIG_PTMAX"));
+      }
+      float etamin = 3.0;      
+      if (gSystem->Getenv("CONFIG_ETAMIN")) {
+        etamin = atof(gSystem->Getenv("CONFIG_ETAMIN"));
+      }
+      float etamax = 6.0;      
+      if (gSystem->Getenv("CONFIG_ETAMAX")) {
+        etamax = atof(gSystem->Getenv("CONFIG_ETAMAX"));
+      }
+      float phimin = 0.0;      
+      if (gSystem->Getenv("CONFIG_PHIMIN")) {
+        phimin = atof(gSystem->Getenv("CONFIG_PHIMIN"));
+      }
+      float phimax = 360.0;      
+      if (gSystem->Getenv("CONFIG_PHIMAX")) {
+        phimax = atof(gSystem->Getenv("CONFIG_PHIMAX"));
+      }
+      int nbkg = 1;      
+      if (gSystem->Getenv("CONFIG_NBKG")) {
+        nbkg = atoi(gSystem->Getenv("CONFIG_NBKG"));
+      }
+      int pdg = kGamma;
+      if (gSystem->Getenv("CONFIG_PDG")) {
+        pdg = atoi(gSystem->Getenv("CONFIG_PDG"));
+      }
+      float energy = 14000;  // GeV, used for the pythia MB event
+      if (gSystem->Getenv("CONFIG_ENERGY")) {
+        energy = atof(gSystem->Getenv("CONFIG_ENERGY"));
+      }
+      
+      // set external decayer
+      TVirtualMCDecayer* decayer = new AliDecayerPythia();
+      decayer->SetForceDecay(kAll);
+      decayer->Init();
+      gMC->SetExternalDecayer(decayer);
+      
+      // Create the cocktail generator
+      AliGenCocktail *cocktail = new AliGenCocktail();
+      cocktail->UsePerEventRates();
+      
+      AliGenBox *boxGen = new AliGenBox(1);
+      boxGen->SetPtRange(ptmin, ptmax);
+      boxGen->SetPhiRange(phimin, phimax);  // full polar angle around beam axis
+      boxGen->SetEtaRange(etamin, etamax);
+      boxGen->SetOrigin(0,0,0);   
+      //vertex position
+      boxGen->SetSigma(0,0,0);         //Sigma in (X,Y,Z) (cm) on IP position
+      boxGen->SetPart(pdg);
+      cocktail->AddGenerator(boxGen, "Box Generator", 1.0);
+      
+      AliGenPythia *pythiaMB = new AliGenPythia(-1); 
+      pythiaMB->SetMomentumRange(0,999999); 
+      pythiaMB->SetThetaRange(0., 45.); 
+      pythiaMB->SetYRange(-12,12); 
+      pythiaMB->SetPtRange(0,1000); 
+      pythiaMB->SetProcess(kPyMb); // Min. bias events 
+      pythiaMB->SetEnergyCMS(energy); // LHC energy 
+      //pythiaMB->SetOrigin(0, 0, 0); // Vertex position 
+      pythiaMB->SetSigma(0, 0, 5.3); // Sigma in (X,Y,Z) (cm) on IP position 
+      pythiaMB->SetCutVertexZ(1.); // Truncate at 1 sigma 
+      pythiaMB->SetVertexSmear(kPerEvent); // Smear per event 
+      pythiaMB->SetTrackingFlag(1); // Particle transport       
+      
+      if (nbkg>0) {
+        cocktail->AddGenerator(pythiaMB, "PythiaMB", 1.0, 0, nbkg);
+      }
+      
+      AliGenEvtGen *gene = new AliGenEvtGen();
+      char* decayTable = "CUSTOMDECAYS.DEC";
+      gene->SetUserDecayTable(decayTable);
+      if (pdg==23) {
+        gene->SetForceDecay(kZDiElectron);
+        gene->SetParticleSwitchedOff(AliGenEvtGen::kAllPart);
+      }
+      if (pdg==443) {
+        gene->SetForceDecay(kDiElectron);
+        gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);      
+      }
+      if (pdg==553 || pdg==100553 || pdg==200553) {
+        gene->SetForceDecay(kDiElectron);
+        gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);      
+      }
+      if (pdg==221 || pdg==223) {
+        gene->SetParticleSwitchedOff(AliGenEvtGen::kAllPart);        
+      }
+      gene->Init();
+      cocktail->AddGenerator(gene, "EvtGen", 1.);
+      
+      generator = cocktail;      
+    };
+    break;
+    
     case pythia:
     // Example for Pythia            
     {
@@ -744,6 +893,7 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       generator = cocktail;
     };
     break;
+    
   }  // end switch
   
   return generator;
