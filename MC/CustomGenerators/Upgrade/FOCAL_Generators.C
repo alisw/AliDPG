@@ -657,6 +657,14 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       if (gSystem->Getenv("CONFIG_ENERGY")) {
         energy = atof(gSystem->Getenv("CONFIG_ENERGY"));
       }
+      float bmin = 0.0;
+      if (gSystem->Getenv("CONFIG_BMIN")) {
+        bmin = atof(gSystem->Getenv("CONFIG_BMIN"));
+      }
+      float bmax = 15.0;
+      if (gSystem->Getenv("CONFIG_BMAX")) {
+        bmax = atof(gSystem->Getenv("CONFIG_BMAX"));
+      }
       gener->SetEnergyCMS(energy); // center of mass energy 
       gener->SetReferenceFrame("CMS"); // reference frame 
       gener->SetProjectile("A", 208, 82); // projectile 
@@ -667,7 +675,7 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       gener->SetDecaysOff(1); // neutral pion and heavy particle decays switched off 
       gener->SetSpectators(0); // Don't track spectators 
       gener->SetSelectAll(0); // kinematic selection 
-      gener->SetImpactParameterRange(0., 15.); // Impact parameter range (fm) 
+      gener->SetImpactParameterRange(bmin, bmax); // Impact parameter range (fm) 
       generator = gener;
     }
     break;
