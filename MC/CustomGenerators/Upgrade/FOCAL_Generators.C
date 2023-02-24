@@ -16,6 +16,7 @@ enum GenTypes {
   pythia_MBtrig, 
   pythia_dirgamma_trig,
   pythia_gammajet_trig,
+  pythia_particle_trig,
   ntuple, 
   hijing, 
   hijingAP, 
@@ -40,6 +41,7 @@ TString gGenTypeNames[kNGenTypes] = {
   "pythia_MBtrig", 
   "pythia_dirgamma_trig",
   "pythia_gammajet_trig",
+  "pythia_particle_trig",
   "ntuple",
   "hijing",
   "hijingAP",
@@ -557,6 +559,78 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       }
       gener->SetTriggerParticleMinPt(ptmin);
       generator = gener;
+    }
+    break;
+    
+    case pythia_particle_trig:
+    // Example for Pythia            
+    {
+      float energy = 14000;  // GeV
+      if (gSystem->Getenv("CONFIG_ENERGY")) {
+        energy = atof(gSystem->Getenv("CONFIG_ENERGY"));
+      }
+      float ptmin = 0.0;      
+      if (gSystem->Getenv("CONFIG_PTMIN")) {
+        ptmin = atof(gSystem->Getenv("CONFIG_PTMIN"));
+      }
+      int pdg = kGamma;
+      if (gSystem->Getenv("CONFIG_PDG")) {
+        pdg = atoi(gSystem->Getenv("CONFIG_PDG"));
+      }
+            
+      // set external decayer
+      TVirtualMCDecayer* decayer = new AliDecayerPythia();
+      decayer->SetForceDecay(kAll);
+      decayer->Init();
+      gMC->SetExternalDecayer(decayer);
+      
+      // Create the cocktail generator
+      AliGenCocktail *cocktail = new AliGenCocktail();
+      cocktail->UsePerEventRates();
+            
+      AliGenPythiaFOCAL *pythiaFOCAL = new AliGenPythiaFOCAL(-1); 
+      pythiaFOCAL->SetMomentumRange(0,999999); 
+      //pythiaFOCAL->SetThetaRange(0., 45.); 
+      pythiaFOCAL->SetYRange(-12,12); 
+      pythiaFOCAL->SetPtRange(0,1000); 
+      pythiaFOCAL->SetEnergyCMS(energy); // LHC energy 
+      //pythiaFOCAL->SetOrigin(0, 0, 0); // Vertex position 
+      pythiaFOCAL->SetSigma(0, 0, 5.3); // Sigma in (X,Y,Z) (cm) on IP position 
+      pythiaFOCAL->SetCutVertexZ(1.); // Truncate at 1 sigma 
+      pythiaFOCAL->SetVertexSmear(kPerEvent); // Smear per event 
+      pythiaFOCAL->SetTrackingFlag(1); // Particle transport 
+      pythiaFOCAL->SetProcess(kPyMb);
+      pythiaFOCAL->SetCheckParticleInFOCAL(pdg);
+      pythiaFOCAL->SetUseRapidity();
+      pythiaFOCAL->SetCheckFOCAL(kTRUE);  
+      pythiaFOCAL->SetFOCALEta(3.0, 6.2);
+      pythiaFOCAL->SetTriggerParticleMinPt(ptmin);
+      cocktail->AddGenerator(pythiaFOCAL, "PythiaFOCAL", 1.);
+      
+      AliGenEvtGen *evtGen = new AliGenEvtGen();
+      if (pdg==23 || pdg==443 || pdg==553 || pdg==100553 || pdg==200553 || pdg==221 || pdg==223) {   // this is needed to force special decay channels
+        char* decayTable = "CUSTOMDECAYS.DEC";
+        evtGen->SetUserDecayTable(decayTable);              
+      }
+      if (pdg==23) {
+        evtGen->SetForceDecay(kZDiElectron);
+        evtGen->SetParticleSwitchedOff(AliGenEvtGen::kAllPart);
+      }
+      if (pdg==443) {
+        evtGen->SetForceDecay(kDiElectron);
+        evtGen->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);      
+      }
+      if (pdg==553 || pdg==100553 || pdg==200553) {
+        evtGen->SetForceDecay(kDiElectron);
+        evtGen->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);      
+      }
+      if (pdg==221 || pdg==223) {
+        evtGen->SetParticleSwitchedOff(AliGenEvtGen::kAllPart);        
+      }
+      evtGen->Init();
+      cocktail->AddGenerator(evtGen, "EvtGen", 1.);
+      
+      generator = cocktail;
     }
     break;
 
