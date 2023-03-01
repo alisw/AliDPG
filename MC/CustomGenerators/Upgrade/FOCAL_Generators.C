@@ -26,6 +26,7 @@ enum GenTypes {
   PA_cocktail_EPOS_dirgam,
   jpsiAndPythiaMB,
   pi0WithPileup,
+  hydjet,
   kNGenTypes
 };
 
@@ -50,7 +51,8 @@ TString gGenTypeNames[kNGenTypes] = {
   "PA_cocktail_EPOS_MBtrig",
   "PA_cocktail_EPOS_dirgam",
   "jpsiAndPythiaMB",
-  "pi0WithPileup"
+  "pi0WithPileup",
+  "hydjet"
 };
 
 
@@ -974,6 +976,68 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       
       generator = cocktail;
     };
+    break;
+
+    case hydjet:
+    {
+    /*////////////////////////////////////////////////////////////////////////////////////////
+
+    The estimation of momentum and spatial anisotropy parameters for different centralities
+
+% centrality   fEpsilon   fDelta
+     0-5%        0.05      0.10
+    5-10%        0.10      0.24
+   10-20%        0.11      0.28 
+   20-30%        0.13      0.33 
+   30-40%        0.14      0.35 
+   40-60%        0.15      0.37
+
+The range of impact parameters in the units of nuclear radius for different 
+centralities at RHIC (Au+Au, 200 A GeV) and LHC (Pb+Pb, 5500 A GeV) is 
+specified below (the standard Woods-Saxon nucleon distribution is assumed).
+
+% centrality      b/RA (RHIC)        b/RA (LHC) 
+0                 0                  0          
+5                 0.5                0.51
+6                 0.55               0.57
+10                0.72               0.74 
+12                0.79               0.81
+15		            0.89               0.91
+20                1.02               1.05
+25		            1.15               1.18 
+30                1.26               1.29
+35                1.36               1.39
+40                1.46               1.49
+45		            1.55               1.58
+50		            1.63               1.67
+55		            1.71               1.75  
+60                1.79               1.83
+65		            1.86               1.90
+70		            1.93               1.97 
+75		            2.01               2.06
+*/
+
+      float bmin = 0.0;
+      if (gSystem->Getenv("CONFIG_BMIN")) {
+        bmin = atof(gSystem->Getenv("CONFIG_BMIN"));
+      }
+      float bmax = 3.0;
+      if (gSystem->Getenv("CONFIG_BMAX")) {
+        bmax = atof(gSystem->Getenv("CONFIG_BMAX"));
+      }
+
+      AliGenUHKM *uhkm = new AliGenUHKM(); 
+      uhkm->SetAllParametersLHC();
+      uhkm->SetPDGParticleFile("particles.data");
+      uhkm->SetPDGDecayFile("tabledecay.txt");
+      uhkm->SetBmin(bmin);
+      uhkm->SetBmax(bmax);
+      // values for 30-40% centrality range: fDelta = 0.35, fEpsilon = 0.14
+      uhkm->SetMomAsymmPar(0.35);             // fDelta
+      uhkm->SetCoordAsymmPar(0.14);           // fEpsilon
+      
+      generator = uhkm;
+    }
     break;
     
   }  // end switch
