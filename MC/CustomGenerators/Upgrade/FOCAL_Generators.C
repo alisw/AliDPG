@@ -25,6 +25,7 @@ enum GenTypes {
   PA_cocktail_MBtrig, 
   PA_cocktail_EPOS_MBtrig, 
   PA_cocktail_EPOS_dirgam,
+  PA_cocktail_gammajet,
   jpsiAndPythiaMB,
   pi0WithPileup,
   hydjet,
@@ -52,6 +53,7 @@ TString gGenTypeNames[kNGenTypes] = {
   "PA_cocktail_MBtrig",
   "PA_cocktail_EPOS_MBtrig",
   "PA_cocktail_EPOS_dirgam",
+  "PA_cocktail_gammajet",
   "jpsiAndPythiaMB",
   "pi0WithPileup",
   "hydjet"
@@ -768,19 +770,24 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       
     case PA_cocktail_dirgam:
     case PA_cocktail_MBtrig:
+    case PA_cocktail_gammajet:
     {
+      float ptmin = 0.0;      
+      if (gSystem->Getenv("CONFIG_PTMIN")) {
+        ptmin = atof(gSystem->Getenv("CONFIG_PTMIN"));
+      }      
+      float energy = 8790.0;
+      if (gSystem->Getenv("CONFIG_ENERGY")) {
+        energy = atof(gSystem->Getenv("CONFIG_ENERGY"));
+      }
+      
       AliGenCocktail *cocktail = new AliGenCocktail();
       cocktail->SetOrigin(0, 0, 0); // Vertex position
       cocktail->SetSigma(0, 0, 5.8); // Sigma in (X,Y,Z) (cm) on IP position
       cocktail->SetVertexSmear(kPerEvent); // Smear per event
 
       AliGenHijing *hijing = new AliGenHijing(-1); 
-      // Take collision energy from command line params if specified
-      float energy = 8790.0;
-      if (gSystem->Getenv("CONFIG_ENERGY")) {
-        energy = atof(gSystem->Getenv("CONFIG_ENERGY"));
-      }
-      
+      // Take collision energy from command line params if specified      
       hijing->SetEnergyCMS(energy); // center of mass energy 
       hijing->SetReferenceFrame("CMS"); // reference frame 
       hijing->SetBoostLHC(0.0);   // No boost for now; need to check sign
@@ -806,14 +813,17 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       if (generatorType == PA_cocktail_dirgam) {
         pythia->SetProcess(kPyDirectGamma); // Direct photon events
         pythia->SetFragPhotonInFOCAL(kTRUE);
+      } else if (generatorType == PA_cocktail_gammajet) {
+        pythia->SetProcess(kPyDirectGamma);
+        pythia->SetDirPhotonInFOCAL(kTRUE);        
       }
       else {
         pythia->SetProcess(kPyMb); // MB events
         pythia->SetDecayPhotonInFOCAL(kTRUE);
       }
       pythia->SetCheckFOCAL(kTRUE);
-      pythia->SetFOCALEta(3.0, 6.2);
-      pythia->SetTriggerParticleMinPt(5.0);
+      pythia->SetFOCALEta(3.0, 6.0);
+      pythia->SetTriggerParticleMinPt(ptmin);
       cocktail->AddGenerator(pythia,"Pythia",1.);
 
       generator = cocktail;	
