@@ -16,5 +16,5 @@ GeneratorCustom()
   AliGenerator   *nu2b  = Generator_Nuclex((0x2 | 0x4 | 0x8), kTRUE,  10);
   ctl->AddGenerator(nu2a,  "Nuclex2a", 1.);
   ctl->AddGenerator(nu2b,  "Nuclex2b", 1.);
-  
+  return ctl;
 }
