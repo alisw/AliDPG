@@ -1921,7 +1921,8 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt,
     9322136,
     900010020,
     1010020050,
-    1020010040
+    1020010040,
+    1220010040
   };
 
   const Char_t *names[21] = {
@@ -1946,6 +1947,7 @@ Generator_Nuclex(UInt_t injbit, Bool_t antiparticle, Int_t ninj, Float_t max_pt,
     "d*(2380)",  //0x40000
     "Hyper-Helium-5", //0x80000
     "Double-Hyper-Hydrogen-4" //0x100000
+    "4(Xi-)He" //0x200000
   };
 
   for (Int_t ipart = 0; ipart < 21; ipart++) {
