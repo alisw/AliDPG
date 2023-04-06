@@ -6,9 +6,9 @@ GeneratorCustom()
   AliGenerator   *hij   = GeneratorHijing();
   ctl->AddGenerator(hij,  "Hijing", 1.);
   
-  //	hypertriton, hyperhydrogen-4, hyperhelium-4, double-hyperhydrogen-4
-  AliGenerator   *nu1a  = Generator_Nuclex((0x10 | 0x4000 | 0x8000 | 0x100000 | 0x200000), kFALSE, 40, 10., 1.);
-  AliGenerator   *nu1b  = Generator_Nuclex((0x10 | 0x4000 | 0x8000 | 0x100000 | 0x200000), kTRUE,  40, 10., 1.);
+  //	Exotica + hypertriton, hyperhydrogen-4, hyperhelium-4, double-hyperhydrogen-4, 4(Xi-)He
+  AliGenerator   *nu1a  = Generator_Nuclex((0x10 | 0x20 | 0x40 | 0x80 | 0x100 | 0x200 | 0x400 | 0x800 | 0x1000 | 0x2000 | 0x4000 | 0x8000 | 0x100000 | 0x200000), kFALSE, 40, 10., 1.);
+  AliGenerator   *nu1b  = Generator_Nuclex((0x10 | 0x20 | 0x40 | 0x80 | 0x100 | 0x200 | 0x400 | 0x800 | 0x1000 | 0x2000 | 0x4000 | 0x8000 | 0x100000 | 0x200000), kTRUE,  40, 10., 1.);
   ctl->AddGenerator(nu1a,  "Nuclex1a", 1.);
   ctl->AddGenerator(nu1b,  "Nuclex1b", 1.);
   //	helium3, triton, alpha
