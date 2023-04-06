@@ -1,4 +1,4 @@
-// Requires AliRoot from v5-09-59b --> fix for A=4 hypernuclei masses
+// Requires latest AliRoot --> fix for A=4 hypernuclei masses
 AliGenerator *
 GeneratorCustom()
 {
@@ -16,5 +16,19 @@ GeneratorCustom()
   AliGenerator   *nu2b  = Generator_Nuclex((0x2 | 0x4 | 0x8), kTRUE,  10, 10., 1.);
   ctl->AddGenerator(nu2a,  "Nuclex2a", 1.);
   ctl->AddGenerator(nu2b,  "Nuclex2b", 1.);
+  
+  AliGenerator   *ilam  = GeneratorInjector(20, 3122,  0., 10., -1., 1.);
+  AliGenerator   *ixi   = GeneratorInjector(20, 3312,  0., 10., -1., 1.);
+  AliGenerator   *iom   = GeneratorInjector(20, 3334,  0., 10., -1., 1.);
+  AliGenerator   *ialam = GeneratorInjector(20, -3122, 0., 10., -1., 1.);
+  AliGenerator   *iaxi  = GeneratorInjector(20, -3312, 0., 10., -1., 1.);
+  AliGenerator   *iaom  = GeneratorInjector(20, -3334, 0., 10., -1., 1.);
+  ctl->AddGenerator(ilam,  "Injector (Lambda)", 1.);
+  ctl->AddGenerator(ixi,   "Injector (Xi)",     1.);
+  ctl->AddGenerator(iom,   "Injector (Omega)",  1.);
+  ctl->AddGenerator(ialam, "Injector (Lambda)", 1.);
+  ctl->AddGenerator(iaxi,  "Injector (Xi)",     1.);
+  ctl->AddGenerator(iaom,  "Injector (Omega)",  1.);
+  
   return ctl;
 }
