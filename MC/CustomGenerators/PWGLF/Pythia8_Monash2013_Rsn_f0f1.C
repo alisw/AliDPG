@@ -15,12 +15,12 @@ AliGenerator* GeneratorCustom()
 
   // randomly injected particles
   const int nParticles = 5;
-  particle_inj particleList[5] = { // {name,pdgcode,maxpt,maxy},
+  particle_inj particleList[nParticles] = { // {name,pdgcode,maxpt,maxy},
     {1,"f0(1710)",10331,20.,0.9},
     {1,"f2(1525)",335,20.,0.9},
     {1,"f1(1285)",20223,20.,0.9},
     {1,"f1(1420)",20333,20.,0.9},
-    {1,"f0(1500)",90302,20.,0.9}
+    {1,"f0(1500)",9030221,20.,0.9}
   };
 
   AliDecayerPythia *dec = new AliDecayerPythia;
