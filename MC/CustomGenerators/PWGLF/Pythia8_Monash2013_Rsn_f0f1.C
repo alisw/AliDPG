@@ -8,23 +8,24 @@ struct particle_inj {
 
 AliGenerator* GeneratorCustom()
 {
-  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Monash2013_Rsn_f2f0");
+  AliGenCocktail *ctl = (AliGenCocktail*) GeneratorCocktail("Monash2013_Rsn_f0f1");
   // pythia8
   AliGenerator   *py8 = GeneratorPythia8(kPythia8Tune_Monash2013);
   ctl->AddGenerator(py8, "Pythia8 (Monash2013)", 1.);
 
   // randomly injected particles
   const int nParticles = 5;
-  particle_inj particleList[5] = { // {name,pdgcode,maxpt,maxy},
+  particle_inj particleList[nParticles] = { // {name,pdgcode,maxpt,maxy},
     {1,"f0(1710)",10331,20.,0.9},
     {1,"f2(1525)",335,20.,0.9},
     {1,"f1(1285)",20223,20.,0.9},
     {1,"f1(1420)",20333,20.,0.9},
-    {1,"f0(1500)",90302,20.,0.9}
+    {1,"f0(1500)",9030221,20.,0.9}
   };
 
   AliDecayerPythia *dec = new AliDecayerPythia;
   AliPDG::AddParticlesToPdgDataBase();
+  // AliPythia6::Instance()->Pylist(12); // print out the particle list
 
   ctl->UseSingleInjectionPerEvent();
   for (int idx = 0; idx < nParticles; ++idx) {
