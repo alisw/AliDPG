@@ -40,7 +40,8 @@ void Geant4Config()
       runConfiguration = new TG4RunConfiguration("geomRoot",
 						 Form("%s", configPhysList.Data()),
 						 "specialCuts+stackPopper+stepLimiter",
-						 true);
+						 true,
+						 false);
       geant4 = new TGeant4("TGeant4", 
 			   Form("The Geant4 Monte Carlo : %s, EMV-EMCAL", configPhysList.Data()), 
 			   runConfiguration);
@@ -72,7 +73,8 @@ void Geant4Config()
       runConfiguration = new TG4RunConfiguration("geomRoot",
 						 Form("%s+monopole", configPhysList.Data()),
 						 "specialCuts+stackPopper+stepLimiter",
-						 true);
+						 true,
+						 false);
       
       runConfiguration->SetParameter("monopoleMass", mass);
       runConfiguration->SetParameter("monopoleElCharge", eCh);
