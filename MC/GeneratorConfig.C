@@ -213,6 +213,8 @@ AliGenerator *GeneratorPhojet();
 AliGenerator *GeneratorEPOSLHC(Bool_t pileup = kFALSE);
 AliGenerator *GeneratorHijing();
 AliGenerator *Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Float_t bfrac, Bool_t useEvtGenForB=kFALSE);
+AliGenerator *Generator_JpsiAndPsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Bool_t isPrompt);
+AliGenCocktail *GeneratorPromptPsi(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Bool_t isPsi2S);
 AliGenerator *Generator_JpsiEtaToProton(const Char_t *params, Float_t jpsifrac, Float_t etafrac);
 //AliGenerator *Generator_JpsiToLLbar(const Char_t *params, Float_t jpsifrac);
 AliGenerator *Generator_JpsiToLLbar(const Char_t *params, Float_t jpsifrac, Float_t bfrac, Bool_t useEvtGenForB);
@@ -1887,6 +1889,120 @@ Generator_Jpsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_
   //
   return gener;
 }
+
+
+AliGenCocktail *GeneratorPromptPsi(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Bool_t isPsi2S){
+
+//Generating a cocktail
+  AliGenCocktail *gener = new AliGenCocktail();
+  gener->UsePerEventRates();
+  TString stringParams = params;
+  AliGenParam* jpsi    = NULL;
+  Int_t libCase = AliGenMUONlib::kJpsi; TString namePart = "Jpsi";
+  if(isPsi2S) {libCase =  AliGenMUONlib::kPsiP; namePart = "Psi2S"; }
+  gener->SetName(Form("%sCocktail",namePart.Data()));
+  if(stringParams.Contains("UserParam")){
+   // use private parametrization for y / pT instead of AliGenMUONlib
+#if defined(__CINT__)
+    // for root5
+   gROOT->LoadMacro("$ALIDPG_ROOT/MC/CustomGenerators/PWGDQ/GenJPsiParaSet.C++");
+#endif
+   jpsi = GenJPsiParaSet(stringParams);
+  }
+  else jpsi = new AliGenParam(1, libCase, params, namePart);
+  jpsi->SetPtRange(0., 1000.);
+  jpsi->SetYRange(-1.0, 1.0);
+  jpsi->SetPhiRange(0., 360.);
+  jpsi->SetForceDecay(kNoDecay);
+   // flat low pT
+  AliGenParam *jpsiLowPt = new AliGenParam(1, libCase, "Flat", namePart);  // flat pt distribution
+  jpsiLowPt->SetPtRange(0., 0.5);
+  jpsiLowPt->SetYRange(-1.0, 1.0);
+  jpsiLowPt->SetPhiRange(0., 360.);
+  jpsiLowPt->SetForceDecay(kNoDecay);
+  //
+  // flat high pT
+  AliGenParam *jpsiHighPtFlat = new AliGenParam(1, libCase, "Flat", namePart);  // 7 TeV
+  jpsiHighPtFlat->SetPtRange(6., 50.);
+  jpsiHighPtFlat->SetYRange(-1.0, 1.0);
+  jpsiHighPtFlat->SetPhiRange(0., 360.);
+  jpsiHighPtFlat->SetForceDecay(kNoDecay);
+  //
+  if (jpsifrac > 0.) gener->AddGenerator(jpsi,           Form("%s",namePart.Data()),           jpsifrac);
+  if (lowfrac  > 0.) gener->AddGenerator(jpsiLowPt,      Form("%sLowPt",namePart.Data()),      lowfrac);
+  if (highfrac > 0.) gener->AddGenerator(jpsiHighPtFlat, Form("%sHighPtFlat",namePart.Data()), highfrac);
+  return gener;
+}
+
+
+/*** JPSI + PSI2S -> EE ****************************************************/
+
+AliGenerator *
+Generator_JpsiAndPsiee(const Char_t *params, Float_t jpsifrac, Float_t lowfrac, Float_t highfrac, Bool_t isPrompt)
+{
+
+  /*
+  generator of prompt and non-prompt jpsi + psi -> ee
+  */
+
+  // load libraries to use Evtgen
+  gSystem->Load("libPhotos");
+  gSystem->Load("libEvtGen");
+  gSystem->Load("libEvtGenExternal");
+  gSystem->Load("libTEvtGen");
+  //
+  // set external decayer
+  TVirtualMCDecayer* decayer = new AliDecayerPythia();
+  decayer->SetForceDecay(kAll);
+  decayer->Init();
+  gMC->SetExternalDecayer(decayer);
+
+  comment = comment.Append(Form(" | jpsi, psi(2S) -> ee (%s, %.1f/%.1f/%.1f/%.d)", params, jpsifrac, lowfrac, highfrac, isPrompt));
+
+  //Generating a cocktail signal undecayed + evtgen
+  AliGenCocktail *gener = new AliGenCocktail();
+
+  AliGenCocktail *generJpsi = 0x0; 
+  AliGenCocktail *generPsi  = 0x0; 
+  AliGenPythia *pythia = 0x0;
+  
+  if(isPrompt){
+  //Generating a cocktail for prompt jpsi + psi
+  generJpsi = GeneratorPromptPsi(params, jpsifrac,lowfrac,highfrac,kFALSE);
+  generPsi = GeneratorPromptPsi(Form("%s_psi",params), jpsifrac,lowfrac,highfrac,kTRUE);
+  }else{
+  // Jpsi from B
+  pythia = new AliGenPythia(-1);
+  pythia->SetMomentumRange(0, 999999.);
+  pythia->SetThetaRange(0., 180.);
+  pythia->SetYRange(-2., 2.);
+  pythia->SetPtRange(0, 1000.);
+  pythia->SetProcess(kPyBeautyppMNRwmi);
+  pythia->SetEnergyCMS(energyConfig);
+  pythia->SetTune(kPythia6Tune_Perugia0);
+  pythia->UseNewMultipleInteractionsScenario();
+  pythia->SetForceDecay(kNoDecayBeauty);
+  pythia->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
+  }
+  //
+  // 
+  AliGenEvtGen *gene = new AliGenEvtGen(); 
+  gene->SetUserDecayTable(gSystem->ExpandPathName("$ALIDPG_ROOT/MC/CustomDecayTables/BTOPSIJPSITODIELECTRON.DEC"));
+  gene->SetParticleSwitchedOff(AliGenEvtGen::kHFPart);
+  
+  if (isPrompt) 
+  { 
+	  gener->AddGenerator(generJpsi,         "PromptJpsi",         1. );
+	  gener->AddGenerator(generPsi,         "PromptPsi2S",         1. );
+  }
+  else gener->AddGenerator(pythia,         "Pythia",         1. );
+  gener->AddGenerator(gene, "EvtGen", 1.);
+  //
+  return gener;
+}
+
+
+
 
 /*** NUCLEI EXOTICA ****************************************************/
 

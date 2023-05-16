@@ -37,6 +37,14 @@ Int_t IpJpsi_M(TRandom *)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------
+Int_t IpPsi_M(TRandom *)
+{
+  // Psi composition
+  return 100443;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Double_t PtJpsiPbPb5020_0020(const Double_t *px, const Double_t *dummy)
 {
   // J/Psi pT
@@ -122,6 +130,19 @@ Double_t PtJpsipp_13TeV(const Double_t *px, const Double_t *dummy)
   return kC * pt /TMath::Power((1. + (pt/kpt0)*(pt/kpt0)),kn);
 }
 
+Double_t PtPsipp_13TeV(const Double_t *px, const Double_t *par)
+{
+  // Inclusive Psi pT
+  // pp, 13TeV
+  //
+  const Double_t kC    = 2.47041e-01;
+  const Double_t kpt0  = 5.52745e+00;
+  const Double_t kn    = 4.41561e+00;
+  Double_t pt          = px[0];
+
+  return kC * pt /TMath::Power((1. + (pt/kpt0)*(pt/kpt0)), kn);
+}
+
 Double_t YJpsiFlat( const Double_t */*x*/, const Double_t */*dummy*/ )
 {
   return 1.;
@@ -146,5 +167,6 @@ AliGenParam* GenJPsiParaSet(TString option)
   else if(option == "UserParam_PbPb5TeV_4090")  genJpsi = new AliGenParam(1,-1, PtJpsiPbPb5020_4090, YJpsiFlat, V2Zero_M, IpJpsi_M);
   else if(option == "UserParam_pp13TeV")        genJpsi = new AliGenParam(1,-1, PtJpsipp_13TeV,      YJpsiFlat, V2Zero_M, IpJpsi_M);
   else if(option == "UserParam_pp13TeV_EtaC")   genJpsi = new AliGenParam(1,-1, PtJpsipp_13TeV,      YJpsiFlat, V2Zero_M, IpEtac_M);
+  else if(option == "UserParam_pp13TeV_psi")    genJpsi = new AliGenParam(1,-1, PtPsipp_13TeV,       YJpsiFlat, V2Zero_M, IpPsi_M);
   return genJpsi;
 }
