@@ -17,6 +17,7 @@ enum GenTypes {
   pythia_dirgamma_trig,
   pythia_gammajet_trig,
   pythia_particle_trig,
+  pythia8_JetJet,
   ntuple, 
   hijing, 
   hijingAP, 
@@ -43,6 +44,7 @@ TString gGenTypeNames[kNGenTypes] = {
   "pythia_dirgamma_trig",
   "pythia_gammajet_trig",
   "pythia_particle_trig",
+  "pythia8_JetJet",
   "ntuple",
   "hijing",
   "hijingAP",
@@ -633,6 +635,58 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       cocktail->AddGenerator(evtGen, "EvtGen", 1.);
       
       generator = cocktail;
+    }
+    break;
+
+    case pythia8_JetJet:
+    //*********************************************
+    // Example for Pythia8
+    //*********************************************
+    {
+      AliGenPythiaPlus *gener = new AliGenPythiaPlus(AliPythia8::Instance());
+
+      float energy = 14000;  // GeV
+      if (gSystem->Getenv("CONFIG_ENERGY")) {
+        energy = atof(gSystem->Getenv("CONFIG_ENERGY"));
+      }
+
+      // pt-hard, pt-trigger and quenching configuration
+      float pthardminConfig = 0.;
+      if (gSystem->Getenv("CONFIG_PTHARDMIN"))
+        pthardminConfig = atof(gSystem->Getenv("CONFIG_PTHARDMIN"));
+      float pthardmaxConfig = -1.;
+      if (gSystem->Getenv("CONFIG_PTHARDMAX"))
+        pthardmaxConfig = atof(gSystem->Getenv("CONFIG_PTHARDMAX"));
+      if (pthardmaxConfig != -1 && pthardmaxConfig <= pthardminConfig) {
+        printf(">>>>> Invalid max pt-hard: %f \n", pthardmaxConfig);
+        abort();
+      }
+
+      gener->SetMomentumRange(0, 999999.);
+      gener->SetThetaRange(0.4, 5.);
+      gener->SetYRange(0., 7.);
+      gener->SetPtRange(0, 1000.);
+
+      gener->SetEnergyCMS(energy);
+      // jets settings
+      gener->SetProcess(kPyJets);
+      // Careful using detector acceptance cuts and jet acceptance,
+      gener->SetJetEtaRange(3.2, 5.8); // Final state kinematic cuts
+      gener->SetJetPhiRange(0., 360.);
+      gener->SetJetEtRange(0., 1000.);
+      gener->SetPtHard(pthardminConfig, pthardmaxConfig); // Pt transfer of the hard scattering
+      gener->SetStrucFunc(kCTEQ5L);
+      gener->SetTune(14); // Monash 2013 tune
+
+      long seedConfig = TDatime().Get();
+      if (gSystem->Getenv("CONFIG_SEED"))
+        seedConfig = atoi(gSystem->Getenv("CONFIG_SEED"));
+
+      (AliPythia8::Instance())->ReadString("Random:setSeed = on");
+      (AliPythia8::Instance())->ReadString(Form("Random:seed = %ld", seedConfig % 900000000)); 
+      (AliPythia8::Instance())->ReadString("111:mayDecay = on");
+
+      generator = gener;
     }
     break;
 
