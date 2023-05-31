@@ -51,13 +51,13 @@ AliGenerator *GeneratorCustom(TString opt = "")
     else
       triggerPart = triggerParticleSecond[channelOption];
   }
-	else if (channelOption == 5) {
-		// Xic0 / Xic+ sharing
-		if (uidConfig%12 <= 7) // Xic0 in 2/3 of the events
-			triggerPart = triggerParticleFirst[channelOption];
-		else
-			triggerPart = triggerParticleSecond[channelOption];
-	}
+  else if (channelOption == 5) {
+    // Xic0 / Xic+ sharing
+    if (uidConfig%12 <= 7) // Xic0 in 2/3 of the events
+      triggerPart = triggerParticleFirst[channelOption];
+    else
+      triggerPart = triggerParticleSecond[channelOption];
+  }
 
   AliGenPythiaPlus* pyth = (AliGenPythiaPlus*)GeneratorPythia8(kPythia8Tune_Monash2013);
   Double_t etaMax = 999.;
