@@ -19,7 +19,7 @@ AliGenerator *GeneratorCustom(TString opt = "")
 
   //Switches for prompt/nonprompt, sign of trigger particle, trigger particle
   Int_t triggerParticleFirst[nOptions] = {431, 431, 4132, 4122, 4122, 4132, 4122};
-  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 0, 0};
+  Int_t triggerParticleSecond[nOptions] = {0, 411, 4232, 0, 0, 4232, 0};
   Process_t process; //charm or beauty
   Int_t sign = 0; //Sign of trigger particle
   Int_t triggerPart = triggerParticleFirst[channelOption]; //trigger particle
@@ -44,15 +44,22 @@ AliGenerator *GeneratorCustom(TString opt = "")
     else
       triggerPart = triggerParticleSecond[channelOption];
   }
-  else if (channelOption == 2) {
-    // Xic0 / Xic+ sharing
-    if (uidConfig%12 <= 3) // Xic0 in 1/3 of the events
-      triggerPart = triggerParticleFirst[channelOption];
-    else
-      triggerPart = triggerParticleSecond[channelOption];
-  }
+	else if (channelOption == 2) {
+		// Xic0 / Xic+ sharing
+		if (uidConfig%12 <= 3) // Xic0 in 1/3 of the events
+			triggerPart = triggerParticleFirst[channelOption];
+		else
+			triggerPart = triggerParticleSecond[channelOption];
+	}
+	else if (channelOption == 5) {
+		// Xic0 / Xic+ sharing
+		if (uidConfig%12 <= 7) // Xic0 in 2/3 of the events
+			triggerPart = triggerParticleFirst[channelOption];
+		else
+			triggerPart = triggerParticleSecond[channelOption];
+	}
 
-  AliGenPythiaPlus* pyth = (AliGenPythiaPlus*)GeneratorPythia8(kPythia8Tune_Monash2013);
+	AliGenPythiaPlus* pyth = (AliGenPythiaPlus*)GeneratorPythia8(kPythia8Tune_Monash2013);
   Double_t etaMax = 999.;
   if(channelOption == 2)
     etaMax = 2.;
