@@ -24,8 +24,7 @@ AliGenerator *GeneratorCustom()
       {1, "f2(1270)", 225, 20., 0.9},
       {1, "f0(1370)", 10221, 20., 0.9},
       {1, "f1(1285)", 20223, 20., 0.9},
-      {1, "f1(1420)", 20333, 20., 0.9}
-  };
+      {1, "f1(1420)", 20333, 20., 0.9}};
 
   // Force decay mode of f0(1500) to K0s K0s - disabled since it's configured in the decay table directly
   // (AliPythia8::Instance())->ReadString("9030221:onMode = off");
@@ -55,7 +54,6 @@ AliGenerator *GeneratorCustom()
   (AliPythia8::Instance())->ReadString("20333:onMode = off");
   (AliPythia8::Instance())->ReadString("20333:oneChannel = 1 1.00 0 310 -321 211");
   (AliPythia8::Instance())->ReadString("20333:onIfMatch = 310 -321 211");
-
 
   AliDecayerPythia *dec = new AliDecayerPythia;
   AliPDG::AddParticlesToPdgDataBase();
