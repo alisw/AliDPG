@@ -11,19 +11,6 @@ AliGenerator *GeneratorCustom(TString opt = "Ds2")
   // Pt transfer of the hard scattering (set for all cases)
   pyth->SetPtHard(pthardminConfig, pthardmaxConfig);
 
-  //setting multiplicity threshold
-  TString multthr = opt;
-  Int_t stop = opt.First('_');
-  if(stop==-1) {
-    printf("Warning! Multiplicity threshold has to be set via the macro parameter!\n");
-  return 0x0;
-  }
-  multthr.Remove(0,stop+1);
-  pyth->SetTriggerChargedMultiplicity(multthr.Atoi(), 1.2);
-
-  printf(">>>>> HF generator with mult threshold %d\n", multthr.Atoi());
-
-
   // Configuration of decayer
   pyth->SetForceDecay(kHadronicDWithout4Bodies);
   if (iprocess == 0) {
