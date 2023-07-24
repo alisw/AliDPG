@@ -12,7 +12,7 @@ AliGenerator *GeneratorCustom(TString opt = "Ds2")
   pyth->SetPtHard(pthardminConfig, pthardmaxConfig);
 
   // Configuration of decayer
-  pyth->SetForceDecay(kHadronicDWithout4Bodies);
+  pyth->SetForceDecay(kDsResonances);
   if (iprocess == 0) {
     if (opt.EqualTo("Ds1")){
       pyth->SetReplaceD(413, 10433);
