@@ -30,7 +30,7 @@ enum GenTypes {
   PA_cocktail_particleTrig,
   jpsiAndPythiaMB,
   pi0WithPileup,
-  //hydjet,
+  hydjet,
   kNGenTypes
 };
 
@@ -59,8 +59,8 @@ TString gGenTypeNames[kNGenTypes] = {
   "PA_cocktail_gammajet",
   "PA_cocktail_particleTrig",
   "jpsiAndPythiaMB",
-  "pi0WithPileup"
-  //"hydjet"
+  "pi0WithPileup",
+  "hydjet"
 };
 
 
