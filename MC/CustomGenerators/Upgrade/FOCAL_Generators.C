@@ -1156,8 +1156,8 @@ AliGenerator* GeneratorCustom(TString opt = "") {
     };
     break;
 
-    //case hydjet:
-    //{
+    case hydjet:
+    {
     /*////////////////////////////////////////////////////////////////////////////////////////
 
     The estimation of momentum and spatial anisotropy parameters for different centralities
@@ -1194,7 +1194,6 @@ specified below (the standard Woods-Saxon nucleon distribution is assumed).
 70		            1.93               1.97 
 75		            2.01               2.06
 */
-/*
       float bmin = 0.0;
       if (gSystem->Getenv("CONFIG_BMIN")) {
         bmin = atof(gSystem->Getenv("CONFIG_BMIN"));
@@ -1214,11 +1213,9 @@ specified below (the standard Woods-Saxon nucleon distribution is assumed).
       uhkm->SetMomAsymmPar(0.35);             // fDelta
       uhkm->SetCoordAsymmPar(0.14);           // fEpsilon
       
-      generator = uhkm;*/
-    //}
-    //break;
-    
+      generator = uhkm;
+    }
+    break;
   }  // end switch
-  
   return generator;
 }
