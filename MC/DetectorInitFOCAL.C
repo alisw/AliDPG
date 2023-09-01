@@ -90,8 +90,8 @@ Special FOCAL simulations detector init
   if (iPIPE) {
     //=================== PIPE parameters (special FOCAL PIPE) ============================
     AliPIPEFOCAL *PIPE = new AliPIPEFOCAL("PIPE", "Beam Pipe");
-    PIPE->SetConical(25, 470);
-    PIPE->SetZflange(483.8);
+    PIPE->SetConical(25, 473.3);
+    PIPE->SetZflange(483.75);
     PIPE->SetR2(3.0);
     PIPE->SetIsConeBe(1);
     PIPE->SetIsFlangeBe(1);
