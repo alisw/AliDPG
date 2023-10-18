@@ -30,7 +30,7 @@ enum GenTypes {
   PA_cocktail_particleTrig,
   jpsiAndPythiaMB,
   pi0WithPileup,
-  hydjet,
+//  hydjet,
   kNGenTypes
 };
 
@@ -59,8 +59,8 @@ TString gGenTypeNames[kNGenTypes] = {
   "PA_cocktail_gammajet",
   "PA_cocktail_particleTrig",
   "jpsiAndPythiaMB",
-  "pi0WithPileup",
-  "hydjet"
+  "pi0WithPileup"
+  //"hydjet"
 };
 
 
@@ -612,7 +612,17 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       pythiaFOCAL->SetCutVertexZ(1.); // Truncate at 1 sigma 
       pythiaFOCAL->SetVertexSmear(kPerEvent); // Smear per event 
       pythiaFOCAL->SetTrackingFlag(1); // Particle transport 
-      pythiaFOCAL->SetProcess(kPyMb);
+      
+      if (pdg == 443) {
+        pythiaFOCAL->SetProcess(kPyJpsi);
+      } else if (pdg == 553 || pdg == 100553 || pdg == 200553) {
+        pythiaFOCAL->SetProcess(kPyBeauty);
+      } else if (pdg == 23) {
+        pythiaFOCAL->SetProcess(kPyZ);
+      } else {
+        pythiaFOCAL->SetProcess(kPyMb);
+      }
+
       pythiaFOCAL->SetCheckParticleInFOCAL(pdg);
       pythiaFOCAL->SetUseRapidity();
       pythiaFOCAL->SetCheckFOCAL(kTRUE);  
@@ -738,12 +748,14 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       gener->SetProjectile("A", 208, 82); // projectile 
       gener->SetTarget ("A", 208, 82); // projectile 
       gener->KeepFullEvent(); // HIJING will keep the full parent child chain 
-      gener->SetJetQuenching(1); // enable jet quenching 
+      gener->SetJetQuenching(0); // enable jet quenching 
       gener->SetShadowing(1); // enable shadowing 
-      gener->SetDecaysOff(1); // neutral pion and heavy particle decays switched off 
+      //gener->SetDecaysOff(1); // neutral pion and heavy particle decays switched off 
       gener->SetSpectators(0); // Don't track spectators 
+      gener->SetDataDrivenSpectators();
       gener->SetSelectAll(0); // kinematic selection 
       gener->SetImpactParameterRange(bmin, bmax); // Impact parameter range (fm) 
+      gener->SetPtHardMin(2.9);
       generator = gener;
     }
     break;
@@ -786,7 +798,7 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       }
       TString collidingSystem = "p-Pb";
       if (gSystem->Getenv("CONFIG_SYSTEM")) {
-        collidingSystem = gSystem->Getenv("CONFIG_PDG");
+        collidingSystem = gSystem->Getenv("CONFIG_SYSTEM");
       }
 
       AliGenHijing *hijing = new AliGenHijing(-1); 
@@ -832,7 +844,7 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       }
       TString collidingSystem = "p-Pb";
       if (gSystem->Getenv("CONFIG_SYSTEM")) {
-        collidingSystem = gSystem->Getenv("CONFIG_PDG");
+        collidingSystem = gSystem->Getenv("CONFIG_SYSTEM");
       }
       int nbkg = 0;      
       if (gSystem->Getenv("CONFIG_NBKG")) {
@@ -1156,8 +1168,8 @@ AliGenerator* GeneratorCustom(TString opt = "") {
     };
     break;
 
-    case hydjet:
-    {
+    //case hydjet:
+    //{
     /*////////////////////////////////////////////////////////////////////////////////////////
 
     The estimation of momentum and spatial anisotropy parameters for different centralities
@@ -1194,7 +1206,7 @@ specified below (the standard Woods-Saxon nucleon distribution is assumed).
 70		            1.93               1.97 
 75		            2.01               2.06
 */
-      float bmin = 0.0;
+      /*float bmin = 0.0;
       if (gSystem->Getenv("CONFIG_BMIN")) {
         bmin = atof(gSystem->Getenv("CONFIG_BMIN"));
       }
@@ -1215,7 +1227,7 @@ specified below (the standard Woods-Saxon nucleon distribution is assumed).
       
       generator = uhkm;
     }
-    break;
+    break;*/
   }  // end switch
   return generator;
 }
