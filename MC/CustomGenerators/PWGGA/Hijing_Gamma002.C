@@ -26,7 +26,7 @@ GeneratorCustom()
   }
   
   // PCM
-  TFormula* neutralsF  = new TFormula("neutrals",  "max(1.,470.*(x<5.)+120.*(x>7.5)*(x<12.5))");
+  TFormula* neutralsF  = new TFormula("neutrals",  "max(1.,470.*(x<5.)+72.*(x>7.5)*(x<12.5))");
   Int_t ntimes = 1;
   if ( isEmbedding )
   {
