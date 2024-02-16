@@ -1162,6 +1162,28 @@ GeneratorEPOSLHC(Bool_t pileup)
 			  fifoname.Data(), nEventsEpos,
 			  projectileId, projectileEnergy,
 			  targetId, targetEnergy,pileup));
+
+  // Wait till 10 seconds if the crmceventfifo(_pileup) file with hep data does not exist
+  // try 100 times, if not, let it continue
+  Bool_t ok = kFALSE;
+  Int_t niter = 0;
+  while ( !ok  )
+  {
+    if ( gSystem->AccessPathName(fifoname) )
+    {
+      printf(" ... EPOS input file not found wait 10 seconds, iteration %d ... \n", niter);
+      gROOT->ProcessLine(".! sleep 10");
+      niter++;
+    }
+    else
+    {
+      ok = kTRUE;
+    }
+
+    // Avoid more iterations, if we really get to that
+    if ( niter > 99 )  ok = kTRUE;
+  }
+
   //
   // connect HepMC reader
   AliGenReaderHepMC *reader = new AliGenReaderHepMC();
