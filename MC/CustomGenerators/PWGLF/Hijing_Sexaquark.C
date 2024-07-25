@@ -36,7 +36,7 @@ AliGenerator *GeneratorCustom(TString opt = "") {
 
     AliGenSexaquarkReaction *sr = new AliGenSexaquarkReaction(20, mass_sexaquark, reaction_channel);
     sr->SetPtRange(0., 5.);                // GeV/c
-    sr->SetPhiRange(0., 2 * TMath::Pi());  // radians
+    sr->SetPhiRange(0., 360.);  // degrees
     sr->SetYRange(-0.8, 0.8);
     sr->SetRadiusRange(5., 180.);  // cm
 
