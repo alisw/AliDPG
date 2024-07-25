@@ -1256,10 +1256,10 @@ GeneratorHijing()
 
 AliGenerator *
 GeneratorStarlight(){
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-  printf("ERROR: Starlight not yet compatible with ROOT 6!\n");
-  return NULL;
-#else
+//#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+//  printf("ERROR: Starlight not yet compatible with ROOT 6!\n");
+//  return NULL;
+//#else
   gSystem->Load("libStarLight.so");
   gSystem->Load("libAliStarLight.so");
 
@@ -1504,7 +1504,7 @@ GeneratorStarlight(){
   genCocktail->AddGenerator(genStarLight,"StarLight",1.);
   genCocktail->AddGenerator(genEvtGen,"EvtGen",1.);
   return genCocktail;
-#endif
+//#endif
 }
 
 
