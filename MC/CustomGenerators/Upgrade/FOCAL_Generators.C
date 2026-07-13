@@ -20,14 +20,17 @@ enum GenTypes {
   pythia8_JetJet,
   ntuple, 
   hijing, 
-  hijingAP, 
+  hijingAP,
+  hijingAPmb, 
   PA_cocktail_dirgam, 
   PA_cocktail_MBtrig, 
   PA_cocktail_EPOS_MBtrig, 
   PA_cocktail_EPOS_dirgam,
+  PA_cocktail_gammajet,
+  PA_cocktail_particleTrig,
   jpsiAndPythiaMB,
   pi0WithPileup,
-  hydjet,
+//  hydjet,
   kNGenTypes
 };
 
@@ -48,13 +51,16 @@ TString gGenTypeNames[kNGenTypes] = {
   "ntuple",
   "hijing",
   "hijingAP",
+  "hijingAPmb",
   "PA_cocktail_dirgam",
   "PA_cocktail_MBtrig",
   "PA_cocktail_EPOS_MBtrig",
   "PA_cocktail_EPOS_dirgam",
+  "PA_cocktail_gammajet",
+  "PA_cocktail_particleTrig",
   "jpsiAndPythiaMB",
-  "pi0WithPileup",
-  "hydjet"
+  "pi0WithPileup"
+  //"hydjet"
 };
 
 
@@ -577,14 +583,17 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       if (gSystem->Getenv("CONFIG_PTMIN")) {
         ptmin = atof(gSystem->Getenv("CONFIG_PTMIN"));
       }
-      int pdg = kGamma;
+      int pdg = 22;   // gamma
       if (gSystem->Getenv("CONFIG_PDG")) {
         pdg = atoi(gSystem->Getenv("CONFIG_PDG"));
       }
             
       // set external decayer
       TVirtualMCDecayer* decayer = new AliDecayerPythia();
-      decayer->SetForceDecay(kAll);
+      //decayer->SetForceDecay(kAll);
+      if (pdg==23 || pdg==443 || pdg==553 || pdg==100553 || pdg==200553 || pdg==221 || pdg==223) {
+        ((AliDecayerPythia*)decayer)->SwitchOffParticle(pdg);
+      }
       decayer->Init();
       gMC->SetExternalDecayer(decayer);
       
@@ -603,18 +612,31 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       pythiaFOCAL->SetCutVertexZ(1.); // Truncate at 1 sigma 
       pythiaFOCAL->SetVertexSmear(kPerEvent); // Smear per event 
       pythiaFOCAL->SetTrackingFlag(1); // Particle transport 
-      pythiaFOCAL->SetProcess(kPyMb);
+      
+      if (pdg == 443) {
+        pythiaFOCAL->SetProcess(kPyJpsi);
+      } else if (pdg == 553 || pdg == 100553 || pdg == 200553) {
+        pythiaFOCAL->SetProcess(kPyBeauty);
+      } else if (pdg == 23) {
+        pythiaFOCAL->SetProcess(kPyZ);
+      } else {
+        pythiaFOCAL->SetProcess(kPyMb);
+      }
+
       pythiaFOCAL->SetCheckParticleInFOCAL(pdg);
       pythiaFOCAL->SetUseRapidity();
       pythiaFOCAL->SetCheckFOCAL(kTRUE);  
-      pythiaFOCAL->SetFOCALEta(3.0, 6.2);
+      pythiaFOCAL->SetFOCALEta(3.4, 5.8);
       pythiaFOCAL->SetTriggerParticleMinPt(ptmin);
+      //pythiaFOCAL->SetForceDecay(kNoDecay);
       cocktail->AddGenerator(pythiaFOCAL, "PythiaFOCAL", 1.);
       
       AliGenEvtGen *evtGen = new AliGenEvtGen();
       if (pdg==23 || pdg==443 || pdg==553 || pdg==100553 || pdg==200553 || pdg==221 || pdg==223) {   // this is needed to force special decay channels
+        //std::string decayTable ("CUSTOMDECAYS.DEC");
+        //evtGen->SetUserDecayTable(const_cast<char*>(decayTable.c_str()));              
         char* decayTable = "CUSTOMDECAYS.DEC";
-        evtGen->SetUserDecayTable(decayTable);              
+        evtGen->SetUserDecayTable(decayTable);     //aa         
       }
       if (pdg==23) {
         evtGen->SetForceDecay(kZDiElectron);
@@ -726,12 +748,14 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       gener->SetProjectile("A", 208, 82); // projectile 
       gener->SetTarget ("A", 208, 82); // projectile 
       gener->KeepFullEvent(); // HIJING will keep the full parent child chain 
-      gener->SetJetQuenching(1); // enable jet quenching 
+      gener->SetJetQuenching(0); // enable jet quenching 
       gener->SetShadowing(1); // enable shadowing 
-      gener->SetDecaysOff(1); // neutral pion and heavy particle decays switched off 
+      //gener->SetDecaysOff(1); // neutral pion and heavy particle decays switched off 
       gener->SetSpectators(0); // Don't track spectators 
+      gener->SetDataDrivenSpectators();
       gener->SetSelectAll(0); // kinematic selection 
       gener->SetImpactParameterRange(bmin, bmax); // Impact parameter range (fm) 
+      gener->SetPtHardMin(2.9);
       generator = gener;
     }
     break;
@@ -766,26 +790,95 @@ AliGenerator* GeneratorCustom(TString opt = "") {
     }
     break;
       
+    case hijingAPmb:
+    {
+      float energy = 8790.0;
+      if (gSystem->Getenv("CONFIG_ENERGY")) {
+        energy = atof(gSystem->Getenv("CONFIG_ENERGY"));
+      }
+      TString collidingSystem = "p-Pb";
+      if (gSystem->Getenv("CONFIG_SYSTEM")) {
+        collidingSystem = gSystem->Getenv("CONFIG_SYSTEM");
+      }
+
+      AliGenHijing *hijing = new AliGenHijing(-1); 
+      // Take collision energy from command line params if specified      
+      hijing->SetEnergyCMS(energy); // center of mass energy 
+      hijing->SetReferenceFrame("CMS"); // reference frame 
+      hijing->SetBoostLHC(0.0);   // No boost for now; need to check sign
+      if (collidingSystem.Contains("p-Pb")) {
+        hijing->SetProjectile("A", 208, 82); // projectile proton
+        hijing->SetTarget ("P", 1, 1); // projectile Pb nucleus
+      } else if (collidingSystem.Contains("Pb-p")) {
+        hijing->SetProjectile("P", 1, 1); // projectile proton
+        hijing->SetTarget("A", 208, 82); // projectile Pb nucleus
+      }
+      hijing->KeepFullEvent(); // HIJING will keep the full parent child chain 
+      hijing->SetJetQuenching(1); // enable jet quenching 
+      hijing->SetShadowing(1); // enable shadowing 
+      hijing->SetDecaysOff(1); // neutral pion and heavy particle decays switched off 
+      hijing->SetSpectators(0); // Don't track spectators 
+      hijing->SetSelectAll(0); // kinematic selection 
+      hijing->SetImpactParameterRange(0., 15.); // Impact parameter range (fm) 
+
+      generator = hijing;
+    }
+    break;
+
     case PA_cocktail_dirgam:
     case PA_cocktail_MBtrig:
+    case PA_cocktail_gammajet:
+    case PA_cocktail_particleTrig:
     {
+      float ptmin = 0.0;      
+      if (gSystem->Getenv("CONFIG_PTMIN")) {
+        ptmin = atof(gSystem->Getenv("CONFIG_PTMIN"));
+      }      
+      float energy = 8790.0;
+      if (gSystem->Getenv("CONFIG_ENERGY")) {
+        energy = atof(gSystem->Getenv("CONFIG_ENERGY"));
+      }
+      int pdg = 22;   // gamma
+      if (gSystem->Getenv("CONFIG_PDG")) {
+        pdg = atoi(gSystem->Getenv("CONFIG_PDG"));
+      }
+      TString collidingSystem = "p-Pb";
+      if (gSystem->Getenv("CONFIG_SYSTEM")) {
+        collidingSystem = gSystem->Getenv("CONFIG_SYSTEM");
+      }
+      int nbkg = 0;      
+      if (gSystem->Getenv("CONFIG_NBKG")) {
+        nbkg = atoi(gSystem->Getenv("CONFIG_NBKG"));
+      } 
+
+      // set external decayer
+      TVirtualMCDecayer* decayer = nullptr;
+      if (generatorType == PA_cocktail_particleTrig) {
+        decayer = new AliDecayerPythia();
+        if (pdg==23 || pdg==443 || pdg==553 || pdg==100553 || pdg==200553 || pdg==221 || pdg==223) {
+          ((AliDecayerPythia*)decayer)->SwitchOffParticle(pdg);
+        }
+        decayer->Init();
+        gMC->SetExternalDecayer(decayer);
+      }
+      
       AliGenCocktail *cocktail = new AliGenCocktail();
       cocktail->SetOrigin(0, 0, 0); // Vertex position
       cocktail->SetSigma(0, 0, 5.8); // Sigma in (X,Y,Z) (cm) on IP position
       cocktail->SetVertexSmear(kPerEvent); // Smear per event
 
       AliGenHijing *hijing = new AliGenHijing(-1); 
-      // Take collision energy from command line params if specified
-      float energy = 8790.0;
-      if (gSystem->Getenv("CONFIG_ENERGY")) {
-        energy = atof(gSystem->Getenv("CONFIG_ENERGY"));
-      }
-      
+      // Take collision energy from command line params if specified      
       hijing->SetEnergyCMS(energy); // center of mass energy 
       hijing->SetReferenceFrame("CMS"); // reference frame 
       hijing->SetBoostLHC(0.0);   // No boost for now; need to check sign
-      hijing->SetProjectile("A", 208, 82); // projectile proton
-      hijing->SetTarget ("P", 1, 1); // projectile Pb nucleus
+      if (collidingSystem.Contains("p-Pb")) {
+        hijing->SetProjectile("A", 208, 82); // projectile proton
+        hijing->SetTarget ("P", 1, 1); // projectile Pb nucleus
+      } else if (collidingSystem.Contains("Pb-p")) {
+        hijing->SetTarget("A", 208, 82); // projectile Pb nucleus
+        hijing->SetProjectile("P", 1, 1); // projectile proton
+      }
       hijing->KeepFullEvent(); // HIJING will keep the full parent child chain 
       hijing->SetJetQuenching(1); // enable jet quenching 
       hijing->SetShadowing(1); // enable shadowing 
@@ -794,11 +887,13 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       hijing->SetSelectAll(0); // kinematic selection 
       hijing->SetImpactParameterRange(0., 15.); // Impact parameter range (fm) 
       //hijing->UnsetDataDrivenSpectators();
-      cocktail->AddGenerator(hijing,"Hijing",1.);
+      if (TMath::Abs(nbkg)>0) {
+        cocktail->AddGenerator(hijing,"Hijing",1., 0, TMath::Abs(nbkg));
+      }
 
       AliGenPythiaFOCAL *pythia = new AliGenPythiaFOCAL(-1);
       pythia->SetMomentumRange(0,999999);
-      pythia->SetThetaRange(0., 45.);
+      //pythia->SetThetaRange(0., 45.);
       pythia->SetYRange(-12,12);
       pythia->SetPtRange(0,1000);
       pythia->SetEnergyCMS(energy); // LHC energy
@@ -806,15 +901,54 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       if (generatorType == PA_cocktail_dirgam) {
         pythia->SetProcess(kPyDirectGamma); // Direct photon events
         pythia->SetFragPhotonInFOCAL(kTRUE);
+      } 
+      else if (generatorType == PA_cocktail_gammajet) {
+        pythia->SetProcess(kPyDirectGamma);
+        pythia->SetDirPhotonInFOCAL(kTRUE);        
       }
-      else {
+      else if (generatorType == PA_cocktail_MBtrig) {
         pythia->SetProcess(kPyMb); // MB events
         pythia->SetDecayPhotonInFOCAL(kTRUE);
       }
+      else {      // PA_cocktail_particleTrig
+        pythia->SetProcess(kPyMb);
+        pythia->SetCheckParticleInFOCAL(pdg);
+        pythia->SetUseRapidity();
+      } 
       pythia->SetCheckFOCAL(kTRUE);
-      pythia->SetFOCALEta(3.0, 6.2);
-      pythia->SetTriggerParticleMinPt(5.0);
-      cocktail->AddGenerator(pythia,"Pythia",1.);
+      pythia->SetFOCALEta(3.4, 5.8);
+      pythia->SetTriggerParticleMinPt(ptmin);
+      if (nbkg>=0) {    //  NOTE: If nbkg is specified as negative, then do not include the pythia triggered event (we will run just the bkg MB events)
+        cocktail->AddGenerator(pythia,"Pythia",1.);
+      }
+
+      AliGenEvtGen *evtGen = nullptr;
+      if (generatorType == PA_cocktail_particleTrig) {
+        evtGen = new AliGenEvtGen();
+        if (pdg==23 || pdg==443 || pdg==553 || pdg==100553 || pdg==200553 || pdg==221 || pdg==223) {   // this is needed to force special decay channels
+          //std::string decayTable ("CUSTOMDECAYS.DEC");
+          //evtGen->SetUserDecayTable(const_cast<char*>(decayTable.c_str()));              
+          char* decayTable = "CUSTOMDECAYS.DEC";
+          evtGen->SetUserDecayTable(decayTable);
+        }
+        if (pdg==23) {
+          evtGen->SetForceDecay(kZDiElectron);
+          evtGen->SetParticleSwitchedOff(AliGenEvtGen::kAllPart);
+        }
+        if (pdg==443) {
+          evtGen->SetForceDecay(kDiElectron);
+          evtGen->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);      
+        }
+        if (pdg==553 || pdg==100553 || pdg==200553) {
+          evtGen->SetForceDecay(kDiElectron);
+          evtGen->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);      
+        }
+        if (pdg==221 || pdg==223) {
+          evtGen->SetParticleSwitchedOff(AliGenEvtGen::kAllPart);        
+        }
+        evtGen->Init();
+        cocktail->AddGenerator(evtGen, "EvtGen", 1.);
+      }
 
       generator = cocktail;	
     }
@@ -1008,9 +1142,11 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       gener->SetProcess(kPyMb); // Min. bias events 
       gener->SetDecayPhotonInFOCAL(kTRUE);        // trigger mostly on pi0 
       gener->SetCheckFOCAL(kTRUE);  
-      gener->SetFOCALEta(3.0, 6.2);
+      gener->SetFOCALEta(3.4, 5.8);
       gener->SetTriggerParticleMinPt(ptmin);
-      cocktail->AddGenerator(gener, "PythiaTriggered", 1.0);
+      if (nbkg>=0) {    //  NOTE: If nbkg is specified as negative, then do not include the pythia triggered event (we will run just the bkg MB events)
+        cocktail->AddGenerator(gener, "PythiaTriggered", 1.0);
+      }
       
       AliGenPythia *pythiaMB = new AliGenPythia(-1); 
       pythiaMB->SetMomentumRange(0,999999); 
@@ -1024,16 +1160,16 @@ AliGenerator* GeneratorCustom(TString opt = "") {
       pythiaMB->SetCutVertexZ(1.); // Truncate at 1 sigma 
       pythiaMB->SetVertexSmear(kPerEvent); // Smear per event 
       pythiaMB->SetTrackingFlag(1); // Particle transport 
-      if (nbkg>0) {
-        cocktail->AddGenerator(pythiaMB, "PythiaMB", 1.0, 0, nbkg);
+      if (TMath::Abs(nbkg)>0) {
+        cocktail->AddGenerator(pythiaMB, "PythiaMB", 1.0, 0, TMath::Abs(nbkg));
       }
       
       generator = cocktail;
     };
     break;
 
-    case hydjet:
-    {
+    //case hydjet:
+    //{
     /*////////////////////////////////////////////////////////////////////////////////////////
 
     The estimation of momentum and spatial anisotropy parameters for different centralities
@@ -1070,8 +1206,7 @@ specified below (the standard Woods-Saxon nucleon distribution is assumed).
 70		            1.93               1.97 
 75		            2.01               2.06
 */
-
-      float bmin = 0.0;
+      /*float bmin = 0.0;
       if (gSystem->Getenv("CONFIG_BMIN")) {
         bmin = atof(gSystem->Getenv("CONFIG_BMIN"));
       }
@@ -1092,9 +1227,7 @@ specified below (the standard Woods-Saxon nucleon distribution is assumed).
       
       generator = uhkm;
     }
-    break;
-    
+    break;*/
   }  // end switch
-  
   return generator;
 }
