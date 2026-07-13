@@ -2,33 +2,57 @@
 // pythia8 will be triggered on jpsi in the barrel (|y|<1.5) with pt>0
 AliGenerator *GeneratorCustom(TString opt = "")
 {
+    // load libraries to use Evtgen
+    gSystem->Load("libPhotos");
+    gSystem->Load("libEvtGen");
+    gSystem->Load("libEvtGenExternal");
+    gSystem->Load("libTEvtGen");
 
-    TVirtualMCDecayer* decayer = new AliDecayerPythia();
-    //decayer->SetForceDecay(kAll);
-    ((AliDecayerPythia*)decayer)->SwitchOffParticle(pdg);
+    // set external decayer
+  TVirtualMCDecayer* decayer = new AliDecayerPythia();
+  decayer->SetForceDecay(kAll);
+  decayer->Init();
+  ((AliDecayerPythia*)decayer)->SwitchOffParticle(443);
+  gMC->SetExternalDecayer(decayer);
+
+  //Generating a cocktail signal undecayed + evtgen
+  AliGenCocktail *gener = new AliGenCocktail();
+  gener->UsePerEventRates();
+
+  AliGenEvtGen *gene = new AliGenEvtGen(); 
+  gene->SetUserDecayTable(gSystem->ExpandPathName("$ALIDPG_ROOT/MC/CustomDecayTables/BTOPSIJPSITODIELECTRON.DEC"));
+  gene->SetParticleSwitchedOff(AliGenEvtGen::kHFPart);
+
+    /*TVirtualMCDecayer* decayer = new AliDecayerPythia();
+    decayer->SetForceDecay(kAll);
+    ((AliDecayerPythia*)decayer)->SwitchOffParticle(443);
     decayer->Init();
-    gMC->SetExternalDecayer(decayer);
+    gMC->SetExternalDecayer(decayer);*/
 
     AliGenPythiaPlus* pythia8 = (AliGenPythiaPlus*)GeneratorPythia8(kPythia8Tune_Monash2013);
-    pythia8->SetTriggerParticle(443, 1.5);
-    pythia8->SetTriggerY(1.5);
+    pythia8->SetTriggerParticle(443, 2.5);
+    pythia8->SetTriggerY(2.5);
     pythia8->SetMomentumRange(0, 999999.);
     pythia8->SetThetaRange(0., 180.);
-    pythia8->SetYRange(-2., 2.);
+    pythia8->SetYRange(-2.5, 2.5);
     pythia8->SetPtRange(0, 1000.);
+    //pythia8->SetForceDecay(kBJpsiUndecayed);
+    (AliPythia8::Instance())->ReadString("443:mayDecay = off");
+    cout << "Pythia8 generator configured for J/psi in the barrel with Monash 2013 tune" << endl;
+    //pythia8->SetStackFillOpt(AliGenPythia::kHeavyFlavor);
 
-    // not sure if this is needed, if not also remove from cocktail 
-    AliGenEvtGen *evtgen = new AliGenEvtGen();
-    evtGen->SetForceDecay(kDiElectron);
-    evtGen->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);      
-    evtGen->Init();
+    /*
+    AliGenEvtGen *gene = new AliGenEvtGen(); 
+    gene->SetUserDecayTable(gSystem->ExpandPathName("$ALIDPG_ROOT/MC/CustomDecayTables/BTOPSIJPSITODIELECTRON.DEC"));
+    gene->SetParticleSwitchedOff(AliGenEvtGen::kHFPart);
+    //gene->SetParticleSwitchedOff(AliGenEvtGen::kCharmPart);    
+    */
 
-    AliGenCocktail *gener = new AliGenCocktail();
-    gener->UsePerEventRates();
+    
 
     // cocktail
     gener->AddGenerator(pythia8, "pythia8jpsiTrig", 1.);
-    gener->AddGenerator(evtgen, "EvtGen", 1.);
+    gener->AddGenerator(gene, "EvtGen", 1.);
 
     //pyth->SetProcess(kPyHeavyFlavppMNRwmi);
     
